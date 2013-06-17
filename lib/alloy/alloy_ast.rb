@@ -62,7 +62,7 @@ module Alloy
       end
 
       def scalar?()            @type.scalar? end
-      def primitive?()         scalar? && @type.range.cls.primitive? end
+      def primitive?()         scalar? && @type.range.primitive? end
       def transient?()         @transient end
       def persistent?()        !@transient end
       def synth?()             @synth end
@@ -571,7 +571,16 @@ EOS
       def unary?() arity == 1 end
       def binary?() arity == 2 end
       def ternary?() arity == 3 end
-  
+
+      def primitive?() false end
+      def isInt?()    false end
+      def isFloat?()  false end
+      def isString?() false end
+      def isText?()   false end
+      def isDate?()   false end
+      def isTime?()   false end
+      def isBool?()   false end
+
       # @return [Symbol]
       def multiplicity
         @@DEFAULT_MULT  
@@ -852,18 +861,19 @@ EOS
         freeze
       end
 
-      def klass
-        @cls.klass
-      end
-      
-      def arity
-        1
-      end
-      
-      def column!(idx)
-        self
-      end
-      
+      def klass()      @cls.klass end
+      def arity()      1 end
+      def column!(idx) self end
+
+      def primitive?() @cls.primitive? end
+      def isInt?()     scalar? && IntColType === @cls end
+      def isFloat?()   scalar? && FloatColType === @cls end
+      def isString?()  scalar? && StringColType === @cls end
+      def isText?()    scalar? && TextColType === @cls end
+      def isDate?()    scalar? && DateColType === @cls end
+      def isTime?()    scalar? && TimeColType === @cls end
+      def isBool?()    scalar? && BoolColType === @cls end
+
       def to_s
         @cls.to_s
       end

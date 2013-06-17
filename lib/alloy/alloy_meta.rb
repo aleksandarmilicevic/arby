@@ -32,6 +32,7 @@ module Alloy
       end
 
       def _search_by_name(col, name)
+        return nil unless name
         col.find {|e| e.relative_name == name.relative_name}
       end
     end
