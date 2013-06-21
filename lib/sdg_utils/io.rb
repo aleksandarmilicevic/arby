@@ -16,6 +16,6 @@ module SDGUtils
         self
       end
     end
-    
+
   end
 end

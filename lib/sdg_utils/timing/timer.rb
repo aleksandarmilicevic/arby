@@ -15,10 +15,10 @@ module SDGUtils
           parent.children << self if parent
         end
       end
-      
+
       def initialize
         @stack = []
-        @root = Node.new("ROOT")        
+        @root = Node.new("ROOT")
 
         @tree_printer = SDGUtils::PrintUtils::TreePrinter.new({
           :indent_size => 2,

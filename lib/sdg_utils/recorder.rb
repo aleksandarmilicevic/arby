@@ -39,7 +39,7 @@ module SDGUtils
     def __print(obj)
       @buffer << obj.to_s
     end
-        
+
     def __newline
       __print "\n"
     end
@@ -61,12 +61,12 @@ module SDGUtils
             @buffer << "\n"
             r = Recorder.new :buffer => @buffer,
                              :indent => @indent + TAB,
-                             :var    => "", 
+                             :var    => "",
                              :block_var => @var
             r.instance_eval(block)
-          else          
-            block_args = block.arity.times.each_with_index.map do |x, idx| 
-              bv = block.arity == 1 ? @block_var : "#{@block_var}#{x}"            
+          else
+            block_args = block.arity.times.each_with_index.map do |x, idx|
+              bv = block.arity == 1 ? @block_var : "#{@block_var}#{x}"
               if @block_vars.size == block.arity
                 bv = @block_vars[idx]
               end
@@ -75,7 +75,7 @@ module SDGUtils
                            :var    => "#{bv}",
                            :block_var => "#{@block_var}_@{block_var}"
             end
-            @buffer << "|" << block_args.map {|a| a.var}.join(", ") << "| \n" 
+            @buffer << "|" << block_args.map {|a| a.var}.join(", ") << "| \n"
             block.call(*block_args)
           end
           @buffer << @indent << "end"
@@ -98,7 +98,7 @@ module SDGUtils
       super(hash)
       @buffer = ::SDGUtils::IO::LoggerIO.new(logger)
     end
-  end  
+  end
 
   class RecorderDelegator
     def initialize(obj, hash={})
@@ -106,7 +106,7 @@ module SDGUtils
     end
 
     def method_missing(name, *args, &block)
-      unless @target; return end        
+      unless @target; return end
       @recorder.method_missing(name, *args, &block)
       @target.send(name, *args, &block)
     end
@@ -132,6 +132,6 @@ module SDGUtils
     end
 
   end
-  
+
 
 end

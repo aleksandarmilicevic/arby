@@ -9,7 +9,7 @@ module SDGUtils
         @attrs = {}
       end
 
-      def body(body_text) 
+      def body(body_text)
         get_body().concat(body_text.to_s)
         self
       end
@@ -46,7 +46,7 @@ module SDGUtils
         require 'cgi'
         CGI::escapeHTML(str)
       end
-      
+
       def get_body() @body ||= "" end
       def get_attr(attr) @attrs[attr.to_s] ||= "" end
     end

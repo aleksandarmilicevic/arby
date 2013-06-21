@@ -2,7 +2,7 @@ require 'alloy/alloy_ast'
 
 module Alloy
   extend self
-  
+
   # =================================================================
   # Class +CResolver+
   #
@@ -84,7 +84,7 @@ module Alloy
       Alloy::Ast::UnaryType::ColType.get(type)
     end
   end
-    
+
   Resolver = Alloy::CResolver.new :baseklass => Alloy::Ast::Sig
   def resolver
     Alloy::Resolver

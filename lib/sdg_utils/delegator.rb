@@ -41,7 +41,7 @@ module SDGUtils
   end
 
   class AroundProxy < Proxy
-    def initialize(*args, &block) 
+    def initialize(*args, &block)
       @around_block = block
       super(*args)
     end

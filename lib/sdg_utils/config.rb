@@ -5,7 +5,7 @@ module SDGUtils
   # ====================================================
   # Class +Config+
   # ====================================================
-  class Config 
+  class Config
     include Enumerable
 
     def initialize(*args, &block)
@@ -13,14 +13,14 @@ module SDGUtils
       begin
         case
         when args.size == 2; _init(args[0], args[1])
-        when args.size == 1; 
+        when args.size == 1;
           if SDGUtils::Config === args[0]
             _init(args[0], {})
           else
             _init(nil, args[0])
           end
         when args.size == 0; _init(nil)
-        else 
+        else
           msg = "Wrong number of arguments. Expected 0, 1 or 2, got #{args.size}"
           raise ArgumentError msg
         end
@@ -34,13 +34,13 @@ module SDGUtils
       SDGUtils::Config.new(self, hash, &block)
     end
 
-    def parent_config() 
-      @parent_config 
+    def parent_config()
+      @parent_config
     end
-      
+
     def _init(parent_config, defaults={})
       @parent_config = parent_config
-      @opts = {} 
+      @opts = {}
       defaults.each {|k,v| self[k] = v }
 
       # generate getter methods for each available option
@@ -56,7 +56,7 @@ module SDGUtils
         nil
       end
     end
-    
+
     def []=(key, value)
       set_my_property(key, value)
     end
@@ -74,12 +74,12 @@ module SDGUtils
     end
 
     def keys
-      s = Set.new 
-      s += _parent_keys 
+      s = Set.new
+      s += _parent_keys
       s += @opts.keys
       s.to_a
     end
-    
+
     def mykey?(key) @opts.key?(key) end
     def key?(key)   mykey?(key) || (@parent_config && @parent_config.key?(key)) end
     alias_method :has_key?, :key?
@@ -99,7 +99,7 @@ module SDGUtils
       super
       @opts.freeze
     end
-    
+
     def dup
       Config.new @parent_config, @opts
     end
@@ -112,11 +112,11 @@ module SDGUtils
 
     def method_missing(name, *args, &block)
       super unless @init_mode
-      sym = name.to_s.end_with?("=") ? name.to_s[0..-2].to_sym : name  
+      sym = name.to_s.end_with?("=") ? name.to_s[0..-2].to_sym : name
       define_accessor_methods(sym)
       send name, *args, &block
     end
-  
+
     def _parent_keys
       @parent_config ? @parent_config.keys : []
     end
@@ -125,7 +125,7 @@ module SDGUtils
   # ====================================================
   # Class +PushConfig+
   #
-  # Pushes changes up the parent chain. 
+  # Pushes changes up the parent chain.
   # ====================================================
   class PushConfig < Config
     def initialize(*args)
@@ -139,7 +139,7 @@ module SDGUtils
         get_my_property(key)
       end
     end
-    
+
     def []=(key, value)
       if @parent_config && @parent_config.key?(key)
         @parent_config[key] = value

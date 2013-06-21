@@ -42,7 +42,7 @@ module Alloy
       @initializer ||= Alloy::CInitializer.new
     end
 
-    def set_default(hash) 
+    def set_default(hash)
       def_conf.merge!(hash)
       conf.merge!(hash)
     end
@@ -56,7 +56,7 @@ module Alloy
     def inv_fields_added?; @inv_fields_added end
 
     private
-    
+
     def def_conf
       @def_conf ||= Alloy::default_conf
     end
@@ -67,7 +67,7 @@ module Alloy
 
 
   extend SDGUtils::Delegate
-  delegate :meta, :boss, :conf, :set_default, :initializer, :reset, 
-           :fields_resolved?, :inv_fields_added?, :test_and_set, 
+  delegate :meta, :boss, :conf, :set_default, :initializer, :reset,
+           :fields_resolved?, :inv_fields_added?, :test_and_set,
            :to => lambda{alloy}, :proc => true
 end

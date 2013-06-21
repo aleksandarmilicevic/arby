@@ -37,12 +37,12 @@ module Alloy
             raise ArgumentError, msg
           end
         end
-        
+
         def setter_sym(fld)
           "#{getter_sym(fld)}=".to_sym
         end
       end
-      
+
       # Hash keys:
       #   :parent [ASig]    - parent sig
       #   :name [String]    - name
@@ -71,7 +71,7 @@ module Alloy
       def set_impl(impl)       @impl = impl end
       def set_synth()          @synth = true end
       def has_impl?()          !!@impl end
-      def impl()               Proc === @impl ? @impl.call : @impl end               
+      def impl()               Proc === @impl ? @impl.call : @impl end
       def belongs_to_parent?() !!@belongs_to_parent end
 
       def full_name() "#{@parent.name}.#{name}" end
@@ -80,8 +80,8 @@ module Alloy
       def getter_sym() FieldMeta.getter_sym(self) end
       def setter_sym() FieldMeta.setter_sym(self) end
 
-      def to_s() 
-        ret = full_name 
+      def to_s()
+        ret = full_name
         ret = "transient " + ret if transient?
         ret = "synth " + ret if synth?
         ret
@@ -98,7 +98,7 @@ module Alloy
     end
 
     # ----------------------------------------------------------------------
-    # Holds meta information (e.g., fields and their types) about 
+    # Holds meta information (e.g., fields and their types) about
     # a sig class.
     #
     # @attr sig_cls    [Class <= Sig]
@@ -106,7 +106,7 @@ module Alloy
     # @attr fields     [Array(FieldMeta)]
     # @attr inv_fields [Array(FieldMeta)]
     # ----------------------------------------------------------------------
-    class SigMeta 
+    class SigMeta
       attr_reader :sig_cls, :parent_sig
       attr_reader :abstract, :placeholder
       attr_reader :subsigs
@@ -159,7 +159,7 @@ module Alloy
       def all_fields(include_inherited=false)
         fields(include_inherited) + inv_fields(include_inherited)
       end
-      
+
       def add_subsig(subsig_cls)
         @subsigs << subsig_cls
       end
@@ -182,7 +182,7 @@ module Alloy
             begin
               if ignore_placeholder && parent_sig.placeholder?
                 nil
-              elsif ignore_abstract && parent_sig.abstract? 
+              elsif ignore_abstract && parent_sig.abstract?
                 nil
               else
                 parent_sig
@@ -194,8 +194,8 @@ module Alloy
       end
 
       def add_field(fld_name, fld_type, hash={})
-        opts = hash.merge :parent => sig_cls, 
-                          :name   => fld_name.to_s, 
+        opts = hash.merge :parent => sig_cls,
+                          :name   => fld_name.to_s,
                           :type   => fld_type
         fld = FieldMeta.new opts
         @fields << fld
@@ -209,7 +209,7 @@ module Alloy
         end
         # full_inv_type = ProductType.new(f.parent.to_atype, f.type).inv
         # raise ArgumentError if full_inv_type.column(0).cls.klass != @sig_cls
-        inv_fld = FieldMeta.new :parent => @sig_cls, 
+        inv_fld = FieldMeta.new :parent => @sig_cls,
                                 :name   => Alloy.conf.inv_field_namer.call(f),
                                 :type   => full_inv_type.full_range,
                                 :inv    => f,
@@ -218,7 +218,7 @@ module Alloy
         @inv_fields << inv_fld
         inv_fld
       end
-      
+
       def field(fname)      find_in(@fields, fname) end
       def field!(fname)     find_in!(@fields, fname) end
       def [](sym)           field(sym.to_s) end
@@ -236,7 +236,7 @@ module Alloy
         raise ArgumentError, msg unless ret
         ret
       end
-  
+
       # Returns type associated with the given field
       #
       # @param fld [String, Symbol]
@@ -244,50 +244,50 @@ module Alloy
       def field_type(fname)
         field(fname).type
       end
-      
+
       # returns a string representation of the field definitions
       def fields_to_alloy; fld_list_to_alloy @fields  end
 
       # returns a string representation of the synthesized inv field definitions
       def inv_fields_to_alloy; fld_list_to_alloy @inv_fields end
 
-      private 
+      private
 
       def fld_list_to_alloy(flds)
         flds.map {|f| "  " + f.to_alloy }
-            .join(",\n")      
+            .join(",\n")
       end
-      
+
     end
-    
+
     #------------------------------------------
     # == Module ASig
     #------------------------------------------
     module ASig
-  
+
       module Static
         def inherited(subclass)
           super
           fail "The +meta+ method hasn't been defined for class #{self}" unless meta
-          subclass.start          
+          subclass.start
           meta.add_subsig(subclass)
         end
 
         def created()
-          require_relative 'alloy.rb'          
+          require_relative 'alloy.rb'
           Alloy.meta.sig_created(self)
         end
 
         #------------------------------------------------------------------------
         # Class method for defining fields inside a class definition
         #------------------------------------------------------------------------
-        def fields(hash={}, &block) 
+        def fields(hash={}, &block)
           _traverse_fields hash, lambda { |name, type| field(name, type) }, &block
         end
 
         alias_method :persistent, :fields
 
-        def transient(hash={}, &block) 
+        def transient(hash={}, &block)
           _traverse_fields hash, lambda { |name, type|
             field(name, type, :transient => true)
           }, &block
@@ -316,7 +316,7 @@ module Alloy
 
         def abstract; _set_abstract; self end
         def placeholder; _set_placeholder; self end
-        
+
         def invariant(&block)
           define_method(:invariant, &block)
         end
@@ -343,20 +343,20 @@ module Alloy
 
         def all_supersigs()  meta.all_supersigs end
         def all_subsigs()  meta.all_subsigs end
-        
+
         #------------------------------------------------------------------------
-        # Defines a getter method for a field with the given symbol +sym+ 
+        # Defines a getter method for a field with the given symbol +sym+
         #------------------------------------------------------------------------
         def fld_getter(fld, proc=_fld_getter_proc(fld))
           mod = Module.new
           mod.send(:define_method, fld.getter_sym, proc)
-          if fld.type.unary? && 
+          if fld.type.unary? &&
               fld.type.range.cls.kind_of?(Alloy::Ast::UnaryType::ColType::BoolColType)
             mod.send :alias_method, "#{fld.getter_sym}?".to_sym, fld.getter_sym
           end
           self.send :include, mod
         end
-        
+
         #------------------------------------------------------------------------
         # Defines a setter method for a field with the given symbol +sym+
         #------------------------------------------------------------------------
@@ -372,10 +372,10 @@ module Alloy
 
         def finish
         end
-        
+
         #------------------------------------------------------------------------
-        # Returns a string representation of this +Sig+ conforming to 
-        # the Alloy syntax 
+        # Returns a string representation of this +Sig+ conforming to
+        # the Alloy syntax
         #------------------------------------------------------------------------
         def to_alloy
           psig = superclass
@@ -385,16 +385,16 @@ sig #{relative_name} #{psig_str} {
 #{meta.fields_to_alloy}
 
 // inv fields (synthesized)
-/* 
-#{meta.inv_fields_to_alloy}  
+/*
+#{meta.inv_fields_to_alloy}
 */
 }
 EOS
         end
-        
+
         protected
 
-        def _traverse_fields(hash, cont, &block) 
+        def _traverse_fields(hash, cont, &block)
           hash.each { |k,v| cont.call(k, v) }
           unless block.nil?
             ret = block.call
@@ -421,19 +421,19 @@ EOS
           fld_setter inv_fld, _inv_fld_setter_proc(inv_fld)
           inv_fld
         end
-        
+
         #------------------------------------------------------------------------
         # Returns a +Proc+ to be used to get a field's value.
         #------------------------------------------------------------------------
         def _fld_getter_proc(fld)
-          lambda {  
+          lambda {
             _fld_pre_read(fld)
             val = _read_fld_value(fld)
             _fld_post_read(fld, val)
             val
           }
         end
-         
+
         #------------------------------------------------------------------------
         # Returns a +Proc+ to be used to set a field's value
         #------------------------------------------------------------------------
@@ -443,7 +443,7 @@ EOS
             _write_fld_value(fld, val)
             _fld_post_write(fld, val)
           }
-        end 
+        end
 
         def _inv_fld_getter_proc(fld)
           #TODO ???
@@ -454,28 +454,28 @@ EOS
           #TODO ???
           _fld_setter_proc(fld)
         end
-        
+
         #------------------------------------------------------------------------
         # Defines the +meta+ method which returns some meta info
         # about this sig's fields
         #------------------------------------------------------------------------
         def _define_meta()
           meta = Alloy::Ast::SigMeta.new(self)
-          define_singleton_method(:meta, lambda {meta})          
+          define_singleton_method(:meta, lambda {meta})
         end
-      end 
+      end
 
       # -----------------------------------------------------------
       # Instance methods
       # -----------------------------------------------------------
-             
+
       def self.included(base)
         base.extend(Static)
         base.extend(Alloy::Dsl::StaticHelpers)
         base.send :include, Alloy::Dsl::InstanceHelpers
         base.start
       end
-             
+
       def meta
         self.class.meta
       end
@@ -501,25 +501,25 @@ EOS
         Alloy.boss.fire E_FIELD_TRY_WRITE, :object => self, :field => fld, :value => val
         _check_fld_write_access(fld, val)
       end
-      
+
       def _fld_post_read(fld, val)
         Alloy.boss.fire E_FIELD_READ, :object => self, :field => fld, :return => val
       end
 
-      def _fld_post_write(fld, val) 
+      def _fld_post_write(fld, val)
         Alloy.boss.fire E_FIELD_WRITTEN, :object => self, :field => fld, :value => val
       end
 
       def _read_fld_value(fld)
         instance_variable_get("@#{fld.name}".to_sym)
       end
-      
+
       def _write_fld_value(fld, val)
         instance_variable_set("@#{fld.name}".to_sym, val)
       end
-      
+
       def init_default_transient_values
-        meta.tfields.each do |tf| 
+        meta.tfields.each do |tf|
           if tf.type.unary? && tf.type.range.cls.primitive?
             val = tf.type.range.cls.default_value
             self.write_field(tf, val)
@@ -527,43 +527,43 @@ EOS
         end
       end
 
-      # checks field read access and raises an error if a violation is detected 
+      # checks field read access and raises an error if a violation is detected
       def _check_fld_read_access(fld)
         #TODO
-        true 
+        true
       end
-      
-      # checks field write access and raises an error if a violation is detected 
+
+      # checks field write access and raises an error if a violation is detected
       def _check_fld_write_access(fld, value)
         #TODO
         true
       end
 
     end
-    
+
     #------------------------------------------
     # == Class Sig
     #------------------------------------------
-    class Sig 
+    class Sig
       include ASig
       placeholder
-    end   
+    end
 
     def self.create_sig(name, super_cls=Alloy::Ast::Sig)
-      cls = Class.new(super_cls)  
+      cls = Class.new(super_cls)
       SDGUtils::MetaUtils.assign_const(name, cls)
       cls.created if cls.respond_to? :created
       cls
     end
-    
+
     #------------------------------------------
     # == Module AType
     #------------------------------------------
     module AType
       include Enumerable
-      
+
       @@DEFAULT_MULT = :lone
-      
+
       def arity
         fail "must override"
       end
@@ -583,13 +583,13 @@ EOS
 
       # @return [Symbol]
       def multiplicity
-        @@DEFAULT_MULT  
+        @@DEFAULT_MULT
       end
 
       def remove_multiplicity
         self
       end
-      
+
       def scalar?
         case multiplicity
         when :one, :lone
@@ -603,7 +603,7 @@ EOS
       def set?;  multiplicity == :set end
       def one?;  multiplicity == :one end
       def lone?; multiplicity == :lone end
-          
+
       # Returns a +UnaryType+ at the given position.
       #
       # @param idx [Integer] - position, must be in [0..arity)
@@ -624,17 +624,17 @@ EOS
       end
 
       def inv
-        reduce(nil) do |acc, utype| 
+        reduce(nil) do |acc, utype|
           acc ? ProductType.new(utype, acc) : utype
         end
       end
 
       def each
         for idx in 0..arity-1
-           yield column!(idx) 
+           yield column!(idx)
         end
-      end    
-      
+      end
+
       def *(rhs)
         case rhs
         when AType
@@ -647,10 +647,10 @@ EOS
           raise NoMethodError, "undefined multiplication of AType and #{rhs.class.name}"
         end
       end
-     
+
       def column!(idx)
         fail "must override"
-      end       
+      end
 
       def to_alloy
         case self
@@ -660,44 +660,44 @@ EOS
           if self.rhs.arity > 1
             "#{lhs.to_alloy} -> (#{rhs.to_alloy})"
           else
-            "#{lhs.to_alloy} -> #{rhs.to_alloy}"  
+            "#{lhs.to_alloy} -> #{rhs.to_alloy}"
           end
         when ModType
           if @type.arity > 1
             "#{@mult} (#{@type.to_alloy})"
           else
-            "#{@mult} #{@type.to_alloy}"  
+            "#{@mult} #{@type.to_alloy}"
           end
         end
       end
     end
-    
+
     #------------------------------------------
     # == Class UnaryType
-    # 
+    #
     # @attr_reader cls [ColType]
     #------------------------------------------
-    class UnaryType 
+    class UnaryType
       include AType
-    
+
       #TODO: rename to something more sensical
       attr_reader :cls
 
       #----------------------------------------------------------
       # == Class +ColType+
-      # 
-      # @attr_reader src [Object]  - whatever source was used to 
+      #
+      # @attr_reader src [Object]  - whatever source was used to
       #                              create this this +ColType+
       # @attr_reader klass [Class] - corresponding +Class+
       #----------------------------------------------------------
-      class ColType        
+      class ColType
         attr_reader :src, :klass
-        
+
         def initialize(src)
           @src = src
           @klass = nil
         end
-        
+
         def self.inherited(subclass)
           subclass.instance_eval do
             def initialize(src)
@@ -705,7 +705,7 @@ EOS
             end
           end
         end
-        
+
         class PrimitiveColType < ColType
         end
 
@@ -724,7 +724,7 @@ EOS
         class BoolColType          < prim(Integer, false); end
         class DateColType          < prim(Date, nil); end
         class TimeColType          < prim(Time, nil); end
-        class RefColType           < ColType 
+        class RefColType           < ColType
           def klass; src end
         end
         class UnresolvedRefColType < ColType
@@ -740,7 +740,7 @@ EOS
             fail msg
           end
         end
-        
+
         @@built_in_types = {
           :Int     => IntColType.new(:Int),
           :Integer => IntColType.new(:Integer),
@@ -752,7 +752,7 @@ EOS
           :Date    => DateColType.new(:Date),
           :Time    => TimeColType.new(:Time),
         }
-        
+
         def self.get(sym)
           case sym
           when NilClass
@@ -781,13 +781,13 @@ EOS
             builtin ||= UnresolvedRefColType.new(sym, mgr.scope_module)
           else
             raise TypeError, "`#{sym}' must be Class or Symbol or String, instead it is #{sym.class}"
-          end 
+          end
         end
 
         def primitive?
           kind_of? PrimitiveColType
         end
-        
+
         # Returns string representing corresponding database type
         # supported by +ActiveRecord+.
         def to_db_s
@@ -834,7 +834,7 @@ EOS
         def to_db_sym
           to_db_s.to_sym
         end
-        
+
         def to_s
           case self
           when IntColType; "Int"
@@ -846,18 +846,18 @@ EOS
           end
         end
       end
-            
+
       def initialize(cls)
-        @cls = ColType.get(cls) 
+        @cls = ColType.get(cls)
         unless @cls.instance_of? ColType::UnresolvedRefColType
-          freeze     
+          freeze
         end
       end
 
-      # Allowed to call this method only once, only to 
+      # Allowed to call this method only once, only to
       # update an unresolved type
       def update_cls(cls)
-        @cls = ColType.get(cls) 
+        @cls = ColType.get(cls)
         freeze
       end
 
@@ -878,63 +878,63 @@ EOS
         @cls.to_s
       end
     end
-    
+
     #------------------------------------------
     # == Class ProductType
     #------------------------------------------
-    class ProductType 
+    class ProductType
       include AType
-    
+
       attr_reader :lhs, :rhs
-      
+
       # @param lhs [AType]
       # @param rhs [AType]
       def initialize(lhs, rhs)
         check_sub(lhs)
         check_sub(rhs)
         @lhs = lhs
-        @rhs = rhs  
+        @rhs = rhs
         freeze
       end
-      
+
       def arity
         lhs.arity + rhs.arity
       end
-      
+
       def column!(idx)
-        if idx < lhs.arity  
-          lhs.column!(idx) 
-        else   
+        if idx < lhs.arity
+          lhs.column!(idx)
+        else
           rhs.column!(idx-lhs.arity)
         end
       end
-      
+
       def to_s
         if rhs.arity > 1
           "#{lhs.to_s} -> (#{rhs.to_s})"
         else
-          "#{lhs.to_s} -> #{rhs.to_s}"  
-        end      
+          "#{lhs.to_s} -> #{rhs.to_s}"
+        end
       end
 
       private
-      
+
       def check_sub(x)
         raise ArgumentError, "AType expected, got #{x.class}" \
-          unless x.kind_of?(AType) 
+          unless x.kind_of?(AType)
       end
     end
-   
+
     #-----------------------------------------------------
     # == Class ModType
     #
     # Wraps another type and adds a multiplicity modifier
     #-----------------------------------------------------
-    class ModType 
+    class ModType
       include AType
-      
+
       attr_reader :mult, :type
-        
+
       # @param type [AType]
       # @param mult [Symbol]
       def initialize(type, mult)
@@ -942,15 +942,15 @@ EOS
         @mult = mult
         freeze
       end
-      
-      def arity 
-        @type.arity 
+
+      def arity
+        @type.arity
       end
-      
-      def column!(idx) 
+
+      def column!(idx)
         @type.column!(idx)
       end
-      
+
       def multiplicity
         @mult
       end
@@ -963,11 +963,11 @@ EOS
         if @type.arity > 1
           "#{@mult} (#{@type.to_s})"
         else
-          "#{@mult} #{@type.to_s}"  
+          "#{@mult} #{@type.to_s}"
         end
-      end 
+      end
     end
-    
+
     #-----------------------------------------------------
     # == Class +TypeChecker+
     #-----------------------------------------------------
@@ -976,7 +976,7 @@ EOS
         #TODO
       end
     end
-  
+
     #-----------------------------------------------------
     # == Class +Utils+
     #-----------------------------------------------------

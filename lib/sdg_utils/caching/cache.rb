@@ -38,7 +38,7 @@ module SDGUtils
       def wrap_block(block)
         case
         when block.arity == 0
-          lambda{|*args| block.call} 
+          lambda{|*args| block.call}
         when block.arity == -1
           block
         else

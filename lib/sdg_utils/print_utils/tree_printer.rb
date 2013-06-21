@@ -1,6 +1,6 @@
 module SDGUtils
   module PrintUtils
-    
+
     class TreePrinter
 
       def initialize(hash={})
@@ -43,12 +43,12 @@ module SDGUtils
         if @max_line
           set_line_size(lines, @max_line)
         end
- 
+
         box_top = box_bottom = nil
         if @box
           width = box_width(@box, lines)
           box_top = make_border(width, @box[:top_left], @box[:top], @box[:top_right])
-          box_bottom = make_border(width, @box[:bottom_left], 
+          box_bottom = make_border(width, @box[:bottom_left],
                                    @box[:bottom], @box[:bottom_right])
           left = @box[:left] + padding(@box[:padding_left])
           right = padding(@box[:padding_right]) + @box[:right]
@@ -69,8 +69,8 @@ module SDGUtils
             .concat("\n")
         }
       end
-      
-      private 
+
+      private
 
       def indent(depth, t1=@tab1, t2=@tab2)
         (0...depth-1).reduce("") {|acc,i| acc.concat (i == depth-2 ? t2 : t1)}
@@ -98,7 +98,7 @@ module SDGUtils
           line_max = lines.max_by{|line| line.length}.length
           line_max + box[:left].length + box[:right].length +
                      box[:padding_left] + box[:padding_right]
-        else 
+        else
           fail "Unrecognized box width option: #{width}:#{width.class}"
         end
       end
@@ -131,7 +131,7 @@ module SDGUtils
         if pre || post
           left = pre || ""
           right = post || ""
-          lines.each { |line| 
+          lines.each { |line|
             line.insert(0, left)
             line.concat(right)
           }
@@ -161,8 +161,8 @@ module SDGUtils
           :padding_bottom => 0,
         }
       end
-      
+
     end
-    
+
   end
 end

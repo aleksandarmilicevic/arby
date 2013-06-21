@@ -7,7 +7,7 @@ module Alloy
   # =================================================================
   # Class +CInitializer+
   #
-  # Performs various initialization tasks. 
+  # Performs various initialization tasks.
   #
   # Options:
   #   :resolver  - resolver to use, defaults to +Alloy::Resolver+
@@ -62,12 +62,12 @@ module Alloy
         end
       end
     end
-    
+
     # ----------------------------------------------------------------
-    # Creates inverse fields for the user-defined fields. 
+    # Creates inverse fields for the user-defined fields.
     # ----------------------------------------------------------------
     def init_inv_fields(force=false)
-      return unless force || Alloy.test_and_set(:inv_fields_added) 
+      return unless force || Alloy.test_and_set(:inv_fields_added)
 
       logger = Alloy.conf.logger
       Alloy.meta.sigs.each do |r|
@@ -86,7 +86,7 @@ module Alloy
     end
 
     # ----------------------------------------------------------------
-    # Freezes most of the meta stuff. 
+    # Freezes most of the meta stuff.
     # ----------------------------------------------------------------
     def deep_freeze
       sig_metas = Alloy.meta.sigs.map{|r| r.meta}

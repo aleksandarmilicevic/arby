@@ -1,6 +1,6 @@
 module SDGUtils
   module Errors
-    
+
     class ErrorWithCause < StandardError
       def init(msg, backtrace)
         @msg = msg || ""
@@ -77,6 +77,6 @@ module SDGUtils
       end
 
     end
-    
+
   end
 end

@@ -5,14 +5,14 @@ module SDGUtils
       def call(event, params)
         sym = "handle_#{event.to_s}".to_sym
         if self.respond_to? sym
-          self.send sym, params          
+          self.send sym, params
         elsif self.respond_to? :handler_missing
           self.send :handler_missing, event, params
         end
       end
     end
 
-    module EventProvider 
+    module EventProvider
 
       def clear_listeners
         @event_listeners = {}
@@ -27,7 +27,7 @@ module SDGUtils
         fail "Listener #{l} does not respond to #call" unless l.respond_to?(:call)
         case events
         when Array
-          events.each {|event| 
+          events.each {|event|
             _reg(event, l)
           }
         else
@@ -73,7 +73,7 @@ module SDGUtils
       def _get_listeners
         @event_listeners ||= {}
       end
-      
+
     end
 
   end

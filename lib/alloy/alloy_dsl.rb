@@ -2,8 +2,8 @@ require 'sdg_utils/meta_utils.rb'
 
 require_relative 'alloy_dsl_engine.rb'
 
-module Alloy 
-  
+module Alloy
+
   # ------------------------------------------------------------------
   # == Module +Dsl+
   #
@@ -12,17 +12,17 @@ module Alloy
   # ------------------------------------------------------------------
   module Dsl
     extend self
-    
+
     # ------------------------------------------------------
     # Methods for constructing expressions.
     # ------------------------------------------------------
     module Mult
       extend self
-      def lone(*sig) Alloy::DslEngine::ModBuilder.mult(:lone, *sig) end   
-      def one(*sig)  Alloy::DslEngine::ModBuilder.mult(:one, *sig) end   
-      def set(*sig)  Alloy::DslEngine::ModBuilder.mult(:set, *sig) end  
+      def lone(*sig) Alloy::DslEngine::ModBuilder.mult(:lone, *sig) end
+      def one(*sig)  Alloy::DslEngine::ModBuilder.mult(:one, *sig) end
+      def set(*sig)  Alloy::DslEngine::ModBuilder.mult(:set, *sig) end
       def seq(*sig)  Alloy::DslEngine::ModBuilder.mult(:seq, *sig) end
-    end 
+    end
 
     module Abstract
       def abstract(sig_cls=nil, &block)
@@ -48,9 +48,9 @@ module Alloy
       def one(col)  col.as_rel.one? end
       def lone(col) col.as_rel.lone? end
     end
-    
+
     # ----------------------------------------------------------------
-    # Model to be included in each +alloy_model+. 
+    # Model to be included in each +alloy_model+.
     # ----------------------------------------------------------------
     module Model
       include Mult
@@ -64,13 +64,13 @@ module Alloy
       # --------------------------------------------------------------
       def sig(name, fields={}, &block)
         Alloy::DslEngine::SigBuilder.sig(name, fields, &block)
-      end     
+      end
 
       def abstract_sig(name, fields={}, &block)
         sig(name, fields, &block).abstract
       end
-    end      
-    
+    end
+
     # ----------------------------------------------------------------
     # Creates a modules named +name+ and then executes +&block+ using
     # +module_eval+.  All Alloy sigs must be created inside an "alloy
@@ -81,7 +81,7 @@ module Alloy
       mm = _model_builder_new
       mm.model(:alloy, name, &block)
     end
-    
+
     # ----------------------------------------------------------------
     # Different aliases for the +alloy_model+ method.
     # ----------------------------------------------------------------
@@ -95,15 +95,15 @@ module Alloy
     def _model_builder_class
       Alloy::DslEngine::ModelBuilder
     end
-  
+
     # ----------------------------------------------------------------
     # Returns the current +ModelBuilder+ instance by invoking +get+ on
     # the +ModelBuilder+ class.
     # ----------------------------------------------------------------
     def _model_builder
       _model_builder_class().get()
-    end 
-    
+    end
+
     # ----------------------------------------------------------------
     # Returns the current +ModelBuilder+ instance by invoking
     # +get_new+ on the +ModelBuilder+ class, which returns the current

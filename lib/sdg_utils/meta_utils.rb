@@ -6,7 +6,7 @@ module SDGUtils
       hash = args.last
       fail "Last arg must be hash" unless Hash === hash
       target = hash[:to]
-      fail "No target given; use :to option in the last " + 
+      fail "No target given; use :to option in the last " +
            "hash parameter to specify the target instance." unless target
       is_proc = hash[:proc] || false
       mod = Module.new
@@ -25,26 +25,26 @@ module SDGUtils
         (class << self; self end).send :include, mod
       end
     end
-    
-    def delegate_all(cls, hash) 
+
+    def delegate_all(cls, hash)
       delegate(*cls.instance_methods(false), hash)
     end
   end
 
   class MetaUtils
     class << self
-      
+
       # --------------------------------------------------------------
-      # Determines full module name of the caller 
+      # Determines full module name of the caller
       # --------------------------------------------------------------
       def caller_module_name
         #|| c[/.*<class:([^>]*)>\'$/, 1]
-        caller.map      { |c| c[/.*<module:([^>]*)>\'$/, 1] }  
+        caller.map      { |c| c[/.*<module:([^>]*)>\'$/, 1] }
               .find_all { |c| c }
               .reverse
-              .join("::")    
+              .join("::")
       end
-      
+
       # --------------------------------------------------------------
       # Returns the module of the caller by invoking
       # +caller_module_name+ and then converting that string to Class
@@ -52,16 +52,16 @@ module SDGUtils
       # --------------------------------------------------------------
       def caller_module
         mn = caller_module_name
-        str_to_class(mn) || Object        
+        str_to_class(mn) || Object
         # if mn.empty?
           # class << self; self end
         # else
-          # str_to_class(mn)  
+          # str_to_class(mn)
         # end
       end
-      
+
       # --------------------------------------------------------------
-      # Converts String to Class; returns +nil+ if +NameError+ 
+      # Converts String to Class; returns +nil+ if +NameError+
       # --------------------------------------------------------------
       def arry_to_class(arry)
         begin
@@ -70,14 +70,14 @@ module SDGUtils
           end
         rescue NameError
           nil
-        end      
+        end
       end
 
       def to_class(x)
         case x
         when Class
           x
-        else 
+        else
           str_to_class x.to_s
         end
       end
@@ -85,7 +85,7 @@ module SDGUtils
       def str_to_class(str)
         arry_to_class str.split('::')
       end
-      
+
       def undef_class(cls)
         split = cls.to_s.split('::')
         mod = arry_to_class split[0..-2]
@@ -95,7 +95,7 @@ module SDGUtils
           false
         end
       end
-      
+
       def assign_const(full_name, cst)
         assign_const_in_module(*full_name.split_to_module_and_relative, cst)
       end
@@ -109,7 +109,7 @@ module SDGUtils
           if const_base_name.nil? || const_base_name.empty?
         raise NameError, "`#{const_base_name}' - name must begin with a capital letter" \
           unless const_base_name[0] =~ /[A-Z]/
-        
+
         mod = case module_or_name
         when Module
           module_or_name
@@ -119,7 +119,7 @@ module SDGUtils
           Object
         end
         raise NameError, "Module `#{module_or_name}' not found" if mod.nil?
-        already_defined = mod.const_defined?(const_base_name.to_sym, false) 
+        already_defined = mod.const_defined?(const_base_name.to_sym, false)
         raise NameError, "Constant #{module_or_name}::#{const_base_name} already defined"\
           if already_defined
         mod.const_set(const_base_name.to_sym, cst)
@@ -127,5 +127,5 @@ module SDGUtils
 
     end
   end
-  
+
 end

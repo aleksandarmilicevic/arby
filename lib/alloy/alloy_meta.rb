@@ -3,9 +3,9 @@ require 'sdg_utils/event/events'
 
 module Alloy
   extend self
-  
+
   module Model
-    
+
     module MMUtils
       def clear_restriction
         restrict_to nil
@@ -15,7 +15,7 @@ module Alloy
         @restriction_mod = mod
       end
 
-      protected 
+      protected
 
       def _cache(col, name, cache_var=@cache)
         cache_var[name] ||= _find_by_name(col, name)
@@ -23,7 +23,7 @@ module Alloy
 
       def _restrict(src)
         return src unless @restriction_mod
-        src.select {|e| 
+        src.select {|e|
           e.name && e.name.start_with?(@restriction_mod.to_s + "::")}
       end
 
@@ -48,14 +48,14 @@ module Alloy
       include MMUtils
       include SDGUtils::Events::EventProvider
 
-      private 
+      private
 
       def initialize
         reset
       end
-      
+
       public
-      
+
       def sigs;  _sigs end
       def sig_created(sig_cls) @sigs << sig_cls end
       def sig_for_name(name);  _cache(_sigs, name) end
@@ -73,6 +73,6 @@ module Alloy
       def _sigs; _restrict(@sigs) end
 
     end
-    
+
   end
 end

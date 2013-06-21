@@ -14,15 +14,15 @@ def in_alloy_dsl?
 end
 
 module Alloy
-  module AlloyDslExt    
+  module AlloyDslExt
     # --------------------------------------------------------
-    # Catches all +const_missing+ events, so that, only when 
-    # evaluating in the context of Alloy Dsl, instead of 
+    # Catches all +const_missing+ events, so that, only when
+    # evaluating in the context of Alloy Dsl, instead of
     # failing it simply returns the given symbol.
     #--------------------------------------------------------
     def self.my_const_missing(sym)
       # first try to find in the current module
-      begin 
+      begin
         mod = alloy_model_mgr.scope_module
         if mod.const_defined?(sym, false)
           mod.const_get(sym)
@@ -40,21 +40,21 @@ end
 #--------------------------------------------------------
 # == Extensions to class +Module+
 #--------------------------------------------------------
-class << Object  
+class << Object
   alias_method :old_const_missing, :const_missing
-  
-  def const_missing(sym) 
+
+  def const_missing(sym)
     return super unless in_alloy_dsl?
-    Alloy::AlloyDslExt.my_const_missing(sym)  
+    Alloy::AlloyDslExt.my_const_missing(sym)
   end
 end
 
-class Module  
+class Module
   alias_method :old_const_missing, :const_missing
-  
-  def const_missing(sym) 
+
+  def const_missing(sym)
     return super unless in_alloy_dsl?
-    Alloy::AlloyDslExt.my_const_missing(sym)  
+    Alloy::AlloyDslExt.my_const_missing(sym)
   end
 end
 
@@ -67,8 +67,8 @@ class Class
   # then delegates the +*+ operation to it.
   #
   # @see Alloy::Ast::AType
-  # @see Alloy::Ast::UnaryType 
-  # @see Alloy::Ast::ProductType  
+  # @see Alloy::Ast::UnaryType
+  # @see Alloy::Ast::ProductType
   #--------------------------------------------------------
   def *(rhs)
     to_atype * rhs
@@ -94,9 +94,9 @@ class Class
   def module_name
     to_s.module_name
   end
-  
+
   #--------------------------------------------------------
-  # Helper method that returns the relative (i.e., simple) name of 
+  # Helper method that returns the relative (i.e., simple) name of
   # this class (where all module name prefixes are stripped out).
   #--------------------------------------------------------
   def relative_name
@@ -112,12 +112,12 @@ class String
 
   #--------------------------------------------------------
   # Overrides the +<+ operator so that, when in Alloy Dsl
-  # context and the +rhs+ operand is of type +Class+, it 
-  # returns a +[self, rhs]+ tuple so that the context 
-  # can interpret it as sig extension. 
+  # context and the +rhs+ operand is of type +Class+, it
+  # returns a +[self, rhs]+ tuple so that the context
+  # can interpret it as sig extension.
   #
-  # @see String#<  
-  #--------------------------------------------------------  
+  # @see String#<
+  #--------------------------------------------------------
   def <(rhs)
     return old_cmp rhs unless in_alloy_dsl?
     case rhs
@@ -125,9 +125,9 @@ class String
       [self, rhs]
     else
       old_cmp rhs
-    end    
+    end
   end
-  
+
   def split_to_module_and_relative
     sp = split('::')
     [sp[0..-2].join('::'), sp.last]
@@ -141,7 +141,7 @@ class String
   end
 
   #--------------------------------------------------------
-  # Strips out everything but the substring after the last 
+  # Strips out everything but the substring after the last
   # appearance of '::'.
   #--------------------------------------------------------
   def relative_name
@@ -157,12 +157,12 @@ class Symbol
 
   #--------------------------------------------------------
   # Overrides the +<+ operator so that, when in Alloy Dsl
-  # context and the +rhs+ operand is of type +Class+, it 
-  # returns a +[self, rhs]+ tuple so that the context 
-  # can interpret it as sig extension. 
+  # context and the +rhs+ operand is of type +Class+, it
+  # returns a +[self, rhs]+ tuple so that the context
+  # can interpret it as sig extension.
   #
   # @see String#<
-  #--------------------------------------------------------  
+  #--------------------------------------------------------
   def <(rhs)
     return old_cmp rhs unless in_alloy_dsl?
     case rhs
@@ -170,20 +170,20 @@ class Symbol
       [self, rhs]
     else
       old_cmp rhs
-    end 
+    end
   end
-  
+
   #--------------------------------------------------------
   # Converts this class to +Alloy::Ast::UnaryType+ and
   # then delegates the +*+ operation to it.
   #
   # @see Alloy::Ast::AType
-  # @see Alloy::Ast::UnaryType 
-  # @see Alloy::Ast::ProductType  
+  # @see Alloy::Ast::UnaryType
+  # @see Alloy::Ast::ProductType
   #--------------------------------------------------------
   def *(rhs)
     if in_alloy_dsl?
-      Alloy::Ast::UnaryType.new(self) * rhs      
+      Alloy::Ast::UnaryType.new(self) * rhs
     else
       super
     end
