@@ -33,7 +33,9 @@ module SDGUtils
         node = Node.new(task, parent)
         begin
           @stack.push node
-          node.time = Benchmark.realtime{yield}
+          ans = nil
+          node.time = Benchmark.realtime{ans = yield}
+          ans
         ensure
           @stack.pop
         end
