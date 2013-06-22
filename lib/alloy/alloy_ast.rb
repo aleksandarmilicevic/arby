@@ -219,11 +219,11 @@ module Alloy
         inv_fld
       end
 
-      def field(fname)      find_in(@fields, fname) end
-      def field!(fname)     find_in!(@fields, fname) end
-      def [](sym)           field(sym.to_s) end
-      def inv_field(fname)  find_in(@inv_fields, fname) end
-      def inv_field!(fname) find_in!(@inv_fields, fname) end
+      def field(fname, own_only=false)      find_in(fields(!own_only), fname) end
+      def field!(fname, own_only=false)     find_in!(fields(!own_only), fname) end
+      def [](sym)                           field(sym.to_s) end
+      def inv_field(fname, own_only=false)  find_in(inv_fields(!own_only), fname) end
+      def inv_field!(fname, own_only=false) find_in!(inv_fields(!own_only), fname) end
 
       def find_in(fld_ary, fname)
         #TODO cache?
