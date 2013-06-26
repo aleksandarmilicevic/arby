@@ -724,6 +724,7 @@ EOS
         class BoolColType          < prim(Integer, false); end
         class DateColType          < prim(Date, nil); end
         class TimeColType          < prim(Time, nil); end
+        class BlobColType          < prim(Array, nil); end
         class RefColType           < ColType
           def klass; src end
         end
@@ -751,6 +752,7 @@ EOS
           :Boolean => BoolColType.new(:Boolean),
           :Date    => DateColType.new(:Date),
           :Time    => TimeColType.new(:Time),
+          :Blob    => BlobColType.new(:Blop),
         }
 
         def self.get(sym)
@@ -799,6 +801,7 @@ EOS
           when DateColType; "date"
           when TimeColType; "time"
           when BoolColType; "boolean"
+          when BlobColType; "binary"
           else
             @src.to_s.relative_name
           end
@@ -825,6 +828,7 @@ EOS
           when DateColType; nil #TODO
           when TimeColType; nil #TODO
           when BoolColType; str == "true" ? true : (str == "false" ? false : nil)
+          when BlobColType; nil #TODO
           else
             nil
           end
@@ -873,6 +877,7 @@ EOS
       def isDate?()    scalar? && DateColType === @cls end
       def isTime?()    scalar? && TimeColType === @cls end
       def isBool?()    scalar? && BoolColType === @cls end
+      def isBlob?()    scalar? && BlobColType === @cls end
 
       def to_s
         @cls.to_s

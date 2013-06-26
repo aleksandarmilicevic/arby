@@ -25,13 +25,29 @@ module Alloy
     end
 
     module Abstract
+      # def abstract(sig_cls=nil, &block)
+      #   unless sig_cls
+      #     fail "neither class nor block provided" unless block
+      #     sig_cls = block.call
+      #   end
+      #   fail "not a sig but #{sig_cls}" unless (sig_cls.is_sig? rescue false)
+      #   sig_cls.meta.set_abstract
+      # end
       def abstract(sig_cls=nil, &block)
-        unless sig_cls
-          fail "neither class nor block provided" unless block
-          sig_cls = block.call
+        if sig_cls
+          sig_cls.meta.set_abstract
+          sig_cls.class_evaluate(block) if block
+        elsif block
+          old_abstract = @abstract_alloy_block || false
+          @abstract_alloy_block = true
+          begin
+            block.call
+          ensure
+            @abstract_alloy_block = old_abstract
+          end
+        else
+          fail "neither class nor block provided"
         end
-        fail "not a sig but #{sig_cls}" unless (sig_cls.is_sig? rescue false)
-        sig_cls.meta.set_abstract
       end
     end
 
@@ -63,7 +79,9 @@ module Alloy
       # to it.
       # --------------------------------------------------------------
       def sig(name, fields={}, &block)
-        Alloy::DslEngine::SigBuilder.sig(name, fields, &block)
+        ans = Alloy::DslEngine::SigBuilder.sig(name, fields, &block)
+        ans.abstract if @abstract_alloy_block
+        ans
       end
 
       def abstract_sig(name, fields={}, &block)
