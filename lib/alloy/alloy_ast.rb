@@ -794,7 +794,7 @@ EOS
         # supported by +ActiveRecord+.
         def to_db_s
           case self
-          when IntColType; "int"
+          when IntColType; "integer"
           when FloatColType; "float"
           when StringColType; "string"
           when TextColType; "text"
