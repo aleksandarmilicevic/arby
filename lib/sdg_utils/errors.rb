@@ -29,6 +29,9 @@ module SDGUtils
         end
       end
 
+      def msg() @msg end
+      def message() @msg end
+
       def exception(*args)
         case args.size
           when 1

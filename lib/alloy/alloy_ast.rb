@@ -21,7 +21,7 @@ module Alloy
     # @immutable
     # ----------------------------------------------------------------------
     class FieldMeta
-      attr_reader :parent, :name, :type, :inv, :impl, :synth
+      attr_reader :parent, :name, :type, :default, :inv, :impl, :synth
 
       class << self
         def getter_sym(fld)
@@ -47,6 +47,7 @@ module Alloy
       #   :parent [ASig]    - parent sig
       #   :name [String]    - name
       #   :type [AType]     - type
+      #   :default [object] - default value
       #   :inv [FieldMeta]  - inv field
       #   :synth [Bool]     - whether synthesized of defined by the user
       #   :belongs_to_parent [Bool] - whether its value is owned by field's parent
@@ -55,6 +56,7 @@ module Alloy
         @parent  = hash[:parent]
         @name    = hash[:name]
         @type    = hash[:type]
+        @default = hash[:default]
         set_inv(hash[:inv])
         @synth   = hash[:synth] || false
         @belongs_to_parent = hash[:belongs_to_parent] || false
@@ -293,6 +295,11 @@ module Alloy
           }, &block
         end
 
+        def field(*args)
+          _traverse_field_args(args, lambda {|name, type, hash={}|
+                                 _field(name, type, hash)})
+        end
+
         #------------------------------------------------------------------------
         # For a given field (name, type) creates a getter and a setter
         # (instance) method, and adds it to this sig's +meta+ instance.
@@ -300,7 +307,7 @@ module Alloy
         # @param fld_name [String]
         # @param fld_type [AType]
         #------------------------------------------------------------------------
-        def field(name, type, hash={})
+        def _field(name, type, hash={})
           unless type.kind_of? Alloy::Ast::AType
             type = Alloy::Ast::UnaryType.new(type)
           end
@@ -403,6 +410,31 @@ EOS
           nil
         end
 
+        def _traverse_field_args(args, cont) 
+          case 
+          when args.size == 3
+            cont.call(*args)
+          when args.size == 2
+            if Hash === args[0] && args[0].size == 1
+              cont.call(*args[0].first, args[1])
+            else
+              cont.call(*args)
+            end
+          when args.size == 1 && Hash === args[0]
+            name, type = args[0].first
+            cont.call(name, type, Hash[args[0].drop 1])
+          else
+            msg = """
+Invalid field format. Valid formats:
+  - field name, type, options_hash={}
+  - field name_type_hash, options_hash={}; where name_type_hash.size == 1
+  - field hash                           ; where name,type = hash.first
+                                           options_hash = Hash[hash.drop 1]
+"""
+            raise ArgumentError, msg
+          end
+        end
+
         def _set_abstract
           meta.set_abstract
         end
@@ -485,8 +517,13 @@ EOS
         init_default_transient_values
       end
 
-      def read_field(fld)       send(Alloy::Ast::FieldMeta.getter_sym(fld)) end
-      def write_field(fld, val) send(Alloy::Ast::FieldMeta.setter_sym(fld), val) end
+      def read_field(fld)       
+        send(Alloy::Ast::FieldMeta.getter_sym(fld)) 
+      end
+
+      def write_field(fld, val) 
+        send(Alloy::Ast::FieldMeta.setter_sym(fld), val) 
+      end
 
       protected
 
@@ -511,7 +548,12 @@ EOS
       end
 
       def _read_fld_value(fld)
-        instance_variable_get("@#{fld.name}".to_sym)
+        ans = instance_variable_get("@#{fld.name}".to_sym)
+        if ans.nil?
+          fld.default
+        else
+          ans
+        end
       end
 
       def _write_fld_value(fld, val)
@@ -580,6 +622,8 @@ EOS
       def isDate?()   false end
       def isTime?()   false end
       def isBool?()   false end
+      def isBlob?()   false end
+      def isFile?()   false end
 
       # @return [Symbol]
       def multiplicity
@@ -752,7 +796,7 @@ EOS
           :Boolean => BoolColType.new(:Boolean),
           :Date    => DateColType.new(:Date),
           :Time    => TimeColType.new(:Time),
-          :Blob    => BlobColType.new(:Blop),
+          :Blob    => BlobColType.new(:Blob),
         }
 
         def self.get(sym)
@@ -870,14 +914,15 @@ EOS
       def column!(idx) self end
 
       def primitive?() @cls.primitive? end
-      def isInt?()     scalar? && IntColType === @cls end
-      def isFloat?()   scalar? && FloatColType === @cls end
-      def isString?()  scalar? && StringColType === @cls end
-      def isText?()    scalar? && TextColType === @cls end
-      def isDate?()    scalar? && DateColType === @cls end
-      def isTime?()    scalar? && TimeColType === @cls end
-      def isBool?()    scalar? && BoolColType === @cls end
-      def isBlob?()    scalar? && BlobColType === @cls end
+      def isInt?()     scalar? && ColType::IntColType === @cls end
+      def isFloat?()   scalar? && ColType::FloatColType === @cls end
+      def isString?()  scalar? && ColType::StringColType === @cls end
+      def isText?()    scalar? && ColType::TextColType === @cls end
+      def isDate?()    scalar? && ColType::DateColType === @cls end
+      def isTime?()    scalar? && ColType::TimeColType === @cls end
+      def isBool?()    scalar? && ColType::BoolColType === @cls end
+      def isBlob?()    scalar? && ColType::BlobColType === @cls end
+      def isFile?()    scalar? && (klass.isFile?() rescue false) end
 
       def to_s
         @cls.to_s
