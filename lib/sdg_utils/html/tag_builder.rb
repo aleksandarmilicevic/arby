@@ -32,7 +32,7 @@ module SDGUtils
       def build(escape_body=true)
         attrs_str = @attrs.map{ |key, val|
           val = val.strip
-          (val.empty?) ? nil : "#{esc(key)}=\"#{esc(val)}\""
+          (val.empty?) ? nil : "#{esc(key)}=#{val.inspect}"
         }.compact.join(" ")
         if get_body().empty?
           "<#{tag_name} #{attrs_str}/>"

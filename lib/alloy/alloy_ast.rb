@@ -59,7 +59,7 @@ module Alloy
         @default = hash[:default]
         set_inv(hash[:inv])
         @synth   = hash[:synth] || false
-        @belongs_to_parent = hash[:belongs_to_parent] || false
+        @belongs_to_parent = hash[:belongs_to_parent] || hash[:owned] || false
         @transient = hash[:transient] || false
       end
 
