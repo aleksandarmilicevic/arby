@@ -411,8 +411,8 @@ EOS
           nil
         end
 
-        def _traverse_field_args(args, cont) 
-          case 
+        def _traverse_field_args(args, cont)
+          case
           when args.size == 3
             cont.call(*args)
           when args.size == 2
@@ -518,12 +518,12 @@ Invalid field format. Valid formats:
         init_default_transient_values
       end
 
-      def read_field(fld)       
-        send(Alloy::Ast::FieldMeta.getter_sym(fld)) 
+      def read_field(fld)
+        send(Alloy::Ast::FieldMeta.getter_sym(fld))
       end
 
-      def write_field(fld, val) 
-        send(Alloy::Ast::FieldMeta.setter_sym(fld), val) 
+      def write_field(fld, val)
+        send(Alloy::Ast::FieldMeta.setter_sym(fld), val)
       end
 
       protected
@@ -747,7 +747,7 @@ Invalid field format. Valid formats:
       def instantiate(inst)
         DependentType.new(@type, inst)
       end
-      
+
       def instantiated?() !@inst.nil? end
       def my_proc() @proc end
       def my_inst() @inst end
