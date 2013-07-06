@@ -73,7 +73,7 @@ module SDGUtils
       private
 
       def indent(depth, t1=@tab1, t2=@tab2)
-        (0...depth-1).reduce("") {|acc,i| acc.concat (i == depth-2 ? t2 : t1)}
+        (0...depth-1).reduce("") {|acc,i| acc.concat(i == depth-2 ? t2 : t1)}
       end
 
       def read_box(opts)
