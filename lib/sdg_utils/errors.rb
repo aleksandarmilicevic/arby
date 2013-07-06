@@ -7,25 +7,25 @@ module SDGUtils
         @backtrace = backtrace || []
       end
 
-      def init1(cause_or_msg)
-        case cause_or_msg
-        when Exception
-          init2(cause_or_msg, "")
-        when String
-          init2(nil, cause_or_msg)
-        else
-          init2(nil, "")
-        end
-      end
+      @@tab = "  "
 
-      def initialize(cause=nil)
-        @cause = cause
-        @tab = "  "
+      def initialize(cause_or_msg=nil)
+        case cause_or_msg
+        when NilClass
+          @cause = nil
+          @msg = nil
+        when Exception
+          @cause = cause_or_msg
+          @msg = nil
+        else
+          @cause = nil
+          @msg = cause_or_msg.to_s
+        end
       end
 
       def self.inherited(subclass)
         subclass.instance_eval do
-          def initialize(cause=nil);   super end
+          def initialize(cause_or_msg=nil); super end
         end
       end
 
@@ -51,7 +51,7 @@ module SDGUtils
       end
 
       def format_msg(indent)
-        new_indent = @msg.empty? ? indent : indent + @tab
+        new_indent = @msg.empty? ? indent : indent + @@tab
         cause_msg = case @cause
                     when NilClass
                       ""
@@ -74,7 +74,7 @@ module SDGUtils
         ret += @backtrace || []
         if @cause != nil
           ret += ["", "Caused by #{@cause.class}: #{@cause.message}"]
-          ret += @cause.backtrace.map{|e| @tab + e}
+          ret += @cause.backtrace.map{|e| @@tab + e}
         end
         ret
       end

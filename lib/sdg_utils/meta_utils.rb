@@ -8,7 +8,7 @@ module SDGUtils
       target = hash[:to]
       fail "No target given; use :to option in the last " +
            "hash parameter to specify the target instance." unless target
-      is_proc = hash[:proc] || false
+      is_proc = (hash.key? :proc) ? hash[:proc] : Proc === target
       mod = Module.new
       args[0..-2].each do |sym|
         sym = sym.to_sym

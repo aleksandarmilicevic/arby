@@ -309,7 +309,7 @@ module Alloy
         #------------------------------------------------------------------------
         def _field(name, type, hash={})
           unless type.kind_of? Alloy::Ast::AType
-            type = Alloy::Ast::UnaryType.new(type)
+            type = Alloy::Ast::AType.get(type)
           end
           fld = meta.add_field(name, type, hash)
           fld_getter fld
@@ -357,8 +357,9 @@ module Alloy
         def fld_getter(fld, proc=_fld_getter_proc(fld))
           mod = Module.new
           mod.send(:define_method, fld.getter_sym, proc)
-          if fld.type.unary? &&
-              fld.type.range.cls.kind_of?(Alloy::Ast::UnaryType::ColType::BoolColType)
+          bool_type = Alloy::Ast::UnaryType::ColType::BoolColType
+          ftype = fld.type
+          if ftype.unary? && ftype.range.cls.kind_of?(bool_type)
             mod.send :alias_method, "#{fld.getter_sym}?".to_sym, fld.getter_sym
           end
           self.send :include, mod
@@ -606,6 +607,16 @@ Invalid field format. Valid formats:
 
       @@DEFAULT_MULT = :lone
 
+      def self.get(obj)
+        case obj
+        when Proc; DependentType.new(obj)
+        else
+          UnaryType.new(obj)
+        end
+      end
+
+      def instantiated?() true end
+
       def arity
         fail "must override"
       end
@@ -714,6 +725,32 @@ Invalid field format. Valid formats:
           end
         end
       end
+    end
+
+    class DependentType
+      include SDGUtils::Delegate
+      include AType
+
+      def initialize(proc, inst=nil)
+        @proc = proc
+        @inst = inst
+        if inst
+          delegate :arity, :column!, :to => lambda{@proc.call(inst)}
+        else
+          class << self
+            def arity()      0 end
+            def column!(idx) fail "Dependent type not instantiated" end
+          end
+        end
+      end
+
+      def instantiate(inst)
+        DependentType.new(@type, inst)
+      end
+      
+      def instantiated?() !@inst.nil? end
+      def my_proc() @proc end
+      def my_inst() @inst end
     end
 
     #------------------------------------------
