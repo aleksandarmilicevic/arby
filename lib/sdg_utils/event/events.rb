@@ -13,9 +13,12 @@ module SDGUtils
     end
 
     module EventProvider
-
       def clear_listeners
         @event_listeners = {}
+      end
+
+      def event_listeners
+        @event_listeners || []
       end
 
       # @param listener [Object#call]
