@@ -23,9 +23,16 @@ module SDGUtils
         @tree_printer = SDGUtils::PrintUtils::TreePrinter.new({
           :indent_size => 2,
           :print_root  => false,
-          :printer     => lambda {|node| "#{node.task}: #{node.time}ms"},
-          :descender   => lambda {|node| node.children},
+          :printer     => lambda {|node| "#{node.task}: #{node.time * 1000}ms"},
+          :descender   => lambda {|node| node.children + unaccounted(node)},
         })
+      end
+
+      def unaccounted(node)
+        return [] if node.time.nil? || node.children.empty?
+        ans = Node.new("*** Unaccounted time ***")
+        ans.time = node.time - node.children.reduce(0){|acc, ch| acc + ch.time}
+        [ans]
       end
 
       def time_it(task, &block)

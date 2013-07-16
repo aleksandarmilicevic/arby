@@ -9,22 +9,20 @@ module SDGUtils
         @cache = {}
         @hits = 0
         @misses = 0
-        @on_miss = lambda{|*args|}
-        @on_hit = lambda{|*args|}
-        @fake = hash[:fake]
+        @on_miss = nil
+        @on_hit = nil
+        if hash[:fake]
+          self.define_singleton_method :fetch do |key, fake=false, &block|
+            miss(key, block)
+          end
+        end
       end
 
-      def fetch(key, &block)
-        if !@fake && ans = @cache[key]
-          @hits += 1
-          @on_hit.call(self, key, ans)
-          ans
+      def fetch(key, fake=false, &block)
+        if !fake && ans = @cache[key]
+          hit(key, ans)
         else
-          @misses += 1
-          @on_miss.call(self, key)
-          ans = block.call()
-          @cache[key] = ans unless @fake
-          ans
+          miss(key, block)
         end
       end
 
@@ -34,6 +32,20 @@ module SDGUtils
       def fake?() @fake end
 
       private
+
+      def hit(key, ans)
+        @hits += 1
+        # @on_hit.call(self, key, ans) if @on_hit
+        ans
+      end
+
+      def miss(key, block)
+        @misses += 1
+        # @on_miss.call(self, key) if @on_miss
+        ans = block.call()
+        @cache[key] = ans unless @fake
+        ans
+      end
 
       def wrap_block(block)
         case
