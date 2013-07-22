@@ -7,7 +7,14 @@ require 'set'
 require 'test/unit'
 
 require 'alloy/alloy'
+require 'red/red_conf'
 require_relative 'unit_test_ext.rb'
 
-Alloy.set_default :logger => Logger.new(STDOUT) 
+Alloy.set_default :logger => Logger.new(STDOUT)
+
+# red config
+c = Red::default_conf
+c.view_deps.log = Logger.new(NilIO.instance)
+
+Red.define_singleton_method :default_conf, lambda {c}
 

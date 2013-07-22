@@ -6,14 +6,17 @@ module SDGUtils
     class Timer
 
       class Node
-        attr_reader :task, :children, :parent
+        attr_reader :task, :children, :parent, :props
         attr_accessor :time
-        def initialize(task, parent=nil)
+        def initialize(task, parent=nil, props={})
           @task = task
           @parent = parent
           @children = []
+          @props = props
           parent.children << self if parent
         end
+
+        def time() @time || 0 end
       end
 
       def initialize
@@ -30,7 +33,7 @@ module SDGUtils
 
       def unaccounted(node)
         return [] if node.time.nil? || node.children.empty?
-        ans = Node.new("*** Unaccounted time ***")
+        ans = Node.new("*** Unaccounted time ***", nil, :unaccounted_for => node)
         ans.time = node.time - node.children.reduce(0){|acc, ch| acc + ch.time}
         [ans]
       end
@@ -50,6 +53,25 @@ module SDGUtils
 
       def print
         @tree_printer.print_tree(@root)
+      end
+
+      def summary
+        sum = {}
+        add_time = lambda{|task, time|
+          task = task.split("\n").first
+          task_time = sum[task] || 0
+          sum[task] = task_time + time
+        }
+        @tree_printer.traverse(@root) do |node|
+          if n=node.props[:unaccounted_for]
+            add_time.call("#{n.task} (unaccounted)", node.time)
+          elsif node.children.empty?
+            add_time.call(node.task, node.time)
+          else
+            add_time.call("#{node.task} (total)", node.time)
+          end
+        end
+        sum
       end
     end
 

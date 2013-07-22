@@ -1,6 +1,19 @@
 module SDGUtils
   module PrintUtils
 
+    class TreeVisitor
+      def initialize(hash={})
+        @descender = hash[:descender] || lambda{|node| node.children}
+      end
+
+      def traverse(tree, &block)
+        yield(tree)
+        @descender.call(tree).each do |child|
+          traverse(child, &block)
+        end
+      end
+    end
+
     class TreePrinter
 
       def initialize(hash={})
@@ -22,6 +35,11 @@ module SDGUtils
           @tab1.concat " ";
           @tab2.concat "-"
         }
+      end
+
+      def traverse(node, &block)
+        tv = TreeVisitor.new :descender => @descender
+        tv.traverse(node, &block)
       end
 
       def print_tree(node, depth=0, __depth=0)
