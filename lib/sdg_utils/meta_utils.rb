@@ -34,6 +34,13 @@ module SDGUtils
   class MetaUtils
     class << self
 
+      def check_identifier(str)
+        return nil unless str
+        # ok = Object.new.send(:define_singleton_method, str, lambda{}) rescue false
+        ok = Object.new.instance_eval "#{str} = true" rescue false
+        ok ? str : nil
+      end
+
       # --------------------------------------------------------------
       # Determines full module name of the caller
       # --------------------------------------------------------------

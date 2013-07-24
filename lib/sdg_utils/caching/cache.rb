@@ -9,6 +9,7 @@ module SDGUtils
         @cache = {}
         @hits = 0
         @misses = 0
+        @accept_nils = !!hash[:accept_nils]
         @on_miss = nil
         @on_hit = nil
         if hash[:fake]
@@ -17,6 +18,10 @@ module SDGUtils
           end
         end
       end
+
+      def clear() @cache.clear end
+      def accept_nils?() @accept_nils end
+      def reject_nils?() !@accept_nils end
 
       def fetch(key, fake=false, &block)
         if !fake && ans = @cache[key]
@@ -29,21 +34,19 @@ module SDGUtils
       def on_miss(&block) @on_miss = wrap_block(block); self end
       def on_hit(&block)  @on_hit = wrap_block(block); self end
 
-      def fake?() @fake end
-
       private
 
       def hit(key, ans)
         @hits += 1
-        # @on_hit.call(self, key, ans) if @on_hit
+        @on_hit.call(self, key, ans) if @on_hit
         ans
       end
 
       def miss(key, block)
         @misses += 1
-        # @on_miss.call(self, key) if @on_miss
+        @on_miss.call(self, key) if @on_miss
         ans = block.call()
-        @cache[key] = ans unless @fake
+        @cache[key] = ans unless ans.nil? && reject_nils?
         ans
       end
 
