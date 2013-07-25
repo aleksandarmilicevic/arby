@@ -19,7 +19,6 @@ module SDGUtils
         cont.call
       }
       puts a.size
-      binding.pry
     end
 
   end

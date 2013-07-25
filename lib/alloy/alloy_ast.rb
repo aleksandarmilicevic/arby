@@ -312,8 +312,7 @@ module Alloy
             type = Alloy::Ast::AType.get(type)
           end
           fld = meta.add_field(name, type, hash)
-          fld_getter fld
-          fld_setter fld
+          fld_accessors fld
           fld
         end
 
@@ -354,32 +353,29 @@ module Alloy
         #------------------------------------------------------------------------
         # Defines a getter method for a field with the given symbol +sym+
         #------------------------------------------------------------------------
-        def fld_getter(fld, proc=_fld_getter_proc(fld))
-          mod = Module.new
-          mod.send(:define_method, fld.getter_sym, proc)
-          bool_type = Alloy::Ast::UnaryType::ColType::BoolColType
-          ftype = fld.type
-          if ftype.unary? && ftype.range.cls.kind_of?(bool_type)
-            mod.send :alias_method, "#{fld.getter_sym}?".to_sym, fld.getter_sym
-          end
-          self.send :include, mod
+        def fld_accessors(fld)
+          cls = Module.new
+          fld_sym = fld.getter_sym
+
+          cls.class_eval <<-RUBY, __FILE__, __LINE__+1
+def #{fld_sym}
+  _intercept_read(#{fld_sym.inspect}, #{fld.is_inv?}){
+    #{_fld_reader_code(fld)}
+  }
+end
+
+def #{fld_sym}=(value)
+  _intercept_write(#{fld_sym.inspect}, #{fld.is_inv?}, value){
+    #{_fld_writer_code(fld, 'value')}
+  }
+end
+RUBY
+          cls.send :alias_method, "#{fld_sym}?".to_sym, fld_sym if fld.type.isBool?
+          self.send :include, cls
         end
 
-        #------------------------------------------------------------------------
-        # Defines a setter method for a field with the given symbol +sym+
-        #------------------------------------------------------------------------
-        def fld_setter(fld, proc=_fld_setter_proc(fld))
-          mod = Module.new
-          mod.send(:define_method, "#{fld.name}=".to_sym, proc)
-          self.send :include, mod
-        end
-
-        def start
-          _define_meta()
-        end
-
-        def finish
-        end
+        def start() _define_meta() end
+        def finish() end
 
         #------------------------------------------------------------------------
         # Returns a string representation of this +Sig+ conforming to
@@ -401,6 +397,9 @@ EOS
         end
 
         protected
+        
+        def _fld_reader_code(fld) "@#{fld.getter_sym}" end
+        def _fld_writer_code(fld, val) "@#{fld.getter_sym} = #{val}" end
 
         def _traverse_fields(hash, cont, &block)
           hash.each { |k,v| cont.call(k, v) }
@@ -450,42 +449,8 @@ Invalid field format. Valid formats:
         # -----------------------------------------------------------------------
         def _add_inv_for_field(f)
           inv_fld = meta.add_inv_field_for(f)
-          fld_getter inv_fld, _inv_fld_getter_proc(inv_fld)
-          fld_setter inv_fld, _inv_fld_setter_proc(inv_fld)
+          fld_accessors inv_fld
           inv_fld
-        end
-
-        #------------------------------------------------------------------------
-        # Returns a +Proc+ to be used to get a field's value.
-        #------------------------------------------------------------------------
-        def _fld_getter_proc(fld)
-          lambda {
-            _fld_pre_read(fld)
-            val = _read_fld_value(fld)
-            _fld_post_read(fld, val)
-            val
-          }
-        end
-
-        #------------------------------------------------------------------------
-        # Returns a +Proc+ to be used to set a field's value
-        #------------------------------------------------------------------------
-        def _fld_setter_proc(fld)
-          lambda { |val|
-            _fld_pre_write(fld, val)
-            _write_fld_value(fld, val)
-            _fld_post_write(fld, val)
-          }
-        end
-
-        def _inv_fld_getter_proc(fld)
-          #TODO ???
-          _fld_getter_proc(fld)
-        end
-
-        def _inv_fld_setter_proc(fld)
-          #TODO ???
-          _fld_setter_proc(fld)
         end
 
         #------------------------------------------------------------------------
@@ -530,6 +495,21 @@ Invalid field format. Valid formats:
 
       include Alloy::EventConstants
 
+      def _intercept_read(fld_sym, is_inv)
+        fld = is_inv ? meta.inv_field!(fld_sym) : meta.field!(fld_sym)
+        _fld_pre_read(fld)
+        value = yield
+        _fld_post_read(fld, value)
+        value
+      end
+      
+      def _intercept_write(fld_sym, is_inv, value)
+        fld = is_inv ? meta.inv_field!(fld_sym) : meta.field!(fld_sym)
+        _fld_pre_write(fld, value)
+        yield
+        _fld_post_write(fld, value)
+      end
+
       def _fld_pre_read(fld)
         Alloy.boss.fire E_FIELD_TRY_READ, :object => self, :field => fld
         _check_fld_read_access(fld)
@@ -546,19 +526,6 @@ Invalid field format. Valid formats:
 
       def _fld_post_write(fld, val)
         Alloy.boss.fire E_FIELD_WRITTEN, :object => self, :field => fld, :value => val
-      end
-
-      def _read_fld_value(fld)
-        ans = instance_variable_get("@#{fld.name}".to_sym)
-        if ans.nil?
-          fld.default
-        else
-          ans
-        end
-      end
-
-      def _write_fld_value(fld, val)
-        instance_variable_set("@#{fld.name}".to_sym, val)
       end
 
       def init_default_transient_values
