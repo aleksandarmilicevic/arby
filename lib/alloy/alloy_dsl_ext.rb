@@ -53,7 +53,11 @@ class Module
   alias_method :old_const_missing, :const_missing
 
   def const_missing(sym)
-    return super unless in_alloy_dsl?
+    begin
+      return super unless in_alloy_dsl?
+    rescue
+      raise "Constant #{sym} not found in module #{self}"
+    end
     Alloy::AlloyDslExt.my_const_missing(sym)
   end
 end

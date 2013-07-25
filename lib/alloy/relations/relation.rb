@@ -13,14 +13,10 @@ module Alloy
       include Enumerable
 
       # @return [Integer]
-      def arity
-        0
-      end
+      def arity() fail "must override" end
 
       # @return [Array(Tuple)]
-      def tuples
-        []
-      end
+      def tuples() fail "must override" end
 
       def tuple_at(idx)
         tuples[idx]

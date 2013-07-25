@@ -1,4 +1,4 @@
-require 'sdg_utils/recorder'
+require 'sdg_utils/proxy'
 
 module SDGUtils
   module Proto

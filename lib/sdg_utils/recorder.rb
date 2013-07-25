@@ -4,8 +4,8 @@ require 'sdg_utils/delegator'
 module SDGUtils
 
   class MethodRecorder < BasicObject
-    def initialize(cls, &block)
-      @cls = cls
+    def initialize(target, &block)
+      @target = target
       @cb = block || Proc.new {|x|}
     end
 
@@ -14,7 +14,7 @@ module SDGUtils
         return method_missing(*args, &block)
       end
       #TODO: what about args?
-      m = @cls.send :define_method, name, &block
+      m = @target.send :define_method, name, &block
       @cb.call(name, m)
       nil
     end
