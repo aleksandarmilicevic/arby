@@ -1,9 +1,9 @@
 require 'sdg_utils/proxy'
 
 module SDGUtils
-  module Proto
+  module Obj
 
-    module Utils
+    module Proto
       extend self
 
       def extend(&block)

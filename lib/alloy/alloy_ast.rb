@@ -2,6 +2,7 @@ require 'alloy/alloy_ast_errors.rb'
 require 'alloy/alloy_conf.rb'
 require 'alloy/alloy_dsl.rb'
 require 'alloy/alloy_event_constants.rb'
+require 'alloy/utils/codegen_repo'
 require 'sdg_utils/meta_utils'
 require 'date'
 
@@ -356,16 +357,24 @@ module Alloy
         def fld_accessors(fld)
           cls = Module.new
           fld_sym = fld.getter_sym
-
-          cls.class_eval <<-RUBY, __FILE__, __LINE__+1
-def #{fld_sym}
-  _intercept_read(#{fld_sym.inspect}, #{fld.is_inv?}){
+          find_fld_src = if fld.is_inv? 
+                           "meta.inv_field!(#{fld_sym.inspect})" 
+                         else
+                           "meta.field!(#{fld_sym.inspect})"
+                         end
+          desc = {
+            :kind => :fld_accessors,
+            :field => fld_sym
+          }
+          Alloy::Utils::CodegenRepo.eval_code cls, <<-RUBY, __FILE__, __LINE__+1, desc
+def #{fld_sym} 
+  _intercept_read(#{find_fld_src}){
     #{_fld_reader_code(fld)}
   }
 end
 
 def #{fld_sym}=(value)
-  _intercept_write(#{fld_sym.inspect}, #{fld.is_inv?}, value){
+  _intercept_write(#{find_fld_src}, value){
     #{_fld_writer_code(fld, 'value')}
   }
 end
@@ -495,16 +504,14 @@ Invalid field format. Valid formats:
 
       include Alloy::EventConstants
 
-      def _intercept_read(fld_sym, is_inv)
-        fld = is_inv ? meta.inv_field!(fld_sym) : meta.field!(fld_sym)
+      def _intercept_read(fld)
         _fld_pre_read(fld)
         value = yield
         _fld_post_read(fld, value)
         value
       end
       
-      def _intercept_write(fld_sym, is_inv, value)
-        fld = is_inv ? meta.inv_field!(fld_sym) : meta.field!(fld_sym)
+      def _intercept_write(fld, value)
         _fld_pre_write(fld, value)
         yield
         _fld_post_write(fld, value)

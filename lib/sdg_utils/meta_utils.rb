@@ -36,8 +36,8 @@ module SDGUtils
 
       def check_identifier(str)
         return nil unless str
-        # ok = Object.new.send(:define_singleton_method, str, lambda{}) rescue false
-        ok = Object.new.instance_eval "#{str} = true" rescue false
+        # ok = ::Object.new.send(:define_singleton_method, str, lambda{}) rescue false
+        ok = ::Object.new.instance_eval "#{str} = true" rescue false
         ok ? str : nil
       end
 
@@ -59,7 +59,7 @@ module SDGUtils
       # --------------------------------------------------------------
       def caller_module
         mn = caller_module_name
-        str_to_class(mn) || Object
+        str_to_class(mn) || ::Object
         # if mn.empty?
           # class << self; self end
         # else
@@ -72,7 +72,7 @@ module SDGUtils
       # --------------------------------------------------------------
       def arry_to_class(arry)
         begin
-          arry.inject(Object) do |mod, class_name|
+          arry.inject(::Object) do |mod, class_name|
             mod.const_get(class_name)
           end
         rescue NameError
@@ -123,7 +123,7 @@ module SDGUtils
         when String
           str_to_class(module_or_name)
         else
-          Object
+          ::Object
         end
         raise NameError, "Module `#{module_or_name}' not found" if mod.nil?
         already_defined = mod.const_defined?(const_base_name.to_sym, false)
