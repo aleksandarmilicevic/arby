@@ -6,7 +6,8 @@ module SDGUtils
   class RecorderTest < Test::Unit::TestCase
 
     def assert_equal_w(s1, s2)
-      assert_equal s1.strip, s2.gsub(/\s*$/, "")
+      assert_equal s1.strip, s2.strip
+      # assert_equal s1.strip, s2.gsub(/\s*$/, "")
     end
 
     def test0

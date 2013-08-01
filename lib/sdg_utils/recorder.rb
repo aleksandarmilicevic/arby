@@ -53,13 +53,14 @@ module SDGUtils
       end
       unless @no_buffer
         argstr = args.map {|a| a.inspect}.join(", ")
-        @buffer << @indent
-        @buffer << (@var.empty? ? '' : "#{@var}.") << name.to_s << " #{argstr}"
+        buff = ""
+        buff << @indent
+        buff << (@var.empty? ? '' : "#{@var}.") << name.to_s << " #{argstr}"
         if block
-          @buffer << " do "
+          buff << " do "
           if block.arity == 0
-            @buffer << "\n"
-            r = Recorder.new :buffer => @buffer,
+            buff << "\n"
+            r = Recorder.new :buffer => buff,
                              :indent => @indent + TAB,
                              :var    => "",
                              :block_var => @var
@@ -70,17 +71,18 @@ module SDGUtils
               if @block_vars.size == block.arity
                 bv = @block_vars[idx]
               end
-              Recorder.new :buffer => @buffer,
+              Recorder.new :buffer => buff,
                            :indent => @indent + TAB,
                            :var    => "#{bv}",
                            :block_var => "#{@block_var}_@{block_var}"
             end
-            @buffer << "|" << block_args.map {|a| a.var}.join(", ") << "| \n"
+            buff << "|" << block_args.map {|a| a.var}.join(", ") << "|\n"
             block.call(*block_args)
           end
-          @buffer << @indent << "end"
+          buff << @indent << "end"
         end
-        @buffer << "\n"
+        buff << "\n"
+        @buffer << buff
       end
     end
 
