@@ -289,6 +289,13 @@ module Alloy
         end
 
         alias_method :persistent, :fields
+        alias_method :refs, :fields
+
+        def owns(hash={}, &block)
+          _traverse_fields hash, lambda { |name, type|
+            field(name, type, :owned => true)
+          }, &block
+        end
 
         def transient(hash={}, &block)
           _traverse_fields hash, lambda { |name, type|
@@ -300,6 +307,8 @@ module Alloy
           _traverse_field_args(args, lambda {|name, type, hash={}|
                                  _field(name, type, hash)})
         end
+
+        alias_method :ref, :field
 
         #------------------------------------------------------------------------
         # For a given field (name, type) creates a getter and a setter
@@ -364,17 +373,17 @@ module Alloy
                          end
           desc = {
             :kind => :fld_accessors,
+            :target => self,
             :field => fld_sym
           }
           Alloy::Utils::CodegenRepo.eval_code cls, <<-RUBY, __FILE__, __LINE__+1, desc
 def #{fld_sym}
-  _intercept_read(#{find_fld_src}){
+  intercept_read(#{find_fld_src}){
     #{_fld_reader_code(fld)}
   }
 end
-
 def #{fld_sym}=(value)
-  _intercept_write(#{find_fld_src}, value){
+  intercept_write(#{find_fld_src}, value){
     #{_fld_writer_code(fld, 'value')}
   }
 end
@@ -504,14 +513,14 @@ Invalid field format. Valid formats:
 
       include Alloy::EventConstants
 
-      def _intercept_read(fld)
+      def intercept_read(fld)
         _fld_pre_read(fld)
         value = yield
         _fld_post_read(fld, value)
         value
       end
 
-      def _intercept_write(fld, value)
+      def intercept_write(fld, value)
         _fld_pre_write(fld, value)
         yield
         _fld_post_write(fld, value)

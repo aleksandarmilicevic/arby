@@ -1,3 +1,5 @@
+require 'ostruct'
+
 module Alloy
 module Utils
 
@@ -6,6 +8,14 @@ module Utils
 
       @@gen_code = []
       def gen_code() @@gen_code end
+
+      def get_code_for_target(target)
+        @@gen_code.select{|e|
+          e.target == target || e.desc.target == target
+        }.map{|e|
+          e.code
+        }
+      end
 
       # --------------------------------------------------------------
       #
@@ -24,7 +34,7 @@ module Utils
       def eval_code(mod, src, file=nil, line=nil, desc={})
         # Red.conf.log.debug "------------------------- in #{mod}"
         # Red.conf.log.debug src
-        @@gen_code << {:kind => :eval_code, :target => mod, :code => src, :desc => desc}
+        __append :kind => :eval_code, :target => mod, :code => src, :desc => desc
         mod.class_eval src, file, line
       end
 
@@ -39,7 +49,14 @@ module Utils
       #
       # --------------------------------------------------------------
       def record_code(code, target=nil, desc={})
-        @@gen_code << {:kind => :code, :target => target, :code => code, :desc => desc}
+        __append :kind => :code, :target => target, :code => code, :desc => desc
+      end
+
+      private
+
+      def __append(hash)
+        hash[:desc] = OpenStruct.new(hash[:desc])
+        @@gen_code << OpenStruct.new(hash)
       end
 
     end
