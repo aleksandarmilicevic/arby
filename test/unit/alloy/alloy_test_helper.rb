@@ -13,15 +13,15 @@ module AlloyTestUtils
       sig_cls = eval "#{sig_cls_str}"
       supercls = eval "#{supercls_str}"
       #sig_cls.new
-    end  
+    end
     assert sig_cls < supercls, "#{sig_cls} not subclass of #{supercls}"
   end
-  
+
   def assert_accessors_defined(sig_cls, fname)
     assert sig_cls.method_defined?(fname.to_sym), "method `#{fname}' not defined in #{sig_cls}"
     assert sig_cls.method_defined?("#{fname}=".to_sym), "method `#{fname}=' not defined in #{sig_cls}"
   end
-  
+
   def assert_field_meta(sig_cls, fname)
     x = sig_cls.meta().field(fname)
     assert x, "Field #{fname} not found in class #{sig_cls}"
@@ -30,7 +30,7 @@ module AlloyTestUtils
     assert x.type, "Field #{x} has no type"
     assert_equal false, x.synth
   end
-  
+
   def assert_inv_field_meta(sig_cls, inv_fname)
     x = sig_cls.meta().inv_field(inv_fname)
     assert x, "Field #{inv_fname} not found in class #{sig_cls}"
@@ -40,7 +40,7 @@ module AlloyTestUtils
     assert_equal true, x.synth
     assert x.inv, "Field #{x} has no inv"
   end
-  
+
   def assert_field_access(sig_cls, fname)
     inst = sig_cls.new
     getter = inst.method(fname.to_sym)
@@ -48,7 +48,7 @@ module AlloyTestUtils
     setter.call(42)
     assert_equal 42, getter.call
   end
-  
+
   def fld_acc_helper(sig_cls, fld_arr)
     fld_arr.each {|f|
       assert_field_meta(sig_cls, f)
@@ -56,7 +56,7 @@ module AlloyTestUtils
       assert_accessors_defined(sig_cls, f)
     }
   end
-  
+
   def inv_fld_acc_helper(sig_cls, fld_arr)
     fld_arr.each {|f|
       inv_fname = "inv_#{f}"
@@ -65,20 +65,20 @@ module AlloyTestUtils
       assert_accessors_defined(sig_cls, inv_fname)
     }
   end
-  
+
   def subsig_test_helper(sig_cls, subsig_arr)
     assert_equal subsig_arr.size, sig_cls.meta.subsigs.size
     subsig_arr.each do |ss|
       sig_cls.meta.subsigs.member? ss
     end
   end
-  
+
   def assert_module_helper(mod, name)
     assert defined?(name), "new module not defined"
     assert_equal mod, (eval name.to_s)
     assert_equal Module, mod.class
   end
-  
+
   def create_module(name)
     mod = Alloy::Dsl::alloy_model(name)
     assert_module_helper(mod, name)

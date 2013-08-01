@@ -18,7 +18,7 @@ module SDGUtils
     def test_around
       cls = Class.new do
         def calls() @calls ||= 0 end
-        def call(name, args, block, &yield_cb) 
+        def call(name, args, block, &yield_cb)
           @calls = calls + 1
           yield_cb.call
         end
@@ -29,7 +29,7 @@ module SDGUtils
     def test_before
       cls = Class.new do
         def calls() @calls ||= 0 end
-        def call(name, args, block) 
+        def call(name, args, block)
           @calls = calls + 1
         end
       end
@@ -39,7 +39,7 @@ module SDGUtils
     def test_after
       cls = Class.new do
         def calls() @calls ||= 0 end
-        def call(name, args, block, value) 
+        def call(name, args, block, value)
           @calls = calls + 1
         end
       end
@@ -52,7 +52,7 @@ module SDGUtils
       arr = %w(lambda send direct_call).map do |impl|
         instr n, "#{instr_method}_#{impl}".to_sym, cb_cls.new
       end
-      
+
       bench = Proc.new do |m, &action|
         Benchmark.bm(30) do |reporter|
           arr.each do |hash|
@@ -60,11 +60,11 @@ module SDGUtils
           end
         end
       end
-      
+
       expected = 0
 
       m = 100
-      bench.call(m) {|x| 
+      bench.call(m) {|x|
         ans = x.reduce(0){|a,e| a+e}
         assert_equal n*(n-1)/2, ans
         ans
@@ -81,22 +81,22 @@ module SDGUtils
         assert_equal n, ans
         ans
       }
-      
+
       expected += m
       arr.each do |hash|
         assert_equal expected, hash[:cb].calls
       end
-      
+
       bench.call(m) {|x| x << 1}
-      
+
       expected += m
       arr.each do |hash|
         assert_equal expected, hash[:cb].calls
       end
       arr.each do |hash|
         assert_equal n+m, hash[:obj].size
-      end    
+      end
     end
-    
+
   end
 end

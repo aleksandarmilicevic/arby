@@ -357,8 +357,8 @@ module Alloy
         def fld_accessors(fld)
           cls = Module.new
           fld_sym = fld.getter_sym
-          find_fld_src = if fld.is_inv? 
-                           "meta.inv_field!(#{fld_sym.inspect})" 
+          find_fld_src = if fld.is_inv?
+                           "meta.inv_field!(#{fld_sym.inspect})"
                          else
                            "meta.field!(#{fld_sym.inspect})"
                          end
@@ -367,7 +367,7 @@ module Alloy
             :field => fld_sym
           }
           Alloy::Utils::CodegenRepo.eval_code cls, <<-RUBY, __FILE__, __LINE__+1, desc
-def #{fld_sym} 
+def #{fld_sym}
   _intercept_read(#{find_fld_src}){
     #{_fld_reader_code(fld)}
   }
@@ -406,7 +406,7 @@ EOS
         end
 
         protected
-        
+
         def _fld_reader_code(fld) "@#{fld.getter_sym}" end
         def _fld_writer_code(fld, val) "@#{fld.getter_sym} = #{val}" end
 
@@ -510,7 +510,7 @@ Invalid field format. Valid formats:
         _fld_post_read(fld, value)
         value
       end
-      
+
       def _intercept_write(fld, value)
         _fld_pre_write(fld, value)
         yield

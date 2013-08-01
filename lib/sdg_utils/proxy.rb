@@ -65,11 +65,11 @@ RUBY
     end
 
     def __around(opts, obj, name_pattern=/.*/, cb_obj=nil, &block)
-      alias_sym_proc     = opts[:alias_sym] || lambda{|bndg| 
+      alias_sym_proc     = opts[:alias_sym] || lambda{|bndg|
         m, rand = bndg.eval '[m, rand]'
         "#{m}__#{rand}__".to_sym
       }
-      define_method_proc = opts[:define_method] 
+      define_method_proc = opts[:define_method]
       pre_proc           = opts[:pre] || lambda{|bndg|}
       post_proc          = opts[:post] || lambda{|bndg|}
       fail "no define_method_proc given" unless define_method_proc
@@ -83,7 +83,7 @@ RUBY
       mthds = cls.instance_methods.reject{|m|
         /(^__|^send$|^object_id$)/ === m
       }.grep(name_pattern)
-      
+
       pre_proc.call(binding)
       mthds.each{|m|
         alias_sym = alias_sym_proc.call(binding)
@@ -133,7 +133,7 @@ RUBY
           obj.instance_variable_set "@#{cb_var}", cb
           cls.send :attr_reader, cb_var.to_sym
           bndg.eval "store[:cb_var] = #{cb_var.inspect}"
-        }, 
+        },
         :define_method => lambda{|bndg|
           cls, cb_var, m, alias_sym = bndg.eval "[cls, store[:cb_var], m, alias_sym]"
           cls.class_eval <<-RUBY, __FILE__, __LINE__+1

@@ -7,7 +7,7 @@ module Utils
     include SDGUtils::Obj::Uninstantiable
 
     class << self
-      
+
       @@gen_code = []
       def gen_code() @@gen_code end
 

@@ -13,17 +13,17 @@ class TestAlloyUserModel < Test::Unit::TestCase
 
   def test1() create_module "MyModel1" end
   def test2() create_module :MyModel2 end
-  
+
   def test_create_in_a_module
     assert_module_helper X::Y, "X::Y"
   end
-  
+
   def test_invalid_name
     assert_raise(NameError) do
       create_module "My Model"
-    end 
+    end
   end
-      
+
   def test_already_defined
     mod = Alloy::Dsl::alloy_model("MyModel1")
     assert_equal MyModel1, mod
