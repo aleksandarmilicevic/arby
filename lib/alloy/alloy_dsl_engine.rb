@@ -241,8 +241,7 @@ module Alloy
         cls.finish()
         return cls
       end
-
-    end
+    end    
 
   end
 end
