@@ -1,7 +1,7 @@
-
-require 'alloy/alloy_ast.rb'
-require 'alloy/alloy_meta.rb'
-require 'sdg_utils/meta_utils.rb'
+require 'alloy/alloy_ast'
+require 'alloy/alloy_meta'
+require 'sdg_utils/meta_utils'
+require 'sdg_utils/dsl/module_builder'
 
 module Alloy
   module DslEngine
@@ -10,65 +10,26 @@ module Alloy
     # == Class +ModelBuilder+
     #
     # Used for creating alloy modules.
+    #
+    # NOTE: not thread safe!
     # ------------------------------------------
-    class ModelBuilder
-      PARENT_MODULE   = :parent_module
-      MODS_TO_INCLUDE = :mods_to_include
+    class ModelBuilder < SDGUtils::DSL::ModuleBuilder
 
-      @@thread_local = {} # TODO: use some synchronized hash
-
-      attr_reader :in_model, :curr_model
-
-      #--------------------------------------------------------
-      # Returns the singleton instance for the calling thread
-      #--------------------------------------------------------
-      def self.get
-        tid = 0 #TODO: get thread ID or something
-        @@thread_local[tid] ||= self.new
-      end
-
-      #--------------------------------------------------------
-      # Returns the singleton instance for the calling thread,
-      # after updating its +module_name+ attribute
-      #--------------------------------------------------------
-      def self.get_new(options={})
-        raise RuntimeError, "Model nesting is not allowed" if @in_model
-        mm = self.get
-        # update options
-        options[PARENT_MODULE] ||= SDGUtils::MetaUtils.caller_module
-        options[MODS_TO_INCLUDE] ||= [Alloy::Dsl::Model]
-        mm.send(:options=, options)
-        mm
-      end
+      def self.get() SDGUtils::DSL::ModuleBuilder.get end
 
       #--------------------------------------------------------
       # Returns whether the evaluation is in the context
       # of the Alloy Dsl.
       #--------------------------------------------------------
       def self.in_dsl_context?
-        self.get.in_model
+        curr = self.get and curr.in_module?
       end
 
-      #--------------------------------------------------------
-      # Returns the current module, i.e., the module created
-      # in the last execution of +alloy_module+.  This is the
-      # module in whose scope the body is evaluated.  Only in
-      # the case when no name was provided in the declaration
-      # of this module, all assignments will be fowarded to the
-      # parent module, which we call `scope' module.
-      #--------------------------------------------------------
-      def current_module
-        @mod
-      end
-
-      #--------------------------------------------------------
-      # Returns the current scope module, i.e., the module
-      # in which the created sigs get assigned.  If a non-empty
-      # name was provided in the model definition, that the
-      # scope module is the same as the current module.
-      #--------------------------------------------------------
-      def scope_module
-        @scope_mod
+      def initialize(options={})
+        opts = {
+          :mods_to_include => [Alloy::Dsl::Model]
+        }.merge!(options)
+        super(opts)
       end
 
       #--------------------------------------------------------
@@ -78,71 +39,14 @@ module Alloy
       # constants are automatically converted to symbols.
       # --------------------------------------------------------
       def model(model_sym, name, &block)
-        raise RuntimeError, "Model nesting is not allowed" if @in_model
-        @in_model = true
+        raise RuntimeError, "Model nesting is not allowed" if in_module?
         @curr_model = model_sym
-        begin
-          @mod = create_or_get_module(name, @options[MODS_TO_INCLUDE])
-          @scope_mod = if name.nil? || name.empty?
-                         @options[PARENT_MODULE]
-                       else
-                         @mod
-                       end
-          unless block.nil?
-            @mod.module_eval(&block)
-          end
-          return @mod
-        ensure
-          @in_model = false
-        end
+        build(name, &block)
       end
 
-      protected
+      def curr_model() @curr_model end
+      def in_model() in_module? end
 
-      def create_module(parent_module, name)
-        mod = Module.new
-        unless name.nil? || name.empty?
-          SDGUtils::MetaUtils.assign_const_in_module(parent_module, name, mod)
-        end
-        mod
-      end
-
-      #-------------------------------------------------------------------
-      # Creates a new module and assigns it to a given constant name,
-      # or returns an existing one.
-      #
-      #  * if +name+ is +nil+ or empty, returns the module of +self+
-      #  * if constant with named +name+ is already defined,
-      #    * if the existing constant is a +Module+, returns that module
-      #    * else, raises NameError
-      #  * else, creates a new module
-      #-------------------------------------------------------------------
-      def create_or_get_module(name, mods_to_include)
-        parent_module = @options[PARENT_MODULE]
-        already_def = parent_module.const_defined?(name, false) rescue false
-        ret_module = (parent_module.const_get name if already_def) ||
-                     create_module(parent_module, name)
-
-        raise NameError, "Constant #{name} already defined in module #{parent_module}"\
-          unless ret_module.class == Module
-
-        mods_to_include.each {|m|
-          ret_module.send(:include, m) unless ret_module.include? m
-          ret_module.send(:extend, m)
-        } unless ret_module == Object
-
-        ret_module
-      end
-
-      # setter for +@options+
-      def options=(options)
-        @options = options
-      end
-
-      # constructors
-      def initialize()
-        @options = {}
-      end
     end
 
     # -------------------------------------------------------
@@ -241,7 +145,7 @@ module Alloy
         cls.finish()
         return cls
       end
-    end    
+    end
 
   end
 end

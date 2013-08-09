@@ -96,8 +96,7 @@ module Alloy
     # are automatically converted to symbols.
     # ----------------------------------------------------------------
     def alloy_model(name="", &block)
-      mm = _model_builder_new
-      mm.model(:alloy, name, &block)
+      Alloy::DslEngine::ModelBuilder.new.model(:alloy, name, &block)
     end
 
     # ----------------------------------------------------------------
@@ -105,31 +104,6 @@ module Alloy
     # ----------------------------------------------------------------
     alias_method :alloy_module, :alloy_model
 
-
-    # ----------------------------------------------------------------
-    # Returns a model manager class (this method can be easily
-    # override to supply a different manager).
-    # ----------------------------------------------------------------
-    def _model_builder_class
-      Alloy::DslEngine::ModelBuilder
-    end
-
-    # ----------------------------------------------------------------
-    # Returns the current +ModelBuilder+ instance by invoking +get+ on
-    # the +ModelBuilder+ class.
-    # ----------------------------------------------------------------
-    def _model_builder
-      _model_builder_class().get()
-    end
-
-    # ----------------------------------------------------------------
-    # Returns the current +ModelBuilder+ instance by invoking
-    # +get_new+ on the +ModelBuilder+ class, which returns the current
-    # "physical" instance but allows new options to be supplied to it.
-    # ----------------------------------------------------------------
-    def _model_builder_new(*args)
-      _model_builder_class().get_new(*args)
-    end
   end
 
 end
