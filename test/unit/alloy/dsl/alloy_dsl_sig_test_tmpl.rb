@@ -116,7 +116,7 @@ def get_test_template(cls_name, model_func, sig_func, base_sig_cls)
       end
 
       def test_empty_name
-        assert_raise(NameError) do
+        assert_raise(ArgumentError) do
           #{model_func} "X_#{cls_name}" do
             #{sig_func} nil
           end
@@ -152,14 +152,14 @@ def get_test_template(cls_name, model_func, sig_func, base_sig_cls)
       end
 
       def test_base_sig_not_sig1
-        assert_raise(Alloy::Ast::TypeError) do
+        assert_raise(ArgumentError) do
           #{model_func} do; #{sig_func} X4_#{cls_name} < String end
         end
       end
 
       def test_base_sig_not_sig2
-        assert_raise(Alloy::Ast::TypeError) do
-          #{model_func} do; #{sig_func} X5_#{cls_name} < Alloy::Ast::Sig end
+        assert_raise(ArgumentError) do
+          #{model_func} do; #{sig_func} X5_#{cls_name} < Alloy::Ast::SigMeta end
         end
       end
 

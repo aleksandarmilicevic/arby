@@ -2,6 +2,7 @@ require 'alloy/alloy_ast'
 require 'alloy/alloy_meta'
 require 'sdg_utils/meta_utils'
 require 'sdg_utils/dsl/module_builder'
+require 'sdg_utils/dsl/class_builder'
 
 module Alloy
   module DslEngine
@@ -74,8 +75,9 @@ module Alloy
           new(mod_smbl)
         else
           wrapped = sig[0]
-          wrapped = ::Alloy::Ast::UnaryType.new(sig[0]) \
-            unless wrapped.kind_of? ::Alloy::Ast::AType
+          unless wrapped.kind_of? ::Alloy::Ast::AType
+            wrapped = ::Alloy::Ast::UnaryType.new(sig[0])
+          end
           ::Alloy::Ast::ModType.new(wrapped, mod_smbl)
         end
       end
@@ -92,16 +94,10 @@ module Alloy
     #
     # Used to create sig classes.
     # -------------------------------------------------------
-    class SigBuilder
-      DEFAULT_SUPERCLASS = :default_superclass
-      SCOPE_MODULE       = :scope_module
-      CREATED_CB         = :created_cb
-
+    class SigBuilder < SDGUtils::DSL::ClassBuilder
       def initialize(options={})
-        options[DEFAULT_SUPERCLASS] ||= Alloy::Ast::Sig
-        options[SCOPE_MODULE]       ||= ModelBuilder.get.scope_module
-        options[CREATED_CB]           = Array[options[CREATED_CB]].flatten.compact
-        @options = options
+        opts = { :superclass => Alloy::Ast::Sig }
+        super(opts.merge!(options))
       end
 
       def self.sig(*args, &block)
@@ -115,35 +111,7 @@ module Alloy
       # to it.
       # --------------------------------------------------------------
       def sig(name, fields={}, &block)
-        default_supercls = @options[DEFAULT_SUPERCLASS]
-        cls_name, super_cls = case name
-        when Class
-          [name.relative_name, default_supercls]
-        when Array
-          raise ArgumentError, "If the first argument is an array, it must have 2 elements, name and super class: Symbol -> Class" unless name.length == 2
-          raise ArgumentError,"Specified super class #{name[1]} is not a class but #{name[1].class}" unless name[1].class == Class
-          raise Alloy::Ast::TypeError, "Super class (#{name[1]}) must be a subclass of #{default_supercls}" unless name[1] < default_supercls
-          [name[0], name[1]]
-        else
-          [name, default_supercls]
-        end
-
-        full_name = "#{@options[SCOPE_MODULE]}::#{cls_name}"
-        cls = Alloy::Ast.create_sig(full_name, super_cls)
-
-        @options[CREATED_CB].each { |cb| cb.call(cls) }
-
-        cls.fields(fields)
-
-        if block
-          ret = cls.class_eval(&block)
-          if !ret.nil? && ret.kind_of?(Hash)
-            cls.fields(ret) rescue nil
-          end
-        end
-
-        cls.finish()
-        return cls
+        build(name, fields, &block)
       end
     end
 

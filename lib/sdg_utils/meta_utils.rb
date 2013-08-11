@@ -103,8 +103,19 @@ module SDGUtils
         end
       end
 
+      def split_to_module_and_relative(name)
+        sp = name.split('::')
+        [sp[0..-2].join('::'), sp.last]
+      end
+
       def assign_const(full_name, cst)
-        assign_const_in_module(*full_name.split_to_module_and_relative, cst)
+        mod_name, cls_name =
+          if full_name[-2..-1] == "::"
+            [full_name[0...-2], ""]
+          else
+            split_to_module_and_relative(full_name)
+          end
+        assign_const_in_module(mod_name, cls_name, cst)
       end
 
       # --------------------------------------------------------------
@@ -127,8 +138,10 @@ module SDGUtils
         end
         raise NameError, "Module `#{module_or_name}' not found" if mod.nil?
         already_defined = mod.const_defined?(const_base_name.to_sym, false)
-        raise NameError, "Constant #{module_or_name}::#{const_base_name} already defined"\
-          if already_defined
+        if already_defined
+          msg = "Constant #{module_or_name}::#{const_base_name} already defined"
+          raise NameError, msg
+        end
         mod.const_set(const_base_name.to_sym, cst)
       end
 

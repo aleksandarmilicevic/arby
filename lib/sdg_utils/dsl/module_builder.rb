@@ -18,9 +18,7 @@ module SDGUtils
       public
 
       def self.get()
-        ans = thread_local()[:builder]
-        binding.pry if $pera
-        ans
+        thread_local()[:builder]
       end
 
       attr_reader :in_module
