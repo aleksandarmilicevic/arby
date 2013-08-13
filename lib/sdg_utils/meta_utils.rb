@@ -123,6 +123,7 @@ module SDGUtils
       # +cst+ value to it
       # --------------------------------------------------------------
       def assign_const_in_module(module_or_name, const_base_name, cst)
+        const_base_name = const_base_name.to_s
         raise NameError, "name must not be empty" \
           if const_base_name.nil? || const_base_name.empty?
         raise NameError, "`#{const_base_name}' - name must begin with a capital letter" \

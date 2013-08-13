@@ -12,8 +12,8 @@ module SDGUtils
         setup_test
       end
 
-      def setup_class; end
-      def setup_test; end
+      def setup_class() end
+      def setup_test() end
     end
 
   end

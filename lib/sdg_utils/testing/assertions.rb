@@ -51,6 +51,11 @@ module SDGUtils
         end
       end
 
+      def assert_starts_with(expected_start, actual, msg=nil)
+        msg ||= "'#{actual}' doesn't start with \n'#{expected_start}'"
+        assert actual.to_s.start_with?(expected_start.to_s), msg
+      end
+
       private
 
       def diff(actual, expected)

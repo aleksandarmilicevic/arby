@@ -95,6 +95,10 @@ module Alloy
         @synth ? "~#{decl}" : decl
       end
 
+      def to_iden
+        full_name.gsub /[^a-zA-Z0-9_]/, "_"
+      end
+
       protected
 
       def inv=(fld) @inv = fld end
@@ -264,10 +268,9 @@ module Alloy
     end
 
     #------------------------------------------
-    # == Module ASig
+    # == Module ASig::Static
     #------------------------------------------
     module ASig
-
       module Static
         def inherited(subclass)
           super
@@ -280,6 +283,15 @@ module Alloy
           require_relative 'alloy.rb'
           Alloy.meta.sig_created(self)
         end
+
+        def method_missing(sym, *args, &block)
+          if args.empty? && block.nil?
+            meta.field(sym) or meta.inv_field(sym) or super
+          else
+            super
+          end
+        end
+
 
         #------------------------------------------------------------------------
         # Class method for defining fields inside a class definition
@@ -480,11 +492,12 @@ Invalid field format. Valid formats:
           define_singleton_method(:meta, lambda {meta})
         end
       end
+    end
 
-      # -----------------------------------------------------------
-      # Instance methods
-      # -----------------------------------------------------------
-
+    #------------------------------------------
+    # == Module ASig
+    #------------------------------------------
+    module ASig
       def self.included(base)
         base.extend(Static)
         base.extend(Alloy::Dsl::StaticHelpers)

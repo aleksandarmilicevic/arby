@@ -48,7 +48,6 @@ module SDGUtils
         cls = Class.new(super_cls)
         SDGUtils::MetaUtils.assign_const_in_module(@options[:scope_module], cls_name, cls)
         cls_send cls, @options[:created_mthd]
-        cls
 
         @options[:created_cb].each { |cb| cb.call(cls) }
 
