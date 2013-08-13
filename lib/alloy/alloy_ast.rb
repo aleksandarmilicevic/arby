@@ -83,6 +83,12 @@ module Alloy
       def getter_sym() FieldMeta.getter_sym(self) end
       def setter_sym() FieldMeta.setter_sym(self) end
 
+      # @param owner [Alloy::Ast::ASig]
+      # @param value [Object]
+      def set(owner, value)
+        owner.write_field(self, value)
+      end
+
       def to_s()
         ret = full_name
         ret = "transient " + ret if transient?
@@ -286,12 +292,20 @@ module Alloy
 
         def method_missing(sym, *args, &block)
           if args.empty? && block.nil?
-            meta.field(sym) or meta.inv_field(sym) or super
-          else
-            super
+            fld = meta.field(sym) || meta.inv_field(sym)
+            if fld
+              fld_mth = (fld.is_inv?) ? "inv_field" : "field"
+              self.instance_eval <<-RUBY, __FILE__, __LINE__+1
+                def #{sym}()
+                  meta.#{fld_mth}(#{sym.inspect})
+                end
+              RUBY
+              return fld
+            else
+              super
+            end
           end
         end
-
 
         #------------------------------------------------------------------------
         # Class method for defining fields inside a class definition
@@ -490,6 +504,23 @@ Invalid field format. Valid formats:
         def _define_meta()
           meta = Alloy::Ast::SigMeta.new(self)
           define_singleton_method(:meta, lambda {meta})
+        end
+
+        #------------------------------------------------------------------------
+        # Checks whether the specified hash contains exactly one
+        # entry, whose key is a valid identifier, and whose value is a
+        # subtype of the specified type (`expected_type')
+        # ------------------------------------------------------------------------
+        def _check_single_fld_hash(hash, expected_type)
+          msg1 = "Hash expected, got #{hash.class} instead"
+          msg2 = "Expected exactly one entry, got #{hash.length}"
+          raise ArgumentError, msg1 unless hash.kind_of? Hash
+          raise ArgumentError, msg2 unless hash.length == 1
+
+          varname, type = hash.first
+          msg = "`#{varname}' is not a proper identifier"
+          raise ArgumentError, msg unless SDGUtils::MetaUtils.check_identifier(varname)
+          Alloy::Ast::TypeChecker.check_type(expected_type, type)
         end
       end
     end
