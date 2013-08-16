@@ -3,6 +3,10 @@ require 'sdg_utils/meta_utils.rb'
 module SDGUtils
   module DSL
 
+    #=========================================================================
+    # == Class ModuleBuilder
+    #
+    #=========================================================================
     class ModuleBuilder
       PARENT_MODULE   = :parent_module
       MODS_TO_INCLUDE = :mods_to_include

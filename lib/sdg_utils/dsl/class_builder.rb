@@ -4,15 +4,20 @@ require 'sdg_utils/meta_utils'
 module SDGUtils
   module DSL
 
+    #=========================================================================
+    # == Class ClassBuilder
+    #
+    #=========================================================================
     class ClassBuilder
       def initialize(options={})
         @options = {
-          :superclass   => ::Object,
-          :scope_module => ModuleBuilder.get.scope_module,
-          :created_cb   => [],
-          :fields_mthd  => :fields,
-          :created_mthd => :created,
-          :finish_mthd  => :finish
+          :superclass       => ::Object,
+          :builder_features => nil,
+          :scope_module     => ModuleBuilder.get.scope_module,
+          :created_cb       => [],
+          :fields_mthd      => :fields,
+          :created_mthd     => :created,
+          :finish_mthd      => :finish
         }.merge!(options)
         @options[:created_cb] = Array[@options[:created_cb]].flatten.compact
       end
@@ -53,6 +58,8 @@ module SDGUtils
         cls_send cls, @options[:fields_mthd], fields
 
         if block
+          # bld_feat = @options[:builder_features] and cls.extend(bld_feat)
+
           ret = cls.class_eval(&block)
           if !ret.nil? && ret.kind_of?(Hash)
             cls_send cls, @options[:fields_mthd], ret rescue nil #TODO: don't rescue

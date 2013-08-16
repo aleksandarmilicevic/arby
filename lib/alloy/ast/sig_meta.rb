@@ -30,10 +30,10 @@ module Alloy
         @extra = {}
       end
 
-      def abstract?;       @abstract end
-      def set_abstract;    @abstract = true end
-      def placeholder?;    @placeholder end
-      def set_placeholder; @placeholder = true end
+      def abstract?()       @abstract end
+      def set_abstract()    @abstract = true end
+      def placeholder?()    @placeholder end
+      def set_placeholder() set_abstract; @placeholder = true end
 
       def persistent_fields(*args)
         fields(*args).select { |f| f.persistent? }

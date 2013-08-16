@@ -4,6 +4,10 @@ require 'sdg_utils/meta_utils'
 module SDGUtils
   module DSL
 
+    #=========================================================================
+    # == Class InstanceBuilder
+    #
+    #=========================================================================
     class InstanceBuilder
       def initialize(options={})
         @opts = {

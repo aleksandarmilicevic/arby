@@ -11,39 +11,10 @@ module Alloy
     # == Module ASig::Static
     #=========================================================================
     module ASig
-      module Static
-        def inherited(subclass)
-          super
-          fail "The +meta+ method hasn't been defined for class #{self}" unless meta
-          subclass.start
-          meta.add_subsig(subclass)
-        end
 
-        def created()
-          require 'alloy/alloy.rb'
-          Alloy.meta.sig_created(self)
-        end
+      module Builder
+        protected
 
-        def method_missing(sym, *args, &block)
-          if args.empty? && block.nil?
-            fld = meta.field(sym) || meta.inv_field(sym)
-            if fld
-              fld_mth = (fld.is_inv?) ? "inv_field" : "field"
-              self.instance_eval <<-RUBY, __FILE__, __LINE__+1
-                def #{sym}()
-                  meta.#{fld_mth}(#{sym.inspect})
-                end
-              RUBY
-              return fld
-            else
-              super
-            end
-          end
-        end
-
-        #------------------------------------------------------------------------
-        # Defines fields inside the class definition
-        #------------------------------------------------------------------------
         def fields(hash={}, &block)
           _traverse_fields hash, lambda { |name, type| field(name, type) }, &block
         end
@@ -74,91 +45,14 @@ module Alloy
           field(name, type, :synth => true)
         end
 
-        def abstract; _set_abstract; self end
-        def placeholder; _set_placeholder; self end
+        def abstract()    _set_abstract; self end
+        def placeholder() _set_placeholder; self end
 
         def invariant(&block)
           define_method(:invariant, &block)
         end
 
-        # @see +SigMeta#abstract?+
-        # @return [TrueClass, FalseClass]
-        def abstract?; meta.abstract? end
-
-        # @see +SigMeta#placeholder?+
-        # @return [TrueClass, FalseClass]
-        def placeholder?; meta.placeholder? end
-
-        # @see +SigMeta#ignore_abstract+
-        # @return [Class, NilClass]
-        def oldest_ancestor(ignore_abstract=false)
-          meta.oldest_ancestor(ignore_abstract)
-        end
-
-        # Returns highest non-placeholder ancestor of +self+ in the
-        # inheritance hierarchy or self.
-        def alloy_root
-          meta.oldest_ancestor(false) || self
-        end
-
-        def all_supersigs()  meta.all_supersigs end
-        def all_subsigs()  meta.all_subsigs end
-
-        #------------------------------------------------------------------------
-        # Defines a getter method for a field with the given symbol +sym+
-        #------------------------------------------------------------------------
-        def fld_accessors(fld)
-          cls = Module.new
-          fld_sym = fld.getter_sym
-          find_fld_src = if fld.is_inv?
-                           "meta.inv_field!(#{fld_sym.inspect})"
-                         else
-                           "meta.field!(#{fld_sym.inspect})"
-                         end
-          desc = {
-            :kind => :fld_accessors,
-            :target => self,
-            :field => fld_sym
-          }
-          Alloy::Utils::CodegenRepo.eval_code cls, <<-RUBY, __FILE__, __LINE__+1, desc
-          def #{fld_sym}
-            intercept_read(#{find_fld_src}){
-              #{_fld_reader_code(fld)}
-            }
-          end
-          def #{fld_sym}=(value)
-            intercept_write(#{find_fld_src}, value){
-              #{_fld_writer_code(fld, 'value')}
-            }
-          end
-          RUBY
-          cls.send :alias_method, "#{fld_sym}?".to_sym, fld_sym if fld.type.isBool?
-          self.send :include, cls
-        end
-
-        def start() _define_meta() end
-        def finish() end
-
-        #------------------------------------------------------------------------
-        # Returns a string representation of this +Sig+ conforming to
-        # the Alloy syntax
-        #------------------------------------------------------------------------
-        def to_alloy
-          psig = superclass
-          psig_str = (psig != Sig.class) ? "extends #{psig.relative_name} " : ""
-          <<-EOS
-sig #{relative_name} #{psig_str} {
-#{meta.fields_to_alloy}
-
-// inv fields (synthesized)
-/*
-#{meta.inv_fields_to_alloy}
-*/
-}
-EOS
-        end
-
-        protected
+        private
 
         #------------------------------------------------------------------------
         # For a given field (name, type) creates a getter and a setter
@@ -231,6 +125,115 @@ Invalid field format. Valid formats:
           inv_fld
         end
 
+      end
+
+      module Static
+        def inherited(subclass)
+          super
+          fail "The +meta+ method hasn't been defined for class #{self}" unless meta
+          subclass.start
+          meta.add_subsig(subclass)
+        end
+
+        def created()
+          require 'alloy/alloy.rb'
+          Alloy.meta.sig_created(self)
+        end
+
+        def method_missing(sym, *args, &block)
+          if args.empty? && block.nil?
+            fld = meta.field(sym) || meta.inv_field(sym)
+            if fld
+              fld_mth = (fld.is_inv?) ? "inv_field" : "field"
+              self.instance_eval <<-RUBY, __FILE__, __LINE__+1
+                def #{sym}()
+                  meta.#{fld_mth}(#{sym.inspect})
+                end
+              RUBY
+              return fld
+            else
+              super
+            end
+          end
+        end
+
+        # @see +SigMeta#abstract?+
+        # @return [TrueClass, FalseClass]
+        def abstract?() meta.abstract? end
+
+        # @see +SigMeta#placeholder?+
+        # @return [TrueClass, FalseClass]
+        def placeholder?() meta.placeholder? end
+
+        # @see +SigMeta#ignore_abstract+
+        # @return [Class, NilClass]
+        def oldest_ancestor(ignore_abstract=false)
+          meta.oldest_ancestor(ignore_abstract)
+        end
+
+        # Returns highest non-placeholder ancestor of +self+ in the
+        # inheritance hierarchy or self.
+        def alloy_root
+          meta.oldest_ancestor(false) || self
+        end
+
+        def all_supersigs()  meta.all_supersigs end
+        def all_subsigs()  meta.all_subsigs end
+
+        #------------------------------------------------------------------------
+        # Defines a getter method for a field with the given symbol +sym+
+        #------------------------------------------------------------------------
+        def fld_accessors(fld)
+          cls = Module.new
+          fld_sym = fld.getter_sym
+          find_fld_src = if fld.is_inv?
+                           "meta.inv_field!(#{fld_sym.inspect})"
+                         else
+                           "meta.field!(#{fld_sym.inspect})"
+                         end
+          desc = {
+            :kind => :fld_accessors,
+            :target => self,
+            :field => fld_sym
+          }
+          Alloy::Utils::CodegenRepo.eval_code cls, <<-RUBY, __FILE__, __LINE__+1, desc
+          def #{fld_sym}
+            intercept_read(#{find_fld_src}){
+              #{_fld_reader_code(fld)}
+            }
+          end
+          def #{fld_sym}=(value)
+            intercept_write(#{find_fld_src}, value){
+              #{_fld_writer_code(fld, 'value')}
+            }
+          end
+          RUBY
+          cls.send :alias_method, "#{fld_sym}?".to_sym, fld_sym if fld.type.isBool?
+          self.send :include, cls
+        end
+
+        def start() _define_meta() end
+        def finish() end
+
+        #------------------------------------------------------------------------
+        # Returns a string representation of this +Sig+ conforming to
+        # the Alloy syntax
+        #------------------------------------------------------------------------
+        def to_alloy
+          psig = superclass
+          psig_str = (psig != Sig.class) ? "extends #{psig.relative_name} " : ""
+          <<-EOS
+sig #{relative_name} #{psig_str} {
+#{meta.fields_to_alloy}
+
+// inv fields (synthesized)
+/*
+#{meta.inv_fields_to_alloy}
+*/
+}
+EOS
+        end
+
         #------------------------------------------------------------------------
         # Defines the +meta+ method which returns some meta info
         # about this sig's fields
@@ -264,8 +267,8 @@ Invalid field format. Valid formats:
     #------------------------------------------
     module ASig
       def self.included(base)
-        base.extend(Static)
         base.extend(Alloy::Dsl::StaticHelpers)
+        base.extend(Static)
         base.send :include, Alloy::Dsl::InstanceHelpers
         base.start
       end
@@ -279,13 +282,8 @@ Invalid field format. Valid formats:
         init_default_transient_values
       end
 
-      def read_field(fld)
-        send(Alloy::Ast::FieldMeta.getter_sym(fld))
-      end
-
-      def write_field(fld, val)
-        send(Alloy::Ast::FieldMeta.setter_sym(fld), val)
-      end
+      def read_field(fld)       send Alloy::Ast::FieldMeta.getter_sym(fld) end
+      def write_field(fld, val) send Alloy::Ast::FieldMeta.setter_sym(fld), val end
 
       protected
 
@@ -345,12 +343,14 @@ Invalid field format. Valid formats:
 
     end
 
-    #------------------------------------------
+    #================================================================
     # == Class Sig
-    #------------------------------------------
+    #================================================================
     class Sig
       include ASig
-      placeholder
+      extend ASig::Static
+      extend ASig::Builder
+      meta.set_placeholder
     end
 
     def self.create_sig(name, super_cls=Alloy::Ast::Sig)
