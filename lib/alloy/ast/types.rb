@@ -14,6 +14,7 @@ module Alloy
       def self.get(obj)
         case obj
         when Proc; DependentType.new(obj)
+        when AType; obj
         else
           UnaryType.new(obj)
         end
@@ -407,11 +408,19 @@ module Alloy
       end
     end
 
-    #-----------------------------------------------------
-    # == Class ModType
+    # ======================================================
+    # == Class +NoType+
+    # ======================================================
+    class NoType
+      include AType
+      def arity() 0 end
+    end
+
+    # ======================================================
+    # == Class +ModType+
     #
     # Wraps another type and adds a multiplicity modifier
-    #-----------------------------------------------------
+    # ======================================================
     class ModType
       include AType
 

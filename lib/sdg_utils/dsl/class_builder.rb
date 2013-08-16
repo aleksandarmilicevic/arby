@@ -9,6 +9,9 @@ module SDGUtils
     #
     #=========================================================================
     class ClassBuilder
+
+      #TODO rewrite using SDGUtils::Config
+
       def initialize(options={})
         @options = {
           :superclass       => ::Object,
@@ -17,7 +20,8 @@ module SDGUtils
           :created_cb       => [],
           :fields_mthd      => :fields,
           :created_mthd     => :created,
-          :finish_mthd      => :finish
+          :finish_mthd      => :finish,
+          :eval_body_mthd   => :eval_body,
         }.merge!(options)
         @options[:created_cb] = Array[@options[:created_cb]].flatten.compact
       end
@@ -51,24 +55,31 @@ module SDGUtils
           end
 
         cls = Class.new(super_cls)
+
+        # send :created
         cls_send cls, @options[:created_mthd]
 
+        # notify callbacks
         @options[:created_cb].each { |cb| cb.call(cls) }
 
+        # send :fields
         cls_send cls, @options[:fields_mthd], fields
 
+        # evaluate body
         if block
           # bld_feat = @options[:builder_features] and cls.extend(bld_feat)
-
-          ret = cls.class_eval(&block)
+          ebm = @options[:eval_body_mthd]
+          eval_body_mthd_name = cls.respond_to?(ebm) ? ebm : "class_eval"
+          ret = cls.send eval_body_mthd_name, &block
           if !ret.nil? && ret.kind_of?(Hash)
-            cls_send cls, @options[:fields_mthd], ret rescue nil #TODO: don't rescue
+            cls_send cls, @options[:fields_mthd], ret
           end
         end
 
+        # send :finish
         cls_send cls, @options[:finish_mthd]
 
-        SDGUtils::MetaUtils.assign_const_in_module(@options[:scope_module], cls_name, cls)
+        SDGUtils::MetaUtils.assign_const_in_module @options[:scope_module], cls_name, cls
         return cls
       end
 

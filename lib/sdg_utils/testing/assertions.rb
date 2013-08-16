@@ -19,6 +19,8 @@ module SDGUtils
         end
       end
 
+      alias_method :assert_seq_equal, :assert_arry_equal
+
       def assert_set_equal(set1, set2, msg="")
         mymsg = "Sets set1=#{set1} and set2=#{set2} are not equal"
         mymsg = "#{msg}\n#{mymsg}" unless mymsg.empty?

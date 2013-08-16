@@ -1,4 +1,6 @@
-module Alloy
+require 'alloy/ast/arg'
+
+ module Alloy
   module Ast
 
     # ----------------------------------------------------------------------
@@ -13,51 +15,31 @@ module Alloy
     # @attr belongs_to_parent [TrueClass, FalseClass]
     # @immutable
     # ----------------------------------------------------------------------
-    class Field
-      attr_reader :parent, :name, :type, :default, :inv, :impl, :synth
+    class Field < Arg
+      attr_reader :parent, :default, :inv, :impl, :synth
 
-      class << self
-        def getter_sym(fld)
-          case fld
-          when Alloy::Ast::Field
-            fld.name.to_sym
-          when String
-            fld.to_sym
-          when Symbol
-            fld
-          else
-            msg = "`fld' must be in [Field, String, Symbol], but is #{fld.class}"
-            raise ArgumentError, msg
-          end
-        end
-
-        def setter_sym(fld)
-          "#{getter_sym(fld)}=".to_sym
-        end
-      end
+      def self.getter_sym(fld) Arg.getter_sym(fld) end
+      def self.setter_sym(fld) Arg.setter_sym(fld) end
 
       # Hash keys:
-      #   :parent [ASig]    - parent sig
-      #   :name [String]    - name
-      #   :type [AType]     - type
-      #   :default [object] - default value
-      #   :inv [Field]  - inv field
-      #   :synth [Bool]     - whether synthesized of defined by the user
+      #   :parent [ASig]            - parent sig
+      #   :name [String]            - name
+      #   :type [AType]             - type
+      #   :default [object]         - default value
+      #   :inv [Field]              - inv field
+      #   :synth [Bool]             - whether synthesized of defined by the user
       #   :belongs_to_parent [Bool] - whether its value is owned by field's parent
-      #   :transient [Bool] - whether it is transient (false by default)
+      #   :transient [Bool]         - whether it is transient (false by default)
       def initialize(hash)
-        @parent  = hash[:parent]
-        @name    = hash[:name]
-        @type    = hash[:type]
-        @default = hash[:default]
-        set_inv(hash[:inv])
-        @synth   = hash[:synth] || false
+        super(hash)
+        @parent            = hash[:parent]
+        @default           = hash[:default]
+        @synth             = hash[:synth] || false
         @belongs_to_parent = hash[:belongs_to_parent] || hash[:owned] || false
-        @transient = hash[:transient] || false
+        @transient         = hash[:transient] || false
+        set_inv(hash[:inv])
       end
 
-      def scalar?()            @type.scalar? end
-      def primitive?()         scalar? && @type.range.primitive? end
       def transient?()         @transient end
       def persistent?()        !@transient end
       def synth?()             @synth end
@@ -71,9 +53,6 @@ module Alloy
 
       def full_name() "#{@parent.name}.#{name}" end
       def full_type() Alloy::Ast::ProductType.new(@parent.to_atype, @type) end
-
-      def getter_sym() Field.getter_sym(self) end
-      def setter_sym() Field.setter_sym(self) end
 
       # @param owner [Alloy::Ast::ASig]
       # @param value [Object]

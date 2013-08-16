@@ -1,5 +1,7 @@
 require 'alloy/alloy_event_constants.rb'
+require 'alloy/ast/arg'
 require 'alloy/ast/field'
+require 'alloy/ast/pred'
 require 'alloy/ast/sig_meta'
 require 'alloy/utils/codegen_repo'
 require 'sdg_utils/meta_utils'
@@ -15,6 +17,9 @@ module Alloy
       module Builder
         protected
 
+        # ---------------------------------------------------------
+        # TODO: DOCS
+        # ---------------------------------------------------------
         def fields(hash={}, &block)
           _traverse_fields hash, lambda { |name, type| field(name, type) }, &block
         end
@@ -34,6 +39,9 @@ module Alloy
           }, &block
         end
 
+        # ---------------------------------------------------------
+        # TODO: DOCS
+        # ---------------------------------------------------------
         def field(*args)
           _traverse_field_args(args, lambda {|name, type, hash={}|
                                  _field(name, type, hash)})
@@ -48,11 +56,58 @@ module Alloy
         def abstract()    _set_abstract; self end
         def placeholder() _set_placeholder; self end
 
+        # ---------------------------------------------------------
+        # TODO: DOCS
+        # ---------------------------------------------------------
+        def fun(*args, &block)
+          block = lambda{} unless block
+          fun_opts =
+            case
+            when args.size == 1 && Hash === args[0]
+              fa = _to_args(args[0][:args])
+              args[0].merge :args => fa
+            when args.size == 1 && Fun === args[0]
+              args[0]
+            when args.size == 2
+              # expected types: String, Hash
+              fun_name = args[0]
+              fun_args = _to_args(args[1])
+              { :name => fun_name,
+                :args => fun_args[0...-1],
+                :ret_type => fun_args[-1].type }
+            when args.size == 3
+              # expected types: String, Hash, AType
+              { :name => args[0],
+                :args => _to_args(args[1]),
+                :ret_type => args[2] }
+            else
+              raise ArgumentError, """
+Invalid fun format. Valid formats:
+  - fun(opts [Hash])
+  - fun(fun [Fun])
+  - fun(name [String], full_type [Hash])
+  - fun(name [String], args [Hash], ret_type [AType])
+"""
+            end
+          fun = meta.add_fun(fun_opts.merge!({:body => block}))
+          _define_method(fun.name.to_sym, &block)
+        end
+
         def invariant(&block)
-          define_method(:invariant, &block)
+          _define_method(:invariant, &block)
         end
 
         private
+
+        def _define_method(sym, &block)
+          old = @in_body
+          @in_body = false
+          begin
+            define_method(sym, &block)
+          ensure
+            @in_body = old
+          end
+        end
 
         #------------------------------------------------------------------------
         # For a given field (name, type) creates a getter and a setter
@@ -62,9 +117,6 @@ module Alloy
         # @param fld_type [AType]
         #------------------------------------------------------------------------
         def _field(name, type, hash={})
-          unless type.kind_of? Alloy::Ast::AType
-            type = Alloy::Ast::AType.get(type)
-          end
           fld = meta.add_field(name, type, hash)
           fld_accessors fld
           fld
@@ -73,8 +125,17 @@ module Alloy
         def _fld_reader_code(fld) "@#{fld.getter_sym}" end
         def _fld_writer_code(fld, val) "@#{fld.getter_sym} = #{val}" end
 
+        def _to_args(hash)
+          ans = []
+          _traverse_fields hash, lambda {|arg_name, type|
+            arg = Arg.new :name => arg_name, :type => type
+            ans << arg
+          }
+          ans
+        end
+
         def _traverse_fields(hash, cont, &block)
-          hash.each { |k,v| cont.call(k, v) }
+          hash.each { |k,v| cont.call(k, v) } if hash
           unless block.nil?
             ret = block.call
             ret.each { |k,v| cont.call(k, v) }
@@ -212,8 +273,29 @@ Invalid field format. Valid formats:
           self.send :include, cls
         end
 
-        def start() _define_meta() end
+        def method_added(name)
+          if @in_body
+            meth = self.instance_method(name)
+            fun_args = meth.parameters.map{ |mod, sym|
+              Arg.new :name => sym, :type => NoType.new
+            }
+            meta.add_fun :name     => name,
+                         :args     => fun_args,
+                         :ret_type => NoType.new,
+                         :body     => meth.bind(allocate).to_proc
+          end
+        end
+
+        def start()  _define_meta() end
         def finish() end
+        def eval_body(&block)
+          @in_body = true
+          begin
+            self.class_eval &block
+          ensure
+            @in_body = false
+          end
+        end
 
         #------------------------------------------------------------------------
         # Returns a string representation of this +Sig+ conforming to

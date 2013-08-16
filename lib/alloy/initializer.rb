@@ -47,17 +47,19 @@ module Alloy
       return unless force || Alloy.test_and_set(:fields_resolved)
 
       logger = Alloy.conf.logger
-      Alloy.meta.sigs.each do |s|
-        s.meta.fields.each do |f|
-          logger.debug "[resolve_fields] checking field #{f}"
-          f.type.each do |utype|
-            col_type = utype.cls
-            if col_type.instance_of? Alloy::Ast::UnaryType::ColType::UnresolvedRefColType
-              logger.debug "[resolve_fields]   trying to resolve #{col_type}..."
-              cls = @options[RESOLVER_OPT].resolve_type!(col_type)
-              logger.debug "[resolve_fields]     resolved to #{cls}"
-              utype.update_cls(cls)
-            end
+      flds = []
+      flds += Alloy.meta.sigs.map{|s| s.meta.fields}.flatten
+      funs = Alloy.meta.sigs.map{|s| s.meta.funs + s.meta.preds}.flatten
+      flds += funs.map{|f| f.args}.flatten
+      flds.each do |f|
+        logger.debug "[resolve_fields] checking field #{f}"
+        f.type and f.type.each do |utype|
+          col_type = utype.cls
+          if col_type.instance_of? Alloy::Ast::UnaryType::ColType::UnresolvedRefColType
+            logger.debug "[resolve_fields]   trying to resolve #{col_type}..."
+            cls = @options[RESOLVER_OPT].resolve_type!(col_type)
+            logger.debug "[resolve_fields]     resolved to #{cls}"
+            utype.update_cls(cls)
           end
         end
       end
