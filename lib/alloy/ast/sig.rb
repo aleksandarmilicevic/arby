@@ -1,5 +1,5 @@
 require 'alloy/alloy_event_constants.rb'
-require 'alloy/ast/field_meta'
+require 'alloy/ast/field'
 require 'alloy/ast/sig_meta'
 require 'alloy/utils/codegen_repo'
 require 'sdg_utils/meta_utils'
@@ -282,8 +282,8 @@ EOS
         init_default_transient_values
       end
 
-      def read_field(fld)       send Alloy::Ast::FieldMeta.getter_sym(fld) end
-      def write_field(fld, val) send Alloy::Ast::FieldMeta.setter_sym(fld), val end
+      def read_field(fld)       send Alloy::Ast::Field.getter_sym(fld) end
+      def write_field(fld, val) send Alloy::Ast::Field.setter_sym(fld), val end
 
       protected
 

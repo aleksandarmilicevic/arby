@@ -7,26 +7,26 @@ module Alloy
     # @attr parent [Class <= ASig]
     # @attr name [String]
     # @attr type [AType]
-    # @attr inv [FieldMeta]
-    # @attr impl [FieldMeta, Proc: FieldMeta]
+    # @attr inv [Field]
+    # @attr impl [Field, Proc: Field]
     # @attr synt [TrueClass, FalseClass]
     # @attr belongs_to_parent [TrueClass, FalseClass]
     # @immutable
     # ----------------------------------------------------------------------
-    class FieldMeta
+    class Field
       attr_reader :parent, :name, :type, :default, :inv, :impl, :synth
 
       class << self
         def getter_sym(fld)
           case fld
-          when Alloy::Ast::FieldMeta
+          when Alloy::Ast::Field
             fld.name.to_sym
           when String
             fld.to_sym
           when Symbol
             fld
           else
-            msg = "`fld' must be in [FieldMeta, String, Symbol], but is #{fld.class}"
+            msg = "`fld' must be in [Field, String, Symbol], but is #{fld.class}"
             raise ArgumentError, msg
           end
         end
@@ -41,7 +41,7 @@ module Alloy
       #   :name [String]    - name
       #   :type [AType]     - type
       #   :default [object] - default value
-      #   :inv [FieldMeta]  - inv field
+      #   :inv [Field]  - inv field
       #   :synth [Bool]     - whether synthesized of defined by the user
       #   :belongs_to_parent [Bool] - whether its value is owned by field's parent
       #   :transient [Bool] - whether it is transient (false by default)
@@ -72,8 +72,8 @@ module Alloy
       def full_name() "#{@parent.name}.#{name}" end
       def full_type() Alloy::Ast::ProductType.new(@parent.to_atype, @type) end
 
-      def getter_sym() FieldMeta.getter_sym(self) end
-      def setter_sym() FieldMeta.setter_sym(self) end
+      def getter_sym() Field.getter_sym(self) end
+      def setter_sym() Field.setter_sym(self) end
 
       # @param owner [Alloy::Ast::ASig]
       # @param value [Object]

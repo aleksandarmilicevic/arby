@@ -1,4 +1,4 @@
-require 'alloy/ast/field_meta'
+require 'alloy/ast/field'
 
 module Alloy
   module Ast
@@ -9,8 +9,8 @@ module Alloy
     #
     # @attr sig_cls    [Class <= Sig]
     # @attr subsigs    [Array(Class <= Sig)]
-    # @attr fields     [Array(FieldMeta)]
-    # @attr inv_fields [Array(FieldMeta)]
+    # @attr fields     [Array(Field)]
+    # @attr inv_fields [Array(Field)]
     # ----------------------------------------------------------------------
     class SigMeta
       attr_reader :sig_cls, :parent_sig
@@ -103,7 +103,7 @@ module Alloy
         opts = hash.merge :parent => sig_cls,
                           :name   => fld_name.to_s,
                           :type   => fld_type
-        fld = FieldMeta.new opts
+        fld = Field.new opts
         @fields << fld
         fld
       end
@@ -115,7 +115,7 @@ module Alloy
         end
         # full_inv_type = ProductType.new(f.parent.to_atype, f.type).inv
         # raise ArgumentError if full_inv_type.column(0).cls.klass != @sig_cls
-        inv_fld = FieldMeta.new :parent => @sig_cls,
+        inv_fld = Field.new :parent => @sig_cls,
                                 :name   => Alloy.conf.inv_field_namer.call(f),
                                 :type   => full_inv_type.full_range,
                                 :inv    => f,
