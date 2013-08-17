@@ -7,15 +7,14 @@ require 'sdg_utils/dsl/class_builder'
 module Alloy
   module DslEngine
 
-    # ------------------------------------------
+    # ============================================================================
     # == Class +ModelBuilder+
     #
     # Used for creating alloy modules.
     #
     # NOTE: not thread safe!
-    # ------------------------------------------
+    # ============================================================================
     class ModelBuilder < SDGUtils::DSL::ModuleBuilder
-
       def self.get() SDGUtils::DSL::ModuleBuilder.get end
 
       #--------------------------------------------------------
@@ -47,10 +46,9 @@ module Alloy
 
       def curr_model() @curr_model end
       def in_model() in_module? end
-
     end
 
-    # -------------------------------------------------------
+    # ============================================================================
     # == Class ModBuilder
     #
     # Used to create expressions like
@@ -60,7 +58,7 @@ module Alloy
     # modifiers like "one", "set", "seq", etc, so that
     # +self/MyType+ and +self.MyType+ can result in an
     # instance of +Type+
-    # -------------------------------------------------------
+    # ============================================================================
     class ModBuilder < BasicObject
       def /(other)
         ModBuilder.mult(@mod_smbl, other)
@@ -89,11 +87,11 @@ module Alloy
       end
     end
 
-    # -------------------------------------------------------
+    # ============================================================================
     # == Class +SigBuilder+
     #
     # Used to create sig classes.
-    # -------------------------------------------------------
+    # ============================================================================
     class SigBuilder < SDGUtils::DSL::ClassBuilder
       def initialize(options={})
         opts = {

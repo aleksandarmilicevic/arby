@@ -25,14 +25,6 @@ module Alloy
     end
 
     module Abstract
-      # def abstract(sig_cls=nil, &block)
-      #   unless sig_cls
-      #     fail "neither class nor block provided" unless block
-      #     sig_cls = block.call
-      #   end
-      #   fail "not a sig but #{sig_cls}" unless (sig_cls.is_sig? rescue false)
-      #   sig_cls.meta.set_abstract
-      # end
       def abstract(sig_cls=nil, &block)
         if sig_cls
           sig_cls.meta.set_abstract

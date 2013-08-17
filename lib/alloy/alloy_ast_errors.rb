@@ -1,3 +1,5 @@
+require 'sdg_utils/errors'
+
 module Alloy
   module Ast
 
@@ -13,5 +15,7 @@ module Alloy
     class ResolveError < StandardError
     end
 
+    class SyntaxError < SDGUtils::Errors::ErrorWithCause
+    end
   end
 end

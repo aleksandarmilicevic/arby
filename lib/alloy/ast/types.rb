@@ -413,7 +413,13 @@ module Alloy
     # ======================================================
     class NoType
       include AType
+
+      INSTANCE = allocate
+
       def arity() 0 end
+      def klass() NilClass end
+
+      def new() INSTANCE end
     end
 
     # ======================================================

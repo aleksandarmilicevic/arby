@@ -1,5 +1,22 @@
 module SDGUtils
 
+  # Usage: include this module in your class
+  module ShadowMethods
+    def shadow_methods_while(hash, &block)
+      return unless block
+      hash.each do |mth_name, ret_val|
+        define_singleton_method mth_name.to_sym, lambda{ret_val}
+      end
+      begin
+        block.call
+      ensure
+        hash.each do |mth_name, _|
+          define_singleton_method mth_name.to_sym do super() end
+        end
+      end
+    end
+  end
+
   # Usage: extend your class with this module.
   module Delegate
     def delegate(*args)
@@ -37,7 +54,8 @@ module SDGUtils
       def check_identifier(str)
         return nil unless str
         # ok = ::Object.new.send(:define_singleton_method, str, lambda{}) rescue false
-        ok = ::Object.new.instance_eval "#{str} = true" rescue false
+        # ok = ::Object.new.instance_eval "def #{str}() end; true" rescue false
+        ok = !!(str =~ /^[a-z_][a-zA-Z_0-9]*\??$/)
         ok ? str : nil
       end
 

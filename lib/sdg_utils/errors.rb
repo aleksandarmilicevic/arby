@@ -30,7 +30,7 @@ module SDGUtils
       end
 
       def msg() @msg end
-      def message() @msg end
+      def message() @msg || (@cause && @cause.message)end
 
       def exception(*args)
         case args.size

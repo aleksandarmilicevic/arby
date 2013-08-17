@@ -1,6 +1,7 @@
 require 'alloy/ast/types'
+require 'alloy/ast/utils'
 
- module Alloy
+module Alloy
   module Ast
 
     # ----------------------------------------------------------------------
@@ -11,6 +12,8 @@ require 'alloy/ast/types'
     # @immutable
     # ----------------------------------------------------------------------
     class Arg
+      include Checks
+
       attr_reader :name, :type
 
       class << self
@@ -38,10 +41,8 @@ require 'alloy/ast/types'
       #   :type [AType]     - type
       def initialize(hash)
         @name    = hash[:name]
-        @type    = hash[:type]
-        unless @type.kind_of? Alloy::Ast::AType
-          @type = Alloy::Ast::AType.get(type)
-        end
+        @type    = Alloy::Ast::AType.get(hash[:type])
+        check_iden @name, "arg name"
       end
 
       def scalar?()            @type.scalar? end
