@@ -26,12 +26,27 @@ module SDGUtils
         @options[:created_cb] = Array[@options[:created_cb]].flatten.compact
       end
 
+
+      # --------------------------------------------------------------
+      # If all args are strings or symbols, it creates on class with
+      # empty fields and empty body for each one of the; otherwise,
+      # delegates to +build1+.
+      # --------------------------------------------------------------
+      def build(*args, &body)
+        case
+        when body.nil? && args.all?{|a| String === a || Symbol === a}
+          args.each &method(:build1).to_proc
+        else
+          build1(*args, &body)
+        end
+      end
+
       # --------------------------------------------------------------
       # Creates a new class, subclass of `@options[SUPERCLASS]',
       # creates a constant with a given +name+ in the callers
       # namespace and assigns the created class to it.
       # --------------------------------------------------------------
-      def build(name, fields={}, &block)
+      def build1(name, fields={}, &body)
         supercls = @options[:superclass]
         cls_name, super_cls =
           case name
@@ -66,11 +81,11 @@ module SDGUtils
         cls_send cls, @options[:fields_mthd], fields
 
         # evaluate body
-        if block
+        if body
           # bld_feat = @options[:builder_features] and cls.extend(bld_feat)
           ebm = @options[:eval_body_mthd]
           eval_body_mthd_name = cls.respond_to?(ebm) ? ebm : "class_eval"
-          ret = cls.send eval_body_mthd_name, &block
+          ret = cls.send eval_body_mthd_name, &body
           if !ret.nil? && ret.kind_of?(Hash)
             cls_send cls, @options[:fields_mthd], ret
           end

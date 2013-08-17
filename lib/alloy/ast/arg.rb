@@ -40,13 +40,13 @@ module Alloy
       #   :name [String]    - name
       #   :type [AType]     - type
       def initialize(hash)
-        @name    = hash[:name]
+        @name    = check_iden hash[:name], "arg name"
         @type    = Alloy::Ast::AType.get(hash[:type])
-        check_iden @name, "arg name"
+        
       end
 
-      def scalar?()            @type.scalar? end
-      def primitive?()         scalar? && @type.range.primitive? end
+      def scalar?()    @type.scalar? end
+      def primitive?() scalar? && @type.range.primitive? end
 
       def getter_sym() Arg.getter_sym(self) end
       def setter_sym() Arg.setter_sym(self) end

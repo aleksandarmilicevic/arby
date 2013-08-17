@@ -95,8 +95,7 @@ module Alloy
     class SigBuilder < SDGUtils::DSL::ClassBuilder
       def initialize(options={})
         opts = {
-          :superclass => Alloy::Ast::Sig,
-          :builder_features => Alloy::Ast::ASig::Builder
+          :superclass => Alloy::Ast::Sig
         }
         super(opts.merge!(options))
       end

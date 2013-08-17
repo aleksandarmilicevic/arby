@@ -105,6 +105,10 @@ module Alloy
             else
               define_method(args[0], &block)
             end
+          rescue ::SyntaxError => ex
+            src = block ? block.source : args[0]
+            msg = "syntax error in:\n  #{src}"
+            raise SyntaxError.new(ex), msg
           ensure
             @in_body = old
           end
@@ -127,12 +131,23 @@ module Alloy
         def _fld_writer_code(fld, val) "@#{fld.getter_sym} = #{val}" end
 
         def _traverse_fields(hash, cont, &block)
-          hash.each { |k,v| cont.call(k, v) } if hash
+          _traverse_fields_hash(hash, cont)
           unless block.nil?
             ret = block.call
-            ret.each { |k,v| cont.call(k, v) }
+            _traverse_fields_hash(ret, cont)
           end
           nil
+        end
+
+        def _traverse_fields_hash(hash, cont)
+          return unless hash
+          hash.each do |k,v| 
+            if Array === k
+              k.each{|e| cont.call(e, v)}
+            else
+              cont.call(k, v) 
+            end
+          end
         end
 
         def _traverse_field_args(args, cont)
@@ -180,7 +195,7 @@ Invalid field format. Valid formats:
 
         def _to_args(hash)
           ans = []
-          _traverse_fields hash, lambda {|arg_name, type|
+          _traverse_fields_hash hash, lambda {|arg_name, type|
             arg = Arg.new :name => arg_name, :type => type
             ans << arg
           }

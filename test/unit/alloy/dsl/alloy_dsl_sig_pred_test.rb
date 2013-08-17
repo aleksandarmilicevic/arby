@@ -31,6 +31,12 @@ module A_D_SPT
       fun f4[:a, :b][S3] {
         a + b
       }
+      fun f5[[:a, :b] => S3][S3] {
+        a + b
+      }
+      fun f6[[a, b] => Int] {
+        a + b
+      }
     end
 
     sig S4 do
@@ -46,8 +52,7 @@ module A_D_SPT
       pred p4[:a, :b][Bool] {
         a && b
       }
-  end
-
+    end
   end
 end
 
@@ -221,7 +226,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
 
   def test3
     funs = get_funs S3
-    assert_set_equal [:f1, :f2, :f3, :f4], funs.keys
+    assert_set_equal [:f1, :f2, :f3, :f4, :f5, :f6], funs.keys
 
     check_fun funs[:f1], [:a, :b], [S1, S2], Integer
     assert_equal 2, S3.new.f1(1,1)
@@ -234,6 +239,12 @@ class AlloyDslPredTest < Test::Unit::TestCase
 
     check_fun funs[:f4], [:a, :b], nil, S3
     assert_equal 8, S3.new.f4(6,2)
+
+    check_fun funs[:f5], [:a, :b], [S3, S3], S3
+    assert_equal 10, S3.new.f5(6,4)
+
+    check_fun funs[:f6], [:a, :b], [:Int, :Int], nil
+    assert_equal 10, S3.new.f6(6,4)
   end
 
   def test4
