@@ -1,4 +1,5 @@
 require 'date'
+require 'sdg_utils/lambda/proc'
 
 module Alloy
   module Ast
@@ -18,6 +19,23 @@ module Alloy
         else
           UnaryType.new(obj)
         end
+      end
+
+      def self.included(base)
+        base.extend(SDGUtils::Lambda::Class2Proc)
+      end
+
+      def to_ruby_type
+        map &:klass
+      end
+
+      def ==(other)
+        return false unless AType === other
+        to_ruby_type == other.to_ruby_type
+      end
+
+      def hash
+        to_ruby_type.hash
       end
 
       def instantiated?() true end
@@ -370,6 +388,12 @@ module Alloy
 
       attr_reader :lhs, :rhs
 
+      def self.new(lhs, rhs)
+        return check_sub(rhs) if lhs.nil?
+        return check_sub(lhs) if rhs.nil?
+        super(lhs, rhs)
+      end
+
       # @param lhs [AType]
       # @param rhs [AType]
       def initialize(lhs, rhs)
@@ -402,10 +426,13 @@ module Alloy
 
       private
 
-      def check_sub(x)
-        raise ArgumentError, "AType expected, got #{x.class}" \
-          unless x.kind_of?(AType)
+      def self.check_sub(type)
+        msg = "AType expected, got #{type.class}"
+        raise ArgumentError, msg unless type.kind_of?(AType)
+        type
       end
+
+      def check_sub(x) self.class.check_sub(x) end
     end
 
     # ======================================================

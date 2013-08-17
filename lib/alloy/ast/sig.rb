@@ -1,7 +1,7 @@
 require 'alloy/alloy_event_constants.rb'
 require 'alloy/ast/arg'
 require 'alloy/ast/field'
-require 'alloy/ast/pred'
+require 'alloy/ast/fun'
 require 'alloy/ast/sig_meta'
 require 'alloy/utils/codegen_repo'
 require 'sdg_utils/meta_utils'
@@ -60,43 +60,20 @@ module Alloy
         # ---------------------------------------------------------
         # TODO: DOCS
         # ---------------------------------------------------------
-        def fun(*args, &block)
-          block = lambda{} unless block
+        def pred(*args, &block)
           begin
-            fun_opts =
-              case
-              when args.size == 1 && Hash === args[0]
-                fa = _to_args(args[0][:args])
-                args[0].merge :args => fa
-              when args.size == 1 && Fun === args[0]
-                args[0]
-              when args.size == 1 && FunBuilder === args[0]
-                fb = args[0]
-                { :name => fb.name,
-                  :args => _to_args(fb.args),
-                  :ret_type => fb.ret_type }
-              when args.size == 2
-                # expected types: String, Hash
-                fun_name = args[0]
-                fun_args = _to_args(args[1])
-                { :name => fun_name,
-                  :args => fun_args[0...-1],
-                  :ret_type => fun_args[-1].type }
-               when args.size == 3
-                # expected types: String, Hash, AType
-                { :name => args[0],
-                  :args => _to_args(args[1]),
-                  :ret_type => args[2] }
-              else
-                raise ArgumentError, """
-Invalid fun format. Valid formats:
-  - fun(opts [Hash])
-  - fun(fun [Fun])
-  - fun(name [String], full_type [Hash])
-  - fun(name [String], args [Hash], ret_type [AType])
-"""
-              end
-            fun = meta.add_fun(fun_opts.merge!({:body => block}))
+            pred_opts = _to_fun_opts(*args, &block)
+            pred = meta.add_pred pred_opts
+            _define_method_for_fun(pred)
+          rescue => ex
+            raise SyntaxError.new(ex)
+          end
+        end
+
+        def fun(*args, &block)
+          begin
+            fun_opts = _to_fun_opts(*args, &block)
+            fun = meta.add_fun fun_opts
             _define_method_for_fun(fun)
           rescue => ex
             raise SyntaxError.new(ex)
@@ -210,6 +187,44 @@ Invalid field format. Valid formats:
           ans
         end
 
+        def _to_fun_opts(*args, &block)
+          block = lambda{} unless block
+          fun_opts =
+            case
+            when args.size == 1 && Hash === args[0]
+              fa = _to_args(args[0][:args])
+              args[0].merge :args => fa
+            when args.size == 1 && Fun === args[0]
+              args[0]
+            when args.size == 1 && FunBuilder === args[0]
+              fb = args[0]
+              { :name => fb.name,
+                :args => _to_args(fb.args),
+                :ret_type => fb.ret_type }
+            when args.size == 2
+              # expected types: String, Hash
+              fun_name = args[0]
+              fun_args = _to_args(args[1])
+              { :name => fun_name,
+                :args => fun_args[0...-1],
+                :ret_type => fun_args[-1].type }
+            when args.size == 3
+              # expected types: String, Hash, AType
+              { :name => args[0],
+                :args => _to_args(args[1]),
+                :ret_type => args[2] }
+            else
+              raise ArgumentError, """
+Invalid fun format. Valid formats:
+  - fun(opts [Hash])
+  - fun(fun [Fun])
+  - fun(name [String], full_type [Hash])
+  - fun(name [String], args [Hash], ret_type [AType])
+"""
+            end
+          fun_opts.merge!({:body => block})
+        end
+
         def _define_method_for_fun(fun)
           proc = fun.body || proc{}
           method_body_sym = "#{fun.name}_body__#{SDGUtils::Random.salted_timestamp}".to_sym
@@ -219,7 +234,7 @@ Invalid field format. Valid formats:
             _define_method fun.name.to_sym, &proc
           else
             raise ArgumentError, "number of function (#{fun.name}) formal parameters (#{fun.arity}) doesn't match the arity of the given block (#{proc.arity})" unless proc.arity == 0
-            args_str = fun.args.map{|a| a.name}.join(", ")
+            args_str = fun.args.map(&:name).join(", ")
             arg_map_str = fun.args.map{|a| "#{a.name}: #{a.name}"}.join(", ")
             _define_method <<-RUBY, __FILE__, __LINE__+1
               def #{fun.name}(#{args_str})

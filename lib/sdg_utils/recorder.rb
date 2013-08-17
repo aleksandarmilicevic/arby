@@ -52,7 +52,7 @@ module SDGUtils
         @trace << { :name => name, :args => args, :block => block }
       end
       unless @no_buffer
-        argstr = args.map {|a| a.inspect}.join(", ")
+        argstr = args.map(&:inspect).join(", ")
         buff = ""
         buff << @indent
         buff << (@var.empty? ? '' : "#{@var}.") << name.to_s << " #{argstr}"
@@ -76,7 +76,7 @@ module SDGUtils
                            :var    => "#{bv}",
                            :block_var => "#{@block_var}_@{block_var}"
             end
-            buff << "|" << block_args.map {|a| a.var}.join(", ") << "|\n"
+            buff << "|" << block_args.map(&:var).join(", ") << "|\n"
             block.call(*block_args)
           end
           buff << @indent << "end"

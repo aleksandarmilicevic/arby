@@ -47,13 +47,12 @@ module Alloy
       return unless force || Alloy.test_and_set(:fields_resolved)
 
       logger = Alloy.conf.logger
-      flds = []
-      flds += Alloy.meta.sigs.map{|s| s.meta.fields}.flatten
+      flds = Alloy.meta.sigs.map{|s| s.meta.fields}.flatten
       funs = Alloy.meta.sigs.map{|s| s.meta.funs + s.meta.preds}.flatten
-      flds += funs.map{|f| f.args}.flatten
-      flds.each do |f|
-        logger.debug "[resolve_fields] checking field #{f}"
-        f.type and f.type.each do |utype|
+      types = flds.map(&:type) + funs.map(&:full_type)
+      types.each do |type|
+        # logger.debug "[resolve_fields] checking field #{f}"
+        type.each do |utype|
           col_type = utype.cls
           if col_type.instance_of? Alloy::Ast::UnaryType::ColType::UnresolvedRefColType
             logger.debug "[resolve_fields]   trying to resolve #{col_type}..."
@@ -91,9 +90,11 @@ module Alloy
     # Freezes most of the meta stuff.
     # ----------------------------------------------------------------
     def deep_freeze
-      sig_metas = Alloy.meta.sigs.map{|r| r.meta}
-      fld_metas = sig_metas.map{|s| s.fields + s.inv_fields}.flatten
-      [Alloy.conf, Alloy.meta, *sig_metas, *fld_metas].each{|e| e.freeze}
+      sig_metas = Alloy.meta.sigs.map &:meta
+      funs = sig_metas.map{|s| s.funs + s.preds}.flatten
+      flds = sig_metas.map{|s| s.fields + s.inv_fields}.flatten
+      args = funs.map(&:args).flatten
+      [Alloy.conf, Alloy.meta, *sig_metas, *flds, *args].each(&:freeze)
     end
   end
 
