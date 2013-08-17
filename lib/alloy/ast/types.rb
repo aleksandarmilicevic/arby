@@ -274,7 +274,7 @@ module Alloy
             self.get(sym.to_sym)
           when Symbol
             builtin = @@built_in_types[sym]
-            mgr = Alloy::DslEngine::ModelBuilder.get
+            mgr = Alloy::Dsl::ModelBuilder.get
             builtin ||= UnresolvedRefColType.new(sym, mgr.scope_module)
           else
             raise TypeError, "`#{sym}' must be Class or Symbol or String, instead it is #{sym.class}"

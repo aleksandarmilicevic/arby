@@ -1,37 +1,31 @@
+require 'alloy/alloy_ast'
+require 'alloy/alloy_dsl'
 require 'sdg_utils/meta_utils.rb'
 
-require_relative 'alloy_ast.rb'
-require_relative 'alloy_dsl.rb'
-require_relative 'alloy_dsl_engine.rb'
-
-
-def alloy_model_mgr
-  Alloy::DslEngine::ModelBuilder.get
-end
-
-def in_alloy_dsl?
-  Alloy::DslEngine::ModelBuilder.in_dsl_context?
-end
+def alloy_model_mgr() Alloy::Dsl::ModelBuilder.get end
+def in_alloy_dsl?()   Alloy::Dsl::ModelBuilder.in_dsl_context? end
 
 module Alloy
-  module AlloyDslExt
-    # --------------------------------------------------------
-    # Catches all +const_missing+ events, so that, only when
-    # evaluating in the context of Alloy Dsl, instead of
-    # failing it simply returns the given symbol.
-    #--------------------------------------------------------
-    def self.my_const_missing(sym)
-      # first try to find in the current module
-      begin
-        mod = alloy_model_mgr.scope_module
-        if mod.const_defined?(sym, false)
-          mod.const_get(sym)
-        else
+  module Dsl
+    module Ext
+      # --------------------------------------------------------
+      # Catches all +const_missing+ events, so that, only when
+      # evaluating in the context of Alloy Dsl, instead of failing it
+      # simply returns the given symbol.
+      # --------------------------------------------------------
+      def self.my_const_missing(sym)
+        # first try to find in the current module
+        begin
+          mod = alloy_model_mgr.scope_module
+          if mod.const_defined?(sym, false)
+            mod.const_get(sym)
+          else
+            sym
+          end
+        rescue(NameError)
+          # if not found in the module, return symbol
           sym
         end
-      rescue(NameError)
-        # if not found in the module, return symbol
-        sym
       end
     end
   end
@@ -45,7 +39,7 @@ class << Object
 
   def const_missing(sym)
     return super unless in_alloy_dsl?
-    Alloy::AlloyDslExt.my_const_missing(sym)
+    Alloy::Dsl::Ext.my_const_missing(sym)
   end
 end
 
@@ -58,7 +52,7 @@ class Module
     rescue
       raise "Constant #{sym} not found in module #{self}"
     end
-    Alloy::AlloyDslExt.my_const_missing(sym)
+    Alloy::Dsl::Ext.my_const_missing(sym)
   end
 end
 
@@ -78,17 +72,9 @@ class Class
     to_atype * rhs
   end
 
-  def set_of
-    Alloy::Dsl::Mult.set(self)
-  end
-
-  def is_sig?
-    ancestors.member? Alloy::Ast::ASig
-  end
-
-  def to_atype
-    Alloy::Ast::UnaryType.new(self)
-  end
+  def set_of()   Alloy::Dsl::MultHelper.set(self) end
+  def is_sig?()  ancestors.member? Alloy::Ast::ASig end
+  def to_atype() Alloy::Ast::UnaryType.new(self) end
 
   #--------------------------------------------------------------------
   # Helper method that returns the name of the module which this class
