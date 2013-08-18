@@ -59,6 +59,7 @@ module Alloy
       def placeholder() _set_placeholder; self end
 
       # ~~~~~~~~~~~~~~~~~~~~~ callbacks for ClassBuilder ~~~~~~~~~~~~~~~~~~~~~ #
+      protected
 
       def __created()
         require 'alloy/alloy.rb'
@@ -70,7 +71,6 @@ module Alloy
       def __finish() end
             
       # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ private stuff ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
       private
       
       #------------------------------------------------------------------------
