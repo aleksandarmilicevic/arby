@@ -19,14 +19,7 @@ module SDGUtils
 
       private
 
-      def __thread_locals() 
-        tl = self.instance_variable_get "@thread_locals"
-        unless tl
-          tl = {}
-          self.instance_variable_set "@thread_locals", tl
-        end
-        tl
-      end
+      def __thread_locals() @thread_locals ||= {} end
     end
 
   end

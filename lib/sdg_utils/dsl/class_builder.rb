@@ -1,6 +1,6 @@
 require 'sdg_utils/meta_utils'
+require 'sdg_utils/track_nesting'
 require 'sdg_utils/dsl/module_builder'
-require 'sdg_utils/thread/thread_local'
 
 module SDGUtils
   module DSL
@@ -10,10 +10,9 @@ module SDGUtils
     #
     #=========================================================================
     class ClassBuilder
+      extend SDGUtils::TrackNesting
 
-      extend SDGUtils::Thread::ThreadLocal
-
-      def self.get() thr(:builder) end
+      def self.get() top_ctx end
 
       #TODO rewrite using SDGUtils::Config
 
@@ -37,7 +36,7 @@ module SDGUtils
       # delegates to +build1+.
       # --------------------------------------------------------------
       def build(*args, &body)
-        raise RuntimeError, "Module nesting is not allowed" if @in_class
+        ClassBuilder.push_ctx(self)
         set_in_class()
         begin
           case
@@ -48,6 +47,7 @@ module SDGUtils
           end
         ensure
           unset_in_class()
+          ClassBuilder.pop_ctx
         end
       end
 
@@ -56,8 +56,8 @@ module SDGUtils
 
       protected
 
-      def set_in_class()   @in_class = true;  ClassBuilder.thr(:builder, self) end
-      def unset_in_class() @in_class = false; ClassBuilder.thr(:builder, nil) end
+      def set_in_class()   @in_class = true  end
+      def unset_in_class() @in_class = false end
 
       # --------------------------------------------------------------
       # Creates a new class, subclass of `@options[SUPERCLASS]',

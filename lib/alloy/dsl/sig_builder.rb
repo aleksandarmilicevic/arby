@@ -236,7 +236,7 @@ Invalid fun format. Valid formats:
     # Used to create sig classes.
     # ============================================================================
     class SigBuilder < SDGUtils::DSL::ClassBuilder
-      def self.get() SDGUtils::DSL::ClassBuilder.get end
+      def self.get()       SDGUtils::DSL::ClassBuilder.get end
       def self.in_body?()  curr = self.get and curr.in_body? end
       def self.in_class?() curr = self.get and curr.in_class? end
 

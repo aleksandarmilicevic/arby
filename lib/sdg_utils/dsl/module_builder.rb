@@ -1,5 +1,5 @@
 require 'sdg_utils/meta_utils'
-require 'sdg_utils/thread/thread_local'
+require 'sdg_utils/track_nesting'
 
 module SDGUtils
   module DSL
@@ -12,11 +12,11 @@ module SDGUtils
       PARENT_MODULE   = :parent_module
       MODS_TO_INCLUDE = :mods_to_include
 
-      extend SDGUtils::Thread::ThreadLocal
+      extend SDGUtils::TrackNesting
 
       public
 
-      def self.get() thr(:builder) end
+      def self.get() top_ctx end
 
       attr_reader :in_module
 
@@ -62,7 +62,7 @@ module SDGUtils
       # are automatically converted to symbols.
       # --------------------------------------------------------
       def build(name, &block)
-        raise RuntimeError, "Module nesting is not allowed" if @in_module
+        ModuleBuilder.push_ctx(self)
         set_in_module()
         begin
           @mod = create_or_get_module(name, @options[MODS_TO_INCLUDE])
@@ -77,23 +77,14 @@ module SDGUtils
           return @mod
         ensure
           unset_in_module()
+          ModuleBuilder.pop_ctx
         end
       end
 
       protected
 
-      def set_current()   ModuleBuilder.thr(:builder, self) end
-      def unset_current() ModuleBuilder.thr(:builder, nil) end
-
-      def set_in_module() 
-        @in_module = true
-        set_current
-      end
-
-      def unset_in_module()
-        @in_module = false
-        unset_current
-      end
+      def set_in_module()   @in_module = true end
+      def unset_in_module() @in_module = false end
 
       def create_module(parent_module, name)
         mod = Module.new
