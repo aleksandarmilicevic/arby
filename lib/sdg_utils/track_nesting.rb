@@ -10,6 +10,7 @@ module SDGUtils
     def push_ctx(ctx) __stack.push ctx end
     def pop_ctx()     __stack.pop end
     def top_ctx()     __stack.last end
+    def find_ctx(&b)  __stack.reverse_each.find(&b) end
 
     private
 

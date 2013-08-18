@@ -12,7 +12,8 @@ module SDGUtils
     class ClassBuilder
       extend SDGUtils::TrackNesting
 
-      def self.get() top_ctx end
+      def self.get()             top_ctx end
+      def self.find(builder_cls) find_ctx{|e| builder_cls === e} end
 
       #TODO rewrite using SDGUtils::Config
 
