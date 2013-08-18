@@ -16,24 +16,24 @@ module Alloy
         meta.add_pred(pred)
         _define_method_for_fun(pred)
       end
-      
+
       def fun(*args, &block)
         fun = _create_fun(*args, &block)
         meta.add_fun(fun)
         _define_method_for_fun(fun)
       end
-      
+
       def invariant(&block)
         _define_method(:invariant, &block)
       end
-      
+
       def method_missing(sym, *args, &block)
         begin
           super
         rescue => ex
           # use this as a last resort
           raise ex unless Alloy.conf.allow_undef_vars
-          raise ex unless SigBuilder.in_body?
+          raise ex unless SigBuilder.in_sig_body?
           raise ex unless args.empty? && block.nil?
           FunBuilder.new(sym)
         end
@@ -41,7 +41,7 @@ module Alloy
 
       def method_added(name)
         return unless Alloy.conf.turn_methods_into_funs
-        return unless SigBuilder.in_body?
+        return unless SigBuilder.in_sig_body?
         meth = self.instance_method(name)
         fun_args = meth.parameters.map{ |mod, sym|
           Alloy::Ast::Arg.new :name => sym, :type => Alloy::Ast::NoType.new
@@ -80,11 +80,11 @@ module Alloy
       #   args should match to the +class_eval+ formal parameters
       def _define_method(*args, &block)
         _catch_syntax_errors do
-          old = [Alloy.conf.turn_methods_into_funs, 
-                 Alloy.conf.allow_undef_vars, 
+          old = [Alloy.conf.turn_methods_into_funs,
+                 Alloy.conf.allow_undef_vars,
                  Alloy.conf.allow_undef_consts]
-          Alloy.conf.turn_methods_into_funs, 
-          Alloy.conf.allow_undef_vars, 
+          Alloy.conf.turn_methods_into_funs,
+          Alloy.conf.allow_undef_vars,
           Alloy.conf.allow_undef_consts = false, false, false
           begin
             if block.nil?
@@ -97,19 +97,19 @@ module Alloy
             msg = "syntax error in:\n  #{src}"
             raise SyntaxError.new(ex), msg
           ensure
-            Alloy.conf.turn_methods_into_funs, 
-            Alloy.conf.allow_undef_vars, 
+            Alloy.conf.turn_methods_into_funs,
+            Alloy.conf.allow_undef_vars,
             Alloy.conf.allow_undef_consts = old
           end
         end
       end
-      
+
       def _define_method_for_fun(fun)
         _catch_syntax_errors do
           proc = fun.body || proc{}
           method_body_name = "#{fun.name}_body__#{SDGUtils::Random.salted_timestamp}"
           _define_method method_body_name.to_sym, &proc
-          
+
           if fun.arity == proc.arity
             _define_method fun.name.to_sym, &proc
           else
@@ -128,7 +128,7 @@ module Alloy
           end
         end
       end
-        
+
     end
 
   end

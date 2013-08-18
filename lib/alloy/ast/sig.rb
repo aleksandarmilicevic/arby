@@ -7,7 +7,8 @@ require 'alloy/utils/codegen_repo'
 require 'sdg_utils/meta_utils'
 require 'sdg_utils/random'
 
-require 'alloy/dsl/fun_helper'
+require 'alloy/dsl/helpers'
+require 'alloy/dsl/sig_api'
 
 module Alloy
   module Ast
@@ -87,7 +88,7 @@ EOS
           meta = Alloy::Ast::SigMeta.new(self)
           define_singleton_method(:meta, lambda {meta})
         end
-        
+
         #------------------------------------------------------------------------
         # Checks whether the specified hash contains exactly one
         # entry, whose key is a valid identifier, and whose value is a
@@ -118,7 +119,7 @@ EOS
         base.extend(Static)
         base.extend Alloy::Dsl::SigDslApi
         base.send :include, Alloy::Dsl::InstanceHelpers
-        base.send :__created 
+        base.send :__created
       end
 
       def meta() self.class.meta end

@@ -11,20 +11,6 @@ module Alloy
   module Dsl
     extend self
 
-    module StaticHelpers
-      include MultHelper
-      extend self
-    end
-
-    #TODO: doesn't work for ActiveRecord::Relation
-    module InstanceHelpers
-      require 'alloy/relations/relation_ext.rb'
-      def no(col)   col.as_rel.no? end
-      def some(col) col.as_rel.some? end
-      def one(col)  col.as_rel.one? end
-      def lone(col) col.as_rel.lone? end
-    end
-
     # ----------------------------------------------------------------
     # Creates a modules named +name+ and then executes +&block+ using
     # +module_eval+.  All Alloy sigs must be created inside an "alloy

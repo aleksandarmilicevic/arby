@@ -4,8 +4,8 @@ require 'sdg_utils/meta_utils.rb'
 
 def alloy_model_mgr() Alloy::Dsl::ModelBuilder.get end
 def in_alloy_dsl?()   Alloy::Dsl::ModelBuilder.in_dsl_context? end
-def allow_missing_consts_in_alloy_models?() 
-  Alloy.conf.allow_undef_consts && in_alloy_dsl?
+def allow_missing_consts_in_alloy_models?()
+  ans = Alloy.conf.allow_undef_consts && in_alloy_dsl?
 end
 
 module Alloy

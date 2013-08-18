@@ -1,6 +1,5 @@
 require 'sdg_utils/meta_utils'
-require 'sdg_utils/track_nesting'
-require 'sdg_utils/dsl/module_builder'
+require 'sdg_utils/dsl/base_builder'
 
 module SDGUtils
   module DSL
@@ -9,11 +8,7 @@ module SDGUtils
     # == Class ClassBuilder
     #
     #=========================================================================
-    class ClassBuilder
-      extend SDGUtils::TrackNesting
-
-      def self.get()             top_ctx end
-      def self.find(builder_cls) find_ctx{|e| builder_cls === e} end
+    class ClassBuilder < BaseBuilder
 
       #TODO rewrite using SDGUtils::Config
 
@@ -37,7 +32,7 @@ module SDGUtils
       # delegates to +build1+.
       # --------------------------------------------------------------
       def build(*args, &body)
-        ClassBuilder.push_ctx(self)
+        BaseBuilder.push_ctx(self)
         set_in_class()
         begin
           case
@@ -48,7 +43,7 @@ module SDGUtils
           end
         ensure
           unset_in_class()
-          ClassBuilder.pop_ctx
+          BaseBuilder.pop_ctx
         end
       end
 

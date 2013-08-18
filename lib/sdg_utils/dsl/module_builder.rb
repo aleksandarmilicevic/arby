@@ -1,5 +1,5 @@
 require 'sdg_utils/meta_utils'
-require 'sdg_utils/track_nesting'
+require 'sdg_utils/dsl/base_builder'
 
 module SDGUtils
   module DSL
@@ -8,16 +8,11 @@ module SDGUtils
     # == Class ModuleBuilder
     #
     #=========================================================================
-    class ModuleBuilder
+    class ModuleBuilder < BaseBuilder
       PARENT_MODULE   = :parent_module
       MODS_TO_INCLUDE = :mods_to_include
 
-      extend SDGUtils::TrackNesting
-
       public
-
-      def self.get()             top_ctx end
-      def self.find(builder_cls) find_ctx{|e| builder_cls === e} end
 
       attr_reader :in_module
 
@@ -63,7 +58,7 @@ module SDGUtils
       # are automatically converted to symbols.
       # --------------------------------------------------------
       def build(name, &block)
-        ModuleBuilder.push_ctx(self)
+        BaseBuilder.push_ctx(self)
         set_in_module()
         begin
           @mod = create_or_get_module(name, @options[MODS_TO_INCLUDE])
@@ -78,7 +73,7 @@ module SDGUtils
           return @mod
         ensure
           unset_in_module()
-          ModuleBuilder.pop_ctx
+          BaseBuilder.pop_ctx
         end
       end
 
