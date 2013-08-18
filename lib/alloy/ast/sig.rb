@@ -21,13 +21,7 @@ module Alloy
         def inherited(subclass)
           super
           fail "The +meta+ method hasn't been defined for class #{self}" unless meta
-          subclass.start
           meta.add_subsig(subclass)
-        end
-
-        def created()
-          require 'alloy/alloy.rb'
-          Alloy.meta.sig_created(self)
         end
 
         def method_missing(sym, *args, &block)
@@ -67,42 +61,6 @@ module Alloy
         def all_subsigs()  meta.all_subsigs end
 
         #------------------------------------------------------------------------
-        # Defines a getter method for a field with the given symbol +sym+
-        #------------------------------------------------------------------------
-        def fld_accessors(fld)
-          cls = Module.new
-          fld_sym = fld.getter_sym
-          find_fld_src = if fld.is_inv?
-                           "meta.inv_field!(#{fld_sym.inspect})"
-                         else
-                           "meta.field!(#{fld_sym.inspect})"
-                         end
-          desc = {
-            :kind => :fld_accessors,
-            :target => self,
-            :field => fld_sym
-          }
-          Alloy::Utils::CodegenRepo.eval_code cls, <<-RUBY, __FILE__, __LINE__+1, desc
-          def #{fld_sym}
-            intercept_read(#{find_fld_src}){
-              #{_fld_reader_code(fld)}
-            }
-          end
-          def #{fld_sym}=(value)
-            intercept_write(#{find_fld_src}, value){
-              #{_fld_writer_code(fld, 'value')}
-            }
-          end
-          RUBY
-          cls.send :alias_method, "#{fld_sym}?".to_sym, fld_sym if fld.type.isBool?
-          self.send :include, cls
-        end
-
-        def start()  _define_meta() end
-        def finish() end
-        def eval_body(&block) self.class_eval &block end
-
-        #------------------------------------------------------------------------
         # Returns a string representation of this +Sig+ conforming to
         # the Alloy syntax
         #------------------------------------------------------------------------
@@ -129,7 +87,7 @@ EOS
           meta = Alloy::Ast::SigMeta.new(self)
           define_singleton_method(:meta, lambda {meta})
         end
-
+        
         #------------------------------------------------------------------------
         # Checks whether the specified hash contains exactly one
         # entry, whose key is a valid identifier, and whose value is a
@@ -158,13 +116,12 @@ EOS
       def self.included(base)
         base.extend(Alloy::Dsl::StaticHelpers)
         base.extend(Static)
+        base.extend Alloy::Dsl::SigDslApi
         base.send :include, Alloy::Dsl::InstanceHelpers
-        base.start
+        base.send :__created 
       end
 
-      def meta
-        self.class.meta
-      end
+      def meta() self.class.meta end
 
       def initialize(*args)
         super
@@ -237,15 +194,14 @@ EOS
     #================================================================
     class Sig
       include ASig
-      extend ASig::Static
-      extend Alloy::Dsl::SigDslApi
       meta.set_placeholder
     end
 
+    # TODO: this looks unnecessary
     def self.create_sig(name, super_cls=Alloy::Ast::Sig)
       cls = Class.new(super_cls)
       SDGUtils::MetaUtils.assign_const(name, cls)
-      cls.created if cls.respond_to? :created
+      cls.send :__created if cls.respond_to? :__created
       cls
     end
 

@@ -17,6 +17,8 @@ module Alloy
       
       include FunHelper
 
+      # ~~~~~~~~~~~~~~~~~~~~~~~~ DSL API ~~~~~~~~~~~~~~~~~~~~~~~~ #
+
       # ---------------------------------------------------------
       # TODO: DOCS
       # ---------------------------------------------------------
@@ -55,7 +57,20 @@ module Alloy
       
       def abstract()    _set_abstract; self end
       def placeholder() _set_placeholder; self end
+
+      # ~~~~~~~~~~~~~~~~~~~~~ callbacks for ClassBuilder ~~~~~~~~~~~~~~~~~~~~~ #
+
+      def __created()
+        require 'alloy/alloy.rb'
+        _define_meta() 
+        Alloy.meta.sig_created(self)
+      end
+      def __params(*args)     fields(*args) end
+      def __eval_body(&block) self.class_eval &block end
+      def __finish() end
             
+      # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ private stuff ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+
       private
       
       #------------------------------------------------------------------------
@@ -73,6 +88,34 @@ module Alloy
       
       def _fld_reader_code(fld) "@#{fld.getter_sym}" end
       def _fld_writer_code(fld, val) "@#{fld.getter_sym} = #{val}" end
+      
+      #------------------------------------------------------------------------
+      # Defines a getter method for a field with the given symbol +sym+
+      #------------------------------------------------------------------------
+      def fld_accessors(fld)
+        cls = Module.new
+        fld_sym = fld.getter_sym
+        find_fld_src = if fld.is_inv?
+                         "meta.inv_field!(#{fld_sym.inspect})"
+                       else
+                         "meta.field!(#{fld_sym.inspect})"
+                       end
+        desc = {
+          :kind => :fld_accessors,
+          :target => self,
+          :field => fld_sym
+        }
+        Alloy::Utils::CodegenRepo.eval_code cls, <<-RUBY, __FILE__, __LINE__+1, desc
+        def #{fld_sym}
+          intercept_read(#{find_fld_src}) { #{_fld_reader_code(fld)} }
+        end
+        def #{fld_sym}=(value)
+          intercept_write(#{find_fld_src}, value) { #{_fld_writer_code(fld, 'value')} }
+        end
+        RUBY
+        cls.send :alias_method, "#{fld_sym}?".to_sym, fld_sym if fld.type.isBool?
+        self.send :include, cls
+      end
       
       def _traverse_fields(hash, cont, &block)
         _traverse_fields_hash(hash, cont)

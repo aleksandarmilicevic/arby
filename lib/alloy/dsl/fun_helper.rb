@@ -28,10 +28,15 @@ module Alloy
       end
       
       def method_missing(sym, *args, &block)
-        return super unless Alloy.conf.allow_undef_vars
-        return super unless SigBuilder.in_body?
-        return super unless args.empty? && block.nil?
-        FunBuilder.new(sym)
+        begin
+          super
+        rescue => ex
+          # use this as a last resort
+          raise ex unless Alloy.conf.allow_undef_vars
+          raise ex unless SigBuilder.in_body?
+          raise ex unless args.empty? && block.nil?
+          FunBuilder.new(sym)
+        end
       end
 
       def method_added(name)

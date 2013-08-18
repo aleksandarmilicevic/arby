@@ -23,10 +23,10 @@ module SDGUtils
           :builder_features => nil,
           :scope_module     => ModuleBuilder.get.scope_module,
           :created_cb       => [],
-          :fields_mthd      => :fields,
-          :created_mthd     => :created,
-          :finish_mthd      => :finish,
-          :eval_body_mthd   => :eval_body,
+          :created_mthd     => :__created,
+          :params_mthd      => :__params,
+          :finish_mthd      => :__finish,
+          :eval_body_mthd   => :__eval_body,
         }.merge!(options)
         @options[:created_cb] = Array[@options[:created_cb]].flatten.compact
       end
@@ -96,7 +96,7 @@ module SDGUtils
         @options[:created_cb].each { |cb| cb.call(cls) }
 
         # send :fields
-        cls_send cls, @options[:fields_mthd], fields
+        cls_send cls, @options[:params_mthd], fields
 
         # evaluate body
         if body
