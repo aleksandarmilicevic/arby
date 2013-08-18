@@ -1,5 +1,6 @@
-require 'sdg_utils/dsl/module_builder'
 require 'sdg_utils/meta_utils'
+require 'sdg_utils/dsl/module_builder'
+require 'sdg_utils/thread/thread_local'
 
 module SDGUtils
   module DSL
@@ -9,6 +10,10 @@ module SDGUtils
     #
     #=========================================================================
     class ClassBuilder
+
+      extend SDGUtils::Thread::ThreadLocal
+
+      def self.get() thr(:builder) end
 
       #TODO rewrite using SDGUtils::Config
 
@@ -26,20 +31,33 @@ module SDGUtils
         @options[:created_cb] = Array[@options[:created_cb]].flatten.compact
       end
 
-
       # --------------------------------------------------------------
       # If all args are strings or symbols, it creates on class with
       # empty fields and empty body for each one of the; otherwise,
       # delegates to +build1+.
       # --------------------------------------------------------------
       def build(*args, &body)
-        case
-        when body.nil? && args.all?{|a| String === a || Symbol === a}
-          args.each &method(:build1).to_proc
-        else
-          build1(*args, &body)
+        raise RuntimeError, "Module nesting is not allowed" if @in_class
+        set_in_class()
+        begin
+          case
+          when body.nil? && args.all?{|a| String === a || Symbol === a}
+            args.each &method(:build1).to_proc
+          else
+            build1(*args, &body)
+          end
+        ensure
+          unset_in_class()
         end
       end
+
+      def in_body?()  @in_body end
+      def in_class?() @in_class end
+
+      protected
+
+      def set_in_class()   @in_class = true;  ClassBuilder.thr(:builder, self) end
+      def unset_in_class() @in_class = false; ClassBuilder.thr(:builder, nil) end
 
       # --------------------------------------------------------------
       # Creates a new class, subclass of `@options[SUPERCLASS]',
@@ -85,7 +103,12 @@ module SDGUtils
           # bld_feat = @options[:builder_features] and cls.extend(bld_feat)
           ebm = @options[:eval_body_mthd]
           eval_body_mthd_name = cls.respond_to?(ebm) ? ebm : "class_eval"
-          ret = cls.send eval_body_mthd_name, &body
+          ret = begin
+                  @in_body = true
+                  cls.send eval_body_mthd_name, &body
+                ensure
+                  @in_body = false
+                end
           if !ret.nil? && ret.kind_of?(Hash)
             cls_send cls, @options[:fields_mthd], ret
           end
@@ -97,8 +120,6 @@ module SDGUtils
         SDGUtils::MetaUtils.assign_const_in_module @options[:scope_module], cls_name, cls
         return cls
       end
-
-      protected
 
       def cls_send(cls, sym, *args)
         cls.send sym, *args if cls.respond_to? sym

@@ -1,4 +1,5 @@
-require 'sdg_utils/meta_utils.rb'
+require 'sdg_utils/meta_utils'
+require 'sdg_utils/thread/thread_local'
 
 module SDGUtils
   module DSL
@@ -11,19 +12,11 @@ module SDGUtils
       PARENT_MODULE   = :parent_module
       MODS_TO_INCLUDE = :mods_to_include
 
-      @@thread_locals = {}
-
-      protected
-
-      def self.thread_local
-        @@thread_locals[Thread.current.__id__] ||= {}
-      end
+      extend SDGUtils::Thread::ThreadLocal
 
       public
 
-      def self.get()
-        thread_local()[:builder]
-      end
+      def self.get() thr(:builder) end
 
       attr_reader :in_module
 
@@ -89,17 +82,17 @@ module SDGUtils
 
       protected
 
-      def set_current_builder()   self.class.thread_local[:builder] = self end
-      def unset_current_builder() self.class.thread_local[:builder] = nil end
+      def set_current()   ModuleBuilder.thr(:builder, self) end
+      def unset_current() ModuleBuilder.thr(:builder, nil) end
 
-      def set_in_module()
+      def set_in_module() 
         @in_module = true
-        set_current_builder
+        set_current
       end
 
       def unset_in_module()
         @in_module = false
-        unset_current_builder
+        unset_current
       end
 
       def create_module(parent_module, name)

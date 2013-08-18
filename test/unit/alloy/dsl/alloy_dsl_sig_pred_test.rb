@@ -1,5 +1,6 @@
 require 'unit/alloy/alloy_test_helper.rb'
 require 'alloy/initializer.rb'
+require 'alloy/dsl/errors'
 require 'sdg_utils/lambda/proc'
 
 include Alloy::Dsl
@@ -81,7 +82,10 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def get_funs(sig)
-    sig.meta.funs.reduce({}){|acc,f| acc.merge!({f.name => f})}
+    sig.meta.funs.reduce({}){|acc,f| 
+      assert_equal sig, f.parent
+      acc.merge!({f.name => f})
+    }
   end
 
   def get_preds(sig)
@@ -106,7 +110,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def test_invalid_body
-    ex = assert_raise(Alloy::Ast::SyntaxError) do
+    ex = assert_raise(Alloy::Dsl::SyntaxError) do
       alloy_model do
         sig :SSS do
           fun f1[a: S1, b: S2][Int] { |a|
@@ -119,7 +123,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def test_invalid_too_many_ret
-    ex = assert_raise(Alloy::Ast::SyntaxError) do
+    ex = assert_raise(Alloy::Dsl::SyntaxError) do
       alloy_model do
         sig :SSS do
           fun f1[a: S1, b: S2][Int,String] {
@@ -132,7 +136,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def test_invalid_after_ret
-    ex = assert_raise(Alloy::Ast::SyntaxError) do
+    ex = assert_raise(Alloy::Dsl::SyntaxError) do
       alloy_model do
         sig :SSS do
           fun f1[a: S1, b: S2][Int][] {
@@ -145,7 +149,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def test_invalid_fname_not_string
-    ex = assert_raise(Alloy::Ast::SyntaxError) do
+    ex = assert_raise(Alloy::Dsl::SyntaxError) do
       alloy_model do
         sig :SSS do
           fun S1, a: S1, b: S2, _: Int do |a,b| a + b end
@@ -153,7 +157,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
       end
     end
     assert_starts_with "`A_D_SPT::S1' (function name) is not a valid identifier", ex.message
-    ex = assert_raise(Alloy::Ast::SyntaxError) do
+    ex = assert_raise(Alloy::Dsl::SyntaxError) do
       alloy_model do
         sig :SSS do
           fun 1, a: S1, b: S2, _: Int do |a,b| a + b end
@@ -164,7 +168,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def test_invalid_argname_not_string
-    ex = assert_raise(Alloy::Ast::SyntaxError) do
+    ex = assert_raise(Alloy::Dsl::SyntaxError) do
       alloy_model do
         sig :SSS do
           fun f1[S1: S1][Int] {
@@ -177,7 +181,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def test_invalid_pred_rettype
-    ex = assert_raise(Alloy::Ast::SyntaxError) do
+    ex = assert_raise(Alloy::Dsl::SyntaxError) do
       alloy_model do
         sig :SSS do
           pred f1[s1: S1][Int] {
@@ -190,7 +194,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def test_invalid_pred_empty_rettype
-    ex = assert_raise(Alloy::Ast::SyntaxError) do
+    ex = assert_raise(Alloy::Dsl::SyntaxError) do
       alloy_model do
         sig :SSS do
           pred f1[s1: S1][] {

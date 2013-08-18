@@ -92,14 +92,8 @@ module Alloy
         end
       end
 
-      def add_fun(fun_opts, is_pred=false)
-        opts = normalize_fun_opts(fun_opts)
-        cstr, store = is_pred ? [:pred, @preds] : [:fun, @funs]
-        fun = Fun.send cstr, opts
-        store << fun
-        fun
-      end
-      def add_pred(fun_opts) add_fun(fun_opts, true) end
+      def add_fun(fun)  @funs << fun end
+      def add_pred(fun) @preds << fun end
 
       def fun(fun_name, own_only=false)   find_in(@funs, own_only) end
       def pred(pred_name, own_only=false) find_in(@preds, own_only) end
@@ -178,19 +172,6 @@ module Alloy
 
       protected
 
-      def normalize_fun_opts(fun_opts)
-        case fun_opts
-        when Hash
-          fun_opts
-        when Fun
-          fun_opts.to_opts
-        else
-          msg = "Expected either Hash or Fun, got #{fun_opts}:#{fun_opts.class}"
-          raise ArgumentError, msg
-        end.merge({
-          :parent => sig_cls
-        })
-      end
     end
 
   end

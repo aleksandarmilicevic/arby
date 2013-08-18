@@ -1,5 +1,4 @@
 require 'alloy/alloy_ast_errors'
-require 'alloy/ast/fun_builder'
 require 'alloy/ast/types'
 require 'alloy/ast/utils'
 

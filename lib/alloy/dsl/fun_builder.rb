@@ -1,7 +1,8 @@
 require 'alloy/ast/types'
+require 'alloy/dsl/errors'
 
 module Alloy
-  module Ast
+  module Dsl
 
     # ============================================================================
     # == Class +FunBuilder+
@@ -32,11 +33,11 @@ module Alloy
           @state = :args
         when :args
           msg = "can only specify 1 arg for fun return type"
-          ::Kernel.raise ::Alloy::Ast::SyntaxError, msg unless args.size == 1
+          ::Kernel.raise ::Alloy::Dsl::SyntaxError, msg unless args.size == 1
           @ret_type = args[0]
           @state = :ret_type
         else
-          ::Kernel.raise ::Alloy::Ast::SyntaxError, "only two calls to [] allowed"
+          ::Kernel.raise ::Alloy::Dsl::SyntaxError, "only two calls to [] allowed"
         end
         self
       end
@@ -48,7 +49,7 @@ module Alloy
       end
 
       def ==(other) 
-        if ::Alloy::Ast::FunBuilder === other
+        if ::Alloy::Dsl::FunBuilder === other
           @name == other.name
         else
           @name == other

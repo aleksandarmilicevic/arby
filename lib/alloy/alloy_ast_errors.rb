@@ -15,7 +15,5 @@ module Alloy
     class ResolveError < StandardError
     end
 
-    class SyntaxError < SDGUtils::Errors::ErrorWithCause
-    end
   end
 end

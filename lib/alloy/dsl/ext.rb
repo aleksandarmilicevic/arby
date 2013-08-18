@@ -4,6 +4,9 @@ require 'sdg_utils/meta_utils.rb'
 
 def alloy_model_mgr() Alloy::Dsl::ModelBuilder.get end
 def in_alloy_dsl?()   Alloy::Dsl::ModelBuilder.in_dsl_context? end
+def allow_missing_consts_in_alloy_models?() 
+  Alloy.conf.allow_undef_consts && in_alloy_dsl?
+end
 
 module Alloy
   module Dsl
@@ -38,7 +41,7 @@ class << Object
   alias_method :old_const_missing, :const_missing
 
   def const_missing(sym)
-    return super unless in_alloy_dsl?
+    return super unless allow_missing_consts_in_alloy_models?
     Alloy::Dsl::Ext.my_const_missing(sym)
   end
 end
@@ -48,7 +51,7 @@ class Module
 
   def const_missing(sym)
     begin
-      return super unless in_alloy_dsl?
+      return super unless allow_missing_consts_in_alloy_models?
     rescue
       raise "Constant #{sym} not found in module #{self}"
     end

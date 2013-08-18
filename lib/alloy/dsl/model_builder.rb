@@ -11,10 +11,12 @@ module Alloy
     #
     # Module to be included in each +alloy_model+.
     # ============================================================================
-    module Model
+    module ModelDslApi
       include MultHelper
       include AbstractHelper
       extend self
+
+      protected
 
       # --------------------------------------------------------------
       # Creates a new class, subclass of either Alloy::Ast::Sig or a
@@ -54,7 +56,7 @@ module Alloy
 
       def initialize(options={})
         opts = {
-          :mods_to_include => [Model]
+          :mods_to_include => [ModelDslApi]
         }.merge!(options)
         super(opts)
       end
