@@ -9,18 +9,14 @@ module SDGUtils
     #
     #=========================================================================
     class ModuleBuilder < BaseBuilder
-      PARENT_MODULE   = :parent_module
-      MODS_TO_INCLUDE = :mods_to_include
-
-      public
-
-      attr_reader :in_module
 
       # constructor
       def initialize(options={})
-        @options = {
-          PARENT_MODULE => SDGUtils::MetaUtils.caller_module
-        }.merge!(options)
+        super({
+          :parent_module => SDGUtils::MetaUtils.caller_module,
+          :mods_to_include => []
+        }.merge!(options))
+        opts_to_flat_array :mods_to_include
       end
 
       #--------------------------------------------------------
@@ -45,48 +41,31 @@ module SDGUtils
         @scope_mod
       end
 
-      # --------------------------------------------------------
-      # Returns whether the execution is insed the DSL module
-      # --------------------------------------------------------
-      def in_module?
-        @in_module
-      end
+      protected
 
       #--------------------------------------------------------
-      # Creates a module named +name+ and then executes +block+ using
+      # Creates a module named +name+ and then executes +body+ using
       # +module_eval+.  Inside of this module, all undefined constants
       # are automatically converted to symbols.
       # --------------------------------------------------------
-      def build(name, &block)
-        BaseBuilder.push_ctx(self)
-        set_in_module()
-        begin
-          @mod = create_or_get_module(name, @options[MODS_TO_INCLUDE])
-          @scope_mod = if name.nil? || name.empty?
-                         @options[PARENT_MODULE]
-                       else
-                         @mod
-                       end
-          unless block.nil?
-            @mod.module_eval(&block)
-          end
-          return @mod
-        ensure
-          unset_in_module()
-          BaseBuilder.pop_ctx
-        end
+      def do_build(name, &body)
+        @mod = create_or_get_module(name)
+        @scope_mod = if name.nil? || name.empty?
+                       @options[:parent_module]
+                     else
+                       @mod
+                     end
+        eval_body @mod, :module_eval, &body
+        safe_send @mod, @options[:finish_mthd]
+        @mod
       end
-
-      protected
-
-      def set_in_module()   @in_module = true end
-      def unset_in_module() @in_module = false end
 
       def create_module(parent_module, name)
         mod = Module.new
         unless name.nil? || name.empty?
           SDGUtils::MetaUtils.assign_const_in_module(parent_module, name, mod)
         end
+        safe_send mod, @options[:created_mthd]
         mod
       end
 
@@ -100,8 +79,9 @@ module SDGUtils
       #    * else, raises NameError
       #  * else, creates a new module
       #-------------------------------------------------------------------
-      def create_or_get_module(name, mods_to_include)
-        parent_module = @options[PARENT_MODULE]
+      def create_or_get_module(name)
+        parent_module = @options[:parent_module]
+        mods_to_include = @options[:mods_to_include]
         already_def = parent_module.const_defined?(name, false) rescue false
         ret_module = (parent_module.const_get name if already_def) ||
                      create_module(parent_module, name)

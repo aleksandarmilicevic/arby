@@ -12,14 +12,8 @@ module Alloy
     # NOTE: not thread safe!
     # ============================================================================
     class ModelBuilder < SDGUtils::DSL::ModuleBuilder
-
-      #--------------------------------------------------------
-      # Returns whether the evaluation is in the context
-      # of the Alloy Dsl.
-      #--------------------------------------------------------
-      def self.in_dsl_context?
-        curr = self.get and curr.in_module?
-      end
+      def self.in_model?()      curr = self.get and curr.in_builder? end
+      def self.in_model_body?() curr = self.get and curr.in_body? end
 
       def initialize(options={})
         opts = {
@@ -35,13 +29,12 @@ module Alloy
       # constants are automatically converted to symbols.
       # --------------------------------------------------------
       def model(model_sym, name, &block)
-        raise RuntimeError, "Model nesting is not allowed" if in_module?
+        raise RuntimeError, "Model nesting is not allowed" if in_builder?
         @curr_model = model_sym
         build(name, &block)
       end
 
       def curr_model() @curr_model end
-      def in_model() in_module? end
     end
 
   end

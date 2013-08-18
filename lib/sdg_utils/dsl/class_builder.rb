@@ -13,54 +13,38 @@ module SDGUtils
       #TODO rewrite using SDGUtils::Config
 
       def initialize(options={})
-        @options = {
+        super({
           :superclass       => ::Object,
           :builder_features => nil,
-          :scope_module     => ModuleBuilder.get.scope_module,
+          :scope_module     => (m=ModuleBuilder.get and m.scope_module),
           :created_cb       => [],
-          :created_mthd     => :__created,
           :params_mthd      => :__params,
-          :finish_mthd      => :__finish,
-          :eval_body_mthd   => :__eval_body,
-        }.merge!(options)
-        @options[:created_cb] = Array[@options[:created_cb]].flatten.compact
+        }.merge!(options))
+        opts_to_flat_array :created_cb
       end
+
+      protected
 
       # --------------------------------------------------------------
       # If all args are strings or symbols, it creates on class with
       # empty fields and empty body for each one of the; otherwise,
       # delegates to +build1+.
       # --------------------------------------------------------------
-      def build(*args, &body)
-        BaseBuilder.push_ctx(self)
-        set_in_class()
-        begin
-          case
-          when body.nil? && args.all?{|a| String === a || Symbol === a}
-            args.each &method(:build1).to_proc
-          else
-            build1(*args, &body)
-          end
-        ensure
-          unset_in_class()
-          BaseBuilder.pop_ctx
+      def do_build(*args, &body)
+        case
+        when body.nil? && args.all?{|a| String === a || Symbol === a}
+          args.each &method(:do_build1).to_proc
+        else
+          do_build1(*args, &body)
         end
       end
-
-      def in_body?()  @in_body end
-      def in_class?() @in_class end
-
-      protected
-
-      def set_in_class()   @in_class = true  end
-      def unset_in_class() @in_class = false end
 
       # --------------------------------------------------------------
       # Creates a new class, subclass of `@options[SUPERCLASS]',
       # creates a constant with a given +name+ in the callers
       # namespace and assigns the created class to it.
       # --------------------------------------------------------------
-      def build1(name, fields={}, &body)
+      def do_build1(name, fields={}, &body)
         supercls = @options[:superclass]
         cls_name, super_cls =
           case name
@@ -86,39 +70,27 @@ module SDGUtils
         cls = Class.new(super_cls)
 
         # send :created
-        cls_send cls, @options[:created_mthd]
+        safe_send cls, @options[:created_mthd]
 
         # notify callbacks
         @options[:created_cb].each { |cb| cb.call(cls) }
 
         # send :fields
-        cls_send cls, @options[:params_mthd], fields
+        safe_send cls, @options[:params_mthd], fields
 
         # evaluate body
         if body
-          # bld_feat = @options[:builder_features] and cls.extend(bld_feat)
-          ebm = @options[:eval_body_mthd]
-          eval_body_mthd_name = cls.respond_to?(ebm) ? ebm : "class_eval"
-          ret = begin
-                  @in_body = true
-                  cls.send eval_body_mthd_name, &body
-                ensure
-                  @in_body = false
-                end
+          ret = eval_body cls, :class_eval, &body
           if !ret.nil? && ret.kind_of?(Hash)
-            cls_send cls, @options[:fields_mthd], ret
+            safe_send cls, @options[:fields_mthd], ret
           end
         end
 
         # send :finish
-        cls_send cls, @options[:finish_mthd]
+        safe_send cls, @options[:finish_mthd]
 
         SDGUtils::MetaUtils.assign_const_in_module @options[:scope_module], cls_name, cls
         return cls
-      end
-
-      def cls_send(cls, sym, *args)
-        cls.send sym, *args if cls.respond_to? sym
       end
 
       def to_clsname(name)

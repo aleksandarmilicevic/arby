@@ -10,7 +10,7 @@ module Alloy
     # Used to create sig classes.
     # ============================================================================
     class SigBuilder < SDGUtils::DSL::ClassBuilder
-      def self.in_sig?()       curr = self.get and curr.in_class? end
+      def self.in_sig?()       curr = self.get and curr.in_builder? end
       def self.in_sig_body?()  curr = self.get and curr.in_body? end
 
       def initialize(options={})
