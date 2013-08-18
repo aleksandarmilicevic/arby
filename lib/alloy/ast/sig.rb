@@ -200,10 +200,7 @@ EOS
 
     # TODO: this looks unnecessary
     def self.create_sig(name, super_cls=Alloy::Ast::Sig)
-      cls = Class.new(super_cls)
-      SDGUtils::MetaUtils.assign_const(name, cls)
-      cls.send :__created if cls.respond_to? :__created
-      cls
+      Alloy::Dsl::ModelDslApi.sig([name.to_sym, super_cls], {})
     end
 
   end

@@ -13,7 +13,7 @@ module Alloy
     # ============================================================================
     module SigDslApi
       protected
-      
+
       include FunHelper
 
       # ~~~~~~~~~~~~~~~~~~~~~~~~ DSL API ~~~~~~~~~~~~~~~~~~~~~~~~ #
@@ -24,22 +24,22 @@ module Alloy
       def fields(hash={}, &block)
         _traverse_fields hash, lambda { |name, type| field(name, type) }, &block
       end
-      
+
       alias_method :persistent, :fields
       alias_method :refs, :fields
-      
+
       def owns(hash={}, &block)
         _traverse_fields hash, lambda { |name, type|
           field(name, type, :owned => true)
         }, &block
       end
-      
+
       def transient(hash={}, &block)
         _traverse_fields hash, lambda { |name, type|
           field(name, type, :transient => true)
         }, &block
       end
-      
+
       # ---------------------------------------------------------
       # TODO: DOCS
       # ---------------------------------------------------------
@@ -47,13 +47,13 @@ module Alloy
         _traverse_field_args(args, lambda {|name, type, hash={}|
                                _field(name, type, hash)})
       end
-      
+
       alias_method :ref, :field
-      
+
       def synth_field(name, type)
         field(name, type, :synth => true)
       end
-      
+
       def abstract()    _set_abstract; self end
       def placeholder() _set_placeholder; self end
 
@@ -61,17 +61,17 @@ module Alloy
       protected
 
       def __created()
-        require 'alloy/alloy.rb'
-        _define_meta() 
-        Alloy.meta.sig_created(self)
+        _define_meta()
+       require 'alloy/alloy.rb'
+       Alloy.meta.sig_created(self)
       end
       def __params(*args)     fields(*args) end
       def __eval_body(&block) self.class_eval &block end
       def __finish() end
-            
+
       # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ private stuff ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
       private
-      
+
       #------------------------------------------------------------------------
       # For a given field (name, type) creates a getter and a setter
       # (instance) method, and adds it to this sig's +meta+ instance.
@@ -84,10 +84,10 @@ module Alloy
         fld_accessors fld
         fld
       end
-      
+
       def _fld_reader_code(fld) "@#{fld.getter_sym}" end
       def _fld_writer_code(fld, val) "@#{fld.getter_sym} = #{val}" end
-      
+
       #------------------------------------------------------------------------
       # Defines a getter method for a field with the given symbol +sym+
       #------------------------------------------------------------------------
@@ -115,7 +115,7 @@ module Alloy
         cls.send :alias_method, "#{fld_sym}?".to_sym, fld_sym if fld.type.isBool?
         self.send :include, cls
       end
-      
+
       def _traverse_fields(hash, cont, &block)
         _traverse_fields_hash(hash, cont)
         unless block.nil?
@@ -124,18 +124,18 @@ module Alloy
         end
         nil
       end
-      
+
       def _traverse_fields_hash(hash, cont)
         return unless hash
-        hash.each do |k,v| 
+        hash.each do |k,v|
           if Array === k
             k.each{|e| cont.call(e, v)}
           else
-            cont.call(k, v) 
+            cont.call(k, v)
           end
         end
       end
-      
+
       def _traverse_field_args(args, cont)
         case
         when args.size == 3
@@ -160,16 +160,16 @@ Invalid field format. Valid formats:
           raise ArgumentError, msg
         end
       end
-      
+
       def _set_abstract
         meta.set_abstract
       end
-      
+
       def _set_placeholder
         _set_abstract
         meta.set_placeholder
       end
-      
+
       # -----------------------------------------------------------------------
       # This is called not during class definition.
       # -----------------------------------------------------------------------
@@ -178,7 +178,7 @@ Invalid field format. Valid formats:
         fld_accessors inv_fld
         inv_fld
       end
-      
+
       def _to_args(hash)
         ans = []
         _traverse_fields_hash hash, lambda {|arg_name, type|
@@ -187,7 +187,7 @@ Invalid field format. Valid formats:
         }
         ans
       end
-      
+
       def _to_fun_opts(*args, &block)
         block = lambda{} unless block
         fun_opts =

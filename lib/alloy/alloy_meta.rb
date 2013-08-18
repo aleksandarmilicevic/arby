@@ -36,22 +36,26 @@ module Alloy
         #   def sigs()           _sigs end
         #   def sig_created(obj) add_to(@sigs, obj) end
         #   def get_sig(name)    _cache(_sigs, name) end
+        #   def get_sig!(name)   get_sig(name) || fail "sig `#{name}' not found" end
         #   def find_sig(name)   _search_by_name(_sigs, name) end
         #
         #   alias_method :sig, :get_sig
+        #   alias_method :sig!, :get_sig!
         def gen(*whats)
           whats.each do |what|
             self.class_eval <<-RUBY, __FILE__, __LINE__+1
-              private
-              def _#{pl what}()        _restrict @#{pl what} end
+  private
+  def _#{pl what}()        _restrict @#{pl what} end
 
-              public
-              def #{pl what}()         _#{pl what} end
-              def #{what}_created(obj) add_to(@#{pl what}, obj) end
-              def get_#{what}(name)    _cache(_#{pl what}, name) end
-              def find_#{what}(name);  _search_by_name(_#{pl what}, name) end
+  public
+  def #{pl what}()         _#{pl what} end
+  def #{what}_created(obj) add_to(@#{pl what}, obj) end
+  def get_#{what}(name)    _cache(_#{pl what}, name) end
+  def get_#{what}!(name)   get_#{what}(name) || fail("#{what} `\#{name}' not found") end
+  def find_#{what}(name);  _search_by_name(_#{pl what}, name) end
 
-              alias_method :#{what}, :get_#{what}
+  alias_method :#{what}, :get_#{what}
+  alias_method :#{what}!, :get_#{what}!
             RUBY
           end
         end
@@ -105,13 +109,31 @@ module Alloy
       end
 
       def reset
-        @modules = []
+        @models = []
         @sigs = []
         @restriction_mod = nil
         @cache = {}
       end
 
-      gen :module, :sig
+      gen :model, :sig
+
+      def open_model(mod)
+        @opened_model =
+          case mod
+          when String, Symbol
+            model!(mod.to_s)
+          when Alloy::Ast::Model
+            mod
+          else
+            raise ArgumentError, "#{mod}:#{mod.class} is neither String nor Model"
+          end
+      end
+
+      def close_model(mod)
+        msg = "#{mod} is not the currently opened model"
+        raise ArgumentError, msg unless @opened_model == mod
+        @opened_model = nil
+      end
 
       private
 

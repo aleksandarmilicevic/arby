@@ -49,12 +49,10 @@ module SDGUtils
       # are automatically converted to symbols.
       # --------------------------------------------------------
       def do_build(name, &body)
+        name = nil if name && name.empty?
         @mod = create_or_get_module(name)
-        @scope_mod = if name.nil? || name.empty?
-                       @options[:parent_module]
-                     else
-                       @mod
-                     end
+        @scope_mod = name ? @mod : @options[:parent_module]
+        safe_send @mod, @options[:created_mthd], @scope_mod.name
         eval_body @mod, :module_eval, &body
         safe_send @mod, @options[:finish_mthd]
         @mod
@@ -62,10 +60,9 @@ module SDGUtils
 
       def create_module(parent_module, name)
         mod = Module.new
-        unless name.nil? || name.empty?
+        if name
           SDGUtils::MetaUtils.assign_const_in_module(parent_module, name, mod)
         end
-        safe_send mod, @options[:created_mthd]
         mod
       end
 
@@ -92,7 +89,7 @@ module SDGUtils
         mods_to_include.each {|m|
           ret_module.send(:include, m) unless ret_module.include? m
           ret_module.send(:extend, m)
-        } unless ret_module == Object
+        } # unless ret_module == Object
 
         ret_module
       end
