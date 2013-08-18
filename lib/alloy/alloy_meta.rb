@@ -7,6 +7,62 @@ module Alloy
   module Model
 
     module MMUtils
+      module Static
+        protected
+
+        # Returns plural of the given noun by
+        #  (1) replacing the trailing 'y' with 'ies', if `word'
+        #      ends with 'y',
+        #  (2) appending 'es', if `word' ends with 's'
+        #  (3) appending 's', otherwise
+        def pl(word)
+          word = word.to_s
+          if word[-1] == "y"
+            word[0...-1] + "ies"
+          elsif word[-1] == "s"
+            word + "es"
+          else
+            word + "s"
+          end
+        end
+
+        # Generates several methods for each symbol in `whats'.  For
+        # example, if whats == [:sig] it generates:
+        #
+        #   private
+        #   def _sigs()          _restrict @sigs end
+        #
+        #   public
+        #   def sigs()           _sigs end
+        #   def sig_created(obj) add_to(@sigs, obj) end
+        #   def get_sig(name)    _cache(_sigs, name) end
+        #   def find_sig(name)   _search_by_name(_sigs, name) end
+        #
+        #   alias_method :sig, :get_sig
+        def gen(*whats)
+          whats.each do |what|
+            self.class_eval <<-RUBY, __FILE__, __LINE__+1
+              private
+              def _#{pl what}()        _restrict @#{pl what} end
+
+              public
+              def #{pl what}()         _#{pl what} end
+              def #{what}_created(obj) add_to(@#{pl what}, obj) end
+              def get_#{what}(name)    _cache(_#{pl what}, name) end
+              def find_#{what}(name);  _search_by_name(_#{pl what}, name) end
+
+              alias_method :#{what}, :get_#{what}
+            RUBY
+          end
+        end
+      end
+
+      # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+      def self.included(base)
+        base.extend(Alloy::Model::MMUtils::Static)
+      end
+
       def clear_restriction
         restrict_to nil
       end
@@ -39,39 +95,27 @@ module Alloy
 
     # ==================================================================
     # == Class +MetaModel+
-    #
-    # @attr records  [Hash] - maps record name to record class
-    # @attr machines [Hash] - maps machine name to machine class
-    # @attr events   [Hash] - maps event name to event class
     # ==================================================================
     class MetaModel
       include MMUtils
       include SDGUtils::Events::EventProvider
 
-      private
-
       def initialize
         reset
       end
 
-      public
-
-      def sigs;  _sigs end
-      def sig_created(sig_cls) @sigs << sig_cls end
-      def sig_for_name(name);  _cache(_sigs, name) end
-      def find_sig(name);      _search_by_name(sigs, name) end
-
       def reset
-        #sigs.each { |s| SDGUtils::MetaUtils.undef_class(s) }
+        @modules = []
         @sigs = []
         @restriction_mod = nil
         @cache = {}
       end
 
-      protected
+      gen :module, :sig
 
-      def _sigs; _restrict(@sigs) end
+      private
 
+      def add_to(col, val) col << val end
     end
 
   end

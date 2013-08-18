@@ -70,7 +70,7 @@ module Alloy
       when Alloy::Ast::UnaryType::ColType::UnresolvedRefColType
         src = col_type.src
         col_type.mod.send(:const_get, src.to_sym, false) rescue nil ||
-          Alloy.meta.sig_for_name(src.to_s) ||
+          Alloy.meta.sig(src.to_s) ||
           Alloy.meta.find_sig(src.to_s) ||
           SDGUtils::MetaUtils.str_to_class(src.to_s)
       else

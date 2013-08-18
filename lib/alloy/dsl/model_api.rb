@@ -32,6 +32,17 @@ module Alloy
       def abstract_sig(name, fields={}, &block)
         sig(name, fields, &block).abstract
       end
+
+      def __created
+        #mod = Alloy::Ast::Model.new(self)
+      end
+
+      def __eval_body(&body)
+        self.module_eval &body
+      end
+
+      def __finish
+      end
     end
 
   end
