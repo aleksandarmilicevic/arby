@@ -147,36 +147,25 @@ module Alloy
                 end
               RUBY
             else
-              fail "unimplemented"
+              #TODO: doesn't work for module methods (because of some scoping issues)
+              method_body_name = "#{fun.name}_body__#{SDGUtils::Random.salted_timestamp}"
+              _define_method method_body_name.to_sym, &proc
+              if fun.arity == proc.arity
+                _define_method fun.name.to_sym, &proc
+              else
+                arg_map_str = fun.args.map{|a| "#{a.name}: #{a.name}"}.join(", ")
+                _define_method <<-RUBY, __FILE__, __LINE__+1
+                  def #{fun.name}(#{args_str})
+                    shadow_methods_while({#{arg_map_str}}) do
+                      #{method_body_name}
+                    end
+                  end
+                RUBY
+              end
             end
           end
         end
       end
-
-      # def _define_method_for_fun(fun)
-      #   _catch_syntax_errors do
-      #     proc = fun.body || proc{}
-      #     method_body_name = "#{fun.name}_body__#{SDGUtils::Random.salted_timestamp}"
-      #     _define_method method_body_name.to_sym, &proc
-
-      #     if fun.arity == proc.arity
-      #       _define_method fun.name.to_sym, &proc
-      #     else
-      #       msg = "number of function (#{fun.name}) formal parameters (#{fun.arity})"+
-      #             " doesn't match the arity of the given block (#{proc.arity})"
-      #       raise ArgumentError, msg unless proc.arity == 0
-      #       args_str = fun.args.map(&:name).join(", ")
-      #       arg_map_str = fun.args.map{|a| "#{a.name}: #{a.name}"}.join(", ")
-      #       _define_method <<-RUBY, __FILE__, __LINE__+1
-      #         def #{fun.name}(#{args_str})
-      #           shadow_methods_while({#{arg_map_str}}) do
-      #             #{method_body_name}
-      #           end
-      #         end
-      #       RUBY
-      #     end
-      #   end
-      # end
 
       def _to_args(hash)
         ans = []
