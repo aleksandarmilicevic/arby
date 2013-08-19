@@ -12,12 +12,11 @@ module Alloy
         @ruby_module = ruby_module
         @name = name
         @relative_name = @name.split("::").last
-        @sigs = []
-        @preds = []
-        @funs = []
+
+        init_searchable_attrs
       end
 
-      attr_searchable :sig, :fun, :pred
+      attr_searchable :sig, :fun, :pred, :assertion, :fact
     end
 
   end

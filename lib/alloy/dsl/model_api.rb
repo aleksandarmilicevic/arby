@@ -25,9 +25,12 @@ module Alloy
       # --------------------------------------------------------------
       def sig(name, fields={}, &block)
         ans = SigBuilder.sig(name, fields, &block)
-        ans.abstract if @abstract_alloy_block
-        meta.add_sig(ans)
-        ans
+        sigs = (Array === ans) ? ans : [ans]
+        sigs.each do |sig|
+          sig.abstract if @abstract_alloy_block
+          meta.add_sig(sig)
+        end
+        sigs
       end
 
       def abstract_sig(name, fields={}, &block)

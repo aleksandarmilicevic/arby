@@ -1,6 +1,7 @@
 require 'alloy/ast/fun'
 require 'alloy/ast/arg'
 require 'alloy/ast/types'
+require 'alloy/dsl/fields_helper'
 require 'alloy/dsl/errors'
 require 'sdg_utils/dsl/base_builder'
 
@@ -8,28 +9,26 @@ module Alloy
   module Dsl
 
     module FunHelper
+      include FieldsHelper
+
       # ---------------------------------------------------------
       # TODO: DOCS
       # ---------------------------------------------------------
 
       def pred(*args, &block)
-        pred = _create_pred(*args, &block)
-        meta.add_pred(pred)
-        _define_method_for_fun(pred)
+        _create_and_add_fn(:pred, *args, &block)
       end
 
       def fun(*args, &block)
-        fun = _create_fun(*args, &block)
-        meta.add_fun(fun)
-        _define_method_for_fun(fun)
+        _create_and_add_fn(:fun, *args, &block)
       end
 
       def fact(*args, &block)
-        #TODO
+        _create_and_add_fn(:fact, *args, &block)
       end
 
       def assertion(*args, &block)
-        #TODO
+        _create_and_add_fn(:assertion, *args, &block)
       end
 
       def invariant(&block)
@@ -43,8 +42,8 @@ module Alloy
           # use this as a last resort
           raise ex unless Alloy.conf.allow_undef_vars
           raise ex unless SDGUtils::DSL::BaseBuilder.in_body?
-          raise ex unless args.empty? && block.nil?
-          FunBuilder.new(sym)
+          raise ex unless args.empty?
+          FunBuilder.new(sym, &block)
         end
       end
 
@@ -55,7 +54,7 @@ module Alloy
         fun_args = meth.parameters.map{ |mod, sym|
           Alloy::Ast::Arg.new :name => sym, :type => Alloy::Ast::NoType.new
         }
-        fun = Alloy::Ast::Fun.new :name     => name,
+        fun = Alloy::Ast::Fun.fun :name     => name,
                                   :args     => fun_args,
                                   :ret_type => Alloy::Ast::NoType.new,
                                   :parent   => self,
@@ -65,10 +64,17 @@ module Alloy
 
       private
 
-      def _create_fun(*args, &block)  _create_f(:fun, *args, &block) end
-      def _create_pred(*args, &block) _create_f(:pred, *args, &block) end
+      def _create_and_add_fn(kind, *args, &block)
+        _catch_syntax_errors do
+          fun_opts = _to_fun_opts(*args, &block)
+          fn = Alloy::Ast::Fun.send kind, fun_opts
+          meta.send :"add_#{kind}", fn
+          _define_method_for_fun(fn)
+          fn
+        end
+      end
 
-      def _create_f(kind, *args, &block)
+      def _create_fn(kind, *args, &block)
         _catch_syntax_errors do
           fun_opts = _to_fun_opts(*args, &block)
           Alloy::Ast::Fun.send kind, fun_opts
@@ -136,6 +142,56 @@ module Alloy
             RUBY
           end
         end
+      end
+
+      def _to_args(hash)
+        ans = []
+        _traverse_fields_hash hash, lambda {|arg_name, type|
+          arg = Alloy::Ast::Arg.new :name => arg_name, :type => type
+          ans << arg
+        }
+        ans
+      end
+
+      def _to_fun_opts(*args, &block)
+        fun_opts =
+          case
+          when args.size == 1 && Hash === args[0]
+            fa = _to_args(args[0][:args])
+            args[0].merge :args => fa
+          when args.size == 1 && Alloy::Ast::Fun === args[0]
+            args[0]
+          when args.size == 1 && FunBuilder === args[0]
+            fb = args[0]
+            { :name     => fb.name,
+              :args     => _to_args(fb.args),
+              :ret_type => fb.ret_type,
+              :body     => fb.body}
+          when args.size == 2
+            # expected types: String, Hash
+            fun_name = args[0]
+            fun_args = _to_args(args[1])
+            { :name     => fun_name,
+              :args     => fun_args[0...-1],
+              :ret_type => fun_args[-1].type }
+          when args.size == 3
+            # expected types: String, Hash, AType
+            { :name     => args[0],
+              :args     => _to_args(args[1]),
+              :ret_type => args[2] }
+          else
+            raise ArgumentError, """
+Invalid fun format. Valid formats:
+  - fun(opts [Hash])
+  - fun(fun [Fun])
+  - fun(name [String], full_type [Hash])
+  - fun(name [String], args [Hash], ret_type [AType])
+"""
+          end
+        msg = "two blocks provided (both in args and explicitly)"
+        raise ArgumentError, msg if block && fun_opts[:body]
+        block = fun_opts[:body] || block || proc{}
+        fun_opts.merge!({:body => block, :parent => self})
       end
 
     end

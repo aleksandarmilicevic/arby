@@ -21,38 +21,71 @@ module Alloy
 
       attr_reader :parent, :name, :args, :ret_type, :body
 
-      def self.fun(hash)
-        self.new(hash)
-      end
-
-      def self.pred(hash)
-        hash[:ret_type] ||= :Bool
-        pred = self.new(hash)
-        rt = pred.ret_type
-        case
-        when NoType === rt
-          pred.instance_variable_set "@ret_type", Alloy::Ast::AType.get(:Bool)
-        when (rt.isBool? rescue false)
-          # ok
-        else
-          raise ArgumentError, "non-bool return type (#{rt}) specified for a pred"
+      class << self
+        def fun(hash)
+          Fun.new(:fun, hash)
         end
-        pred.instance_variable_set "@is_pred", true
-        pred
+
+        def pred(hash)
+          hash = ensure_bool_ret(hash.clone)
+          Fun.new(:pred, hash)
+        end
+
+        def fact(hash)
+          hash = ensure_bool_ret(hash.clone)
+          hash = ensure_no_args(hash)
+          Fun.new :fact, hash
+        end
+
+        def assertion(hash)
+          hash = ensure_bool_ret(hash.clone)
+          hash = ensure_no_args(hash)
+          Fun.new :assertion, hash
+        end
+
+        private
+
+        def ensure_bool_ret(hash)
+          rt = hash[:ret_type]
+          unless rt.nil? || Alloy::Ast::NoType === rt
+            at = Alloy::Ast::AType.get(rt)
+            msg = "expected bool return type, got #{at}"
+            raise ArgumentError, msg unless (at.isBool? rescue false)
+          end
+          hash[:ret_type] = :Bool
+          hash
+        end
+
+        def ensure_no_args(hash)
+          args = hash[:args]
+          msg = "expected no arguments"
+          raise ArgumentError, msg unless args.nil? || args.empty?
+          hash[:args] = []
+          hash
+        end
       end
 
-      def initialize(hash)
+      private
+
+      def initialize(kind, hash)
+        @kind     = kind
         @parent   = hash[:parent]
         @name     = check_iden hash[:name].to_s.to_sym, "function name"
-        @args     = hash[:args]
+        @args     = hash[:args] || []
         @ret_type = Alloy::Ast::AType.get(hash[:ret_type])
-        @body     = hash[:body]
+        @body     = hash[:body] || proc{}
       end
 
-      def pred?()     @is_pred  end
-      def arity()     args.size end
-      def arg_types() args.map(&:type) end
-      def full_type() (arg_types + [ret_type]).reduce(nil, &ProductType.cstr_proc) end
+      public
+
+      def fun?()       @kind == :fun  end
+      def pred?()      @kind == :pred  end
+      def fact?()      @kind == :fact  end
+      def assertion?() @kind == :assertion  end
+
+      def arity()      args.size end
+      def arg_types()  args.map(&:type) end
+      def full_type()  (arg_types + [ret_type]).reduce(nil, &ProductType.cstr_proc) end
 
       def to_opts
         instance_variables.reduce({}) do |acc,sym|
@@ -63,7 +96,7 @@ module Alloy
       def to_s
         kind = pred?() ? "pred" : "fun"
         args_str = args.map{|a| "#{a.name}: #{a.type}"}.join(", ")
-        "#{kind} [#{args_str}]: #{ret_type}"
+        "#{kind} #{name}[#{args_str}]: #{ret_type}"
       end
     end
 

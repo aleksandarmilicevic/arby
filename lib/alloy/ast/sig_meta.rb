@@ -21,20 +21,17 @@ module Alloy
       attr_reader :abstract, :placeholder
       attr_reader :extra
 
+      attr_hier_searchable :subsig, :field, :inv_field, :fun, :pred
+
       def initialize(sig_cls, placeholder=false, abstract=false)
         @sig_cls     = sig_cls
         @parent_sig  = sig_cls.superclass if (sig_cls.superclass.is_sig? rescue nil)
         @placeholder = placeholder
         @abstract    = abstract
-        @subsigs     = []
-        @fields      = []
-        @inv_fields  = []
-        @preds       = []
-        @funs        = []
         @extra       = {}
+        init_searchable_attrs(SigMeta)
       end
 
-      attr_hier_searchable :subsig, :field, :inv_field, :fun, :pred
       def _hierarchy_up() parent_sig && parent_sig.meta end
 
       def abstract?()       @abstract end

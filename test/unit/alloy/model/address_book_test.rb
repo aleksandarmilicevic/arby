@@ -20,11 +20,11 @@ module A_M_ABT
       }
     end
 
-    # assertion delUndoesAdd {
-    #   all [:b1, :b2, :b3] => Book, :n => Name, :a => Addr {
-        
-    #   }
-    # }
+    assertion delUndoesAdd {
+      all [:b1, :b2, :b3] => Book, :n => Name, :a => Addr {
+
+      }
+    }
   end
 end
 
@@ -47,5 +47,6 @@ class AddressBookTest < Test::Unit::TestCase
   end
 
   def test
+    binding.pry
   end
 end

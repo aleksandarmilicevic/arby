@@ -11,13 +11,14 @@ module Alloy
     #   func_name[a: A, b: B][Int]
     # ============================================================================
     class FunBuilder < BasicObject
-      attr_reader :name, :args, :ret_type
+      attr_reader :name, :args, :ret_type, :body
 
-      def initialize(name)
+      def initialize(name, &block)
         @name = name
         @args = {}
         @ret_type = notype
         @state = :init
+        @body = block
       end
 
       def in_init?()     @state == :init end
@@ -48,7 +49,7 @@ module Alloy
         ::Kernel.raise ::NameError, msg
       end
 
-      def ==(other) 
+      def ==(other)
         if ::Alloy::Dsl::FunBuilder === other
           @name == other.name
         else

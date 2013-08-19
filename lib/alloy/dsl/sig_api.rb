@@ -1,3 +1,4 @@
+require 'alloy/dsl/fields_helper'
 require 'alloy/dsl/fun_helper'
 require 'alloy/dsl/fun_builder'
 require 'alloy/ast/arg'
@@ -14,6 +15,7 @@ module Alloy
     module SigDslApi
       protected
 
+      include FieldsHelper
       include FunHelper
 
       # ~~~~~~~~~~~~~~~~~~~~~~~~ DSL API ~~~~~~~~~~~~~~~~~~~~~~~~ #
@@ -116,51 +118,6 @@ module Alloy
         self.send :include, cls
       end
 
-      def _traverse_fields(hash, cont, &block)
-        _traverse_fields_hash(hash, cont)
-        unless block.nil?
-          ret = block.call
-          _traverse_fields_hash(ret, cont)
-        end
-        nil
-      end
-
-      def _traverse_fields_hash(hash, cont)
-        return unless hash
-        hash.each do |k,v|
-          if Array === k
-            k.each{|e| cont.call(e, v)}
-          else
-            cont.call(k, v)
-          end
-        end
-      end
-
-      def _traverse_field_args(args, cont)
-        case
-        when args.size == 3
-          cont.call(*args)
-        when args.size == 2
-          if Hash === args[0] && args[0].size == 1
-            cont.call(*args[0].first, args[1])
-          else
-            cont.call(*args)
-          end
-        when args.size == 1 && Hash === args[0]
-          name, type = args[0].first
-          cont.call(name, type, Hash[args[0].drop 1])
-        else
-          msg = """
-Invalid field format. Valid formats:
-  - field name, type, options_hash={}
-  - field name_type_hash, options_hash={}; where name_type_hash.size == 1
-  - field hash                           ; where name,type = hash.first
-                                           options_hash = Hash[hash.drop 1]
-"""
-          raise ArgumentError, msg
-        end
-      end
-
       def _set_abstract
         meta.set_abstract
       end
@@ -177,53 +134,6 @@ Invalid field format. Valid formats:
         inv_fld = meta.add_inv_field_for(f)
         fld_accessors inv_fld
         inv_fld
-      end
-
-      def _to_args(hash)
-        ans = []
-        _traverse_fields_hash hash, lambda {|arg_name, type|
-          arg = Alloy::Ast::Arg.new :name => arg_name, :type => type
-          ans << arg
-        }
-        ans
-      end
-
-      def _to_fun_opts(*args, &block)
-        block = lambda{} unless block
-        fun_opts =
-          case
-          when args.size == 1 && Hash === args[0]
-            fa = _to_args(args[0][:args])
-            args[0].merge :args => fa
-          when args.size == 1 && Alloy::Ast::Fun === args[0]
-            args[0]
-          when args.size == 1 && FunBuilder === args[0]
-            fb = args[0]
-            { :name => fb.name,
-            :args => _to_args(fb.args),
-            :ret_type => fb.ret_type }
-          when args.size == 2
-            # expected types: String, Hash
-            fun_name = args[0]
-            fun_args = _to_args(args[1])
-            { :name => fun_name,
-            :args => fun_args[0...-1],
-            :ret_type => fun_args[-1].type }
-          when args.size == 3
-            # expected types: String, Hash, AType
-            { :name => args[0],
-            :args => _to_args(args[1]),
-            :ret_type => args[2] }
-          else
-            raise ArgumentError, """
-Invalid fun format. Valid formats:
-  - fun(opts [Hash])
-  - fun(fun [Fun])
-  - fun(name [String], full_type [Hash])
-  - fun(name [String], args [Hash], ret_type [AType])
-"""
-          end
-        fun_opts.merge!({:body => block, :parent => self})
       end
     end
 

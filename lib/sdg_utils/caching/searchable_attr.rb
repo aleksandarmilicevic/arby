@@ -27,13 +27,13 @@ module SDGUtils
         # example, if whats == [:sig] it generates:
         #
         #   private
-        #   def _sigs()          _restrict @sigs end
+        #   def _sigs()          _restrict(@sigs||=[]) end
         #   def _sig_cache()     @sig_cache ||= Cache.new "sig", :fast => true end
         #   def _sig_fnd_cache() @sig_fnd_cache ||= Cache.new "sig_find", :fast => true end
         #
         #   public
         #   def sigs()         _sigs end
-        #   def add_sig(obj)   _add_to(@sigs, obj) end
+        #   def add_sig(obj)   _add_to(@sigs||=[], obj) end
         #   def get_sig(key)   _sig_cache.fetch(key)     {_get_by(_sigs, key)} end
         #   def find_sig(key)  _sig_fnd_cache.fetch(key) {_find_by(_sigs, key)} end
         #   def get_sig!(key)  get_sig(name) || fail "sig `#{name}' not found" end
@@ -42,6 +42,9 @@ module SDGUtils
         #   alias_method :sig!, :get_sig!
         def attr_searchable(*whats)
           whats.each do |what|
+            self.instance_eval <<-RUBY, __FILE__, __LINE__+1
+              (@searchable_attrs ||= []) << #{pl(what).to_sym.inspect}
+            RUBY
             self.class_eval <<-RUBY, __FILE__, __LINE__+1
   private
   def _#{pl what}()      _restrict(@#{pl what} ||= []) end
@@ -54,7 +57,7 @@ module SDGUtils
 
   public
   def #{pl what}()       _#{pl what} end
-  def add_#{what}(obj)   _add_to(@#{pl what}, obj) end
+  def add_#{what}(obj)   _add_to(@#{pl what}||=[], obj) end
   def get_#{what}(key)   _#{what}_cache.fetch(key)    { _get_by(_#{pl what}, key) } end
   def find_#{what}(key)  _#{what}_fnd_cache.fetch(key){ _find_by(_#{pl what}, key) } end
   def get_#{what}!(key)  get_#{what}(key) || fail("#{what} `\#{key}' not found") end
@@ -75,12 +78,12 @@ module SDGUtils
         #
         #   public
         #   def sigs(own_only=true) _sigs(own_only) end
-        #   def add_sig(obj)        _add_to(@sigs, obj) end
-        #   def get_sig(key,own_only=false)  
-        #     _find(own_only) { _sig_cache.fetch(key) {_get_by(_sigs, key)} } 
+        #   def add_sig(obj)        _add_to(@sigs ||= [], obj) end
+        #   def get_sig(key,own_only=false)
+        #     _find(own_only) { _sig_cache.fetch(key) {_get_by(_sigs, key)} }
         #   end
-        #   def find_sig(key)  
-        #     _find(own_only) { _sig_fnd_cache.fetch(key) {_find_by(_sigs, key)} } 
+        #   def find_sig(key)
+        #     _find(own_only) { _sig_fnd_cache.fetch(key) {_find_by(_sigs, key)} }
         #   end
         #   def get_sig!(key)  get_sig(name) || fail "sig `#{name}' not found" end
         #
@@ -88,6 +91,9 @@ module SDGUtils
         #   alias_method :sig!, :get_sig!
         def attr_hier_searchable(*whats)
           whats.each do |what|
+            self.instance_eval <<-RUBY, __FILE__, __LINE__+1
+              (@searchable_attrs ||= []) << #{pl(what).to_sym.inspect}
+            RUBY
             self.class_eval <<-RUBY, __FILE__, __LINE__+1
   protected
   def _#{pl what}(own_only=true) _fetch(own_only) { _restrict(@#{pl what} ||= []) } end
@@ -100,7 +106,7 @@ module SDGUtils
 
   public
   def #{pl what}(own_only=true)       _#{pl what}(own_only) end
-  def add_#{what}(obj)                _add_to(@#{pl what}, obj) end
+  def add_#{what}(obj)                _add_to(@#{pl what} ||= [], obj) end
   def get_#{what}(key, own_only=false)
     _find(own_only) {
       _#{what}_cache.fetch(key) { _get_by(_#{pl what}, key) }
@@ -131,6 +137,13 @@ module SDGUtils
       end
 
       protected
+
+      def init_searchable_attrs(cls=self.class)
+        arr = cls.instance_variable_get("@searchable_attrs") || []
+        arr.each do |attr|
+          instance_variable_set "@#{attr}", []
+        end
+      end
 
       def _fetch(own_only, &block)
         ans = if !own_only && up = _hierarchy_up

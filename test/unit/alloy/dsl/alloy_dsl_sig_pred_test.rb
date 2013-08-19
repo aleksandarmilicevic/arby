@@ -82,7 +82,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def get_funs(sig)
-    sig.meta.funs.reduce({}){|acc,f| 
+    sig.meta.funs.reduce({}){|acc,f|
       assert_equal sig, f.parent
       acc.merge!({f.name => f})
     }
@@ -190,7 +190,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
         end
       end
     end
-    assert_starts_with "non-bool return type (Int) specified for a pred", ex.message
+    assert_starts_with "expected bool return type, got Int", ex.message
   end
 
   def test_invalid_pred_empty_rettype

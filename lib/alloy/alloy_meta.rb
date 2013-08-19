@@ -27,7 +27,7 @@ module Alloy
       def _restrict(src)
         return src unless @restriction_mod
         src.select {|e|
-          e.name && e.name.start_with?(@restriction_mod.to_s + "::")}
+          e.name && e.name.start_with?(@restriction_mod.to_s)}
       end
     end
 
