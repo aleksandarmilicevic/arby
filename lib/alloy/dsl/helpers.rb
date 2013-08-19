@@ -1,6 +1,7 @@
 require 'alloy/dsl/abstract_helper'
 require 'alloy/dsl/fun_helper'
 require 'alloy/dsl/mult_helper'
+require 'alloy/dsl/quant_helper'
 
 module Alloy
   module Dsl

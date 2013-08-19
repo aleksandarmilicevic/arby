@@ -4,7 +4,6 @@ require 'sdg_utils/lambda/proc'
 
 include Alloy::Dsl
 
-
 alloy_model :A_M_ABT do
   sig Name, Addr
 
@@ -46,6 +45,7 @@ class AddressBookTest < Test::Unit::TestCase
   end
 
   def test
-    # puts A_M_ABT.delUndoesAdd
+    ans = A_M_ABT.delUndoesAdd
+    puts "#{ans}"
   end
 end

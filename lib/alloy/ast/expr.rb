@@ -1,4 +1,5 @@
 require 'alloy/ast/op'
+require 'sdg_utils/lambda/sourcerer'
 
 module Alloy
   module Ast
@@ -93,6 +94,38 @@ module Alloy
       def initialize(cond, then_expr, else_expr)
         @cond, @then_expr, @else_expr = cond, then_expr, else_expr
       end
+    end
+
+    class QuantExpr
+      include MExpr
+      attr_reader :kind, :decl, :body
+
+      def self.all(decl, &block)
+        self.new(:all, decl, &block)
+      end
+
+      def self.exist(decl, &block)
+        self.new(:exist, decl, &block)
+      end
+
+      def all?()   @kind == :all end
+      def exist?() @kind == :exist end
+
+      def to_s
+        decl_str = decl.map{|k,v| "#{k}: #{v}"}.join(", ")
+        "#{@kind} #{decl_str} {\n" +
+        "  #{@body_src}\n" +
+        "}"
+      end
+
+      private
+
+      def initialize(kind, decl, &body)
+        @kind, @decl, @body = kind, decl, body
+        fake_body_src = "<failed to extract body source>"
+        @body_src = SDGUtils::Lambda::Sourcerer.proc_to_src(body) rescue fake_body_src
+      end
+
     end
   end
 end

@@ -4,9 +4,8 @@ require 'alloy/ast/types'
 require 'alloy/dsl/fields_helper'
 require 'alloy/dsl/errors'
 require 'alloy/utils/codegen_repo'
-require 'parser/current'
-require 'method_source'
 require 'sdg_utils/dsl/base_builder'
+require 'sdg_utils/lambda/sourcerer'
 
 module Alloy
   module Dsl
@@ -122,46 +121,35 @@ module Alloy
         end
       end
 
-      def _proc_to_src(proc)
-        failparse = proc{|str=""| fail "#{str}\ncouldn't parse:\n#{proc.source}"}
-        ast = Parser::CurrentRuby.parse(proc.source)
-        root_block =
-          case
-          when ast.type == :block;
-            ast
-          # because of a bug in Parser, ast is not always :block
-          when ast.type == :send
-            msg = "expected :send with exactly 3 children"
-            failparse[msg] unless ast.children.size == 3
-            msg = "expected :send where the 3rd children is a :block node"
-            failparse[msg] unless ast.children[2].type == :block
-            ast.children[2]
-          else
-            failparse["wrong root node: expected :block or :send, got :#{ast.type}"]
-          end
-        msg = "expected root block to have 3 children"
-        failparse[msg] unless root_block.children.size == 3
-        block_body = root_block.children[2]
-        block_body.src.expression.to_source
-      end
-
       def _define_method_for_fun(fun)
         _catch_syntax_errors do
           proc = fun.body || proc{}
 
           if fun.arity != proc.arity && proc.arity != 0
-            msg = "number of function `#{fun.name}' formal parameters (#{fun.arity}) " +
-                  "doesn't match the arity of the given block (#{proc.arity})"
+            msg = "number of function `#{fun.name}' formal parameters (#{fun.arity})" +
+                  " doesn't match the arity of the given block (#{proc.arity})"
             raise ArgumentError, msg
           end
 
-          proc_src = _proc_to_src(proc)
           args_str = fun.args.map(&:name).join(", ")
-          _define_method <<-RUBY, __FILE__, __LINE__+1
-            def #{fun.name}(#{args_str})
-              #{proc_src}
+          if fun.body.nil?
+            _define_method <<-RUBY, __FILE__, __LINE__+1
+              def #{fun.name}(#{args_str})
+              end
+            RUBY
+          else
+            proc_src_loc = proc.source_location rescue nil
+            if proc_src_loc &&
+                proc_src = (SDGUtils::Lambda::Sourcerer.proc_to_src(proc) rescue nil)
+              _define_method <<-RUBY, *proc_src_loc
+                def #{fun.name}(#{args_str})
+                  #{proc_src}
+                end
+              RUBY
+            else
+              fail "unimplemented"
             end
-          RUBY
+          end
         end
       end
 
@@ -174,8 +162,8 @@ module Alloy
       #     if fun.arity == proc.arity
       #       _define_method fun.name.to_sym, &proc
       #     else
-      #       msg = "number of function (#{fun.name}) formal parameters (#{fun.arity}) " +
-      #             "doesn't match the arity of the given block (#{proc.arity})"
+      #       msg = "number of function (#{fun.name}) formal parameters (#{fun.arity})"+
+      #             " doesn't match the arity of the given block (#{proc.arity})"
       #       raise ArgumentError, msg unless proc.arity == 0
       #       args_str = fun.args.map(&:name).join(", ")
       #       arg_map_str = fun.args.map{|a| "#{a.name}: #{a.name}"}.join(", ")

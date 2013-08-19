@@ -42,7 +42,6 @@ module Alloy
       def initialize(hash)
         @name    = check_iden hash[:name], "arg name"
         @type    = Alloy::Ast::AType.get(hash[:type])
-
       end
 
       def scalar?()    @type.scalar? end

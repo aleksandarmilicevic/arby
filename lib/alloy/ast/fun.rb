@@ -73,7 +73,7 @@ module Alloy
         @name     = check_iden hash[:name].to_s.to_sym, "function name"
         @args     = hash[:args] || []
         @ret_type = Alloy::Ast::AType.get(hash[:ret_type])
-        @body     = hash[:body] || proc{}
+        @body     = hash[:body]
       end
 
       public

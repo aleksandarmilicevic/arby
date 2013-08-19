@@ -11,6 +11,7 @@ module Alloy
     # ============================================================================
     module ModelDslApi
       include MultHelper
+      include QuantHelper
       include AbstractHelper
       include FunHelper
       extend self
