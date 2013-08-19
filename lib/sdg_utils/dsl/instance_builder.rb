@@ -56,8 +56,8 @@ module SDGUtils
           # target's singleton class, so that methods from those
           # modules take presedence over the methods defined in the
           # parent class
-          (@opts[:include_mods] + @opts[:include_builder_mods]).each do |mod|
-            target.singleton_class.send :include, mod
+          (@opts[:include_mods] + @opts[:include_builder_mods]).each do |mmod|
+            target.singleton_class.send :include, mmod
           end
 
           # evaluate the block
@@ -66,8 +66,8 @@ module SDGUtils
           # uninclude all include_builder_mods by either undefining
           # methods from those modules or redirecting them to the
           # parent class
-          @opts[:include_builder_mods].each do |mod|
-            mod.instance_methods(false).each do |meth|
+          @opts[:include_builder_mods].each do |mmod|
+            mmod.instance_methods(false).each do |meth|
               super_meth = cls.instance_method(meth).bind(target) rescue nil
               if super_meth
                 target.define_singleton_method meth, super_meth.to_proc

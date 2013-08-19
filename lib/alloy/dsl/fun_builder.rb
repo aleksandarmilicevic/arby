@@ -44,7 +44,7 @@ module Alloy
       end
 
       def method_missing(sym, *args, &block)
-        msg = "Tried to invoke `#{sym}' on a FunBuilder object. "
+        msg = "Tried to invoke `#{sym}' on a FunBuilder (`#{to_s}') object. "
         msg += "It's likely you mistakenly misspelled `#{@name}' in the first place"
         ::Kernel.raise ::NameError, msg
       end

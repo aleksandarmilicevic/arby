@@ -73,7 +73,7 @@ require 'alloy/ast/arg'
       end
 
       def to_iden
-        full_name.gsub /[^a-zA-Z0-9_]/, "_"
+        full_name.gsub(/[^a-zA-Z0-9_]/, "_")
       end
 
       protected

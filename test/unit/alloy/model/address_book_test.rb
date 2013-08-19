@@ -4,28 +4,27 @@ require 'sdg_utils/lambda/proc'
 
 include Alloy::Dsl
 
-module A_M_ABT
-  alloy_model do
-    sig Name, Addr
 
-    sig Book, {
-      addr: Name * (lone Addr)
-    } do
-      pred add[ans: Book, n: Name, a: Addr] {
-        ans.addr == addr + n*a
-      }
+alloy_model :A_M_ABT do
+  sig Name, Addr
 
-      pred del[ans: Book, n: Name] {
-        ans.addr == addr - n*Addr
-      }
-    end
+  sig Book, {
+    addr: Name * (lone Addr)
+  } do
+    pred add[ans: Book, n: Name, a: Addr] {
+      ans.addr == addr + n*a
+    }
 
-    assertion delUndoesAdd {
-      all [:b1, :b2, :b3] => Book, :n => Name, :a => Addr {
-
-      }
+    pred del[ans: Book, n: Name] {
+      ans.addr == addr - n*Addr
     }
   end
+
+  assertion delUndoesAdd {
+    all [:b1, :b2, :b3] => Book, :n => Name, :a => Addr do
+
+    end
+  }
 end
 
 class String
@@ -47,6 +46,6 @@ class AddressBookTest < Test::Unit::TestCase
   end
 
   def test
-    binding.pry
+    # puts A_M_ABT.delUndoesAdd
   end
 end

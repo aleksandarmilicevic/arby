@@ -33,7 +33,7 @@ module SDGUtils
       def do_build(*args, &body)
         case
         when body.nil? && args.all?{|a| String === a || Symbol === a}
-          args.map &method(:do_build1).to_proc
+          args.map(&method(:do_build1).to_proc)
         else
           do_build1(*args, &body)
         end

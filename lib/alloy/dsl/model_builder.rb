@@ -31,7 +31,9 @@ module Alloy
       def model(model_sym, name, &block)
         raise RuntimeError, "Model nesting is not allowed" if in_builder?
         @curr_model = model_sym
-        build(name, &block)
+        mod = build(name, &block)
+        mod.extend(mod)
+        mod
       end
 
       def curr_model() @curr_model end

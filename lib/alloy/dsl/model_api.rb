@@ -48,7 +48,7 @@ module Alloy
         mod = meta()
         Alloy.meta.open_model(mod)
         begin
-          mod.ruby_module.module_eval &body
+          mod.ruby_module.module_eval(&body)
         ensure
           Alloy.meta.close_model(mod)
         end

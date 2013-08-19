@@ -94,9 +94,8 @@ module Alloy
       end
 
       def to_s
-        kind = pred?() ? "pred" : "fun"
         args_str = args.map{|a| "#{a.name}: #{a.type}"}.join(", ")
-        "#{kind} #{name}[#{args_str}]: #{ret_type}"
+        "#{@kind} #{name} [#{args_str}]: #{ret_type}"
       end
     end
 

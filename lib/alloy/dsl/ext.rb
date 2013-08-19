@@ -115,6 +115,7 @@ class String
     return old_cmp rhs unless in_alloy_dsl?
     case rhs
     when Class
+      # Alloy::Dsl::NameSuperclassPair.new(self, rhs)
       [self, rhs]
     else
       old_cmp rhs

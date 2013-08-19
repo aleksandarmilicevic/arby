@@ -20,8 +20,8 @@ module Alloy
       def self.all()         @@ops.clone end
     end
 
-    class Uop < Op def Initialize(sym, name) super(sym, name, 1) end end
-    class Bop < Op def Initialize(sym, name) super(sym, name, 2) end end
+    class Uop < Op; def Initialize(sym, name) super(sym, name, 1) end end
+    class Bop < Op; def Initialize(sym, name) super(sym, name, 2) end end
 
     module UnaryOps
       SOMEOF      = Uop.new(:"some of",    "someof")

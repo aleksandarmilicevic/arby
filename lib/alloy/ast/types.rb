@@ -26,7 +26,7 @@ module Alloy
       end
 
       def to_ruby_type
-        map &:klass
+        map(&:klass)
       end
 
       def ==(other)

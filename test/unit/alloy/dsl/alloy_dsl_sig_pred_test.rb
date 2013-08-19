@@ -97,7 +97,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def check_arg_types(fun, arg_types)
-    expected = arg_types.map &atype
+    expected = arg_types.map(&atype)
     assert_seq_equal expected, fun.args.map(&:type)
   end
 
@@ -119,7 +119,9 @@ class AlloyDslPredTest < Test::Unit::TestCase
         end
       end
     end
-    assert_starts_with "number of function (f1) formal parameters (2) doesn't", ex.message
+    msg = "number of function `f1' formal parameters (2) doesn't match the arity " +
+          "of the given block (1)"
+    assert_starts_with msg, ex.message
   end
 
   def test_invalid_too_many_ret

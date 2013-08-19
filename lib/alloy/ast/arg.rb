@@ -42,7 +42,7 @@ module Alloy
       def initialize(hash)
         @name    = check_iden hash[:name], "arg name"
         @type    = Alloy::Ast::AType.get(hash[:type])
-        
+
       end
 
       def scalar?()    @type.scalar? end
@@ -60,7 +60,7 @@ module Alloy
       end
 
       def to_iden
-        name.gsub /[^a-zA-Z0-9_]/, "_"
+        name.gsub(/[^a-zA-Z0-9_]/, "_")
       end
     end
 

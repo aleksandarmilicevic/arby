@@ -4,6 +4,13 @@ require 'sdg_utils/dsl/class_builder'
 module Alloy
   module Dsl
 
+    # class NameSuperclassPair
+    #   attr_reader :name, :supercls
+    #   def initialize(name, supercls)
+    #     @name, @supercs = name, supercls
+    #   end
+    # end
+
     # ============================================================================
     # == Class +SigBuilder+
     #
