@@ -49,7 +49,7 @@ module Alloy
         @cache = {}
       end
 
-      gen :model, :sig
+      attr_searchable :model, :sig
 
       def open_model(mod)
         @opened_model =

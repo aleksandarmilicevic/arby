@@ -1,5 +1,6 @@
 require 'alloy/ast/field'
 require 'alloy/ast/fun'
+require 'sdg_utils/caching/searchable_attr'
 
 module Alloy
   module Ast
@@ -14,11 +15,10 @@ module Alloy
     # @attr inv_fields [Array(Field)]
     # ----------------------------------------------------------------------
     class SigMeta
+      include SDGUtils::Caching::SearchableAttr
+
       attr_reader :sig_cls, :parent_sig
       attr_reader :abstract, :placeholder
-      attr_reader :subsigs
-      attr_reader :fields, :inv_fields
-      attr_reader :preds, :funs
       attr_reader :extra
 
       def initialize(sig_cls, placeholder=false, abstract=false)
@@ -33,6 +33,9 @@ module Alloy
         @funs        = []
         @extra       = {}
       end
+
+      attr_hier_searchable :subsig, :field, :inv_field, :fun, :pred
+      def _hierarchy_up() parent_sig && parent_sig.meta end
 
       def abstract?()       @abstract end
       def set_abstract()    @abstract = true end
@@ -50,17 +53,8 @@ module Alloy
       alias_method :pfields, :persistent_fields
       alias_method :tfields, :transient_fields
 
-      def fields(w_inherited=false)     fetch_attr(:fields, w_inherited) end
-      def inv_fields(w_inherited=false) fetch_attr(:inv_fields, w_inherited) end
-      def preds(w_inherited=false)      fetch_attr(:preds, w_inherited) end
-      def funs(w_inherited=false)       fetch_attr(:funs, w_inherited) end
-
       def all_fields(include_inherited=false)
         fields(include_inherited) + inv_fields(include_inherited)
-      end
-
-      def add_subsig(subsig_cls)
-        @subsigs << subsig_cls
       end
 
       def all_subsigs
@@ -92,12 +86,6 @@ module Alloy
         end
       end
 
-      def add_fun(fun)  @funs << fun end
-      def add_pred(fun) @preds << fun end
-
-      def fun(fun_name, own_only=false)   find_in(@funs, own_only) end
-      def pred(pred_name, own_only=false) find_in(@preds, own_only) end
-
       def add_field(fld_name, fld_type, hash={})
         opts = hash.merge :parent => sig_cls,
                           :name   => fld_name.to_s,
@@ -112,23 +100,16 @@ module Alloy
         if full_inv_type.domain.klass != @sig_cls
           raise ArgumentError, "Field #{f} doesn't seem to belong in class #{@sig_cls}"
         end
-        # full_inv_type = ProductType.new(f.parent.to_atype, f.type).inv
-        # raise ArgumentError if full_inv_type.column(0).cls.klass != @sig_cls
         inv_fld = Field.new :parent => @sig_cls,
                                 :name   => Alloy.conf.inv_field_namer.call(f),
                                 :type   => full_inv_type.full_range,
                                 :inv    => f,
                                 :synth  => true
-        # f.set_inv(inv_fld)
         @inv_fields << inv_fld
         inv_fld
       end
 
-      def field(fname, own_only=false)      find_in(fields(!own_only), fname) end
-      def field!(fname, own_only=false)     find_in!(fields(!own_only), fname) end
-      def [](sym)                           field(sym.to_s) end
-      def inv_field(fname, own_only=false)  find_in(inv_fields(!own_only), fname) end
-      def inv_field!(fname, own_only=false) find_in!(inv_fields(!own_only), fname) end
+      def [](sym) field(sym.to_s) end
 
       # Returns type associated with the given field
       #
@@ -139,38 +120,15 @@ module Alloy
       end
 
       # returns a string representation of the field definitions
-      def fields_to_alloy; fld_list_to_alloy @fields  end
+      def fields_to_alloy() fld_list_to_alloy @fields  end
 
       # returns a string representation of the synthesized inv field definitions
-      def inv_fields_to_alloy; fld_list_to_alloy @inv_fields end
-
-      def fetch_attr(name, include_inherited=false)
-        ret = if include_inherited && parent_sig
-                parent_sig.meta.fetch_attr(name, true)
-              else
-                []
-              end
-        ret += instance_variable_get "@#{name}"
-      end
-
-      def find_in(fld_ary, fname)
-        #TODO cache?
-        fld_ary.find {|f| f.name == fname.to_s}
-      end
-
-      def find_in!(fld_ary, fname, msg=nil)
-        ret = find_in(fld_ary, fname)
-        msg = (msg ? msg : "") + "`#{fname}' not found in #{fld_ary.map(&:name)}"
-        raise ArgumentError, msg unless ret
-        ret
-      end
+      def inv_fields_to_alloy() fld_list_to_alloy @inv_fields end
 
       def fld_list_to_alloy(flds)
         flds.map {|f| "  " + f.to_alloy }
             .join(",\n")
       end
-
-      protected
 
     end
 

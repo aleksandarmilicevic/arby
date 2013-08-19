@@ -1,6 +1,4 @@
-require 'alloy/dsl/abstract_helper'
-require 'alloy/dsl/mult_helper'
-require 'alloy/dsl/sig_builder'
+require 'alloy/dsl/helpers'
 require 'alloy/ast/model'
 
 module Alloy
@@ -14,6 +12,7 @@ module Alloy
     module ModelDslApi
       include MultHelper
       include AbstractHelper
+      include FunHelper
       extend self
 
       protected

@@ -13,6 +13,8 @@ module SDGUtils
       def self.top()             top_ctx end
       def self.get()             SDGUtils::DSL::BaseBuilder.find(self) end
       def self.find(builder_cls) find_ctx{|e| builder_cls === e} end
+      def self.in_builder?()     curr = self.get and curr.in_builder? end
+      def self.in_body?()        curr = self.get and curr.in_body? end
 
       def in_builder?() @in_builder end
       def in_body?()    @in_body end

@@ -2,6 +2,7 @@ require 'alloy/ast/fun'
 require 'alloy/ast/arg'
 require 'alloy/ast/types'
 require 'alloy/dsl/errors'
+require 'sdg_utils/dsl/base_builder'
 
 module Alloy
   module Dsl
@@ -23,6 +24,14 @@ module Alloy
         _define_method_for_fun(fun)
       end
 
+      def fact(*args, &block)
+        #TODO
+      end
+
+      def assertion(*args, &block)
+        #TODO
+      end
+
       def invariant(&block)
         _define_method(:invariant, &block)
       end
@@ -33,7 +42,7 @@ module Alloy
         rescue => ex
           # use this as a last resort
           raise ex unless Alloy.conf.allow_undef_vars
-          raise ex unless SigBuilder.in_sig_body?
+          raise ex unless SDGUtils::DSL::BaseBuilder.in_body?
           raise ex unless args.empty? && block.nil?
           FunBuilder.new(sym)
         end
@@ -41,7 +50,7 @@ module Alloy
 
       def method_added(name)
         return unless Alloy.conf.turn_methods_into_funs
-        return unless SigBuilder.in_sig_body?
+        return unless SDGUtils::DSL::BaseBuilder.in_body?
         meth = self.instance_method(name)
         fun_args = meth.parameters.map{ |mod, sym|
           Alloy::Ast::Arg.new :name => sym, :type => Alloy::Ast::NoType.new
