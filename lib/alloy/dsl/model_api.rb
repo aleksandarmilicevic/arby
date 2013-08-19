@@ -27,7 +27,7 @@ module Alloy
       def sig(name, fields={}, &block)
         ans = SigBuilder.sig(name, fields, &block)
         ans.abstract if @abstract_alloy_block
-        meta.sig_created(ans)
+        meta.add_sig(ans)
         ans
       end
 
@@ -38,7 +38,7 @@ module Alloy
       def __created(name)
         require 'alloy/alloy.rb'
         mod = Alloy.meta.find_model(name) || Alloy::Ast::Model.new(self, name)
-        Alloy.meta.model_created(mod)
+        Alloy.meta.add_model(mod)
         define_singleton_method :meta, lambda{mod}
       end
 

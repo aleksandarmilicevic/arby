@@ -12,7 +12,7 @@ module Alloy
         @preds = []
       end
 
-      def sig_created(sig)
+      def add_sig(sig)
       end
     end
 

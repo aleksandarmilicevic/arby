@@ -12,10 +12,22 @@ module SDGUtils
         @accept_nils = !!hash[:accept_nils]
         @on_miss = nil
         @on_hit = nil
-        if hash[:fake]
-          self.define_singleton_method :fetch do |key, fake=false, &block|
-            miss(key, block)
-          end
+        if hash[:fast]
+          self.singleton_class.class_eval <<-RUBY, __FILE__, __LINE__+1
+            def fetch(key, &block)
+              if @cache.has_key?(key)
+                @cache[key]
+              else
+                @cache[key] = block.call()
+              end
+            end
+          RUBY
+        elsif hash[:fake]
+          self.singleton_class.class_eval <<-RUBY, __FILE__, __LINE__+1
+            def fetch(key, &block)
+              miss(key, block)
+            end
+          RUBY
         end
       end
 
