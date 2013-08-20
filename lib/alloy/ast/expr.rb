@@ -47,11 +47,17 @@ module Alloy
         def >(other)  apply_op("gt", other) end
         def >=(other) apply_op("gte", other) end
 
+        def empty?()  apply_op("no") end
+        def no?()     apply_op("no") end
+        def some?()   apply_op("some") end
+        def lone?()   apply_op("lone") end
+        def one?()    apply_op("one") end
+
         def apply_ite(cond, then_expr, else_expr)
           ITEExpr.new(cond, then_expr, else_expr)
         end
 
-        def apply_call(fun, *args) CallExpr.new sym, *args end
+        def apply_call(fun, *args) CallExpr.new self, fun, *args end
 
         def apply_op(op_name, *args)
           if args.empty?
@@ -68,8 +74,18 @@ module Alloy
           if args.empty?
             apply_op "join", Var.new(sym)
           else
-            apply_call sym, *args
+            if sym == :[] && args.size == 1
+              Var.new(args[0]).apply_op "join", ParenExpr.new(self)
+            else
+              #TODO do something whtn sym == :[] and args.size > 1:
+              #     either fail or convert into multistep join
+              apply_call sym, *args
+            end
           end
+        end
+
+        def to_str
+          to_s
         end
 
         protected
@@ -186,9 +202,25 @@ module Alloy
         add_constructors_for_ops Alloy::Ast::UnaryOps.all
 
         def to_s
-          "#{op}#{sub}"
+          "(#{op} #{sub})"
+        end
+      end
+
+      class ParenExpr
+        include MExpr
+
+        attr_reader :sub
+        def initialize(sub) @sub = sub end
+
+        def exe_symbolic
+          if MExpr === sub
+            self
+          else
+            ParenExpr.new resolve_expr(sub)
+          end
         end
 
+        def to_s() "(#{sub})" end
       end
 
       # ============================================================================
@@ -217,11 +249,15 @@ module Alloy
       # ============================================================================
       class CallExpr
         include MExpr
-        attr_reader :fun, :args
-        def initialize(fun, *args) @fun, @args = fun, args end
+        attr_reader :target, :fun, :args
+
+        def initialize(target, fun, *args)
+          @target, @fun, @args = target, fun, args
+        end
 
         def to_s
-          "#{fun}(args.join(', '))"
+          pre = target ? "#{target}." : ""
+          "#{fun}[#{args.join(', ')}]"
         end
       end
 

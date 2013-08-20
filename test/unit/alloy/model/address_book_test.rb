@@ -70,9 +70,9 @@ class AddressBookTest < Test::Unit::TestCase
   end
 
   def test
-    # ans = A_M_ABT.delUndoesAdd
-    # puts "#{ans}"
-    # puts "-----------"
+    ans = A_M_ABT.delUndoesAdd
+    puts "#{ans}"
+    puts "-----------"
     ans = A_M_ABT.delUndoesAdd_alloy
     puts "#{ans}"
   end
