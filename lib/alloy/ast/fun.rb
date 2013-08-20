@@ -86,6 +86,7 @@ module Alloy
       def arity()      args.size end
       def arg_types()  args.map(&:type) end
       def full_type()  (arg_types + [ret_type]).reduce(nil, &ProductType.cstr_proc) end
+      def full_name()  "#{parent}.#{name}" end
 
       def to_opts
         instance_variables.reduce({}) do |acc,sym|

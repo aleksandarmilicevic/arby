@@ -1,10 +1,14 @@
 require 'ostruct'
+require 'sdg_utils/lambda/sourcerer'
+require 'sdg_utils/random'
 
 module Alloy
 module Utils
 
   module CodegenRepo
     class << self
+
+      @@loc_to_src = {}
 
       @@gen_code = []
       def gen_code() @@gen_code end
@@ -15,6 +19,18 @@ module Utils
         }.map{|e|
           e.code
         }
+      end
+
+      # @param location [String] e.g., file name
+      def source_for_location(location)
+        @@loc_to_src[location]
+      end
+
+      def proc_to_src(proc)
+        src_loc = proc.source_location rescue nil
+        return nil unless src_loc
+        source = source_for_location(src_loc[0])
+        SDGUtils::Lambda::Sourcerer.proc_to_src(source || proc)
       end
 
       # --------------------------------------------------------------
@@ -35,7 +51,13 @@ module Utils
         # Red.conf.log.debug "------------------------- in #{mod}"
         # Red.conf.log.debug src
         __append :kind => :eval_code, :target => mod, :code => src, :desc => desc
-        mod.class_eval src, file, line
+        if file.nil? && line.nil?
+          file = "<synthesized__#{SDGUtils::Random.salted_timestamp}>"
+          line = 1
+          @@loc_to_src[file] = src
+        end
+        args = [file, line].compact
+        mod.class_eval src, *args
       end
 
       # --------------------------------------------------------------

@@ -1,6 +1,5 @@
 require 'unit/alloy/alloy_test_helper.rb'
 require 'alloy/initializer.rb'
-require 'sdg_utils/lambda/proc'
 
 include Alloy::Dsl
 
@@ -10,25 +9,25 @@ alloy_model :A_M_ABT do
   sig Book, {
     addr: Name * (lone Addr)
   } do
-    pred add[ans: Book, n: Name, a: Addr] {
-      ans.addr == addr + n*a
-    }
+    # pred add[ans: Book, n: Name, a: Addr] {
+    #   ans.addr == addr + n*a
+    # }
 
-    pred del[ans: Book, n: Name] {
-      ans.addr == addr - n*Addr
-    }
+    # pred del[ans: Book, n: Name] {
+    #   ans.addr == addr - n*Addr
+    # }
 
-    fun do_add[n: Name, a: Addr][Book] {
-      ans = Book.new
-      ans.addr = addr + n*a
-      ans
-    }
+    # fun do_add[n: Name, a: Addr][Book] {
+    #   ans = Book.new
+    #   ans.addr = addr + n*a
+    #   ans
+    # }
 
-    fun do_del[n: Name][Book] {
-      ans = Book.new
-      ans.addr = addr - n*a
-      ans
-    }
+    # fun do_del[n: Name][Book] {
+    #   ans = Book.new
+    #   ans.addr = addr - n*a
+    #   ans
+    # }
 
   end
 
@@ -40,25 +39,21 @@ alloy_model :A_M_ABT do
     end
   }
 
-  assertion addIdempotent {
-    all [b1, b2, b3] => Book, n: Name, a: Addr do
-      if b1.add(b2, n, a) && b2.add(b3, n, a)
-        b2.addr == b3.addr
-      end
-    end
-  }
+  # assertion addIdempotent {
+  #   all [b1, b2, b3] => Book, n: Name, a: Addr do
+  #     if b1.add(b2, n, a) && b2.add(b3, n, a)
+  #       b2.addr == b3.addr
+  #     end
+  #   end
+  # }
 
-  assertion delUdoesAddF {
-    all b1: Book, n: Name, a: Addr do
-      b2 = b1.add(n, a)
-      b3 = b2.del(n, a)
-      b1 == b3
-    end
-  }
-end
-
-class String
-  include SDGUtils::Lambda::Str2Proc
+  # assertion delUdoesAddF {
+  #   all b1: Book, n: Name, a: Addr do
+  #     b2 = b1.add(n, a)
+  #     b3 = b2.del(n, a)
+  #     b1 == b3
+  #   end
+  # }
 end
 
 class AddressBookTest < Test::Unit::TestCase
@@ -77,6 +72,9 @@ class AddressBookTest < Test::Unit::TestCase
 
   def test
     ans = A_M_ABT.delUndoesAdd
+    puts "#{ans}"
+    puts "-----------"
+    ans = A_M_ABT.delUndoesAdd_alloy
     puts "#{ans}"
   end
 end

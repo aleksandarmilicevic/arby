@@ -10,6 +10,37 @@ require 'sdg_utils/lambda/sourcerer'
 module Alloy
   module Dsl
 
+    class FunInstrumenter
+      include SDGUtils::Lambda::Sourcerer
+
+      def initialize(proc)
+        @proc = proc
+      end
+
+      def instrument
+        ast = parse_proc(@proc)
+        orig_src = read_src(ast)
+        instr_src = reprint(ast) do |node, parent, anno|
+          new_src =
+            case node.type
+            when :if
+              cond_src = compute_src(node.children[0], anno)
+              then_src = compute_src(node.children[1], anno)
+              else_src = compute_src(node.children[2], anno)
+              "ITEExpr.new(#{cond_src}, proc{#{then_src}}, proc{#{else_src}})"
+            when :and, :or
+              lhs_src = compute_src(node.children[0], anno)
+              rhs_src = compute_src(node.children[1], anno)
+              "BinaryExpr.#{node.type}(proc{#{lhs_src}}, proc{#{rhs_src}})"
+            else
+              nil
+            end
+          anno[node.__id__].src = new_src if new_src
+        end
+        [orig_src, instr_src]
+      end
+    end
+
     module FunHelper
       include FieldsHelper
 
@@ -96,6 +127,7 @@ module Alloy
       # else
       #   args should match to the +class_eval+ formal parameters
       def _define_method(*args, &block)
+        name, file, line = *args
         _catch_syntax_errors do
           old = [Alloy.conf.turn_methods_into_funs,
                  Alloy.conf.allow_undef_vars,
@@ -105,12 +137,13 @@ module Alloy
           Alloy.conf.allow_undef_consts = false, false, false
           begin
             if block.nil?
-              Alloy::Utils::CodegenRepo.eval_code self, *args, :kind => :user_block
+              desc = {:kind => :user_block}
+              Alloy::Utils::CodegenRepo.eval_code self, name, file, line, desc
             else
-              define_method args[0], &block
+              define_method name, &block
             end
           rescue ::SyntaxError => ex
-            src = block ? block.source : args[0]
+            src = block ? block.source : name
             msg = "syntax error in:\n  #{src}"
             raise SyntaxError.new(ex), msg
           ensure
@@ -133,19 +166,21 @@ module Alloy
 
           args_str = fun.args.map(&:name).join(", ")
           if fun.body.nil?
-            _define_method <<-RUBY, __FILE__, __LINE__+1
-              def #{fun.name}(#{args_str})
-              end
-            RUBY
+            _define_method "def #{fun.name}(#{args_str}) end", __FILE__, __LINE__
           else
             proc_src_loc = proc.source_location rescue nil
-            if proc_src_loc &&
-                proc_src = (SDGUtils::Lambda::Sourcerer.proc_to_src(proc) rescue nil)
+            orig_src, instr_src = FunInstrumenter.new(proc).instrument # rescue []
+            if proc_src_loc && orig_src
               _define_method <<-RUBY, *proc_src_loc
-                def #{fun.name}(#{args_str})
-                  #{proc_src}
-                end
-              RUBY
+  def #{fun.name}(#{args_str})
+    #{orig_src}
+  end
+RUBY
+              _define_method <<-RUBY
+  def #{fun.name}_alloy(#{args_str})
+    #{instr_src}
+  end
+RUBY
             else
               #TODO: doesn't work for module methods (because of some scoping issues)
               method_body_name = "#{fun.name}_body__#{SDGUtils::Random.salted_timestamp}"
@@ -154,7 +189,7 @@ module Alloy
                 _define_method fun.name.to_sym, &proc
               else
                 arg_map_str = fun.args.map{|a| "#{a.name}: #{a.name}"}.join(", ")
-                _define_method <<-RUBY, __FILE__, __LINE__+1
+                _define_method <<-RUBY
                   def #{fun.name}(#{args_str})
                     shadow_methods_while({#{arg_map_str}}) do
                       #{method_body_name}

@@ -8,12 +8,12 @@ module Alloy
 
       def all(decl_hash, &block)
         decls = _to_decls(decl_hash)
-        Alloy::Ast::QuantExpr.all(decls, &block)
+        Alloy::Ast::Expr::QuantExpr.all(decls, &block)
       end
 
       def exist(decl_hash, &block)
         decls = _to_decls(decl_hash)
-        Alloy::Ast::QuantExpr.exist(decls, &block)
+        Alloy::Ast::Expr::QuantExpr.exist(decls, &block)
       end
 
       private
