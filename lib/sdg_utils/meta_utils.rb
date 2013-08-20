@@ -2,16 +2,18 @@ module SDGUtils
 
   # Usage: include this module in your class
   module ShadowMethods
-    def shadow_methods_while(hash, &block)
-      return unless block
+    extend self
+
+    def shadow_methods_while(hash, ctx=nil, &block)
+      ctx ||= block.binding.eval "self"
       hash.each do |mth_name, ret_val|
-        define_singleton_method mth_name.to_sym, lambda{ret_val}
+        ctx.define_singleton_method mth_name.to_sym, lambda{ret_val}
       end
       begin
         block.call
       ensure
         hash.each do |mth_name, _|
-          define_singleton_method mth_name.to_sym do super() end
+          ctx.define_singleton_method mth_name.to_sym do super() end
         end
       end
     end

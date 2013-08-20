@@ -5,7 +5,36 @@ module Alloy
   module Ast
     module Expr
 
+      # ============================================================================
+      # == Module +MExpr+
+      #
+      # Represents an Alloy expression that is upon creation always
+      # "executed" either concretely or symbolically (not all
+      # expressions support both execution modes.
+      # ============================================================================
       module MExpr
+        def self.included(base)
+          base.class_eval <<-RUBY, __FILE__, __LINE__+1
+          def self.new(*args, &block)
+            expr = allocate
+            expr.send :initialize, *args, &block
+            expr.exe
+          end
+          RUBY
+        end
+
+        def exe
+          mode = :symbolic #TODO: Alloy.exe_mode or something
+          case mode
+          when :symbolic; exe_symbolic
+          when :concrete; exe_concrete
+          else fail "unknown mode: #{mode}"
+          end
+        end
+
+        def exe_symbolic() self end
+        def exe_concrete() fail "unimplemented" end
+
         def ==(other) apply_op("equals", other) end
         def !=(other) apply_op("not_equals", other) end
         def +(other)  apply_op("plus", other) end
@@ -42,18 +71,95 @@ module Alloy
             apply_call sym, *args
           end
         end
+
+        protected
+
+        def resolve_expr(e, parent=nil, kind_in_parent=nil, default_val=nil, &else_cb)
+          binding.pry if $pera
+          if else_cb.nil?
+            else_cb = proc { not_expr_fail(e, parent, kind_in_parent) }
+          end
+          case e
+          when NilClass; default_val || else_cb.call
+          when MExpr; e
+          when Proc; resolve_expr(e.call, parent, kind_in_parent, default_val, &else_cb)
+          else else_cb.call
+          end
+        end
+
+        def not_expr_fail(e, parent=nil, kind_in_parent=nil)
+          kind = kind_in_parent ? "#{kind_in_parent} " : "#{e}"
+          par = parent ? " in #{parent}" : ""
+          fail "#{kind} is not an expression#{par}"
+        end
       end
 
+
+      # ============================================================================
+      # == Class +BoolConst+
+      #
+      # Represents a boolean constant.
+      # ============================================================================
+      class BoolConst
+        include MExpr
+        attr_reader :value
+
+        private
+
+        def initialize(val)
+          @value = val
+        end
+
+        public
+
+        TRUE  = BoolConst.new(true)
+        FALSE = BoolConst.new(false)
+
+        # def self.True()  TRUE end
+        # def self.False() FALSE end
+
+        def to_s
+          "#{value}"
+        end
+      end
+
+      # ============================================================================
+      # == Class +Var+
+      #
+      # Represents a symbolic variable.
+      # ============================================================================
       class Var
         include MExpr
         attr_reader :name, :type
         def initialize(name, type=nil) @name, @type = name, type end
+
+        def to_s
+          "#{name}"
+        end
       end
 
+      # ============================================================================
+      # == Class +NaryExpr+
+      #
+      # Represents an n-ary expression.
+      # ============================================================================
       class NaryExpr
         include MExpr
         attr_reader :op, :children
-        def initialize(op, *children) @op, @children = op, children end
+
+        def initialize(op, *children)
+          @op = op
+          @children = children
+        end
+
+        def exe_symbolic
+          if children.all?{|ch| MExpr === ch}
+            self
+          else
+            chldrn = children.map{|ch| resolve_expr(ch, self, "operand")}
+            self.class.new op, *chldrn
+          end
+        end
 
         protected
 
@@ -68,66 +174,150 @@ module Alloy
         end
       end
 
+      # ============================================================================
+      # == Class +UnaryExpr+
+      #
+      # Represents a unary expression.
+      # ============================================================================
       class UnaryExpr < NaryExpr
         def initialize(op, sub) super(op, sub) end
         def sub()               children.first end
 
         add_constructors_for_ops Alloy::Ast::UnaryOps.all
+
+        def to_s
+          "#{op}#{sub}"
+        end
+
       end
 
+      # ============================================================================
+      # == Class +BinaryExpr+
+      #
+      # Represents a binary expression.
+      # ============================================================================
       class BinaryExpr < NaryExpr
         def initialize(op, lhs, rhs) super(op, lhs, rhs) end
         def lhs()                    children[0] end
         def rhs()                    children[1] end
 
         add_constructors_for_ops Alloy::Ast::BinaryOps.all
+
+        def to_s
+          op_str = op.to_s
+          op_str = " #{op_str} " unless op_str == "."
+          "#{lhs}#{op_str}#{rhs}"
+        end
       end
 
+      # ============================================================================
+      # == Class +CallExpr+
+      #
+      # Represents a function call.
+      # ============================================================================
       class CallExpr
         include MExpr
         attr_reader :fun, :args
         def initialize(fun, *args) @fun, @args = fun, args end
-      end
 
-      class ITEExpr
-        include MExpr
-        attr_reader :cond, :then_exp, :else_expr
-        def initialize(cond, then_expr, else_expr)
-          @cond, @then_expr, @else_expr = cond, then_expr, else_expr
+        def to_s
+          "#{fun}(args.join(', '))"
         end
       end
 
+      # ============================================================================
+      # == Class +ITEExpr+
+      #
+      # Represents an "if-then-else" expression.
+      # ============================================================================
+      class ITEExpr
+        include MExpr
+        attr_reader :cond, :then_expr, :else_expr
+        def initialize(cond, then_expr, else_expr)
+          @cond, @then_expr, @else_expr = cond, then_expr, else_expr
+        end
+
+        def exe_symbolic
+          case
+          when MExpr === then_expr && MExpr === else_expr
+            self
+          else
+            te = resolve_expr(then_expr, self, "then branch", BoolConst::TRUE)
+            ee = resolve_expr(else_expr, self, "else branch", BoolConst::TRUE)
+            ITEExpr.new(cond, te, ee)
+          end
+        end
+
+        def to_s
+"""
+  (#{cond}) implies {
+    #{then_expr}
+  } else {
+    #{else_expr}
+  }
+"""
+        end
+      end
+
+      # ============================================================================
+      # == Class +QuantExpr+
+      #
+      # Represents a first-order quantifier expression.
+      # ============================================================================
       class QuantExpr
         include MExpr
         attr_reader :kind, :decl, :body
 
-        def self.all(decl, &block)
-          self.new(:all, decl, &block)
+        def self.all(decl, body)
+          self.new(:all, decl, body)
         end
 
-        def self.exist(decl, &block)
-          self.new(:exist, decl, &block)
+        def self.exist(decl, body)
+          self.new(:exist, decl, body)
         end
 
         def all?()   @kind == :all end
         def exist?() @kind == :exist end
 
+        def exe_symbolic
+          case body
+          when MExpr; self
+          else
+            wrapped_body = (Proc === body) ? wrap(body) : body
+            b = resolve_expr(wrapped_body, self, "body", BoolConst::TRUE)
+            QuantExpr.new(kind, decl, b)
+          end
+        end
+
         def to_s
           decl_str = decl.map{|k,v| "#{k}: #{v}"}.join(", ")
           "#{@kind} #{decl_str} {\n" +
-          "  #{@body_src}\n" +
+          "  #{body}\n" +
           "}"
         end
 
         private
 
-        def initialize(kind, decl, &body)
+        def initialize(kind, decl, body)
           @kind, @decl, @body = kind, decl, body
-          fake_body_src = "<failed to extract body source>"
-          @body_src = Alloy::Utils::CodegenRepo.proc_to_src(body) || fake_body_src
+          # fake_body_src = "<failed to extract body source>"
+          # @body_src = Alloy::Utils::CodegenRepo.proc_to_src(body) || fake_body_src
         end
 
+        def wrap(proc)
+          proc_self = proc.binding.eval "self"
+          vars = decl.reduce({}) do |acc, arg|
+            arg_name, arg_type = arg
+            acc[arg_name] = Var.new(arg_name, arg_type)
+            acc
+          end
+          proc {
+            SDGUtils::ShadowMethods.shadow_methods_while(vars, &proc)
+          }
+        end
       end
+
     end
   end
 end
+

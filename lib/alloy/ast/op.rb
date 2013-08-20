@@ -15,13 +15,24 @@ module Alloy
         @@op_by_name.merge!({name => self})
       end
 
+      def to_s() sym.to_s end
+
       def self.by_sym(sym)   @@op_by_sym[sym] end
       def self.by_name(name) @@op_by_name[name] end
       def self.all()         @@ops.clone end
     end
 
-    class Uop < Op; def Initialize(sym, name) super(sym, name, 1) end end
-    class Bop < Op; def Initialize(sym, name) super(sym, name, 2) end end
+    class Uop < Op
+      def initialize(sym, name)
+        super(sym, name, 1)
+      end
+    end
+
+    class Bop < Op
+      def initialize(sym, name)
+        super(sym, name, 2)
+      end
+    end
 
     module UnaryOps
       SOMEOF      = Uop.new(:"some of",    "someof")
