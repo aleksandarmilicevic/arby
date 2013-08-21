@@ -2,49 +2,13 @@ require 'alloy/ast/fun'
 require 'alloy/ast/arg'
 require 'alloy/ast/types'
 require 'alloy/dsl/fields_helper'
+require 'alloy/dsl/fun_instrumenter'
 require 'alloy/dsl/errors'
 require 'alloy/utils/codegen_repo'
 require 'sdg_utils/dsl/base_builder'
-require 'sdg_utils/lambda/sourcerer'
 
 module Alloy
   module Dsl
-
-    class FunInstrumenter
-      include SDGUtils::Lambda::Sourcerer
-
-      def initialize(proc)
-        @proc = proc
-      end
-
-      def instrument
-        ast = parse_proc(@proc)
-        orig_src = read_src(ast)
-        instr_src = reprint(ast) do |node, parent, anno|
-          new_src =
-            case node.type
-            when :if
-              cond_src = compute_src(node.children[0], anno)
-              then_src = compute_src(node.children[1], anno)
-              else_src = compute_src(node.children[2], anno)
-              "Alloy::Ast::Expr::ITEExpr.new(" +
-                "#{cond_src}, " +
-                "proc{#{then_src}}, " +
-                "proc{#{else_src}})"
-            when :and, :or
-              lhs_src = compute_src(node.children[0], anno)
-              rhs_src = compute_src(node.children[1], anno)
-              "Alloy::Ast::Expr::BinaryExpr.#{node.type}(" +
-                "proc{#{lhs_src}}, " +
-                "proc{#{rhs_src}})"
-            else
-              nil
-            end
-          anno[node.__id__].src = new_src if new_src
-        end
-        [orig_src, instr_src]
-      end
-    end
 
     module FunHelper
       include FieldsHelper
@@ -74,6 +38,7 @@ module Alloy
       end
 
       def method_missing(sym, *args, &block)
+        return super if Alloy.is_caller_from_alloy?(caller[0])
         begin
           super
         rescue => ex
@@ -86,15 +51,26 @@ module Alloy
       end
 
       def method_added(name)
+        return if Alloy.is_caller_from_alloy?(caller[0])
         return unless Alloy.conf.turn_methods_into_funs
         return unless SDGUtils::DSL::BaseBuilder.in_body?
+
         meth = self.instance_method(name)
         fun_args = _args_from_proc(meth)
+        dummy_target =
+          if Class === self
+            self.allocate
+          else # it must be a Module
+            obj = Object.new
+            obj.singleton_class.send :include, self
+            obj
+          end
+        fun_body = meth.bind(dummy_target).to_proc
         fun = Alloy::Ast::Fun.fun :name     => name,
                                   :args     => fun_args,
                                   :ret_type => Alloy::Ast::NoType.new,
                                   :parent   => self,
-                                  :body     => meth.bind(allocate).to_proc
+                                  :body     => fun_body
         meta.add_fun fun
       end
 
@@ -104,7 +80,7 @@ module Alloy
         _catch_syntax_errors do
           fun_opts = _to_fun_opts(*args, &block)
           fn = Alloy::Ast::Fun.send kind, fun_opts
-          meta.send :"add_#{kind}", fn
+          meta.send "add_#{kind}".to_sym, fn
           _define_method_for_fun(fn)
           fn
         end
@@ -120,8 +96,10 @@ module Alloy
       def _catch_syntax_errors
         begin
           yield
-        rescue => ex
-          raise SyntaxError.new(ex)
+        rescue Alloy::Dsl::SyntaxError => ex
+          raise
+        rescue Exception => ex
+          raise Alloy::Dsl::SyntaxError.new(ex)
         end
       end
 
@@ -130,14 +108,10 @@ module Alloy
       # else
       #   args should match to the +class_eval+ formal parameters
       def _define_method(*args, &block)
+        old = Alloy.conf.turn_methods_into_funs
+        Alloy.conf.turn_methods_into_funs = false
         name, file, line = *args
         _catch_syntax_errors do
-          old = [Alloy.conf.turn_methods_into_funs,
-                 Alloy.conf.allow_undef_vars,
-                 Alloy.conf.allow_undef_consts]
-          Alloy.conf.turn_methods_into_funs,
-          Alloy.conf.allow_undef_vars,
-          Alloy.conf.allow_undef_consts = false, false, false
           begin
             if block.nil?
               desc = {:kind => :user_block}
@@ -149,12 +123,10 @@ module Alloy
             src = block ? block.source : name
             msg = "syntax error in:\n  #{src}"
             raise SyntaxError.new(ex), msg
-          ensure
-            Alloy.conf.turn_methods_into_funs,
-            Alloy.conf.allow_undef_vars,
-            Alloy.conf.allow_undef_consts = old
           end
         end
+      ensure
+        Alloy.conf.turn_methods_into_funs = old
       end
 
       def _define_method_for_fun(fun)

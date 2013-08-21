@@ -71,6 +71,7 @@ module Alloy
         end
 
         def method_missing(sym, *args, &block)
+          return super if Alloy.is_caller_from_alloy?(caller[0])
           if args.empty?
             apply_op "join", Var.new(sym)
           else
