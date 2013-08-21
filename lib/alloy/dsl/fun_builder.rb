@@ -57,11 +57,12 @@ module Alloy
         end
       end
 
+      def class()  ::Alloy::Dsl::FunBuilder end
       def hash()   @name.hash end
       def to_str() name.to_s end
 
       def to_s
-        ans = name
+        ans = name.to_s
         ans += "[#{args}]" if past_init?
         ans += "[#{ret_type}]" if past_args?
         ans

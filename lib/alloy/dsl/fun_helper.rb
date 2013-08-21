@@ -84,9 +84,7 @@ module Alloy
         return unless Alloy.conf.turn_methods_into_funs
         return unless SDGUtils::DSL::BaseBuilder.in_body?
         meth = self.instance_method(name)
-        fun_args = meth.parameters.map{ |mod, sym|
-          Alloy::Ast::Arg.new :name => sym, :type => Alloy::Ast::NoType.new
-        }
+        fun_args = _args_from_proc(meth)
         fun = Alloy::Ast::Fun.fun :name     => name,
                                   :args     => fun_args,
                                   :ret_type => Alloy::Ast::NoType.new,
@@ -211,20 +209,38 @@ RUBY
         ans
       end
 
+      def _args_from_proc(proc)
+        return [] unless proc
+        proc.parameters.map{ |mod, sym|
+          Alloy::Ast::Arg.new :name => sym, :type => Alloy::Ast::NoType.new
+        }
+      end
+
       def _to_fun_opts(*args, &block)
         fun_opts =
           case
-          when args.size == 1 && Hash === args[0]
-            fa = _to_args(args[0][:args])
-            args[0].merge :args => fa
-          when args.size == 1 && Alloy::Ast::Fun === args[0]
-            args[0]
-          when args.size == 1 && FunBuilder === args[0]
-            fb = args[0]
-            { :name     => fb.name,
-              :args     => _to_args(fb.args),
-              :ret_type => fb.ret_type,
-              :body     => fb.body}
+          when args.size == 1
+            case a = args[0]
+            when Hash
+              hash = a
+              fa = _to_args(hash[:args])
+              hash.merge :args => fa
+            when Alloy::Ast::Fun
+              a
+            when FunBuilder
+              fb = args[0]
+              { :name     => fb.name,
+                :args     => _to_args(fb.args),
+                :ret_type => fb.ret_type,
+                :body     => fb.body }
+            when String, Symbol
+              { :name     => a.to_s,
+                :args     => _args_from_proc(block),
+                :ret_type => Alloy::Ast::NoType.new }
+            else
+              binding.pry
+              _raise_invalid_format("invalid single arg type: #{a.class}")
+            end
           when args.size == 2
             # expected types: String, Hash
             fun_name = args[0]
@@ -238,18 +254,22 @@ RUBY
               :args     => _to_args(args[1]),
               :ret_type => args[2] }
           else
-            raise ArgumentError, """
-Invalid fun format. Valid formats:
-  - fun(opts [Hash])
-  - fun(fun [Fun])
-  - fun(name [String], full_type [Hash])
-  - fun(name [String], args [Hash], ret_type [AType])
-"""
+            _raise_invalid_format
           end
         msg = "two blocks provided (both in args and explicitly)"
         raise ArgumentError, msg if block && fun_opts[:body]
         block = fun_opts[:body] || block || proc{}
         fun_opts.merge!({:body => block, :parent => self})
+      end
+
+      def _raise_invalid_format(str="")
+        raise ArgumentError, """Invalid fun format: #{str}
+Valid formats:
+  - fun(opts [Hash])
+  - fun(fun [Fun])
+  - fun(name [String], full_type [Hash])
+  - fun(name [String], args [Hash], ret_type [AType])
+"""
       end
 
     end
