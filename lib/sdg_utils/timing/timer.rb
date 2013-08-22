@@ -6,10 +6,11 @@ module SDGUtils
     class Timer
 
       class Node
-        attr_reader :task, :children, :parent, :props
+        attr_reader :task, :task_param, :children, :parent, :props
         attr_accessor :time
-        def initialize(task, parent=nil, props={})
+        def initialize(task, task_param=nil, parent=nil, props={})
           @task = task
+          @task_param = task_param
           @parent = parent
           @children = []
           @props = props
@@ -26,21 +27,21 @@ module SDGUtils
         @tree_printer = SDGUtils::PrintUtils::TreePrinter.new({
           :indent_size => 2,
           :print_root  => false,
-          :printer     => lambda {|node| "#{node.task}: #{node.time * 1000}ms"},
-          :descender   => lambda {|node| node.children + unaccounted(node)},
+          :printer     => lambda {|n| "#{n.task}(#{n.task_param}): #{n.time * 1000}ms"},
+          :descender   => lambda {|n| n.children + unaccounted(n)},
         })
       end
 
       def unaccounted(node)
         return [] if node.time.nil? || node.children.empty?
-        ans = Node.new("*** Unaccounted time ***", nil, :unaccounted_for => node)
+        ans = Node.new("*** Unaccounted time ***", nil, nil, :unaccounted_for => node)
         ans.time = node.time - node.children.reduce(0){|acc, ch| acc + ch.time}
         [ans]
       end
 
-      def time_it(task, &block)
+      def time_it(task, task_param=nil, &block)
         parent = @stack.last || @root
-        node = Node.new(task, parent)
+        node = Node.new(task, task_param, parent)
         begin
           @stack.push node
           ans = nil
