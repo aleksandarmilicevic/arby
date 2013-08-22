@@ -14,11 +14,12 @@ module SDGUtils
 
       def initialize(options={})
         super({
-          :superclass       => ::Object,
-          :builder_features => nil,
-          :scope_module     => (m=ModuleBuilder.get and m.scope_module),
-          :created_cb       => [],
-          :params_mthd      => :__params,
+          :superclass           => ::Object,
+          :builder_features     => nil,
+          :scope_module         => (m=ModuleBuilder.get and m.scope_module),
+          :include_scope_module => true,
+          :created_cb           => [],
+          :params_mthd          => :__params,
         }.merge!(options))
         opts_to_flat_array :created_cb
       end
@@ -27,7 +28,7 @@ module SDGUtils
 
       # --------------------------------------------------------------
       # If all args are strings or symbols, it creates on class with
-      # empty fields and empty body for each one of the; otherwise,
+      # empty params and empty body for each one of the; otherwise,
       # delegates to +build1+.
       # --------------------------------------------------------------
       def do_build(*args, &body)
@@ -44,7 +45,7 @@ module SDGUtils
       # creates a constant with a given +name+ in the callers
       # namespace and assigns the created class to it.
       # --------------------------------------------------------------
-      def do_build1(name, fields={}, &body)
+      def do_build1(name, params={}, &body)
         supercls = @options[:superclass]
         cls_name, super_cls =
           case name
@@ -67,7 +68,12 @@ module SDGUtils
             raise ArgumentError, "wrong type of the name argument: #{name}:#{name.class}"
           end
 
+        scope_mod = @options[:scope_module]
+
         cls = Class.new(super_cls)
+        if @options[:include_scope_module]
+          cls.send(:include, scope_mod) unless Class === scope_mod
+        end
 
         # send :created
         safe_send cls, @options[:created_mthd]
@@ -75,21 +81,21 @@ module SDGUtils
         # notify callbacks
         @options[:created_cb].each { |cb| cb.call(cls) }
 
-        # send :fields
-        safe_send cls, @options[:params_mthd], fields
+        # send :params
+        safe_send cls, @options[:params_mthd], params
 
         # evaluate body
         if body
           ret = eval_body cls, :class_eval, &body
           if !ret.nil? && ret.kind_of?(Hash)
-            safe_send cls, @options[:fields_mthd], ret
+            safe_send cls, @options[:params_mthd], ret
           end
         end
 
         # send :finish
         safe_send cls, @options[:finish_mthd]
 
-        SDGUtils::MetaUtils.assign_const_in_module @options[:scope_module], cls_name, cls
+        SDGUtils::MetaUtils.assign_const_in_module scope_mod, cls_name, cls
         return cls
       end
 

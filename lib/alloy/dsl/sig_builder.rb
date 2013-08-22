@@ -40,6 +40,7 @@ module Alloy
       def sig(*args, &block)
         build(*args, &block)
       end
+
     end
 
   end

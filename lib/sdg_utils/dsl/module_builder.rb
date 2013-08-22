@@ -52,7 +52,7 @@ module SDGUtils
         name = nil if name && name.empty?
         @mod = create_or_get_module(name)
         @scope_mod = name ? @mod : @options[:parent_module]
-        safe_send @mod, @options[:created_mthd], @scope_mod.name
+        safe_send @mod, @options[:created_mthd], @scope_mod
         eval_body @mod, :module_eval, &body
         safe_send @mod, @options[:finish_mthd]
         @mod

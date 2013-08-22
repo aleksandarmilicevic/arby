@@ -38,9 +38,9 @@ module Alloy
         sig(name, fields, &block).abstract
       end
 
-      def __created(name)
+      def __created(scope_module)
         require 'alloy/alloy.rb'
-        mod = Alloy.meta.find_model(name) || Alloy::Ast::Model.new(self, name)
+        mod = Alloy.meta.find_model(name) || Alloy::Ast::Model.new(scope_module, self)
         Alloy.meta.add_model(mod)
         define_singleton_method :meta, lambda{mod}
       end

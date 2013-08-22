@@ -6,11 +6,12 @@ module Alloy
     class Model
       include SDGUtils::Caching::SearchableAttr
 
-      attr_reader :ruby_module, :name, :relative_name
+      attr_reader :scope_module, :ruby_module, :name, :relative_name
 
-      def initialize(ruby_module, name)
+      def initialize(scope_module, ruby_module)
+        @scope_module = scope_module
         @ruby_module = ruby_module
-        @name = name
+        @name = scope_module.name
         @relative_name = @name.split("::").last
 
         init_searchable_attrs
