@@ -78,7 +78,12 @@ class Class
   def set_of()   Alloy::Dsl::MultHelper.set(self) end
   def is_sig?()  ancestors.member? Alloy::Ast::ASig end
   def to_atype() Alloy::Ast::UnaryType.new(self) end
+end
 
+#--------------------------------------------------------
+# == Extensions to class +Class+
+#--------------------------------------------------------
+class Module
   #--------------------------------------------------------------------
   # Helper method that returns the name of the module which this class
   # was defined in (where everything after and including the last

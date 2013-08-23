@@ -1,9 +1,20 @@
 require 'alloy/ast/op'
+require 'alloy/ast/field'
+require 'alloy/ast/types'
 require 'alloy/utils/codegen_repo'
 
 module Alloy
   module Ast
     module Expr
+
+      def self.as_atom(sig_inst, name)
+        cls = sig_inst.singleton_class
+        cls.send :include, Alloy::Ast::Expr::MSigToExpr
+        cls.class_eval <<-RUBY, __FILE__, __LINE__+1
+          def name() #{name.inspect} end
+          def type() #{sig_inst.class.inspect} end
+        RUBY
+      end
 
       # ============================================================================
       # == Module +MExpr+
@@ -33,7 +44,7 @@ module Alloy
         end
 
         def exe_symbolic() self end
-        def exe_concrete() fail "unimplemented" end
+        def exe_concrete() self end
 
         def ==(other) apply_op("equals", other) end
         def !=(other) apply_op("not_equals", other) end
@@ -41,7 +52,13 @@ module Alloy
         def -(other)  apply_op("minus", other) end
         def /(other)  apply_op("div", other) end
         def %(other)  apply_op("rem", other) end
-        def *(other)  apply_op("mul", other) end
+        def *(other)
+          if self.respond_to?(:type) && self.type.primitive?
+            apply_op("mul", other)
+          else
+            apply_op("product", other)
+          end
+        end
         def <(other)  apply_op("lt", other) end
         def <=(other) apply_op("lte", other) end
         def >(other)  apply_op("gt", other) end
@@ -92,7 +109,6 @@ module Alloy
         protected
 
         def resolve_expr(e, parent=nil, kind_in_parent=nil, default_val=nil, &else_cb)
-          binding.pry if $pera
           if else_cb.nil?
             else_cb = proc { not_expr_fail(e, parent, kind_in_parent) }
           end
@@ -100,7 +116,13 @@ module Alloy
           when NilClass; default_val || else_cb.call
           when MExpr; e
           when Proc; resolve_expr(e.call, parent, kind_in_parent, default_val, &else_cb)
-          else else_cb.call
+          else
+            if e.respond_to? :to_alloy_expr
+              al_expr = e.send :to_alloy_expr
+              resolve_expr(al_expr, parent, kind_in_parent, default_val, &else_cb)
+            else
+              else_cb.call
+            end
           end
         end
 
@@ -153,6 +175,70 @@ module Alloy
         def to_s
           "#{name}"
         end
+      end
+
+      # ============================================================================
+      # == Class +FieldExpr+
+      #
+      # TODO
+      # ============================================================================
+      class FieldExpr < Var
+        attr_reader :field
+        def initialize(fld)
+          @field = fld
+          super(fld.name, fld.type)
+        end
+      end
+
+      # ============================================================================
+      # == Class +SigExpr+
+      #
+      # TODO
+      # ============================================================================
+      class SigExpr
+        include MExpr
+        attr_reader :sig
+        def initialize(sig) @sig = sig end
+        def to_s() @sig.relative_name end
+      end
+
+      # ============================================================================
+      # == Module +MAtomVar+
+      #
+      # TODO
+      # ============================================================================
+      module MSigToExpr
+        include MExpr
+
+        def self.included(sig_cls)
+          sig_cls.meta.fields.each do |fld|
+            sig_cls.send :undef_method, Field.getter_sym(fld)
+            sig_cls.send :undef_method, Field.setter_sym(fld)
+
+            sig_cls.class_eval <<-RUBY, __FILE__, __LINE__+1
+              def #{Field.getter_sym(fld)}()
+                join_field #{fld.name.inspect}
+              end
+              def #{Field.setter_sym(fld)}(val)
+                assign_field #{fld.name.inspect}, val
+              end
+            RUBY
+          end
+        end
+
+        def method_missing(sym, *args, &block)
+          raise ::NameError, "method #{sym} not found in #{self}"
+        end
+
+        def join_field(fld_name)
+          apply_op "join", meta.field!(fld_name).to_alloy_expr
+        end
+
+        def assign_field(fld, val)
+          raise "unimplemented"
+        end
+
+        def to_s() name end
       end
 
       # ============================================================================
@@ -258,7 +344,7 @@ module Alloy
 
         def to_s
           pre = target ? "#{target}." : ""
-          "#{fun}[#{args.join(', ')}]"
+          "#{pre}#{fun}[#{args.join(', ')}]"
         end
       end
 
@@ -344,8 +430,7 @@ module Alloy
         def wrap(proc)
           proc_self = proc.binding.eval "self"
           vars = decl.reduce({}) do |acc, arg|
-            arg_name, arg_type = arg
-            acc[arg_name] = Var.new(arg_name, arg_type)
+            acc[arg.name] = Var.new(arg.name, arg.type)
             acc
           end
           proc {

@@ -340,6 +340,8 @@ module Alloy
           when StringColType; "String"
           when TextColType; "Text"
           when DateColType; "Date"
+          when BoolColType; "Boolean"
+          when RefColType; klass.relative_name
           else
             @src.to_s #TODO
           end
@@ -478,15 +480,6 @@ module Alloy
         else
           "#{@mult} #{@type.to_s}"
         end
-      end
-    end
-
-    #-----------------------------------------------------
-    # == Class +TypeChecker+
-    #-----------------------------------------------------
-    class TypeChecker
-      def self.check_type(expected, actual)
-        actual <= expected #TODO: incomplete
       end
     end
 

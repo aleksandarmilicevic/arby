@@ -59,6 +59,7 @@ module Alloy
 
     module BinaryOps
       JOIN       = Bop.new(:".",   "join")
+      PRODUCT    = Bop.new(:"->",  "product")
       DOMAIN     = Bop.new(:"<:",  "domain")
       RANGE      = Bop.new(:":>",  "range")
       INTERSECT  = Bop.new(:"&",   "intersect")

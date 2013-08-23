@@ -1,5 +1,6 @@
-require 'alloy/alloy_ast_errors'
+require 'alloy/ast/expr.rb'
 require 'alloy/ast/types'
+require 'alloy/ast/type_checker'
 require 'alloy/ast/utils'
 
 module Alloy
@@ -10,18 +11,20 @@ module Alloy
     #
     # Represents function definitions
     #
-    # @attr :parent   [ASig]
+    # @attr :owner    [ASig, Model]
     # @attr :name     [Symbol]
     # @attr :args     [Array(Arg)]
     # @attr :ret_type [AType]
-    # @attr :body     [Proc]
     # ============================================================================
     class Fun
       include Checks
 
-      attr_reader :parent, :name, :args, :ret_type, :body
+      attr_reader :kind, :owner, :name, :alloy_method_name, :args, :ret_type, :body
 
       class << self
+
+        # ~~~~~~~~~~~~~~~~ factory methods ~~~~~~~~~~~~~~~~  #
+
         def fun(hash)
           Fun.new(:fun, hash)
         end
@@ -41,6 +44,47 @@ module Alloy
           hash = ensure_bool_ret(hash.clone)
           hash = ensure_no_args(hash)
           Fun.new :assertion, hash
+        end
+
+        def for_method(owner, method_name)
+          meth = owner.instance_method(method_name)
+          body = meth.bind(Fun.dummy_instance(owner)).to_proc
+          fun :name     => method_name,
+              :args     => proc_args(meth),
+              :ret_type => NoType.new,
+              :owner    => owner,
+              :body     => body
+        end
+
+        # ~~~~~~~~~~~~~~~~ utils ~~~~~~~~~~~~~~~~  #
+
+        # @param cls [Class, Module]
+        def dummy_instance(cls)
+          if Class === cls
+            Alloy::Ast::TypeChecker.check_sig_class(cls)
+            cls.send :allocate
+          else # it must be a Module
+            Alloy::Ast::TypeChecker.check_alloy_module(cls)
+            obj = Object.new
+            obj.singleton_class.send :include, cls
+            obj
+          end
+        end
+
+        def dummy_instance_expr(cls)
+          inst = dummy_instance(cls)
+          if Alloy::Ast::ASig === inst
+            inst.make_me_sym_expr
+          end
+          inst
+        end
+
+        def proc_args(proc)
+          return [] unless proc
+          proc.parameters.map{ |mod, sym|
+            Alloy::Ast::Arg.new :name => sym,
+                                :type => Alloy::Ast::NoType.new
+          }
         end
 
         private
@@ -68,12 +112,13 @@ module Alloy
       private
 
       def initialize(kind, hash)
-        @kind     = kind
-        @parent   = hash[:parent]
-        @name     = check_iden hash[:name].to_s.to_sym, "function name"
-        @args     = hash[:args] || []
-        @ret_type = Alloy::Ast::AType.get(hash[:ret_type])
-        @body     = hash[:body]
+        @kind              = kind
+        @owner             = hash[:owner]
+        @name              = check_iden hash[:name].to_s.to_sym, "function name"
+        @alloy_method_name = "#{@name}_alloy"
+        @args              = hash[:args] || []
+        @ret_type          = Alloy::Ast::AType.get(hash[:ret_type])
+        @body              = hash[:body]
       end
 
       public
@@ -86,7 +131,13 @@ module Alloy
       def arity()      args.size end
       def arg_types()  args.map(&:type) end
       def full_type()  (arg_types + [ret_type]).reduce(nil, &ProductType.cstr_proc) end
-      def full_name()  "#{parent}.#{name}" end
+      def full_name()  "#{owner}.#{name}" end
+
+      def sym_exe
+        vars = args.map{|a| Alloy::Ast::Expr::Var.new(a.name, a.type)}
+        target = Fun.dummy_instance_expr(@owner)
+        target.send alloy_method_name.to_sym, *vars
+      end
 
       def to_opts
         instance_variables.reduce({}) do |acc,sym|

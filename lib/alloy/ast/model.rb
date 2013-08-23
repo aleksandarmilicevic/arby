@@ -18,6 +18,10 @@ module Alloy
       end
 
       attr_searchable :sig, :fun, :pred, :assertion, :fact
+
+      def all_funs
+        funs + preds + assertions + facts
+      end
     end
 
   end

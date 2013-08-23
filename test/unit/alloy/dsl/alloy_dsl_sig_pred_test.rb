@@ -83,7 +83,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
 
   def get_funs(sig)
     sig.meta.funs.reduce({}){|acc,f|
-      assert_equal sig, f.parent
+      assert_equal sig, f.owner
       acc.merge!({f.name => f})
     }
   end

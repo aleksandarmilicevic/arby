@@ -1,5 +1,6 @@
 require 'alloy/alloy_event_constants.rb'
 require 'alloy/ast/arg'
+require 'alloy/ast/expr'
 require 'alloy/ast/field'
 require 'alloy/ast/fun'
 require 'alloy/ast/sig_meta'
@@ -25,6 +26,8 @@ module Alloy
           fail "The +meta+ method hasn't been defined for class #{self}" unless meta
           meta.add_subsig(subclass)
         end
+
+        def to_alloy_expr() Expr::SigExpr.new(self) end
 
         def method_missing(sym, *args, &block)
           return super unless args.empty? && block.nil?
@@ -67,18 +70,19 @@ module Alloy
         # the Alloy syntax
         #------------------------------------------------------------------------
         def to_alloy
-          psig = superclass
-          psig_str = (psig != Sig.class) ? "extends #{psig.relative_name} " : ""
-          <<-EOS
-sig #{relative_name} #{psig_str} {
-#{meta.fields_to_alloy}
+          Alloy::Utils::AlloyPrinter.export_to_als(self)
+#           psig = superclass
+#           psig_str = (psig != Sig.class) ? "extends #{psig.relative_name} " : ""
+#           <<-EOS
+# sig #{relative_name} #{psig_str} {
+# #{meta.fields_to_alloy}
 
-// inv fields (synthesized)
-/*
-#{meta.inv_fields_to_alloy}
-*/
-}
-EOS
+# // inv fields (synthesized)
+# /*
+# #{meta.inv_fields_to_alloy}
+# */
+# }
+# EOS
         end
 
         #------------------------------------------------------------------------
@@ -132,6 +136,11 @@ EOS
 
       def read_field(fld)       send Alloy::Ast::Field.getter_sym(fld) end
       def write_field(fld, val) send Alloy::Ast::Field.setter_sym(fld), val end
+
+      def make_me_sym_expr
+        Alloy::Ast::Expr.as_atom(self, "self")
+        self
+      end
 
       protected
 

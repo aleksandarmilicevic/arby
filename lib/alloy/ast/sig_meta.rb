@@ -32,6 +32,8 @@ module Alloy
         init_searchable_attrs(SigMeta)
       end
 
+      def all_funs() funs + preds end
+
       def _hierarchy_up() parent_sig && parent_sig.meta end
 
       def abstract?()       @abstract end

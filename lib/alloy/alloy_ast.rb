@@ -1,6 +1,7 @@
-require 'alloy/alloy_ast_errors.rb'
-require 'alloy/alloy_conf.rb'
-require 'alloy/alloy_dsl.rb'
+require 'alloy/alloy_conf'
+require 'alloy/alloy_dsl'
 
+require 'alloy/ast/expr'
+require 'alloy/ast/type_checker'
 require 'alloy/ast/types'
 require 'alloy/ast/sig'

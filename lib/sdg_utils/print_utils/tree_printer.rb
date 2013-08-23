@@ -17,19 +17,19 @@ module SDGUtils
     class TreePrinter
 
       def initialize(hash={})
-        @indent_size = hash[:indent_size] || 2
-        @printer = hash[:printer] || lambda{|node| node.to_s}
-        @descender = hash[:descender] || lambda{|node| node.children}
-        @print_root = hash.key?(:print_root) ? hash[:print_root] : true
+        @indent_size  = hash[:indent_size]  || 2
+        @printer      = hash[:printer]      || lambda{|node| node.to_s}
+        @descender    = hash[:descender]    || lambda{|node| node.children}
+        @print_root   = hash.key?(:print_root) ? hash[:print_root] : true
         @children_sep = hash[:children_sep] || ""
         @line_prepend = hash[:line_prepend]
-        @line_append = hash[:line_append]
-        @max_line = hash[:max_line]
-        @box = read_box(hash[:box])
+        @line_append  = hash[:line_append]
+        @max_line     = hash[:max_line]
+        @box          = read_box(hash[:box])
+        @tab0         = hash[:tab0] || " "
+        @tab1         = hash[:tab1] || "|"
+        @tab2         = hash[:tab2] || "`"
 
-        @tab0 = " "
-        @tab1 = "|"
-        @tab2 = "`"
         @indent_size.times {
           @tab0.concat " ";
           @tab1.concat " ";

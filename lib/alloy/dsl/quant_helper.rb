@@ -20,8 +20,10 @@ module Alloy
 
       def _to_decls(decl_hash)
         decls = []
-        _traverse_fields_hash decl_hash, proc{ |key, value|
-          decls << [key, value]
+        _traverse_fields_hash decl_hash, proc{ |arg_name, type|
+          arg = Alloy::Ast::Arg.new :name => arg_name, :type => type
+          decls << arg
+          # decls << [key, value]
         }
         decls
       end

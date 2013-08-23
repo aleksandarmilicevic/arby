@@ -76,6 +76,8 @@ require 'alloy/ast/arg'
         full_name.gsub(/[^a-zA-Z0-9_]/, "_")
       end
 
+      def to_alloy_expr() Expr::FieldExpr.new(self) end
+
       protected
 
       def inv=(fld) @inv = fld end

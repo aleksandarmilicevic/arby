@@ -54,23 +54,7 @@ module Alloy
         return if Alloy.is_caller_from_alloy?(caller[0])
         return unless Alloy.conf.turn_methods_into_funs
         return unless SDGUtils::DSL::BaseBuilder.in_body?
-
-        meth = self.instance_method(name)
-        fun_args = _args_from_proc(meth)
-        dummy_target =
-          if Class === self
-            self.allocate
-          else # it must be a Module
-            obj = Object.new
-            obj.singleton_class.send :include, self
-            obj
-          end
-        fun_body = meth.bind(dummy_target).to_proc
-        fun = Alloy::Ast::Fun.fun :name     => name,
-                                  :args     => fun_args,
-                                  :ret_type => Alloy::Ast::NoType.new,
-                                  :parent   => self,
-                                  :body     => fun_body
+        fun = Alloy::Ast::Fun.for_method(self, name)
         meta.add_fun fun
       end
 
@@ -152,7 +136,7 @@ module Alloy
   end
 RUBY
               _define_method <<-RUBY
-  def #{fun.name}_alloy(#{args_str})
+  def #{fun.alloy_method_name}(#{args_str})
     #{instr_src}
   end
 RUBY
@@ -186,13 +170,6 @@ RUBY
         ans
       end
 
-      def _args_from_proc(proc)
-        return [] unless proc
-        proc.parameters.map{ |mod, sym|
-          Alloy::Ast::Arg.new :name => sym, :type => Alloy::Ast::NoType.new
-        }
-      end
-
       def _to_fun_opts(*args, &block)
         fun_opts =
           case
@@ -212,7 +189,7 @@ RUBY
                 :body     => fb.body }
             when String, Symbol
               { :name     => a.to_s,
-                :args     => _args_from_proc(block),
+                :args     => Alloy::Ast::Fun.proc_args(block),
                 :ret_type => Alloy::Ast::NoType.new }
             else
               binding.pry
@@ -236,7 +213,7 @@ RUBY
         msg = "two blocks provided (both in args and explicitly)"
         raise ArgumentError, msg if block && fun_opts[:body]
         block = fun_opts[:body] || block || proc{}
-        fun_opts.merge!({:body => block, :parent => self})
+        fun_opts.merge!({:body => block, :owner => self})
       end
 
       def _raise_invalid_format(str="")

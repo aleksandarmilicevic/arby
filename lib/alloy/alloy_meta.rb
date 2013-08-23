@@ -1,3 +1,4 @@
+require 'alloy/utils/alloy_printer'
 require 'sdg_utils/meta_utils'
 require 'sdg_utils/event/events'
 require 'sdg_utils/caching/searchable_attr'
@@ -67,6 +68,10 @@ module Alloy
         msg = "#{mod} is not the currently opened model"
         raise ArgumentError, msg unless @opened_model == mod
         @opened_model = nil
+      end
+
+      def to_als
+        Alloy::Utils::AlloyPrinter.export_to_als
       end
 
     end
