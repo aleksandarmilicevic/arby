@@ -16,3 +16,10 @@ tmp
 .yardoc
 _yardoc
 doc/
+
+# Ignore emacs backup files
+*~
+
+# lock files
+*.lock
+
