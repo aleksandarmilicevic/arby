@@ -26,20 +26,20 @@ module SDGUtils
         # Generates several methods for each symbol in `whats'.  For
         # example, if whats == [:sig] it generates:
         #
-        #   private
-        #   def _sigs()          _restrict(@sigs||=[]) end
-        #   def _sig_cache()     @sig_cache ||= Cache.new "sig", :fast => true end
-        #   def _sig_fnd_cache() @sig_fnd_cache ||= Cache.new "sig_find", :fast => true end
+        # private
+        # def _sigs()          _restrict(@sigs||=[]) end
+        # def _sig_cache()     @sig_cache ||= Cache.new "sig", :fast => true end
+        # def _sig_fnd_cache() @sig_fnd_cache ||= Cache.new "sig_find", :fast => true end
         #
-        #   public
-        #   def sigs()         _sigs end
-        #   def add_sig(obj)   _add_to(@sigs||=[], obj) end
-        #   def get_sig(key)   _sig_cache.fetch(key)     {_get_by(_sigs, key)} end
-        #   def find_sig(key)  _sig_fnd_cache.fetch(key) {_find_by(_sigs, key)} end
-        #   def get_sig!(key)  get_sig(name) || fail "sig `#{name}' not found" end
+        # public
+        # def sigs()         _sigs end
+        # def add_sig(obj)   _add_to(@sigs||=[], obj) end
+        # def get_sig(key)   _sig_cache.fetch(key)     {_get_by(_sigs, key)} end
+        # def find_sig(key)  _sig_fnd_cache.fetch(key) {_find_by(_sigs, key)} end
+        # def get_sig!(key)  get_sig(name) || fail "sig `#{name}' not found" end
         #
-        #   alias_method :sig, :get_sig
-        #   alias_method :sig!, :get_sig!
+        # alias_method :sig, :get_sig
+        # alias_method :sig!, :get_sig!
         def attr_searchable(*whats)
           whats.each do |what|
             self.instance_eval <<-RUBY, __FILE__, __LINE__+1

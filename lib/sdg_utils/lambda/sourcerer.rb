@@ -39,9 +39,11 @@ module SDGUtils
           when :send, :def
             msg = "expected :#{ast.type} with exactly 3 children"
             failparse[msg] unless ast.children.size == 3
-            msg = "expected :#{ast.type} where the 3rd children is a :block node"
-            failparse[msg] unless ast.children[2].type == :block
-            ast.children[2]
+            if ast.children[2].type == :block
+              ast.children[2]
+            else
+              ast
+            end
           else
             failparse["wrong root node, got :#{ast.type}"]
           end
@@ -90,22 +92,27 @@ module SDGUtils
 
       # @return [Hash(Integer, NodeAnno)]
       def annotate_for_printing(node, node2anno={})
-        node_src = node.src.expression
-        pos = node_src.begin_pos
-        fmt = []
-        ch_to_anno = []
-        node.children.each do |ch|
-          ch_expr = ch.src.expression rescue nil
-          if ch_expr
-            ch_beg = ch_expr.begin_pos
-            fmt << node_src.source_buffer.source[pos...ch_beg]
-            pos = ch_expr.end_pos
-            ch_to_anno << ch
+        unless node.src.expression
+          # empty block
+          node2anno[node.__id__] = NodeAnno.new([""])
+        else
+          node_src = node.src.expression
+          pos = node_src.begin_pos
+          fmt = []
+          ch_to_anno = []
+          node.children.each do |ch|
+            ch_expr = ch.src.expression rescue nil
+            if ch_expr
+              ch_beg = ch_expr.begin_pos
+              fmt << node_src.source_buffer.source[pos...ch_beg]
+              pos = ch_expr.end_pos
+              ch_to_anno << ch
+            end
           end
+          fmt << node_src.source_buffer.source[pos...node_src.end_pos]
+          node2anno[node.__id__] = NodeAnno.new(fmt)
+          ch_to_anno.each{|n| annotate_for_printing(n, node2anno)}
         end
-        fmt << node_src.source_buffer.source[pos...node_src.end_pos]
-        node2anno[node.__id__] = NodeAnno.new(fmt)
-        ch_to_anno.each{|n| annotate_for_printing(n, node2anno)}
         node2anno
       end
 

@@ -38,9 +38,24 @@ module Alloy
       # to it.
       # --------------------------------------------------------------
       def sig(*args, &block)
-        build(*args, &block)
+        ans = build(*args, &block)
+        for_each(ans) do |sig|
+          ModelBuilder.in_model_body?           and
+            mod = ModelBuilder.get.scope_module and
+            mod.respond_to? :meta               and
+            meta = mod.meta                     and
+            meta.respond_to? :add_sig           and
+            meta.add_sig(sig)
+        end
+        ans
       end
 
+      protected
+
+      def for_each(obj, &block)
+        objs = (Array === obj) ? obj : [obj]
+        objs.each &block
+      end
     end
 
   end

@@ -1,5 +1,6 @@
 require 'date'
 require 'sdg_utils/lambda/proc'
+require 'sdg_utils/meta_utils'
 
 module Alloy
   module Ast

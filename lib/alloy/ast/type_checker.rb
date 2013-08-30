@@ -26,10 +26,10 @@ module Alloy
         actual <= expected #TODO: incomplete
       end
 
-      def check_sig_class(cls)
-        raise_not_sig = proc{raise TypeError, "#{cls} is not a sig class"}
+      def check_sig_class(cls, supercls=Alloy::Ast::ASig)
+        raise_not_sig = proc{raise TypeError, "#{cls} is not a #{supercls} class"}
         raise_not_sig[] unless Class === cls
-        raise_not_sig[] unless cls < Alloy::Ast::ASig
+        raise_not_sig[] unless cls < supercls
       end
 
       def check_alloy_module(mod)

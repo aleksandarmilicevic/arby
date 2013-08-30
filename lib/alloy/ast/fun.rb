@@ -71,10 +71,10 @@ module Alloy
           end
         end
 
-        def dummy_instance_expr(cls)
+        def dummy_instance_expr(cls, name="self")
           inst = dummy_instance(cls)
           if Alloy::Ast::ASig === inst
-            inst.make_me_sym_expr
+            inst.make_me_sym_expr(name)
           end
           inst
         end

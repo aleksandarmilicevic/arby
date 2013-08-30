@@ -32,7 +32,8 @@ module Alloy
         init_searchable_attrs(SigMeta)
       end
 
-      def all_funs() funs + preds end
+      def all_funs()    funs + preds end
+      def any_fun(name) all_funs.find{|f| f.name.to_s == name.to_s} end
 
       def _hierarchy_up() parent_sig && parent_sig.meta end
 

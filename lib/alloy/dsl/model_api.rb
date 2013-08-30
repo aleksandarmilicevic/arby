@@ -30,7 +30,6 @@ module Alloy
         sigs = (Array === ans) ? ans : [ans]
         sigs.each do |sig|
           sig.abstract if @abstract_alloy_block
-          meta.add_sig(sig)
         end
         sigs
       end
@@ -43,7 +42,7 @@ module Alloy
         require 'alloy/alloy.rb'
         mod = Alloy.meta.find_model(name) || Alloy::Ast::Model.new(scope_module, self)
         Alloy.meta.add_model(mod)
-        define_singleton_method :meta, lambda{mod}
+        __define_meta(mod)
       end
 
       def __eval_body(&body)
@@ -54,6 +53,10 @@ module Alloy
         ensure
           Alloy.meta.close_model(mod)
         end
+      end
+
+      def __define_meta(alloy_model)
+        define_singleton_method :meta, lambda{alloy_model}
       end
 
     end

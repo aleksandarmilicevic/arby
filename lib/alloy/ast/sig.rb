@@ -30,16 +30,22 @@ module Alloy
         def to_alloy_expr() Expr::SigExpr.new(self) end
 
         def method_missing(sym, *args, &block)
-          return super unless args.empty? && block.nil?
-          fld = meta.field(sym) || meta.inv_field(sym)
-          return super unless fld
-          fld_mth = (fld.is_inv?) ? "inv_field" : "field"
-          self.instance_eval <<-RUBY, __FILE__, __LINE__+1
-            def #{sym}()
-              meta.#{fld_mth}(#{sym.inspect})
-            end
-          RUBY
-          fld
+          if (args.empty? && block.nil? &&
+              (fld = meta.field(sym) || meta.inv_field(sym)))
+            # return the field
+            fld_mth = (fld.is_inv?) ? "inv_field" : "field"
+            self.instance_eval <<-RUBY, __FILE__, __LINE__+1
+              def #{sym}()
+                meta.#{fld_mth}(#{sym.inspect})
+              end
+              RUBY
+            fld
+          elsif block.nil? && fun=meta.any_fun(sym)
+            # use the instance method bound to self.to_alloy_expr
+            to_alloy_expr().apply_call(fun, *args)
+          else
+            return super
+          end
         end
 
         # @see +SigMeta#abstract?+
@@ -92,6 +98,7 @@ module Alloy
         def _define_meta()
           meta = Alloy::Ast::SigMeta.new(self)
           define_singleton_method(:meta, lambda {meta})
+          meta
         end
 
         #------------------------------------------------------------------------
@@ -137,8 +144,8 @@ module Alloy
       def read_field(fld)       send Alloy::Ast::Field.getter_sym(fld) end
       def write_field(fld, val) send Alloy::Ast::Field.setter_sym(fld), val end
 
-      def make_me_sym_expr
-        Alloy::Ast::Expr.as_atom(self, "self")
+      def make_me_sym_expr(name="self")
+        Alloy::Ast::Expr.as_atom(self, name)
         self
       end
 

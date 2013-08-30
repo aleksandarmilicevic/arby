@@ -9,7 +9,7 @@ module Alloy
 
       def self.as_atom(sig_inst, name)
         cls = sig_inst.singleton_class
-        cls.send :include, Alloy::Ast::Expr::MSigToExpr
+        cls.send :include, Alloy::Ast::Expr::MAtomToExpr
         cls.class_eval <<-RUBY, __FILE__, __LINE__+1
           def name() #{name.inspect} end
           def type() #{sig_inst.class.inspect} end
@@ -203,11 +203,11 @@ module Alloy
       end
 
       # ============================================================================
-      # == Module +MAtomVar+
+      # == Module +MAtomToExpr+
       #
       # TODO
       # ============================================================================
-      module MSigToExpr
+      module MAtomToExpr
         include MExpr
 
         def self.included(sig_cls)
@@ -227,7 +227,7 @@ module Alloy
         end
 
         def method_missing(sym, *args, &block)
-          raise ::NameError, "method #{sym} not found in #{self}"
+          raise ::NameError, "method #{sym} not found in #{self}:#{self.class}"
         end
 
         def join_field(fld_name)

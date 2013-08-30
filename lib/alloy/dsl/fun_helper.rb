@@ -42,7 +42,7 @@ module Alloy
         begin
           super
         rescue => ex
-          # use this as a last resort
+          # use this as the last resort
           raise ex unless Alloy.conf.allow_undef_vars
           raise ex unless SDGUtils::DSL::BaseBuilder.in_body?
           raise ex unless args.empty?
@@ -56,6 +56,11 @@ module Alloy
         return unless SDGUtils::DSL::BaseBuilder.in_body?
         fun = Alloy::Ast::Fun.for_method(self, name)
         meta.add_fun fun
+        after_fun_from_method_added(fun)
+      end
+
+      def after_fun_from_method_added(fun)
+        fun
       end
 
       private
@@ -113,7 +118,8 @@ module Alloy
         Alloy.conf.turn_methods_into_funs = old
       end
 
-      def _define_method_for_fun(fun)
+      # TODO: cleanup, decompose, break into methods
+      def _define_method_for_fun(fun, define_orig=true, define_alloy=true)
         _catch_syntax_errors do
           proc = fun.body || proc{}
 
@@ -125,22 +131,25 @@ module Alloy
 
           args_str = fun.args.map(&:name).join(", ")
           if fun.body.nil?
-            _define_method "def #{fun.name}(#{args_str}) end", __FILE__, __LINE__
+            define_orig and
+              _define_method "def #{fun.name}(#{args_str}) end", __FILE__, __LINE__
           else
             proc_src_loc = proc.source_location rescue nil
             orig_src, instr_src = FunInstrumenter.new(proc).instrument # rescue []
             if proc_src_loc && orig_src
-              _define_method <<-RUBY, *proc_src_loc
+              define_orig and
+                _define_method <<-RUBY, *proc_src_loc
   def #{fun.name}(#{args_str})
     #{orig_src}
   end
 RUBY
-              _define_method <<-RUBY
+              define_alloy and
+                _define_method <<-RUBY
   def #{fun.alloy_method_name}(#{args_str})
     #{instr_src}
   end
 RUBY
-            else
+            elsif define_orig
               #TODO: doesn't work for module methods (because of some scoping issues)
               method_body_name = "#{fun.name}_body__#{SDGUtils::Random.salted_timestamp}"
               _define_method method_body_name.to_sym, &proc

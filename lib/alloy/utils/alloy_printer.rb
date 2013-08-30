@@ -43,6 +43,7 @@ module Alloy
         when Alloy::Ast::AType;        type_to_als(alloy_obj)
         when Alloy::Ast::Arg;          arg_to_als(alloy_obj)
         when Alloy::Ast::Expr::MExpr;  expr_to_als(alloy_obj)
+        when NilClass;                 ""
         else
           _fail[]
         end
@@ -88,7 +89,7 @@ module Alloy
                        "[#{args_str}]"
                      end
         ret_str = if fun.fun?
-                    ": #{fun.ret_type}"
+                    ": #{export_to_als fun.ret_type}"
                   else
                     ""
                   end
@@ -106,7 +107,12 @@ module Alloy
       end
 
       def type_to_als(type)
-        @out.p type.to_s
+        case type
+        when Alloy::Ast::NoType
+          @out.p "univ"
+        else
+          @out.p type.to_s
+        end
       end
 
       def arg_to_als(arg)
@@ -166,6 +172,16 @@ module Alloy
         op_str = be.op.to_s
         op_str = " #{op_str} " unless op_str == "."
         @out.pn([be.lhs]).p(op_str).pn([be.rhs])
+      end
+
+      def callexpr_to_als(ce)
+        pre = ce.target ? "#{export_to_als ce.target}." : ""
+        fun = case f=ce.fun
+              when Alloy::Ast::Fun; f.name
+              else f
+              end
+        args = ce.args.map(&method(:export_to_als)).join(", ")
+        "#{pre}#{fun}[#{args}]"
       end
 
       def boolconst_to_als(bc)
