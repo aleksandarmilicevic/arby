@@ -6,6 +6,7 @@ require 'alloy/dsl/fun_instrumenter'
 require 'alloy/dsl/errors'
 require 'alloy/utils/codegen_repo'
 require 'sdg_utils/dsl/base_builder'
+require 'sdg_utils/dsl/missing_builder'
 
 module Alloy
   module Dsl
@@ -46,7 +47,7 @@ module Alloy
           raise ex unless Alloy.conf.allow_undef_vars
           raise ex unless SDGUtils::DSL::BaseBuilder.in_body?
           raise ex unless args.empty?
-          FunBuilder.new(sym, &block)
+          SDGUtils::DSL::MissingBuilder.new(sym, &block)
         end
       end
 
@@ -190,7 +191,7 @@ RUBY
               hash.merge :args => fa
             when Alloy::Ast::Fun
               a
-            when FunBuilder
+            when SDGUtils::DSL::MissingBuilder
               fb = args[0]
               { :name     => fb.name,
                 :args     => _to_args(fb.args),
@@ -199,7 +200,7 @@ RUBY
             when String, Symbol
               { :name     => a.to_s,
                 :args     => Alloy::Ast::Fun.proc_args(block),
-                :ret_type => Alloy::Ast::NoType.new }
+                :ret_type => nil }
             else
               binding.pry
               _raise_invalid_format("invalid single arg type: #{a.class}")

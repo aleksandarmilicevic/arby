@@ -37,6 +37,7 @@ module SDGUtils
           :created_mthd     => :__created,
           :eval_body_mthd   => :__eval_body,
           :finish_mthd      => :__finish,
+          :create_const     => true
         }.merge!(options)
       end
 

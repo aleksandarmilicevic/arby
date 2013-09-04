@@ -60,7 +60,7 @@ module SDGUtils
 
       def create_module(parent_module, name)
         mod = Module.new
-        if name
+        if name && @options[:create_const]
           SDGUtils::MetaUtils.assign_const_in_module(parent_module, name, mod)
         end
         mod

@@ -1,6 +1,9 @@
+#TODO consider moving some of this stuff to sdg_utils/dsl
+
 require 'alloy/alloy_ast'
 require 'alloy/alloy_dsl'
-require 'sdg_utils/meta_utils.rb'
+require 'sdg_utils/meta_utils'
+require 'sdg_utils/dsl/missing_builder'
 
 def alloy_model_mgr() Alloy::Dsl::ModelBuilder.get end
 def in_alloy_dsl?()   Alloy::Dsl::ModelBuilder.in_model? end
@@ -14,7 +17,7 @@ module Alloy
       # --------------------------------------------------------
       # Catches all +const_missing+ events, so that, only when
       # evaluating in the context of Alloy Dsl, instead of failing it
-      # simply returns the given symbol.
+      # simply wraps it in a SDGUtils::DSL::MissingBuilder object.
       # --------------------------------------------------------
       def self.my_const_missing(sym)
         # first try to find in the current module
@@ -23,11 +26,11 @@ module Alloy
           if mod.const_defined?(sym, false)
             mod.const_get(sym)
           else
-            sym
+            SDGUtils::DSL::MissingBuilder.new sym
           end
         rescue(NameError)
-          # if not found in the module, return symbol
-          sym
+          # if not found in the module, return MisingConst
+          SDGUtils::DSL::MissingBuilder.new sym
         end
       end
     end
@@ -169,22 +172,6 @@ class Symbol
       [self, rhs]
     else
       old_cmp rhs
-    end
-  end
-
-  #--------------------------------------------------------
-  # Converts this class to +Alloy::Ast::UnaryType+ and
-  # then delegates the +*+ operation to it.
-  #
-  # @see Alloy::Ast::AType
-  # @see Alloy::Ast::UnaryType
-  # @see Alloy::Ast::ProductType
-  #--------------------------------------------------------
-  def *(rhs)
-    if in_alloy_dsl?
-      Alloy::Ast::UnaryType.new(self) * rhs
-    else
-      super
     end
   end
 end

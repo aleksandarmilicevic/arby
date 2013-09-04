@@ -133,6 +133,8 @@ module Alloy
       def full_type()  (arg_types + [ret_type]).reduce(nil, &ProductType.cstr_proc) end
       def full_name()  "#{owner}.#{name}" end
 
+      def arg(name)    args.find {|a| a.name == name} end
+
       def sym_exe
         vars = args.map{|a| Alloy::Ast::Expr::Var.new(a.name, a.type)}
         target = Fun.dummy_instance_expr(@owner)

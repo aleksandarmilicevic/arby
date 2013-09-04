@@ -1,4 +1,4 @@
-require 'alloy/dsl/fun_builder'
+require 'sdg_utils/dsl/missing_builder'
 require 'sdg_utils/meta_utils'
 
 module Alloy
@@ -15,7 +15,7 @@ module Alloy
         case id
         when String, Symbol
           check_name[id]
-        when Alloy::Dsl::FunBuilder
+        when SDGUtils::DSL::MissingBuilder
           if id.in_init?
             check_name[id.name]
           else

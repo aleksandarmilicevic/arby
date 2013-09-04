@@ -106,7 +106,7 @@ module Alloy
         # entry, whose key is a valid identifier, and whose value is a
         # subtype of the specified type (`expected_type')
         # ------------------------------------------------------------------------
-        def _check_single_fld_hash(hash, expected_type)
+        def _check_single_fld_hash(hash, expected_type=Object)
           msg1 = "Hash expected, got #{hash.class} instead"
           msg2 = "Expected exactly one entry, got #{hash.length}"
           raise ArgumentError, msg1 unless hash.kind_of? Hash

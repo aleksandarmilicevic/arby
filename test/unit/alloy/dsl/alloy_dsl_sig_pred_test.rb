@@ -205,7 +205,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
         end
       end
     end
-    assert_starts_with "can only specify 1 arg for fun return type", ex.message
+    assert_starts_with "can only specify 1 arg for return type", ex.message
   end
 
   def test1

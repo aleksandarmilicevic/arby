@@ -26,7 +26,7 @@ module Alloy
           new(mod_smbl)
         else
           wrapped = sig[0]
-          unless wrapped.kind_of? ::Alloy::Ast::AType
+          unless ::Alloy::Ast::AType === wrapped
             wrapped = ::Alloy::Ast::UnaryType.new(sig[0])
           end
           ::Alloy::Ast::ModType.new(wrapped, mod_smbl)

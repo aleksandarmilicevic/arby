@@ -1,4 +1,5 @@
 require 'alloy/ast/arg'
+require 'sdg_utils/string_utils'
 
  module Alloy
   module Ast
@@ -73,7 +74,7 @@ require 'alloy/ast/arg'
       end
 
       def to_iden
-        full_name.gsub(/[^a-zA-Z0-9_]/, "_")
+        SDGUtils::StringUtils.to_iden(full_name)
       end
 
       def to_alloy_expr() Expr::FieldExpr.new(self) end

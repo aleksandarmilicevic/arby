@@ -1,6 +1,5 @@
 require 'alloy/dsl/fields_helper'
 require 'alloy/dsl/fun_helper'
-require 'alloy/dsl/fun_builder'
 require 'alloy/ast/arg'
 require 'alloy/ast/fun'
 

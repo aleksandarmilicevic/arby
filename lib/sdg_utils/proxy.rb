@@ -14,6 +14,7 @@ module SDGUtils
       _get_handler(name).call(*args, &block)
     end
 
+    #TODO def respond_to?
     protected
 
     def _get_handler(name)

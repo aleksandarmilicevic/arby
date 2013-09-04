@@ -108,14 +108,14 @@ module SDGUtils
   def #{pl what}(own_only=true)       _#{pl what}(own_only) end
   def add_#{what}(obj)                _add_to(@#{pl what} ||= [], obj) end
   def get_#{what}(key, own_only=false)
-    _find(own_only) {
+    _find(own_only) do
       _#{what}_cache.fetch(key) { _get_by(_#{pl what}, key) }
-    }
+    end
   end
   def find_#{what}(key, own_only)
-    _find(own_only) {
+    _find(own_only) do
       _#{what}_fnd_cache.fetch(key){ _find_by(_#{pl what}, key) }
-    }
+    end
   end
 
   def get_#{what}!(key, own_only=false)

@@ -1,4 +1,5 @@
 require 'date'
+require 'sdg_utils/dsl/missing_builder'
 require 'sdg_utils/lambda/proc'
 require 'sdg_utils/meta_utils'
 
@@ -15,6 +16,7 @@ module Alloy
 
       def self.get(obj)
         case obj
+        when NilClass; NoType.new
         when Proc; DependentType.new(obj)
         when AType; obj
         else
@@ -114,8 +116,8 @@ module Alloy
           ProductType.new(self, rhs)
         when Class
           ProductType.new(self, UnaryType.new(rhs))
-        when Symbol
-          ProductType.new(self, UnaryType.new(rhs))
+        when Symbol, String, SDGUtils::DSL::MissingBuilder
+          ProductType.new(self, UnaryType.new(rhs.to_sym))
         else
           raise NoMethodError, "undefined multiplication of AType and #{rhs.class.name}"
         end
@@ -271,7 +273,7 @@ module Alloy
             else
               RefColType.new(sym)
             end
-          when String
+          when String, SDGUtils::DSL::MissingBuilder
             self.get(sym.to_sym)
           when Symbol
             builtin = @@built_in_types[sym]
@@ -450,6 +452,8 @@ module Alloy
       def klass() NilClass end
 
       def new() INSTANCE end
+
+      def to_s() "notype" end
     end
 
     # ======================================================
