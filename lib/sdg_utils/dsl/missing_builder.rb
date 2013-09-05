@@ -1,3 +1,4 @@
+require 'alloy/ast/types'
 require 'sdg_utils/proxy'
 
 module SDGUtils

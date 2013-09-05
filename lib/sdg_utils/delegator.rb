@@ -5,7 +5,7 @@ module SDGUtils
 
     def method_missing(name, *args, &block)
       return super unless @target
-      begin 
+      begin
         # let the super method_missing run first (if defined)
         super
       rescue ::NameError
@@ -30,8 +30,16 @@ module SDGUtils
           def new(*a, &b) super end
         end
         private
-        def initialize(parent) @target = parent end
+        def __parent=(parent) @target = parent end
       RUBY
+    end
+  end
+
+  module MNestedParent
+    def new(nested_cls, *args, &block)
+      obj = nested_cls.send :new, *args, &block
+      obj.send :__parent=, self
+      obj
     end
   end
 

@@ -14,17 +14,16 @@ module SDGUtils
   end
 
   class Parent
+    include SDGUtils::MNestedParent
+
     def x() "Parent.x" end
     def y() "Parent.y" end
     def z() "Parent.z" end
     def u() "Parent.u" end
 
-    def createNested() 
-      Nested.send :new, self
-    end
-
     class Nested < NestedSuper
       include SDGUtils::MNested
+
       def x()    "Nested.x" end
       def opx(x) x end
       def opy(y) y end
@@ -33,11 +32,7 @@ module SDGUtils
     end
   end
 
-  class NestedClassesTest < Test::Unit::TestCase
-    def setup
-      @nested = Parent.new.createNested
-    end
-
+  module NestedClassesTestMethods
     def test_from_self
       assert_equal "Nested.x", @nested.x
     end
@@ -62,9 +57,16 @@ module SDGUtils
     end
 
     def test_missing
-      assert_raise(::NoMethodError) do 
+      assert_raise(::NoMethodError) do
         @nested.v
       end
+    end
+  end
+
+  class NestedClassesTest < Test::Unit::TestCase
+    include NestedClassesTestMethods
+    def setup
+      @nested = Parent.new.new(Parent::Nested)
     end
   end
 end

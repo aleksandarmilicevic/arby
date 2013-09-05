@@ -21,10 +21,9 @@ module Alloy
       def self.in_sig_body?()  curr = self.get and curr.in_body? end
 
       def initialize(options={})
-        opts = {
+        super({
           :superclass => Alloy::Ast::Sig
-        }
-        super(opts.merge!(options))
+        }.merge!(options))
       end
 
       def self.sig(*args, &block)

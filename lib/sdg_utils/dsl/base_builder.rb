@@ -17,6 +17,10 @@ module SDGUtils
       def self.in_builder?()     curr = self.get and curr.in_builder? end
       def self.in_body?()        curr = self.get and curr.in_body? end
 
+      def get_prev()
+        SDGUtils::DSL::BaseBuilder.find_ctx{|e| e != self && self.class === e}
+      end
+
       def in_builder?() @in_builder end
       def in_body?()    @in_body end
 
