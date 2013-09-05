@@ -49,6 +49,12 @@ module SDGUtils
       obj.send :__parent=, self
       obj
     end
+
+    def allocate(nested_cls)
+      obj = nested_cls.send :allocate
+      obj.send :__parent=, self
+      obj
+    end
   end
 
   class Delegator

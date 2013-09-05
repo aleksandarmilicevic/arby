@@ -62,7 +62,12 @@ module Alloy
         def dummy_instance(cls)
           if Class === cls
             Alloy::Ast::TypeChecker.check_sig_class(cls)
-            cls.send :allocate
+            if cls < SDGUtils::MNested
+              parent = dummy_instance(cls.__parent())
+              parent.allocate(cls)
+            else
+              cls.send :allocate
+            end
           else # it must be a Module
             Alloy::Ast::TypeChecker.check_alloy_module(cls)
             obj = Object.new
