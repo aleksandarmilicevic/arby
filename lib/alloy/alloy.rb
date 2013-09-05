@@ -24,6 +24,13 @@ module Alloy
 
     public
 
+    def exe_mode()             @exe_mode ||= :concrete end
+    def symbolic_mode?()       exe_mode == :symbolic end
+    def concrete_mode?()       exe_mode == :concrete end
+    def restore_exe_mode(mode) @exe_mode = mode end
+    def set_symbolic_mode()    @exe_mode = :symbolic end
+    def set_concrete_mode()    @exe_mode = :concrete end
+
     def is_alloy_file?(filename)
       @alloy_files.member?(filename)
     end
@@ -80,5 +87,7 @@ module Alloy
   delegate :meta, :boss, :conf, :set_default, :initializer, :reset,
            :fields_resolved?, :inv_fields_added?, :test_and_set,
            :is_alloy_file?, :is_caller_from_alloy?,
+           :exe_mode, :symbolic_mode?, :concrete_mode?,
+           :restore_exe_mode, :set_symbolic_mode, :set_concrete_mode,
            :to => lambda{alloy}, :proc => true
 end

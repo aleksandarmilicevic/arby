@@ -35,10 +35,9 @@ module Alloy
         end
 
         def exe
-          mode = :symbolic #TODO: Alloy.exe_mode or something
-          case mode
-          when :symbolic; exe_symbolic
-          when :concrete; exe_concrete
+          case
+          when Alloy.symbolic_mode?; exe_symbolic
+          when Alloy.concrete_mode?; exe_concrete
           else fail "unknown mode: #{mode}"
           end
         end

@@ -27,6 +27,14 @@ module Alloy
           meta.add_subsig(subclass)
         end
 
+        def new(*a, &b)
+          sig_inst = super
+          if Alloy.symbolic_mode?
+            sig_inst.make_me_sym_expr
+          end
+          sig_inst
+        end
+
         def to_alloy_expr() Expr::SigExpr.new(self) end
 
         def method_missing(sym, *args, &block)
