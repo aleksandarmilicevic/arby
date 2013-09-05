@@ -1,3 +1,4 @@
+require 'sdg_utils/delegator'
 require 'sdg_utils/random'
 
 module SDGUtils
@@ -5,26 +6,10 @@ module SDGUtils
   class Proxy
     instance_methods.each { |m| undef_method m unless m =~ /(^__|^send$|^object_id$)/ }
 
+    include SDGUtils::MDelegator
+
     def initialize(obj)
       @target = obj
-    end
-
-    def method_missing(name, *args, &block)
-      return unless @target
-      _get_handler(name).call(*args, &block)
-    end
-
-    #TODO def respond_to?
-    protected
-
-    def _get_handler(name)
-      handler = ::Proc.new do |*a, &b|
-        obj = @target
-        obj = @target.call() if ::Proc === @target && @target.arity == 0
-        obj.send(name, *a, &b)
-      end
-      (class << self; self end).send :define_method, name, handler
-      handler
     end
   end
 

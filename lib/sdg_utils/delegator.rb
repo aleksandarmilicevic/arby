@@ -1,9 +1,7 @@
 module SDGUtils
 
-  class Delegator
-    def initialize(obj)
-      @target = obj
-    end
+  module MDelegator
+    # #TODO def respond_to?
 
     def method_missing(name, *args, &block)
       return unless @target
@@ -14,6 +12,14 @@ module SDGUtils
       end
       (class << self; self end).send :define_method, name, handler
       handler.call(*args, &block)
+    end
+  end
+
+  class Delegator
+    include MDelegator
+
+    def initialize(obj)
+      @target = obj
     end
   end
 
