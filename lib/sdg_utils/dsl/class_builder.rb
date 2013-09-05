@@ -83,6 +83,31 @@ module SDGUtils
         check_superclass(super_cls)
 
         @cls = Class.new(super_cls)
+
+        if @conf.create_const
+          SDGUtils::MetaUtils.assign_const_in_module (scope_cls || scope_mod),
+                                                     cls_name,
+                                                     @cls
+        else
+          @cls.instance_eval <<-RUBY, __FILE__, __LINE__+1
+            def name() #{cls_name.to_s.inspect} end
+          RUBY
+        end
+
+        begin
+          init(@cls, scope_mod, scope_cls, params, body)
+        rescue => e
+          # if failed, undef const
+          if @conf.create_const
+            SDGUtils::MetaUtils.undef_class @cls
+          end
+          raise e
+        end
+      end
+
+      private
+
+      def init(cls, scope_mod, scope_cls, params, body)
         if @conf.include_scope_module
           @cls.send(:include, scope_mod) unless Class === scope_mod
         end
@@ -112,20 +137,8 @@ module SDGUtils
         # send :finish
         safe_send @cls, @conf.finish_mthd
 
-        if @conf.create_const
-          SDGUtils::MetaUtils.assign_const_in_module (scope_cls ||scope_mod),
-                                                     cls_name,
-                                                     @cls
-        else
-          @cls.instance_eval <<-RUBY, __FILE__, __LINE__+1
-            def name() #{cls_name.to_s.inspect} end
-          RUBY
-        end
-
         return @cls
       end
-
-      private
 
       def to_clsname(name)
         case name

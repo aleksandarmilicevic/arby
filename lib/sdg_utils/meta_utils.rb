@@ -114,7 +114,8 @@ module SDGUtils
       end
 
       def undef_class(cls)
-        split = cls.to_s.split('::')
+        return unless cls.name
+        split = cls.name.split('::')
         mod = arry_to_class split[0..-2]
         if mod
           mod.send :remove_const, split[-1]
@@ -150,13 +151,13 @@ module SDGUtils
           unless const_base_name[0] =~ /[A-Z]/
 
         mod = case module_or_name
-        when Module
-          module_or_name
-        when String
-          str_to_class(module_or_name)
-        else
-          ::Object
-        end
+              when Module
+                module_or_name
+              when String
+                str_to_class(module_or_name)
+              else
+                ::Object
+              end
         raise NameError, "Module `#{module_or_name}' not found" if mod.nil?
         already_defined = mod.const_defined?(const_base_name.to_sym, false)
         if already_defined
@@ -164,6 +165,10 @@ module SDGUtils
           raise NameError, msg
         end
         mod.const_set(const_base_name.to_sym, cst)
+      end
+
+      def undef_const_from(mod, const_base_name)
+        mod.send :remove_const, const_base_name
       end
 
     end

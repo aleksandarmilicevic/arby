@@ -24,8 +24,16 @@ module SDGUtils
     include MDelegator
 
     def self.included(base)
+      parent = begin
+                 parent_name = base.name.split('::')[0...-1].join('::')
+                 (parent_name.empty?) ? "Object" : parent_name
+               rescue
+                 "Object"
+               end
       base.class_eval <<-RUBY, __FILE__, __LINE__+1
         class << self
+          def __parent() #{parent.inspect} end
+
           private
           def new(*a, &b) super end
         end

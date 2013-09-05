@@ -3,6 +3,7 @@ require 'sdg_utils/caching/cache'
 module SDGUtils
   module Caching
 
+    #TODO: generate methods in a separate module and then include that module
     module SearchableAttr
       module Static
         protected

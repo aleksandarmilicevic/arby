@@ -1,3 +1,5 @@
+require 'my_test_helper'
+
 require 'alloy/helpers/test/dsl_helpers'
 require 'alloy/initializer.rb'
 require 'alloy/dsl/errors'
