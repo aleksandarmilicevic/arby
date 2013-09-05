@@ -1,3 +1,4 @@
+require 'sdg_utils/config'
 require 'sdg_utils/track_nesting'
 
 module SDGUtils
@@ -33,19 +34,19 @@ module SDGUtils
       protected
 
       def initialize(options={})
-        @options = {
+        @conf = SDGUtils::Config.new(nil, {
           :created_mthd     => :__created,
           :eval_body_mthd   => :__eval_body,
           :finish_mthd      => :__finish,
           :create_const     => true
-        }.merge!(options)
+        }).extend(options)
       end
 
       def do_build(*args, &body) fail "must override" end
 
       def eval_body(obj, default_eval_mthd=:class_eval, &body)
         return unless body
-        ebm = @options[:eval_body_mthd]
+        ebm = @conf.eval_body_mthd
         eval_body_mthd_name = obj.respond_to?(ebm) ? ebm : default_eval_mthd
         begin
           @in_body = true
@@ -57,7 +58,7 @@ module SDGUtils
 
       def opts_to_flat_array(*opts)
         opts.each do |opt|
-          @options[opt] = Array[@options[opt]].flatten.compact
+          @conf[opt] = Array[@conf[opt]].flatten.compact
         end
       end
 

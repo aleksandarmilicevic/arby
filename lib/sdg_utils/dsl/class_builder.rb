@@ -11,13 +11,12 @@ module SDGUtils
     #=========================================================================
     class ClassBuilder < BaseBuilder
 
-      #TODO rewrite using SDGUtils::Config
-
       def initialize(options={})
         super({
           :superclass           => ::Object,
           :builder_features     => nil,
-          :scope_module         => (m=ModuleBuilder.get and m.scope_module),
+          :scope_module         => lambda{m=ModuleBuilder.get and m.scope_module},
+          :scope_class          => lambda{c=ClassBuilder.get and c.scope_module},
           :include_scope_module => true,
           :created_cb           => [],
           :params_mthd          => :__params
@@ -42,12 +41,12 @@ module SDGUtils
       end
 
       # --------------------------------------------------------------
-      # Creates a new class, subclass of `@options[SUPERCLASS]',
+      # Creates a new class, subclass of `@conf.superclass',
       # creates a constant with a given +name+ in the callers
       # namespace and assigns the created class to it.
       # --------------------------------------------------------------
       def do_build1(name, params={}, &body)
-        supercls = @options[:superclass]
+        supercls = @conf.superclass
         cls_name, super_cls =
           case name
           when MissingBuilder
@@ -73,36 +72,36 @@ module SDGUtils
           else
             raise ArgumentError, "wrong type of the name argument: #{name}:#{name.class}"
           end
-        scope_mod = @options[:scope_module]
+        scope_mod = @conf.scope_module
 
         check_superclass(super_cls)
 
         cls = Class.new(super_cls)
-        if @options[:include_scope_module]
+        if @conf.include_scope_module
           cls.send(:include, scope_mod) unless Class === scope_mod
         end
 
         # send :created
-        safe_send cls, @options[:created_mthd]
+        safe_send cls, @conf.created_mthd
 
         # notify callbacks
-        @options[:created_cb].each { |cb| cb.call(cls) }
+        @conf.created_cb.each { |cb| cb.call(cls) }
 
         # send :params
-        safe_send cls, @options[:params_mthd], params
+        safe_send cls, @conf.params_mthd, params
 
         # evaluate body
         if body
           ret = eval_body cls, :class_eval, &body
           if !ret.nil? && ret.kind_of?(Hash)
-            safe_send cls, @options[:params_mthd], ret
+            safe_send cls, @conf.params_mthd, ret
           end
         end
 
         # send :finish
-        safe_send cls, @options[:finish_mthd]
+        safe_send cls, @conf.finish_mthd
 
-        if @options[:create_const]
+        if @conf.create_const
           SDGUtils::MetaUtils.assign_const_in_module scope_mod, cls_name, cls
         else
           cls.instance_eval <<-RUBY, __FILE__, __LINE__+1
@@ -127,7 +126,7 @@ module SDGUtils
       def check_superclass(super_cls)
         msg = "given super class (#{super_cls}) is not a Class but #{super_cls.class}"
         raise ArgumentError, msg unless Class === super_cls
-        base_super = @options[:superclass]
+        base_super = @conf.superclass
         msg = "given super class (#{super_cls}) is not a subclass of #{base_super}"
         raise ArgumentError, msg unless super_cls <= base_super
       end

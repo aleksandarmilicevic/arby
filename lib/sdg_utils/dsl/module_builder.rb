@@ -51,16 +51,16 @@ module SDGUtils
       def do_build(name, &body)
         name = nil if name && name.empty?
         @mod = create_or_get_module(name)
-        @scope_mod = name ? @mod : @options[:parent_module]
-        safe_send @mod, @options[:created_mthd], @scope_mod
+        @scope_mod = name ? @mod : @conf.parent_module
+        safe_send @mod, @conf.created_mthd, @scope_mod
         eval_body @mod, :module_eval, &body
-        safe_send @mod, @options[:finish_mthd]
+        safe_send @mod, @conf.finish_mthd
         @mod
       end
 
       def create_module(parent_module, name)
         mod = Module.new
-        if name && @options[:create_const]
+        if name && @conf.create_const
           SDGUtils::MetaUtils.assign_const_in_module(parent_module, name, mod)
         end
         mod
@@ -77,8 +77,8 @@ module SDGUtils
       #  * else, creates a new module
       #-------------------------------------------------------------------
       def create_or_get_module(name)
-        parent_module = @options[:parent_module]
-        mods_to_include = @options[:mods_to_include]
+        parent_module = @conf.parent_module
+        mods_to_include = @conf.mods_to_include
         already_def = parent_module.const_defined?(name, false) rescue false
         ret_module = (parent_module.const_get name if already_def) ||
                      create_module(parent_module, name)
