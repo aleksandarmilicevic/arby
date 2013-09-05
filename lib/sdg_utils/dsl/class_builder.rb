@@ -113,7 +113,9 @@ module SDGUtils
         safe_send @cls, @conf.finish_mthd
 
         if @conf.create_const
-          SDGUtils::MetaUtils.assign_const_in_module scope_mod, cls_name, @cls
+          SDGUtils::MetaUtils.assign_const_in_module (scope_cls ||scope_mod),
+                                                     cls_name,
+                                                     @cls
         else
           @cls.instance_eval <<-RUBY, __FILE__, __LINE__+1
             def name() #{cls_name.to_s.inspect} end

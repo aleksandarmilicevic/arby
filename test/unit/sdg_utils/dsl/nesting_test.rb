@@ -50,6 +50,15 @@ module SDGUtils
       def setup
         @nested = NestedTest::Parent.new.new(NestedTest::Parent::Nested)
       end
+
+      def test_0
+        assert NestedTest::NestedSuper
+        assert NestedTest::Parent
+        assert NestedTest::Parent::Nested
+        assert_raise(RuntimeError) do
+          NestedTest::Nested
+        end
+      end
     end
 
   end
