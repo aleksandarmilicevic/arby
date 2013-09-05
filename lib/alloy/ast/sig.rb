@@ -117,6 +117,8 @@ module Alloy
           raise ArgumentError, msg unless SDGUtils::MetaUtils.check_identifier(varname)
           Alloy::Ast::TypeChecker.check_type(expected_type, type)
         end
+
+        def __parent() nil end
       end
     end
 
@@ -145,9 +147,15 @@ module Alloy
       def write_field(fld, val) send Alloy::Ast::Field.setter_sym(fld), val end
 
       def make_me_sym_expr(name="self")
+        p = __parent()
+        if ASig === p
+          p.make_me_sym_expr("#{name}_parent")
+        end
         Alloy::Ast::Expr.as_atom(self, name)
         self
       end
+
+      def __parent() nil end
 
       protected
 

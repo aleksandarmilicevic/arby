@@ -227,7 +227,11 @@ module Alloy
         end
 
         def method_missing(sym, *args, &block)
-          raise ::NameError, "method #{sym} not found in #{self}:#{self.class}"
+          if p=__parent()
+            p.send sym, *args, &block
+          else
+            raise ::NameError, "method #{sym} not found in #{self}:#{self.class}"
+          end
         end
 
         def join_field(fld_name)

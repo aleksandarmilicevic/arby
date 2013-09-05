@@ -32,13 +32,14 @@ module SDGUtils
                end
       base.class_eval <<-RUBY, __FILE__, __LINE__+1
         class << self
-          def __parent() #{parent.inspect} end
+          def __parent() #{parent} end
 
           private
           def new(*a, &b) super end
         end
         private
         def __parent=(parent) @target = parent end
+        def __parent()        @target end
       RUBY
     end
   end
