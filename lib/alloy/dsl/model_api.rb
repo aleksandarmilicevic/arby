@@ -40,7 +40,7 @@ module Alloy
 
       def __created(scope_module)
         require 'alloy/alloy.rb'
-        mod = Alloy.meta.find_model(name) || Alloy::Ast::Model.new(scope_module, self)
+        mod = Alloy.meta.find_model(name) || __create_model(scope_module)
         Alloy.meta.add_model(mod)
         __define_meta(mod)
       end
@@ -53,6 +53,10 @@ module Alloy
         ensure
           Alloy.meta.close_model(mod)
         end
+      end
+
+      def __create_model(scope_module)
+        Alloy::Ast::Model.new(scope_module, self)
       end
 
       def __define_meta(alloy_model)
