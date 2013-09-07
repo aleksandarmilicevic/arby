@@ -358,6 +358,10 @@ module Alloy
         end
       end
 
+      def short_name
+        klass.relative_name
+      end
+
       # Allowed to call this method only once, only to
       # update an unresolved type
       def update_cls(cls)
@@ -448,8 +452,9 @@ module Alloy
 
       INSTANCE = allocate
 
-      def arity() 0 end
-      def klass() NilClass end
+      def arity()      0 end
+      def klass()      NilClass end
+      def short_name() "" end
 
       def new() INSTANCE end
 

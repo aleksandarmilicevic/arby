@@ -1,4 +1,5 @@
 require 'alloy/alloy_ast'
+require 'sdg_utils/visitors/visitor'
 require 'sdg_utils/print_utils/code_printer'
 
 module Alloy
@@ -119,17 +120,23 @@ module Alloy
         @out.p "#{arg.name}: #{export_to_als arg.type}"
       end
 
+      def expr_visitor()
+        @expr_visitor ||= SDGUtils::Visitors::TypeDelegatingVisitor.new(self,
+          :top_class => Alloy::Ast::Expr::MExpr,
+          :visit_meth_namer => proc{|cls, kind| "#{kind}_to_als"}
+        )
+      end
+
       def expr_to_als(expr)
-        expr.class.ancestors.select{|cls|
-          cls < Alloy::Ast::Expr::MExpr
-        }.each do |cls|
-          kind = cls.relative_name.downcase
-          meth = "#{kind}_to_als".to_sym
-          if self.respond_to? meth
-            return self.send meth, expr
-          end
-        end
+        expr_visitor.visit(expr)
+      end
+
+      def mexpr_to_als(expr)
         @out.p expr.to_s
+      end
+
+      def mvarexpr_to_als(v)
+        @out.p v.name
       end
 
       def quantexpr_to_als(expr)
@@ -181,7 +188,7 @@ module Alloy
               else f
               end
         args = ce.args.map(&method(:export_to_als)).join(", ")
-        "#{pre}#{fun}[#{args}]"
+        @out.p "#{pre}#{fun}[#{args}]"
       end
 
       def boolconst_to_als(bc)

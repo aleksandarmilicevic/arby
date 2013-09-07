@@ -53,12 +53,16 @@ module SDGUtils
         block_body
       end
 
+      def read_expression(node)
+        node and
+          node.respond_to? :src and
+          src = node.src and
+          src.expression
+      end
+
       def read_src(node)
-        if node && node.src && node.src.expression
-          node.src.expression.to_source
-        else
-          ""
-        end
+        expr = read_expression(node)
+        expr ? expr.to_source : ""
       end
 
       def compute_src(node, node2anno)
@@ -69,7 +73,7 @@ module SDGUtils
         src = anno.src and return src
         fmt = anno.fmt
         node.children.each do |ch|
-          ch_expr = ch.src.expression rescue nil
+          ch_expr = read_expression(ch) #TODO ch.src.expression rescue nil
           if ch_expr
             ch_src = compute_src(ch, node2anno)
             out.concat fmt[idx]
@@ -92,16 +96,16 @@ module SDGUtils
 
       # @return [Hash(Integer, NodeAnno)]
       def annotate_for_printing(node, node2anno={})
-        unless node.src.expression
+        node_src = read_expression(node)
+        unless node_src
           # empty block
           node2anno[node.__id__] = NodeAnno.new([""])
         else
-          node_src = node.src.expression
           pos = node_src.begin_pos
           fmt = []
           ch_to_anno = []
           node.children.each do |ch|
-            ch_expr = ch.src.expression rescue nil
+            ch_expr = read_expression(ch)
             if ch_expr
               ch_beg = ch_expr.begin_pos
               fmt << node_src.source_buffer.source[pos...ch_beg]
@@ -118,23 +122,8 @@ module SDGUtils
 
 
       def traverse_nodes(node, visit_opts={}, visitor_obj=nil, &visitor_blk)
-        visitor =
-          case visitor_obj
-          when NilClass
-            v = Object.new
-            if visitor_blk
-              v.define_singleton_method :visit, visitor_blk
-            else
-              v.singleton_class.class_eval "def visit(*args) :next end"
-            end
-            v
-          when Hash
-            v = Object.new
-            visitor_obj.each{|key,val| v.define_singleton_method key.to_sym, val}
-            v
-          else
-            visitor_obj
-          end
+        require 'sdg_utils/visitors/visitor'
+        visitor = SDGUtils::Visitors::Visitor.new(visitor_obj, &visitor_blk)
 
         # array of (node, parent) pairs
         visited_nodes = []

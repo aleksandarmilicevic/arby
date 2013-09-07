@@ -130,7 +130,7 @@ module Alloy
             raise ArgumentError, msg
           end
 
-          args_str = fun.args.map(&:name).join(", ")
+          args_str = fun.args.map(&:name).map(&:to_s).join(", ")
           if fun.body.nil?
             define_orig and
               _define_method "def #{fun.name}(#{args_str}) end", __FILE__, __LINE__

@@ -74,6 +74,7 @@ module Alloy
         end
 
         def apply_call(fun, *args) CallExpr.new self, fun, *args end
+        def apply_join(other)      apply_op("join", other) end
 
         def apply_op(op_name, *args)
           if args.empty?
@@ -89,12 +90,12 @@ module Alloy
         def method_missing(sym, *args, &block)
           return super if Alloy.is_caller_from_alloy?(caller[0])
           if args.empty?
-            apply_op "join", Var.new(sym)
+            apply_join Var.new(sym)
           else
             if sym == :[] && args.size == 1
-              Var.new(args[0]).apply_op "join", ParenExpr.new(self)
+              Var.new(args[0]).apply_join ParenExpr.new(self)
             else
-              #TODO do something whtn sym == :[] and args.size > 1:
+              #TODO do something when `sym == :[]' and args.size > 1:
               #     either fail or convert into multistep join
               apply_call sym, *args
             end
@@ -162,18 +163,24 @@ module Alloy
       end
 
       # ============================================================================
+      # == Module +MVarExpr+
+      #
+      # Represents a symbolic variable.
+      # ============================================================================
+      module MVarExpr
+        include MExpr
+        attr_reader :name, :type
+        def to_s() "#{name}" end
+      end
+
+      # ============================================================================
       # == Class +Var+
       #
       # Represents a symbolic variable.
       # ============================================================================
       class Var
-        include MExpr
-        attr_reader :name, :type
+        include MVarExpr
         def initialize(name, type=nil) @name, @type = name, type end
-
-        def to_s
-          "#{name}"
-        end
       end
 
       # ============================================================================
@@ -207,7 +214,7 @@ module Alloy
       # TODO
       # ============================================================================
       module MAtomToExpr
-        include MExpr
+        include MVarExpr
 
         def self.included(sig_cls)
           sig_cls.meta.fields.each do |fld|
@@ -234,7 +241,7 @@ module Alloy
         end
 
         def join_field(fld_name)
-          apply_op "join", meta.field!(fld_name).to_alloy_expr
+          apply_join meta.field!(fld_name).to_alloy_expr
         end
 
         def assign_field(fld, val)
@@ -277,6 +284,28 @@ module Alloy
               end
             RUBY
           end
+        end
+      end
+
+      # ============================================================================
+      # == Class +AndExpr+
+      #
+      # Represents a conjunction.
+      # ============================================================================
+      class AndExpr < NaryExpr
+        def initialize(*children)
+          super("and", *children)
+        end
+      end
+
+      # ============================================================================
+      # == Class +OrExpr+
+      #
+      # Represents a disjunction.
+      # ============================================================================
+      class OrExpr < NaryExpr
+        def initialize(*children)
+          super("or", *children)
         end
       end
 

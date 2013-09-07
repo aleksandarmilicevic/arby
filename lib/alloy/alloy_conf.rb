@@ -4,6 +4,12 @@ require 'sdg_utils/config'
 
 module Alloy
 
+  def self.default_symexe_conf
+    SDGUtils::Config.new do |c|
+      c.strongly_typed = false
+    end
+  end
+
   # Options
   #   :inv_field_namer [Proc(fld)]
   #   :logger          [Logger]
@@ -13,6 +19,7 @@ module Alloy
       c.turn_methods_into_funs = true
       c.allow_undef_vars       = true
       c.allow_undef_consts     = true
+      c.sym_exe                = default_symexe_conf
       c.logger                 = Logger.new(NilIO.instance)
     end
   end

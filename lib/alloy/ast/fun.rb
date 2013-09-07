@@ -140,14 +140,9 @@ module Alloy
 
       def arg(name)    args.find {|a| a.name == name} end
 
-      def sym_exe
-        mode = Alloy.exe_mode
-        Alloy.set_symbolic_mode
-        vars = args.map{|a| Alloy::Ast::Expr::Var.new(a.name, a.type)}
-        target = Fun.dummy_instance_expr(@owner)
-        target.send alloy_method_name.to_sym, *vars
-      ensure
-        Alloy.restore_exe_mode(mode)
+      def sym_exe(inst_name="self")
+        target = Fun.dummy_instance_expr(@owner, inst_name)
+        __sym_exe(target)
       end
 
       def to_opts
@@ -159,6 +154,17 @@ module Alloy
       def to_s
         args_str = args.map{|a| "#{a.name}: #{a.type}"}.join(", ")
         "#{@kind} #{name} [#{args_str}]: #{ret_type}"
+      end
+
+      protected
+
+      def __sym_exe(target)
+        mode = Alloy.exe_mode
+        Alloy.set_symbolic_mode
+        vars = args.map{|a| Alloy::Ast::Expr::Var.new(a.name, a.type)}
+        target.send alloy_method_name.to_sym, *vars
+      ensure
+        Alloy.restore_exe_mode(mode)
       end
     end
 

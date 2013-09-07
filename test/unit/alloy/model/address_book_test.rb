@@ -1,3 +1,4 @@
+require 'my_test_helper'
 require 'alloy/helpers/test/dsl_helpers'
 require 'alloy/initializer.rb'
 
@@ -75,7 +76,6 @@ class AddressBookTest < Test::Unit::TestCase
     # puts "-----------"
     # ans = A_M_ABT.delUndoesAdd_alloy
     # puts "#{ans}"
-
     puts Alloy.meta.to_als
   end
 end
