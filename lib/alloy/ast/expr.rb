@@ -94,7 +94,8 @@ module Alloy
             apply_join Var.new(sym)
           else
             if sym == :[] && args.size == 1
-              Var.new(args[0]).apply_join ParenExpr.new(self)
+              lhs = (MExpr === args[0]) ? args[0] : Var.new(args[0])
+              lhs.apply_join ParenExpr.new(self)
             else
               #TODO do something when `sym == :[]' and args.size > 1:
               #     either fail or convert into multistep join
@@ -181,7 +182,12 @@ module Alloy
       # ============================================================================
       class Var
         include MVarExpr
-        def initialize(name, type=nil) @name, @type = name, type end
+        def initialize(name, type=nil)
+          @name, @type = name, type
+          unless String === @name || Symbol === @name
+            fail "Expected String or Symbol for Var name, got #{name}:#{name.class}"
+          end
+        end
       end
 
       # ============================================================================
