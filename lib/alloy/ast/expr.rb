@@ -1,3 +1,4 @@
+require 'alloy/alloy'
 require 'alloy/ast/op'
 require 'alloy/ast/field'
 require 'alloy/ast/types'
