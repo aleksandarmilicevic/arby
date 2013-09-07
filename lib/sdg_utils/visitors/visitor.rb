@@ -39,7 +39,8 @@ module SDGUtils
     class TypeDelegatingVisitor
       Conf = SDGUtils::Config.new(nil, {
         :top_class        => Object,
-        :visit_meth_namer => proc{|cls, cls_short_name| "visit_#{cls_short_name}"}
+        :visit_meth_namer => proc{|cls, cls_short_name| "visit_#{cls_short_name}"},
+        :default_return   => proc{nil}
       })
 
       def initialize(visitor_obj=nil, opts={}, &visitor_blk)
@@ -62,6 +63,7 @@ module SDGUtils
             return @visitor.send meth, node
           end
         end
+        return @conf.default_return[node]
       end
 
     end
