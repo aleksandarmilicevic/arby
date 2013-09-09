@@ -54,7 +54,6 @@ module SDGUtils
         @scope_mod = name ? @mod : @conf.parent_module
         safe_send @mod, @conf.created_mthd, @scope_mod
         eval_body @mod, :module_eval, &body
-        safe_send @mod, @conf.finish_mthd
         @mod
       end
 

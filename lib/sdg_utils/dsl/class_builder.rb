@@ -39,7 +39,7 @@ module SDGUtils
       def do_build(*args, &body)
         case
         when body.nil? && args.all?{|a| a.respond_to? :to_sym}
-          args.map(&method(:do_build1).to_proc)
+          args.map(&method(:do_build1))
         else
           do_build1(*args, &body)
         end
@@ -133,9 +133,6 @@ module SDGUtils
             safe_send @cls, @conf.params_mthd, ret
           end
         end
-
-        # send :finish
-        safe_send @cls, @conf.finish_mthd
 
         return @cls
       end

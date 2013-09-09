@@ -1,4 +1,5 @@
 require 'sdg_utils/config'
+require 'sdg_utils/dsl/syntax_error'
 require 'sdg_utils/track_nesting'
 
 module SDGUtils
@@ -24,25 +25,105 @@ module SDGUtils
       def in_builder?() @in_builder end
       def in_body?()    @in_body end
 
+      def result()
+        (SDGUtils::DSL::BaseBuilder === @result) ? @result.result() : @result
+      end
+
+      def return_result(return_form=@conf.return)
+        res = result()
+        case return_form
+        when :as_is; res
+        when :array; (Array === res) ? res : [res]
+        when :builder; self
+        else
+          raise ArgumentError, "invalid return option: `#{@conf.return}'"
+        end
+      end
+
       def build(*args, &body)
         BaseBuilder.push_ctx(self)
         @in_builder = true
         begin
-          do_build(*args, &body)
+          @result = case
+          # if the argument is a builder, that means that the object has already
+          # been built, so now only evaluate the body (if given)
+          when args.size == 1 && BaseBuilder === args.first
+            bb = args.first
+            bb.return_result(:array).each{|obj| eval_body(obj, &body)} if body
+            bb.result()
+          else
+            @result = nil
+            do_build(*args, &body)
+          end
+          # send :finish
+          return_result(:array).each{|obj| safe_send obj, @conf.finish_mthd}
+          return_result
         ensure
           @in_builder = false
           BaseBuilder.pop_ctx
         end
       end
 
+      def apply_modifier(modifier, expected_cls=nil, &block)
+        build self, &block
+        return_result(:array).each do |obj|
+          unless check_type(obj, expected_cls) && obj.respond_to?(:"set_#{modifier}")
+            raise_illegal_modifier(obj, modifier)
+          end
+          obj.send :"set_#{modifier}"
+        end
+        return_result
+      end
+
       protected
 
+      def raise_illegal_modifier(obj, modifier)
+        binding.pry
+        raise SyntaxError, "Modifier `#{modifier}' is illegal for #{obj}:#{obj.class}"
+      end
+
+      def check_type(obj, expected_cls)
+        return true unless expected_cls
+        if Class === obj
+          obj < expected_cls
+        else
+          expected_cls === obj
+        end
+      end
+
+      # @param optinos [Hash]
+      #
+      # Valid options:
+      #
+      #   :created_mthd    [Symbol] - callback method to call as soon as the target
+      #                               is created
+      #
+      #   :eval_body_mthd  [Symbol] - method to call to evaluate the block in the
+      #                               context of the newly created class/module
+      #
+      #   :body_evald_mthd [Symbol] - callback method to call upon evaluating body
+      #
+      #   :finish_method   [Symbol] - callback method to call upon finishing
+      #
+      #   :create_const    [Bool]   - whether to assign a constant to the created
+      #                               class/module
+      #
+      #   :return          [Symbol] - instructs what to return. Valid values:
+      #                                 :as_is   => returns either a single created,
+      #                                             or an array of created classes,
+      #                                             depending on the invocation args
+      #                                 :array   => always returns an array of classes
+      #                                             (if a single class was created, wraps
+      #                                             it in a singleton array)
+      #                                 :builder => returns self
       def initialize(options={})
         @conf = SDGUtils::Config.new(nil, {
           :created_mthd     => :__created,
           :eval_body_mthd   => :__eval_body,
+          :body_evald_mthd  => :__body_evaluated,
           :finish_mthd      => :__finish,
-          :create_const     => true
+          :create_const     => true,
+          :return           => :as_is
         }).extend(options)
       end
 
@@ -55,6 +136,7 @@ module SDGUtils
         begin
           @in_body = true
           obj.send eval_body_mthd_name, &body
+          safe_send obj, @conf.body_evald_mthd
         ensure
           @in_body = false
         end

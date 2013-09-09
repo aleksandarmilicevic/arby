@@ -60,6 +60,9 @@ module Alloy
         # @return [TrueClass, FalseClass]
         def abstract?() meta.abstract? end
 
+        # @see +SigMeta#set_abstract+
+        def set_abstract() meta.set_abstract end
+
         # @see +SigMeta#placeholder?+
         # @return [TrueClass, FalseClass]
         def placeholder?() meta.placeholder? end
