@@ -68,11 +68,12 @@ module SDGUtils
             @result = nil
             do_build(*args, &body)
           end
+          # send :finish
+          return_result(:array).each{|obj| safe_send obj, @conf.finish_mthd}
+
           # check missing builders
           fail_if_missing_methods
 
-          # send :finish
-          return_result(:array).each{|obj| safe_send obj, @conf.finish_mthd}
           return_result
         ensure
           @in_builder = false

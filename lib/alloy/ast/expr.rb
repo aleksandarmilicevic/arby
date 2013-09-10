@@ -82,6 +82,8 @@ module Alloy
         def >(other)  apply_op("gt", other) end
         def >=(other) apply_op("gte", other) end
 
+        def !()       apply_op("not") end
+
         def empty?()  apply_op("no") end
         def no?()     apply_op("no") end
         def some?()   apply_op("some") end
@@ -232,6 +234,7 @@ module Alloy
           @field = fld
           super(fld.name, fld.full_type)
         end
+        def exe_concrete() field end
       end
 
       # ============================================================================
@@ -239,11 +242,14 @@ module Alloy
       #
       # TODO
       # ============================================================================
-      class SigExpr
-        include MExpr
+      class SigExpr < Var
         attr_reader :sig
-        def initialize(sig) @sig = sig end
+        def initialize(sig)
+          super(sig.relative_name, Alloy::Ast::AType.get(sig))
+          @sig = sig
+        end
         def to_s() @sig.relative_name end
+        def exe_concrete() sig end
       end
 
       # ============================================================================
@@ -390,6 +396,16 @@ module Alloy
 
         def initialize(target, fun, *args)
           @target, @fun, @args = target, fun, args
+        end
+
+        def exe_symbolic
+          if MExpr === target && args.all?{|a| MExpr === a}
+            self
+          else
+            t = resolve_expr(target, self, "target")
+            as = args.map{|a| resolve_expr(a, self, "argument")}
+            self.class.new t, fun, *as
+          end
         end
 
         def to_s

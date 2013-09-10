@@ -92,6 +92,11 @@ module Alloy
                           :type   => fld_type
         fld = Field.new opts
         @fields << fld
+        unless sig_cls.respond_to?(fld_name.to_sym)
+          sig_cls.class_eval <<-RUBY, __FILE__, __LINE__+1
+            def self.#{fld_name.to_s}() get_cls_field(#{fld_name.to_s.inspect}) end
+          RUBY
+        end
         fld
       end
 
@@ -101,10 +106,10 @@ module Alloy
           raise ArgumentError, "Field #{f} doesn't seem to belong in class #{@sig_cls}"
         end
         inv_fld = Field.new :parent => @sig_cls,
-                                :name   => Alloy.conf.inv_field_namer.call(f),
-                                :type   => full_inv_type.full_range,
-                                :inv    => f,
-                                :synth  => true
+                            :name   => Alloy.conf.inv_field_namer.call(f),
+                            :type   => full_inv_type.full_range,
+                            :inv    => f,
+                            :synth  => true
         @inv_fields << inv_fld
         inv_fld
       end

@@ -37,18 +37,18 @@ module Alloy
 
         def to_alloy_expr() Expr::SigExpr.new(self) end
 
+        def get_cls_field(fld_name)
+          if Alloy.symbolic_mode?
+            to_alloy_expr.send fld_name.to_sym
+          else
+            meta.field(fld_name)
+          end
+        end
+
         def method_missing(sym, *args, &block)
-          if (args.empty? && block.nil? &&
-              (fld = meta.field(sym) || meta.inv_field(sym)))
-            # return the field
-            fld_mth = (fld.is_inv?) ? "inv_field" : "field"
-            self.instance_eval <<-RUBY, __FILE__, __LINE__+1
-              def #{sym}()
-                meta.#{fld_mth}(#{sym.inspect})
-              end
-              RUBY
-            fld
-          elsif block.nil? && fun=meta.any_fun(sym)
+          # TODO: remove these functinos as well, and instead generate
+          #       methods for alloy funs
+          if block.nil? && fun=meta.any_fun(sym)
             # use the instance method bound to self.to_alloy_expr
             to_alloy_expr().apply_call(fun, *args)
           else
