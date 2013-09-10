@@ -19,6 +19,13 @@ module Alloy
         when NilClass; NoType.new
         when Proc; DependentType.new(obj)
         when AType; obj
+        when Array;
+          if obj.empty?
+            NoType.new
+          else
+            dom = AType.get(obj.first)
+            obj[1..-1].reduce(dom){|acc, o| ProductType.new(acc, AType.get(o))}
+          end
         else
           UnaryType.new(obj)
         end
@@ -110,16 +117,23 @@ module Alloy
         end
       end
 
-      def *(rhs)
-        case rhs
-        when AType
-          ProductType.new(self, rhs)
-        when Class
-          ProductType.new(self, UnaryType.new(rhs))
-        when Symbol, String, SDGUtils::DSL::MissingBuilder
-          ProductType.new(self, UnaryType.new(rhs.to_sym))
+      def to_ary
+        map{|e| e}
+      end
+
+      def product(rhs)
+        ProductType.new(self, rhs)
+      end
+
+      def *(rhs) self.product(AType.get(rhs)) end
+
+      def join(rhs)
+        lhs_range = range
+        rhs_domain = rhs.domain
+        if lhs_range == rhs_domain
+          AType.get(to_ary[0...-1] + rhs.to_ary[1..-1])
         else
-          raise NoMethodError, "undefined multiplication of AType and #{rhs.class.name}"
+          NoType.new
         end
       end
 

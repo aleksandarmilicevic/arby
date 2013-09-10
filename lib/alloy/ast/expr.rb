@@ -13,8 +13,26 @@ module Alloy
         cls.send :include, Alloy::Ast::Expr::MAtomToExpr
         cls.class_eval <<-RUBY, __FILE__, __LINE__+1
           def name() #{name.inspect} end
-          def type() #{sig_inst.class.inspect} end
+          def type() @atype ||= Alloy::Ast::AType.get(#{sig_inst.class.inspect}) end
         RUBY
+      end
+
+      def self.add_field_methods_for_type(target_inst, type, define_type_method=true)
+        cls = target_inst.singleton_class
+        cls.send :define_method, :type, lambda{type} if define_type_method
+        range_cls = type.range.klass
+        if Class === range_cls && range_cls < Alloy::Ast::ASig
+          add_field_methods(cls, range_cls.meta.fields)
+        end
+      end
+
+      def self.add_field_methods(target_cls, fields, eval_meth=:class_eval)
+        fields.each do |fld|
+          target_cls.send :define_method, "#{Field.getter_sym(fld)}" do
+            self.apply_join fld.to_alloy_expr
+          end
+          #TODO setter?
+        end
       end
 
       # ============================================================================
@@ -75,17 +93,26 @@ module Alloy
         end
 
         def apply_call(fun, *args) CallExpr.new self, fun, *args end
-        def apply_join(other)      apply_op("join", other) end
+        def apply_join(other)      apply_op("join", other) {|l,r| l.join(r)} end
 
-        def apply_op(op_name, *args)
-          if args.empty?
-            UnaryExpr.send op_name.to_sym, self
-          elsif args.size == 1
-            BinaryExpr.send op_name.to_sym, self, args[0]
-          else
-            op_args = [self] + args
-            NaryExpr.send op_name.to_sym, *op_args
+        def apply_op(op_name, *args, &type_proc)
+          ans = if args.empty?
+                  UnaryExpr.send op_name.to_sym, self
+                elsif args.size == 1
+                  BinaryExpr.send op_name.to_sym, self, args[0]
+                else
+                  op_args = [self] + args
+                  NaryExpr.send op_name.to_sym, *op_args
+                end
+          all_args = [self] + args
+          if type_proc && all_args.all?{|a| a.respond_to?(:type)}
+            all_types = all_args.map(&:type)
+            if all_types.none?(&:nil?)
+              result_type = type_proc.call(all_types)
+              Expr.add_field_methods_for_type(ans, result_type)
+            end
           end
+          ans
         end
 
         def method_missing(sym, *args, &block)
@@ -183,10 +210,12 @@ module Alloy
       class Var
         include MVarExpr
         def initialize(name, type=nil)
-          @name, @type = name, type
-          unless String === @name || Symbol === @name
+          unless String === name || Symbol === name
             fail "Expected String or Symbol for Var name, got #{name}:#{name.class}"
           end
+          type = Alloy::Ast::AType.get(type) if type
+          @name, @type = name, type
+          Expr.add_field_methods_for_type(self, type, false) if type
         end
       end
 
@@ -199,7 +228,7 @@ module Alloy
         attr_reader :field
         def initialize(fld)
           @field = fld
-          super(fld.name, fld.type)
+          super(fld.name, fld.full_type)
         end
       end
 
@@ -224,19 +253,7 @@ module Alloy
         include MVarExpr
 
         def self.included(sig_cls)
-          sig_cls.meta.fields.each do |fld|
-            sig_cls.send :undef_method, Field.getter_sym(fld)
-            sig_cls.send :undef_method, Field.setter_sym(fld)
-
-            sig_cls.class_eval <<-RUBY, __FILE__, __LINE__+1
-              def #{Field.getter_sym(fld)}()
-                join_field #{fld.name.inspect}
-              end
-              def #{Field.setter_sym(fld)}(val)
-                assign_field #{fld.name.inspect}, val
-              end
-            RUBY
-          end
+          Expr.add_field_methods(sig_cls, sig_cls.meta.fields)
         end
 
         def method_missing(sym, *args, &block)
@@ -245,14 +262,6 @@ module Alloy
           else
             raise ::NameError, "method #{sym} not found in #{self}:#{self.class}"
           end
-        end
-
-        def join_field(fld_name)
-          apply_join meta.field!(fld_name).to_alloy_expr
-        end
-
-        def assign_field(fld, val)
-          raise "unimplemented"
         end
 
         def to_s() name end
