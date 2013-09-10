@@ -153,7 +153,8 @@ module Alloy
 
       def to_s
         args_str = args.map{|a| "#{a.name}: #{a.type}"}.join(", ")
-        "#{@kind} #{name} [#{args_str}]: #{ret_type}"
+        blk_str = body ? " do ... end" : ""
+        "#{@kind} #{name} [#{args_str}]: #{ret_type}#{blk_str}"
       end
 
       protected

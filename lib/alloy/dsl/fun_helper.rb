@@ -192,6 +192,7 @@ RUBY
             when Alloy::Ast::Fun
               a
             when SDGUtils::DSL::MissingBuilder
+              a.consume
               fb = args[0]
               { :name     => fb.name,
                 :args     => _to_args(fb.args),

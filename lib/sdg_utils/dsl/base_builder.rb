@@ -25,6 +25,18 @@ module SDGUtils
       def in_builder?() @in_builder end
       def in_body?()    @in_body end
 
+      def missing_builders()                @missing_builders ||= [] end
+      def register_missing_builder(blder)   missing_builders << blder end
+      def unregister_missing_builder(blder) missing_builders.delete blder end
+
+      def fail_if_missing_methods()
+        # unless missing_builders.none?{|mb| mb.past_init? || mb.has_body?}
+        unless missing_builders.empty?
+          mb = missing_builders.first
+          raise NoMethodError, "Unconsumed method missing: `#{mb}'\n"
+        end
+      end
+
       def result()
         (SDGUtils::DSL::BaseBuilder === @result) ? @result.result() : @result
       end
@@ -43,6 +55,7 @@ module SDGUtils
       def build(*args, &body)
         BaseBuilder.push_ctx(self)
         @in_builder = true
+        @missing_builders = []
         begin
           @result = case
           # if the argument is a builder, that means that the object has already
@@ -55,11 +68,15 @@ module SDGUtils
             @result = nil
             do_build(*args, &body)
           end
+          # check missing builders
+          fail_if_missing_methods
+
           # send :finish
           return_result(:array).each{|obj| safe_send obj, @conf.finish_mthd}
           return_result
         ensure
           @in_builder = false
+          @missing_builders = []
           BaseBuilder.pop_ctx
         end
       end

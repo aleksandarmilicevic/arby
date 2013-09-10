@@ -287,9 +287,11 @@ module Alloy
             else
               RefColType.new(sym)
             end
-          when String, SDGUtils::DSL::MissingBuilder
+          when SDGUtils::DSL::MissingBuilder
+            sym.consume
             self.get(sym.to_sym)
-          when Symbol
+          when String, Symbol
+            sym = sym.to_sym
             builtin = @@built_in_types[sym]
             mgr = Alloy::Dsl::ModelBuilder.get
             builtin ||= UnresolvedRefColType.new(sym, mgr.scope_module)

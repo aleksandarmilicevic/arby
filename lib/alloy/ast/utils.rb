@@ -17,6 +17,7 @@ module Alloy
           check_name[id]
         when SDGUtils::DSL::MissingBuilder
           if id.in_init?
+            id.consume
             check_name[id.name]
           else
             msg = "partially built function (#{id}) is not a valid identifier (#{kind})"

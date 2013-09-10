@@ -1,10 +1,12 @@
 require 'alloy/ast/types'
+
+require 'sdg_utils/dsl/base_builder'
 require 'sdg_utils/proxy'
 
 module SDGUtils
   module DSL
 
-    class MissingBuilder < Proxy #BasicObject
+    class MissingBuilder < Proxy
       attr_reader :name, :args, :ret_type, :body, :super
 
       def initialize(name, &block)
@@ -15,6 +17,16 @@ module SDGUtils
         @state = :init
         @body = block
         @super = nil
+        if BaseBuilder.in_builder?
+          @dsl_builder = BaseBuilder.get
+          @dsl_builder.register_missing_builder(self)
+        end
+      end
+
+      def consume()
+        if @dsl_builder
+          @dsl_builder.unregister_missing_builder(self)
+        end
       end
 
       def in_init?()     @state == :init end
@@ -22,6 +34,7 @@ module SDGUtils
       def in_ret_type?() @state == :ret_type end
       def past_init?()   in_args? || in_ret_type? end
       def past_args?()   in_ret_type? end
+      def has_body?()    !!@body end
 
       def <(super_thing)
         @super = super_thing
@@ -71,6 +84,7 @@ module SDGUtils
         ans = name.to_s
         ans += "[#{args}]" if past_init?
         ans += "[#{ret_type}]" if past_args?
+        ans += " <block>" if body
         ans
       end
 

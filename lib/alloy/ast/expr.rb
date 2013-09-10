@@ -118,8 +118,10 @@ module Alloy
         def method_missing(sym, *args, &block)
           return super if Alloy.is_caller_from_alloy?(caller[0])
           if args.empty?
+            return super unless Alloy.conf.sym_exe.convert_missing_fields_to_joins
             apply_join Var.new(sym)
           else
+            return super unless Alloy.conf.sym_exe.convert_missing_methods_to_fun_calls
             if sym == :[] && args.size == 1
               lhs = (MExpr === args[0]) ? args[0] : Var.new(args[0])
               lhs.apply_join ParenExpr.new(self)

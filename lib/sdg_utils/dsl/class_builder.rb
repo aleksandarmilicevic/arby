@@ -56,6 +56,7 @@ module SDGUtils
           case name
           when MissingBuilder
             missing = name
+            missing.consume
             params = missing.args.merge(params)
             body = body || missing.body
             [missing.name, missing.super || supercls]
@@ -141,6 +142,10 @@ module SDGUtils
         case name
         when Class
           name.to_s.split('::').last
+        when MissingBuilder
+          mb = name
+          mb.consume
+          mb.name.to_s
         else
           name.to_sym.to_s
         end

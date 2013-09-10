@@ -6,7 +6,8 @@ module Alloy
 
   def self.default_symexe_conf
     SDGUtils::Config.new do |c|
-      c.strongly_typed = false
+      c.convert_missing_fields_to_joins = false
+      c.convert_missing_methods_to_fun_calls = true
     end
   end
 
