@@ -3,6 +3,7 @@ require 'alloy/ast/op'
 require 'alloy/ast/field'
 require 'alloy/ast/types'
 require 'alloy/utils/codegen_repo'
+require 'alloy/utils/expr_visitor'
 
 module Alloy
   module Ast
@@ -22,7 +23,8 @@ module Alloy
         cls.send :define_method, :type, lambda{type} if define_type_method
         range_cls = type.range.klass
         if Class === range_cls && range_cls < Alloy::Ast::ASig
-          add_field_methods(cls, range_cls.meta.fields)
+          flds = range_cls.meta.fields_including_sub_and_super
+          add_field_methods(cls, flds)
         end
       end
 
@@ -33,6 +35,13 @@ module Alloy
           end
           #TODO setter?
         end
+      end
+
+      def self.replace_subexpressions(e, orig, replacement)
+        rbilder = Alloy::Utils::ExprRebuilder.new do |expr|
+          (expr.__id__ == orig.__id__) ? replacement : nil
+        end
+        rbilder.rebuild(e)
       end
 
       # ============================================================================
@@ -64,12 +73,12 @@ module Alloy
         def exe_symbolic() self end
         def exe_concrete() self end
 
-        def ==(other) apply_op("equals", other) end
-        def !=(other) apply_op("not_equals", other) end
-        def +(other)  apply_op("plus", other) end
-        def -(other)  apply_op("minus", other) end
-        def /(other)  apply_op("div", other) end
-        def %(other)  apply_op("rem", other) end
+        def ==(other)  apply_op("equals", other) end
+        def !=(other)  apply_op("not_equals", other) end
+        def +(other)   apply_op("plus", other) end
+        def -(other)   apply_op("minus", other) end
+        def /(other)   apply_op("div", other) end
+        def %(other)   apply_op("rem", other) end
         def *(other)
           if self.respond_to?(:type) && self.type.primitive?
             apply_op("mul", other)
@@ -77,18 +86,21 @@ module Alloy
             apply_op("product", other)
           end
         end
-        def <(other)  apply_op("lt", other) end
-        def <=(other) apply_op("lte", other) end
-        def >(other)  apply_op("gt", other) end
-        def >=(other) apply_op("gte", other) end
+        def <(other)   apply_op("lt", other) end
+        def <=(other)  apply_op("lte", other) end
+        def >(other)   apply_op("gt", other) end
+        def >=(other)  apply_op("gte", other) end
+        def in?(other) apply_op("in", other) end
 
-        def !()       apply_op("not") end
+        def !()        apply_op("not") end
 
-        def empty?()  apply_op("no") end
-        def no?()     apply_op("no") end
-        def some?()   apply_op("some") end
-        def lone?()   apply_op("lone") end
-        def one?()    apply_op("one") end
+        def empty?()   apply_op("no") end
+        def no?()      apply_op("no") end
+        def some?()    apply_op("some") end
+        def lone?()    apply_op("lone") end
+        def one?()     apply_op("one") end
+
+
 
         def apply_ite(cond, then_expr, else_expr)
           ITEExpr.new(cond, then_expr, else_expr)
@@ -189,6 +201,10 @@ module Alloy
 
         # def self.True()  TRUE end
         # def self.False() FALSE end
+        def self.True?(ex)          is_obj_equal(TRUE, ex) end
+        def self.False?(ex)         is_obj_equal(FALSE, ex) end
+        def self.Const?(ex)         True?(ex) || False?(ex) end
+        def self.is_obj_equal(l, r) l.__id__ == r.__id__ end
 
         def to_s
           "#{value}"
@@ -312,28 +328,6 @@ module Alloy
       end
 
       # ============================================================================
-      # == Class +AndExpr+
-      #
-      # Represents a conjunction.
-      # ============================================================================
-      class AndExpr < NaryExpr
-        def initialize(*children)
-          super("and", *children)
-        end
-      end
-
-      # ============================================================================
-      # == Class +OrExpr+
-      #
-      # Represents a disjunction.
-      # ============================================================================
-      class OrExpr < NaryExpr
-        def initialize(*children)
-          super("or", *children)
-        end
-      end
-
-      # ============================================================================
       # == Class +UnaryExpr+
       #
       # Represents a unary expression.
@@ -349,6 +343,11 @@ module Alloy
         end
       end
 
+      # ============================================================================
+      # == Class +ParenExpr+
+      #
+      # Represents an expression enclosed in parens.
+      # ============================================================================
       class ParenExpr
         include MExpr
 

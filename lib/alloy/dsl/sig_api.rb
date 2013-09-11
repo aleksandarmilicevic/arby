@@ -63,8 +63,8 @@ module Alloy
 
       def __created()
         _define_meta()
-       require 'alloy/alloy.rb'
-       Alloy.meta.add_sig(self)
+        require 'alloy/alloy.rb'
+        Alloy.meta.add_sig(self)
       end
       def __params(*args)     fields(*args) end
       def __eval_body(&block) self.class_eval(&block) end

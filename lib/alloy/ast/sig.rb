@@ -37,11 +37,25 @@ module Alloy
 
         def to_alloy_expr() Expr::SigExpr.new(self) end
 
-        def get_cls_field(fld_name)
+        def add_method_for_field(fld)
+          unless respond_to?(fld.name.to_sym)
+            define_singleton_method fld.name do
+              get_cls_field(fld)
+            end
+            # class_eval <<-RUBY, __FILE__, __LINE__+1
+            #   def self.#{fld.name}() get_cls_field(#{fld.name.to_s.inspect}) end
+            # RUBY
+          end
+          if oldest_ancestor
+            superclass.add_method_for_field(fld)
+          end
+        end
+
+        def get_cls_field(fld)
           if Alloy.symbolic_mode?
-            to_alloy_expr.send fld_name.to_sym
+            to_alloy_expr.send fld.name.to_sym
           else
-            meta.field(fld_name)
+            fld
           end
         end
 

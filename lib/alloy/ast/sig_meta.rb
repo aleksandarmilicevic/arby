@@ -57,6 +57,11 @@ module Alloy
         fields(include_inherited) + inv_fields(include_inherited)
       end
 
+      def fields_including_sub_and_super
+        sigs = all_supersigs + [sig_cls] + all_subsigs
+        sigs.map(&:meta).map(&:fields).flatten
+      end
+
       def all_subsigs
         @subsigs.map {|s| [s] << s.all_subsigs}.flatten
       end
@@ -92,11 +97,7 @@ module Alloy
                           :type   => fld_type
         fld = Field.new opts
         @fields << fld
-        unless sig_cls.respond_to?(fld_name.to_sym)
-          sig_cls.class_eval <<-RUBY, __FILE__, __LINE__+1
-            def self.#{fld_name.to_s}() get_cls_field(#{fld_name.to_s.inspect}) end
-          RUBY
-        end
+        sig_cls.add_method_for_field(fld)
         fld
       end
 

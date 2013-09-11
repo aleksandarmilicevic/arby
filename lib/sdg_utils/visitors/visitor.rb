@@ -65,7 +65,24 @@ module SDGUtils
         end
         return @conf.default_return[node]
       end
+    end
 
+    class DescenderVisitor
+      Conf = SDGUtils::Config.new(nil, {
+        :callback_method => "visit"
+      })
+
+      def initialize(callback_obj=nil, opts={}, &callback_blk)
+        @cb = Visitor.mk_visitor_obj(callback_obj, &callback_blk)
+        @conf = Conf.extend(opts)
+      end
+
+      def descend(node)
+        subs = @cb.send @conf.callback_method, node
+        subs.each do |sub|
+          descend(sub)
+        end
+      end
     end
 
   end

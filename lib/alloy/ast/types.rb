@@ -31,6 +31,36 @@ module Alloy
         end
       end
 
+      def self.disjoint?(t1, t2)
+        return true unless t1.arity == t2.arity
+        arity = t1.arity
+        return true if arity == 0
+        if arity == 1
+          not (t1.klass <= t2.klass || t1.klass >= t2.klass)
+        else
+          for i in [0...arity]
+            unless disjoint? t1.column!(i), t2.column!(i)
+              return true
+            end
+          end
+          return false
+        end
+      end
+
+      def self.product(lhs, rhs)
+        ProductType.new(lhs, rhs)
+      end
+
+      def self.join(lhs, rhs)
+        lhs_range = lhs.range
+        rhs_domain = rhs.domain
+        if not disjoint?(lhs_range, rhs_domain)
+          AType.get(lhs.to_ary[0...-1] + rhs.to_ary[1..-1])
+        else
+          NoType.new
+        end
+      end
+
       def self.included(base)
         base.extend(SDGUtils::Lambda::Class2Proc)
       end
@@ -50,8 +80,8 @@ module Alloy
 
       def instantiated?() true end
 
-      def arity()      fail "must override" end
-      def column!(idx) fail "must override" end
+      def arity()      fail "Class #{self.class} must override `arity'" end
+      def column!(idx) fail "Class #{self.class} must override `column!'" end
 
       def unary?() arity == 1 end
       def binary?() arity == 2 end
@@ -121,20 +151,11 @@ module Alloy
         map{|e| e}
       end
 
-      def product(rhs)
-        ProductType.new(self, rhs)
-      end
-
-      def *(rhs) self.product(AType.get(rhs)) end
+      def product(rhs) AType.product(self, rhs) end
+      def *(rhs)       self.product(AType.get(rhs)) end
 
       def join(rhs)
-        lhs_range = range
-        rhs_domain = rhs.domain
-        if lhs_range == rhs_domain
-          AType.get(to_ary[0...-1] + rhs.to_ary[1..-1])
-        else
-          NoType.new
-        end
+        AType.join(self, rhs)
       end
 
       def to_alloy
