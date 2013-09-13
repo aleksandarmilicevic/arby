@@ -147,12 +147,16 @@ module Alloy
       end
 
       def mvarexpr_to_als(v)
-        @out.p v.name
+        @out.p v.__name
       end
 
       def quantexpr_to_als(expr)
         decl_str = expr.decl.map(&method(:export_to_als)).join(", ")
-        @out.pl "#{expr.kind} #{decl_str} {"
+        expr_kind = case expr.kind
+                    when :exist; "some"
+                    else expr.kind
+                    end
+        @out.pl "#{expr_kind} #{decl_str} {"
         @out.in do
           @out.pn [expr.body]
         end
@@ -179,7 +183,7 @@ module Alloy
       end
 
       def sigexpr_to_als(se)
-        @out.p se.sig.relative_name
+        @out.p se.__sig.relative_name
       end
 
       def unaryexpr_to_als(ue)

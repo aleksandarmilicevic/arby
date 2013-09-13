@@ -16,6 +16,8 @@ module Alloy
         Alloy::Ast::Expr::QuantExpr.exist(decls, block)
       end
 
+      alias_method :some, :exist
+
       private
 
       def _to_decls(decl_hash)

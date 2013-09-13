@@ -147,6 +147,7 @@ module SDGUtils
       end
 
       def _fetch(own_only, &block)
+        binding.pry if $pera
         ans = if !own_only && up = _hierarchy_up
                 up._fetch(false, &block)
               else

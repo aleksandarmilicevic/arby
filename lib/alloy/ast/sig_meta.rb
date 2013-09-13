@@ -32,10 +32,10 @@ module Alloy
         init_searchable_attrs(SigMeta)
       end
 
-      def all_funs()    funs + preds end
-      def any_fun(name) all_funs.find{|f| f.name.to_s == name.to_s} end
+      def all_funs()        funs + preds end
+      def any_fun(name)     all_funs.find{|f| f.name.to_s == name.to_s} end
 
-      def _hierarchy_up() parent_sig && parent_sig.meta end
+      def _hierarchy_up()   parent_sig && parent_sig.meta end
 
       def abstract?()       @multiplicity == :abstract end
       def one?()            @multiplicity == :one end
@@ -68,7 +68,7 @@ module Alloy
       end
 
       def all_subsigs
-        @subsigs.map {|s| [s] << s.all_subsigs}.flatten
+        @subsigs.map{|s| [s] << s.all_subsigs}.flatten
       end
 
       def all_supersigs

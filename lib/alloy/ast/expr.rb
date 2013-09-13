@@ -13,15 +13,15 @@ module Alloy
         cls = sig_inst.singleton_class
         cls.send :include, Alloy::Ast::Expr::MAtomToExpr
         cls.class_eval <<-RUBY, __FILE__, __LINE__+1
-          def name() #{name.inspect} end
-          def type() @atype ||= Alloy::Ast::AType.get(#{sig_inst.class.inspect}) end
+          def __name() #{name.inspect} end
+          def __type() @__atype ||= Alloy::Ast::AType.get(#{sig_inst.class.inspect}) end
         RUBY
         Expr.add_field_methods_for_type(sig_inst, AType.get(cls), false)
       end
 
       def self.add_field_methods_for_type(target_inst, type, define_type_method=true)
         cls = target_inst.singleton_class
-        cls.send :define_method, :type, lambda{type} if define_type_method
+        cls.send :define_method, :__type, lambda{type} if define_type_method
         range_cls = type.range.klass
         if Class === range_cls && range_cls < Alloy::Ast::ASig
           flds = range_cls.meta.fields_including_sub_and_super
@@ -84,7 +84,7 @@ module Alloy
         def /(other)   apply_op("div", other) end
         def %(other)   apply_op("rem", other) end
         def *(other)
-          if self.respond_to?(:type) && self.type.primitive?
+          if self.respond_to?(:__type) && self.__type.primitive?
             apply_op("mul", other)
           else
             apply_op("product", other)
@@ -123,8 +123,8 @@ module Alloy
                   NaryExpr.send op_name.to_sym, *op_args
                 end
           all_args = [self] + args
-          if type_proc && all_args.all?{|a| a.respond_to?(:type)}
-            all_types = all_args.map(&:type)
+          if type_proc && all_args.all?{|a| a.respond_to?(:__type)}
+            all_types = all_args.map(&:__type)
             if all_types.none?(&:nil?)
               result_type = type_proc.call(all_types)
               Expr.add_field_methods_for_type(ans, result_type)
@@ -222,8 +222,8 @@ module Alloy
       # ============================================================================
       module MVarExpr
         include MExpr
-        attr_reader :name, :type
-        def to_s() "#{name}" end
+        attr_reader :__name, :__type
+        def to_s() "#{__name}" end
       end
 
       # ============================================================================
@@ -238,7 +238,7 @@ module Alloy
             fail "Expected String or Symbol for Var name, got #{name}:#{name.class}"
           end
           type = Alloy::Ast::AType.get(type) if type
-          @name, @type = name, type
+          @__name, @__type = name, type
           Expr.add_field_methods_for_type(self, type, false) if type
         end
       end
@@ -249,12 +249,13 @@ module Alloy
       # TODO
       # ============================================================================
       class FieldExpr < Var
-        attr_reader :field
+        attr_reader :__field
         def initialize(fld)
-          @field = fld
+          @__field = fld
           super(fld.name, fld.full_type)
         end
-        def exe_concrete() field end
+        def to_s() __field.name end
+        def exe_concrete() __field end
       end
 
       # ============================================================================
@@ -263,13 +264,13 @@ module Alloy
       # TODO
       # ============================================================================
       class SigExpr < Var
-        attr_reader :sig
+        attr_reader :__sig
         def initialize(sig)
           super(sig.relative_name, Alloy::Ast::AType.get(sig))
-          @sig = sig
+          @__sig = sig
         end
-        def to_s() @sig.relative_name end
-        def exe_concrete() sig end
+        def to_s() @__sig ? @__sig.relative_name : "" end
+        def exe_concrete() __sig end
       end
 
       # ============================================================================
@@ -292,7 +293,7 @@ module Alloy
           end
         end
 
-        def to_s() name end
+        def to_s() @__name end
       end
 
       # ============================================================================
