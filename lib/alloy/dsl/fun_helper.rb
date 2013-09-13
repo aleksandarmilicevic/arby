@@ -26,9 +26,12 @@ module Alloy
         _create_and_add_fn(:fun, *args, &block)
       end
 
-      def fact(*args, &block)
-        _create_and_add_fn(:fact, *args, &block)
+      def fact(name=nil, &block)
+        name ||= "fact_#{meta.facts.size}"
+        _create_and_add_fn(:fact, name, &block)
       end
+
+      alias_method :invariant, :fact
 
       def assertion(*args, &block)
         _create_and_add_fn(:assertion, *args, &block)
@@ -46,8 +49,10 @@ module Alloy
           # use this as the last resort
           raise ex unless Alloy.conf.allow_undef_vars
           raise ex unless SDGUtils::DSL::BaseBuilder.in_body?
-          raise ex unless args.empty?
-          SDGUtils::DSL::MissingBuilder.new(sym, &block)
+          raise ex unless args.empty? || (args.size == 1 && Array === args.first)
+          ans = SDGUtils::DSL::MissingBuilder.new(sym, &block)
+          ans[*args.first] unless args.empty?
+          ans
         end
       end
 
@@ -219,6 +224,7 @@ RUBY
               :args     => _to_args(args[1]),
               :ret_type => args[2] }
           else
+            binding.pry
             _raise_invalid_format
           end
         msg = "two blocks provided (both in args and explicitly)"

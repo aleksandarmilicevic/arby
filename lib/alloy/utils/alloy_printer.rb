@@ -66,9 +66,19 @@ module Alloy
         @out.in do
           @out.pn sig.meta.fields, ",\n"
         end
-        @out.pl
-        @out.pl "}"
-        funs = sig.meta.all_funs
+        @out.pl unless sig.meta.fields.empty?
+        @out.p "}"
+        if sig.meta.facts.empty?
+          @out.pl
+        else
+          @out.pl " {"
+          @out.in do
+            @out.pn sig.meta.facts.map{|f| f.sym_exe("this")}, "\n"
+          end
+          @out.pl unless sig.meta.facts.empty?
+          @out.pl "}"
+        end
+        funs = sig.meta.funs + sig.meta.preds
         @out.pl unless funs.empty?
         @out.pn funs, "\n"
       end

@@ -38,7 +38,7 @@ module Utils
       # Evaluates a source code block (`src') in the context of a
       # module (`mod'), and remembers it for future reference.
       #
-      # @param mod [Module]  - module to add code to
+      # @param mod [Class]  - module to add code to
       # @param src [String]  - source code to be evaluated for module
       #                        `mod'
       # @param file [String] - optional file name of the source
@@ -47,21 +47,14 @@ module Utils
       # @param desc [Hash]   - arbitrary hash to be stored alongside
       #
       # --------------------------------------------------------------
-      def eval_code(mod, src, file=nil, line=nil, desc={})
-        eval_code_using(mod, src, :class_eval, file, line, desc)
+      def class_eval_code(cls, src, file=nil, line=nil, desc={})
+        eval_code_using(cls, src, :class_eval, file, line, desc)
       end
 
-      def eval_code_using(mod, src, eval_meth, file=nil, line=nil, desc={})
-        # Red.conf.log.debug "------------------------- in #{mod}"
-        # Red.conf.log.debug src
-        __append :kind => :eval_code, :target => mod, :code => src, :desc => desc
-        if file.nil? && line.nil?
-          file = "<synthesized__#{SDGUtils::Random.salted_timestamp}>"
-          line = 1
-          @@loc_to_src[file] = src
-        end
-        args = [file, line].compact
-        mod.send eval_meth, src, *args
+      alias_method :eval_code, :class_eval_code
+
+      def module_eval_code(mod, src, file=nil, line=nil, desc={})
+        eval_code_using(mod, src, :module_eval, file, line, desc)
       end
 
       # --------------------------------------------------------------
@@ -79,6 +72,20 @@ module Utils
       end
 
       private
+
+      def eval_code_using(mod, src, eval_meth, file=nil, line=nil, desc={})
+        # Red.conf.log.debug "------------------------- in #{mod}"
+        # Red.conf.log.debug src
+        __append :kind => :eval_code, :target => mod, :code => src, :desc => desc
+        if file.nil? && line.nil?
+          file = "<synthesized__#{SDGUtils::Random.salted_timestamp}>"
+          line = 1
+          @@loc_to_src[file] = src
+        end
+        args = [file, line].compact
+        mod.send eval_meth, src, *args
+      end
+
 
       def __append(hash)
         hash[:desc] = OpenStruct.new(hash[:desc])

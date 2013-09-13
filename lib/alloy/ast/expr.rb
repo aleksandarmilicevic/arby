@@ -16,6 +16,7 @@ module Alloy
           def name() #{name.inspect} end
           def type() @atype ||= Alloy::Ast::AType.get(#{sig_inst.class.inspect}) end
         RUBY
+        Expr.add_field_methods_for_type(sig_inst, AType.get(cls), false)
       end
 
       def self.add_field_methods_for_type(target_inst, type, define_type_method=true)

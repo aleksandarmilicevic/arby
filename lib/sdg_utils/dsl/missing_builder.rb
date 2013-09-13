@@ -35,6 +35,7 @@ module SDGUtils
       def past_init?()   in_args? || in_ret_type? end
       def past_args?()   in_ret_type? end
       def has_body?()    !!@body end
+      def remove_body()  b = @body; @body = nil; b end
 
       def <(super_thing)
         @super = super_thing

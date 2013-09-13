@@ -30,6 +30,11 @@ module SDGUtils
 
       def parse_string(str)
         ast = Parser::CurrentRuby.parse(str)
+        block = extract_block(ast)
+        extract_block_body(block)
+      end
+
+      def extract_block(ast)
         failparse = proc{|str=""| fail "#{str}\ncouldn't parse:\n #{str}"}
         root_block =
           case ast.type
@@ -39,18 +44,21 @@ module SDGUtils
           when :send, :def
             msg = "expected :#{ast.type} with exactly 3 children"
             failparse[msg] unless ast.children.size == 3
-            if ast.children[2].type == :block
-              ast.children[2]
-            else
-              ast
-            end
+            extract_block(ast.children[2])
+            # if ast.children[2].type == :block
+            #   ast.children[2]
+            # else
+            #   ast
+            # end
           else
             failparse["wrong root node, got :#{ast.type}"]
           end
+      end
+
+      def extract_block_body(block_ast)
         msg = "expected root block to have 3 children"
-        failparse[msg] unless root_block.children.size == 3
-        block_body = root_block.children[2]
-        block_body
+        failparse[msg] unless block_ast.children.size == 3
+        block_ast.children[2]
       end
 
       def read_expression(node)

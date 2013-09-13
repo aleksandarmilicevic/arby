@@ -11,32 +11,27 @@ alloy_model :A_M_FST do
   sig Name
   abstract sig Obj
 
-  sig FolderEntry, {
+  sig Entry [
     name: Name,
     content: Obj
-  }
+  ]
 
-  sig Folder < Obj, {
-    entries: (set FolderEntry),
+  sig (Folder < Obj) [
+    entries: (set Entry),
     parent: (lone Folder)
-  } {
-  }
+  ]
 
-  sig :File < Obj {
+  sig :File < Folder do
     # Folder.some do |d|
     #   d.entries.content.contains? d
     # end
-  }
+  end
 
   one sig Root < Folder {
-    #no parent
+    no parent
   }
 
-  lone sig Curr < Folder {
-  }
-
-  sig X {
-  }
+  lone sig Curr < Folder
 end
 
 # Object.send :const_set, :Dir, dir_cls

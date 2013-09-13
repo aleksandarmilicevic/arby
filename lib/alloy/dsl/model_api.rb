@@ -1,6 +1,7 @@
 require 'alloy/dsl/helpers'
 require 'alloy/dsl/sig_builder'
 require 'alloy/ast/model'
+require 'sdg_utils/lambda/sourcerer'
 
 module Alloy
   module Dsl
@@ -26,18 +27,10 @@ module Alloy
       # to it.
       # --------------------------------------------------------------
       def sig(name, fields={}, &block)
-        SigBuilder.new({:return => :builder}).sig(name, fields, &block)
-        # ans = sb.sig(name, fields, &block)
-        # sigs = (Array === ans) ? ans : [ans]
-        # sigs.each do |sig|
-        #   sig.abstract if @abstract_alloy_block
-        # end
-        # sigs
+        SigBuilder.new({
+          :return => :builder
+        }).sig(name, fields, &block)
       end
-
-      # def abstract_sig(name, fields={}, &block)
-      #   sig(name, fields, &block).abstract
-      # end
 
       def __created(scope_module)
         require 'alloy/alloy.rb'
@@ -50,7 +43,14 @@ module Alloy
         mod = meta()
         Alloy.meta.open_model(mod)
         begin
-          mod.ruby_module.module_eval &block
+          body_src = nil #SDGUtils::Lambda::Sourcerer.proc_to_src(block) rescue nil
+          if body_src
+            puts body_src
+            Alloy::Utils::CodegenRepo.module_eval_code mod.ruby_module, body_src,
+                                                       *block.source_location
+          else
+            mod.ruby_module.module_eval &block
+          end
         ensure
           Alloy.meta.close_model(mod)
         end
