@@ -26,17 +26,18 @@ module Alloy
       # to it.
       # --------------------------------------------------------------
       def sig(name, fields={}, &block)
-        ans = SigBuilder.sig(name, fields, &block)
-        sigs = (Array === ans) ? ans : [ans]
-        sigs.each do |sig|
-          sig.abstract if @abstract_alloy_block
-        end
-        sigs
+        SigBuilder.new({:return => :builder}).sig(name, fields, &block)
+        # ans = sb.sig(name, fields, &block)
+        # sigs = (Array === ans) ? ans : [ans]
+        # sigs.each do |sig|
+        #   sig.abstract if @abstract_alloy_block
+        # end
+        # sigs
       end
 
-      def abstract_sig(name, fields={}, &block)
-        sig(name, fields, &block).abstract
-      end
+      # def abstract_sig(name, fields={}, &block)
+      #   sig(name, fields, &block).abstract
+      # end
 
       def __created(scope_module)
         require 'alloy/alloy.rb'

@@ -73,6 +73,9 @@ module Alloy
         def exe_symbolic() self end
         def exe_concrete() self end
 
+        def is_disjunction() false end
+        def is_conjunction() false end
+
         def ==(other)  apply_op("equals", other) end
         def !=(other)  apply_op("not_equals", other) end
         def +(other)   apply_op("plus", other) end
@@ -313,6 +316,9 @@ module Alloy
             self.class.new op, *chldrn
           end
         end
+
+        def is_disjunction() op == Alloy::Ast::BinaryOps::OR end
+        def is_conjunction() op == Alloy::Ast::BinaryOps::AND end
 
         protected
 
