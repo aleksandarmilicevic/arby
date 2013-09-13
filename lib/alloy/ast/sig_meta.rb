@@ -18,17 +18,17 @@ module Alloy
       include SDGUtils::Caching::SearchableAttr
 
       attr_reader :sig_cls, :parent_sig
-      attr_reader :abstract, :placeholder
+      attr_reader :multiplicity, :placeholder
       attr_reader :extra
 
       attr_hier_searchable :subsig, :field, :inv_field, :fun, :pred
 
       def initialize(sig_cls, placeholder=false, abstract=false)
-        @sig_cls     = sig_cls
-        @parent_sig  = sig_cls.superclass if (sig_cls.superclass.is_sig? rescue nil)
-        @placeholder = placeholder
-        @abstract    = abstract
-        @extra       = {}
+        @sig_cls      = sig_cls
+        @parent_sig   = sig_cls.superclass if (sig_cls.superclass.is_sig? rescue nil)
+        @placeholder  = placeholder
+        @extra        = {}
+        set_abstract if abstract
         init_searchable_attrs(SigMeta)
       end
 
@@ -37,9 +37,14 @@ module Alloy
 
       def _hierarchy_up() parent_sig && parent_sig.meta end
 
-      def abstract?()       @abstract end
-      def set_abstract()    @abstract = true end
+      def abstract?()       @multiplicity == :abstract end
+      def one?()            @multiplicity == :one end
+      def lone?()           @multiplicity == :lone end
       def placeholder?()    @placeholder end
+
+      def set_abstract()    @multiplicity = :abstract end
+      def set_one()         @multiplicity = :one end
+      def set_lone()        @multiplicity = :lone end
       def set_placeholder() set_abstract; @placeholder = true end
 
       def persistent_fields(*args)

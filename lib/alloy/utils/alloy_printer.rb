@@ -60,7 +60,7 @@ module Alloy
 
       def sig_to_als(sig)
         psig = sig.superclass
-        abs_str = (sig.meta.abstract?) ? "abstract " : ""
+        abs_str = (mult=sig.meta.multiplicity) ? "#{mult} " : ""
         psig_str = (psig != Alloy::Ast::Sig) ? "extends #{psig.relative_name} " : ""
         @out.pl "#{abs_str}sig #{sig.relative_name} #{psig_str} {"
         @out.in do

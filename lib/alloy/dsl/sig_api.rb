@@ -67,7 +67,6 @@ module Alloy
         Alloy.meta.add_sig(self)
       end
       def __params(*args)     fields(*args) end
-      def __eval_body(&block) self.class_eval(&block) end
       def __finish() end
 
       # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ private stuff ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #

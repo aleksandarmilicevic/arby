@@ -21,14 +21,14 @@ module Alloy
       # Creates an Alloy type with a multiplicity modifier assigned
       # +Alloy::Ast::ModType+ for a given multiplicity modifier and a given sig.
       #------------------------------------------------------------------------
-      def self.mult(mod_smbl, *sig)
-        if sig.empty?
+      def self.mult(mod_smbl, type=nil, &block)
+        case type
+        when ::NilClass
           new(mod_smbl)
+        when ::Alloy::Dsl::SigBuilder
+          type.apply_modifier(mod_smbl, nil, &block)
         else
-          wrapped = sig[0]
-          unless ::Alloy::Ast::AType === wrapped
-            wrapped = ::Alloy::Ast::UnaryType.new(sig[0])
-          end
+          wrapped = ::Alloy::Ast::AType.get(type)
           ::Alloy::Ast::ModType.new(wrapped, mod_smbl)
         end
       end

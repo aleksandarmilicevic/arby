@@ -48,6 +48,10 @@ module Utils
       #
       # --------------------------------------------------------------
       def eval_code(mod, src, file=nil, line=nil, desc={})
+        eval_code_using(mod, src, :class_eval, file, line, desc)
+      end
+
+      def eval_code_using(mod, src, eval_meth, file=nil, line=nil, desc={})
         # Red.conf.log.debug "------------------------- in #{mod}"
         # Red.conf.log.debug src
         __append :kind => :eval_code, :target => mod, :code => src, :desc => desc
@@ -57,7 +61,7 @@ module Utils
           @@loc_to_src[file] = src
         end
         args = [file, line].compact
-        mod.class_eval src, *args
+        mod.send eval_meth, src, *args
       end
 
       # --------------------------------------------------------------

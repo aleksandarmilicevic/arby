@@ -137,12 +137,7 @@ class Symbol
   #----------------------------------------------------------------
   def <(rhs)
     return old_cmp rhs unless in_dsl?
-    case rhs
-    when Class, Symbol
-      [self, rhs]
-    else
-      old_cmp rhs
-    end
+    SDGUtils::DSL::MissingBuilder.new(self) < rhs
   end
 end
 

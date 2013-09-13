@@ -96,7 +96,7 @@ module Alloy
       # if block is provided,
       #   args must contain a single symbol
       # else
-      #   args should match to the +class_eval+ formal parameters
+      #   args should match the +CodegenRepo#eval_code+ formal parameters
       def _define_method(*args, &block)
         old = Alloy.conf.turn_methods_into_funs
         Alloy.conf.turn_methods_into_funs = false

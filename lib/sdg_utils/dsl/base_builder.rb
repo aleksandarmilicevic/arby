@@ -56,13 +56,14 @@ module SDGUtils
         BaseBuilder.push_ctx(self)
         @in_builder = true
         @missing_builders = []
+
         begin
           @result = case
           # if the argument is a builder, that means that the object has already
           # been built, so now only evaluate the body (if given)
           when args.size == 1 && BaseBuilder === args.first
             bb = args.first
-            bb.return_result(:array).each{|obj| eval_body(obj, &body)} if body
+            bb.return_result(:array).each{|obj| eval_body(obj, &body) }
             bb.result()
           else
             @result = nil
@@ -149,6 +150,8 @@ module SDGUtils
 
       def eval_body(obj, default_eval_mthd=:class_eval, &body)
         return unless body
+        # body_src = SDGUtils::Lambda::Sourcerer.proc_to_src(body) rescue nil
+
         ebm = @conf.eval_body_mthd
         eval_body_mthd_name = obj.respond_to?(ebm) ? ebm : default_eval_mthd
         begin

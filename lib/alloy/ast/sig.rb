@@ -76,6 +76,10 @@ module Alloy
 
         # @see +SigMeta#set_abstract+
         def set_abstract() meta.set_abstract end
+        # @see +SigMeta#set_one+
+        def set_one() meta.set_one end
+        # @see +SigMeta#set_lone+
+        def set_lone() meta.set_lone end
 
         # @see +SigMeta#placeholder?+
         # @return [TrueClass, FalseClass]

@@ -10,10 +10,10 @@ module Alloy
     # ================================================================
     module MultHelper
       extend self
-      def lone(*sig) ModBuilder.mult(:lone, *sig) end
-      def one(*sig)  ModBuilder.mult(:one, *sig) end
-      def set(*sig)  ModBuilder.mult(:set, *sig) end
-      def seq(*sig)  ModBuilder.mult(:seq, *sig) end
+      def lone(*sig, &blk) ModBuilder.mult(:lone, *sig, &blk) end
+      def one(*sig, &blk)  ModBuilder.mult(:one, *sig, &blk) end
+      def set(*sig, &blk)  ModBuilder.mult(:set, *sig, &blk) end
+      def seq(*sig, &blk)  ModBuilder.mult(:seq, *sig, &blk) end
     end
 
   end

@@ -38,7 +38,12 @@ module SDGUtils
 
       def <(super_thing)
         @super = super_thing
-        @state = :ret_type
+        if MissingBuilder === super_thing && super_thing.body
+          @super = eval super_thing.name.to_s
+          @args.merge! super_thing.args
+          @body = super_thing.body
+          super_thing.consume
+        end
         self
       end
 
@@ -57,16 +62,6 @@ module SDGUtils
         end
         self
       end
-
-      # def respond_to?(sym)
-      #   self.class.instance_methods.include? sym
-      # end
-
-      # def method_missing(sym, *args, &block)
-      #   msg = "Tried to invoke `#{sym}' on a #{self.class} (`#{to_s}') object. "
-      #   msg += "It's likely you mistakenly misspelled `#{@name}' in the first place"
-      #   ::Kernel.raise ::NameError, msg
-      # end
 
       def ==(other)
         if ::SDGUtils::DSL::MissingBuilder === other

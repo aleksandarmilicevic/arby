@@ -130,9 +130,9 @@ module SDGUtils
         # evaluate body
         if body
           ret = eval_body @cls, :class_eval, &body
-          if !ret.nil? && ret.kind_of?(Hash)
-            safe_send @cls, @conf.params_mthd, ret
-          end
+          # if !ret.nil? && ret.kind_of?(Hash)
+          #   safe_send @cls, @conf.params_mthd, ret
+          # end
         end
 
         return @cls
