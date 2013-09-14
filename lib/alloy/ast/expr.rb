@@ -89,6 +89,8 @@ module Alloy
         def exe_symbolic() self end
         def exe_concrete() self end
 
+        def op() Ops::UNKNOWN end
+
         def is_disjunction() false end
         def is_conjunction() false end
 
@@ -253,6 +255,7 @@ module Alloy
       module MVarExpr
         include MExpr
         attr_reader :__name, :__type
+        def op() Ops::NOOP end
         def to_s() "#{__name}" end
       end
 
@@ -434,6 +437,10 @@ module Alloy
         def initialize(target, fun, *args)
           @target, @fun, @args = target, fun, args
         end
+
+        def op() (has_target?) ? Ops::JOIN : Ops.SELECT end
+
+        def has_target?() !!target end
 
         def exe_symbolic
           if MExpr === target && args.all?{|a| MExpr === a}

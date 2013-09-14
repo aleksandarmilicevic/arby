@@ -68,7 +68,7 @@ module Alloy
       RCLOSURE    = Uop.new(:"*",          "rclosure",    19)
       CLOSURE     = Uop.new(:"^",          "closure",     19)
       CARDINALITY = Uop.new(:"#",          "cardinality", 11)
-      NOOP        = Uop.new(:"NOOP",       "noop",        0)
+      NOOP        = Uop.new(:"NOOP",       "noop",        100)
 
       # binary operators
       JOIN       = Bop.new(:".",   "join",       18)

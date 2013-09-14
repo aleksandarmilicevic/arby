@@ -184,9 +184,7 @@ module Alloy
       end
 
       def iteexpr_to_als(ite)
-        @out.p "("
-        @out.pn [ite.cond]
-        @out.pl ") implies {"
+        @out.pl "#{enclose ite.op, ite.cond} implies {"
         @out.in do
           @out.pn [ite.then_expr]
         end
@@ -207,33 +205,23 @@ module Alloy
       end
 
       def unaryexpr_to_als(ue)
-        op_str, enclose_ops =
+        op_str =
           case ue.op
-          when TRANSPOSE, CLOSURE, RCLOSURE
-            [ue.op.to_s, false]
-          else
-            ["#{ue.op} ", false]
+          when TRANSPOSE, CLOSURE, RCLOSURE; ue.op.to_s
+          else "#{ue.op} "
           end
-        po = lambda{ |e|
-          e_str = export_to_als(e)
-          enclose_ops ? "(#{e_str})" : e_str
-        }
-        @out.p "#{op_str}#{po[ue.sub]}"
+        @out.p "#{op_str}#{enclose ue.op, ue.sub}"
       end
 
       def binaryexpr_to_als(be)
-        op_left, enclose_ops, op_right =
+        op_left, op_right =
           case be.op
           when JOIN;   ["."]
-          when SELECT; ["[", false, "]"]
+          when SELECT; ["[", "]"]
           else
             [" #{be.op} "]
           end
-        po = lambda{ |e|
-          e_str = export_to_als(e)
-          ans = enclose_ops ? "(#{e_str})" : e_str
-        }
-        @out.p "#{po[be.lhs]}#{op_left}#{po[be.rhs]}#{op_right}"
+        @out.p "#{enclose be.op, be.lhs}#{op_left}#{enclose be.op, be.rhs}#{op_right}"
       end
 
       def callexpr_to_als(ce)
@@ -252,6 +240,11 @@ module Alloy
         else
           "1 != 0"
         end
+      end
+
+      def enclose(op, expr)
+        e_str = export_to_als(expr)
+        (expr.op.precedence < op.precedence) ? "(#{e_str})" : e_str
       end
     end
 
