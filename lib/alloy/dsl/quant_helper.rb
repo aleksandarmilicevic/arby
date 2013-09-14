@@ -1,4 +1,5 @@
 require 'alloy/ast/expr'
+require 'alloy/ast/decl'
 
 module Alloy
   module Dsl
@@ -22,10 +23,10 @@ module Alloy
 
       def _to_decls(decl_hash)
         decls = []
-        _traverse_fields_hash decl_hash, proc{ |arg_name, type|
-          arg = Alloy::Ast::Arg.new :name => arg_name, :type => type
-          decls << arg
-          # decls << [key, value]
+        _traverse_fields_hash decl_hash, proc{ |arg_name, dom|
+          # d = Alloy::Ast::Decl.new :name => arg_name, :domain => dom
+          d = Alloy::Ast::Arg.new :name => arg_name, :type => dom
+          decls << d
         }
         decls
       end

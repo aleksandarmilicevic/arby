@@ -52,6 +52,14 @@ module Alloy
         rbilder.rebuild(e)
       end
 
+      def self.to_conjuncts(e)
+        if BinaryExpr === e && e.op == Ops::AND
+          to_conjuncts(e.lhs) + to_conjuncts(e.rhs)
+        else
+          [e]
+        end
+      end
+
       # ============================================================================
       # == Module +MExpr+
       #
@@ -84,6 +92,8 @@ module Alloy
         def is_disjunction() false end
         def is_conjunction() false end
 
+        def to_conjuncts() Expr.to_conjuncts(self) end
+
         def ==(other)  apply_op("equals", other) end
         def !=(other)  apply_op("not_equals", other) end
         def +(other)   apply_op("plus", other) end
@@ -97,12 +107,23 @@ module Alloy
             apply_op("product", other)
           end
         end
+        def [](other)  apply_op("select", other) end
         def <(other)   apply_op("lt", other) end
         def <=(other)  apply_op("lte", other) end
         def >(other)   apply_op("gt", other) end
         def >=(other)  apply_op("gte", other) end
         def in?(other) apply_op("in", other) end
-
+        def &(other)   apply_op("intersect", other) end
+        def ^(other)
+          join_rhs =
+            case other
+            when MExpr; other
+            when String, Symbol;
+              joined = self.send other #returns a "join" BinaryExpr
+              joined.rhs
+            end
+          apply_join(join_rhs.apply_op("closure"))
+        end
         def !()        apply_op("not") end
 
         def empty?()   apply_op("no") end
@@ -148,14 +169,15 @@ module Alloy
             apply_join Var.new(sym)
           else
             return super unless Alloy.conf.sym_exe.convert_missing_methods_to_fun_calls
-            if sym == :[] && args.size == 1
-              lhs = (MExpr === args[0]) ? args[0] : Var.new(args[0])
-              lhs.apply_join ParenExpr.new(self)
-            else
-              #TODO do something when `sym == :[]' and args.size > 1:
-              #     either fail or convert into multistep join
-              apply_call sym, *args
-            end
+            apply_call sym, *args
+            # if sym == :[] && args.size == 1
+            #   lhs = (MExpr === args[0]) ? args[0] : Var.new(args[0])
+            #   lhs.apply_join ParenExpr.new(self)
+            # else
+            #   #TODO do something when `sym == :[]' and args.size > 1:
+            #   #     either fail or convert into multistep join
+            #   apply_call sym, *args
+            # end
           end
         end
 
@@ -327,8 +349,8 @@ module Alloy
           end
         end
 
-        def is_disjunction() op == Alloy::Ast::BinaryOps::OR end
-        def is_conjunction() op == Alloy::Ast::BinaryOps::AND end
+        def is_disjunction() op == Ops::OR end
+        def is_conjunction() op == Ops::AND end
 
         protected
 
@@ -352,7 +374,7 @@ module Alloy
         def initialize(op, sub) super(op, sub) end
         def sub()               children.first end
 
-        add_constructors_for_ops Alloy::Ast::UnaryOps.all
+        add_constructors_for_ops Alloy::Ast::Op.by_arity(1)
 
         def to_s
           "(#{op} #{sub})"
@@ -391,7 +413,7 @@ module Alloy
         def lhs()                    children[0] end
         def rhs()                    children[1] end
 
-        add_constructors_for_ops Alloy::Ast::BinaryOps.all
+        add_constructors_for_ops Alloy::Ast::Op.by_arity(2)
 
         def to_s
           op_str = op.to_s
@@ -436,9 +458,10 @@ module Alloy
       # ============================================================================
       class ITEExpr
         include MExpr
-        attr_reader :cond, :then_expr, :else_expr
+        attr_reader :cond, :then_expr, :else_expr, :op
         def initialize(cond, then_expr, else_expr)
           @cond, @then_expr, @else_expr = cond, then_expr, else_expr
+          @op = Ops::IF_ELSE
         end
 
         def exe_symbolic
@@ -470,18 +493,20 @@ module Alloy
       # ============================================================================
       class QuantExpr
         include MExpr
-        attr_reader :kind, :decl, :body
+        attr_reader :op, :decl, :body
 
         def self.all(decl, body)
-          self.new(:all, decl, body)
+          self.new(Ops::ALLOF, decl, body)
         end
 
         def self.exist(decl, body)
-          self.new(:exist, decl, body)
+          self.new(Ops::SOMEOF, decl, body)
         end
 
-        def all?()   @kind == :all end
-        def exist?() @kind == :exist end
+        def all?()   op == Ops::ALLOF end
+        def exist?() op == Ops::SOMEOF end
+
+        def kind()   op.sym end
 
         def exe_symbolic
           case body
@@ -489,21 +514,22 @@ module Alloy
           else
             wrapped_body = (Proc === body) ? wrap(body) : body
             b = resolve_expr(wrapped_body, self, "body", BoolConst::TRUE)
-            QuantExpr.new(kind, decl, b)
+            QuantExpr.new(op, decl, b)
           end
         end
 
         def to_s
           decl_str = decl.map{|k,v| "#{k}: #{v}"}.join(", ")
-          "#{@kind} #{decl_str} {\n" +
+          "#{kind} #{decl_str} {\n" +
           "  #{body}\n" +
           "}"
         end
 
         private
 
-        def initialize(kind, decl, body)
-          @kind, @decl, @body = kind, decl, body
+        def initialize(op, decl, body)
+          @op, @decl, @body = op, decl, body
+          fail unless Qop === @op
           # fake_body_src = "<failed to extract body source>"
           # @body_src = Alloy::Utils::CodegenRepo.proc_to_src(body) || fake_body_src
         end

@@ -28,7 +28,11 @@ alloy_model :A_M_FST do
     entries: (set Entry),
     parent: (lone Folder)
   ] {
-    parent == self.contents!.entries!
+    parent == self.contents!.entries! and
+    not self.in?(self.^:parent) and
+    all e1: Entry, e2: Entry do     # make it so that decl can be any expr
+      e1 == e2 if (e1 + e2).in?(entries) && e1.name == e2.name
+    end
   }
 
   one sig Root < Folder {

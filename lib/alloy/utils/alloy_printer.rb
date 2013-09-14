@@ -6,6 +6,7 @@ module Alloy
   module Utils
 
     class AlloyPrinter
+      include Alloy::Ast::Ops
 
       def self.export_to_als(*what)
         ap = AlloyPrinter.new
@@ -15,7 +16,12 @@ module Alloy
       end
 
       def export_to_als(*what)
-        self.class.export_to_als(*what)
+        old_out = @out
+        @out = new_code_printer
+        what.map{|e| to_als e}.join("\n")
+        ans = @out.to_s
+        @out = old_out
+        ans
       end
 
       def to_s
@@ -25,8 +31,12 @@ module Alloy
       protected
 
       def initialize
-        @out = SDGUtils::PrintUtils::CodePrinter.new :visitor => self,
-                                                     :visit_method => :export_to_als
+        @out = new_code_printer
+      end
+
+      def new_code_printer
+        SDGUtils::PrintUtils::CodePrinter.new :visitor => self,
+                                              :visit_method => :export_to_als
       end
 
       def to_als(alloy_obj)
@@ -72,10 +82,12 @@ module Alloy
           @out.pl
         else
           @out.pl " {"
+          @in_appended_facts = true
           @out.in do
-            @out.pn sig.meta.facts.map{|f| f.sym_exe("this")}, "\n"
+            @out.pn sig.meta.facts.map{|f| f.sym_exe("this").to_conjuncts}.flatten, "\n"
           end
           @out.pl unless sig.meta.facts.empty?
+          @in_appended_facts = false
           @out.pl "}"
         end
         funs = sig.meta.funs + sig.meta.preds
@@ -150,6 +162,14 @@ module Alloy
         @out.p v.__name
       end
 
+      def fieldexpr_to_als(v)
+        if @in_appended_facts
+          @out.p "@#{v.__name}"
+        else
+          mvarexpr_to_als(v)
+        end
+      end
+
       def quantexpr_to_als(expr)
         decl_str = expr.decl.map(&method(:export_to_als)).join(", ")
         expr_kind = case expr.kind
@@ -187,17 +207,33 @@ module Alloy
       end
 
       def unaryexpr_to_als(ue)
-        sep = case ue.op.name
-              when "transpose" ; ""
-              else " "
-              end
-        @out.p("(").p(ue.op).p(sep).pn([ue.sub]).p(")")
+        op_str, enclose_ops =
+          case ue.op
+          when TRANSPOSE, CLOSURE, RCLOSURE
+            [ue.op.to_s, false]
+          else
+            ["#{ue.op} ", false]
+          end
+        po = lambda{ |e|
+          e_str = export_to_als(e)
+          enclose_ops ? "(#{e_str})" : e_str
+        }
+        @out.p "#{op_str}#{po[ue.sub]}"
       end
 
       def binaryexpr_to_als(be)
-        op_str = be.op.to_s
-        op_str = " #{op_str} " unless op_str == "."
-        @out.pn([be.lhs]).p(op_str).pn([be.rhs])
+        op_left, enclose_ops, op_right =
+          case be.op
+          when JOIN;   ["."]
+          when SELECT; ["[", false, "]"]
+          else
+            [" #{be.op} "]
+          end
+        po = lambda{ |e|
+          e_str = export_to_als(e)
+          ans = enclose_ops ? "(#{e_str})" : e_str
+        }
+        @out.p "#{po[be.lhs]}#{op_left}#{po[be.rhs]}#{op_right}"
       end
 
       def callexpr_to_als(ce)
