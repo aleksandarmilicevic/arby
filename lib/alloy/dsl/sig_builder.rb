@@ -39,15 +39,15 @@ module Alloy
       def sig(*args, &block)
         # special case for missing builder with appended facts block
         fst = args.first
-        ans =
-          if SDGUtils::DSL::MissingBuilder === fst && fst.has_body?
-            body = fst.remove_body
-            ans = build(*args, &block)
-            return_result(:array).first.send :fact, &body
-            ans
-          else
-            build(*args, &block)
-          end
+        ans = build(*args, &block)
+        # ans = if SDGUtils::DSL::MissingBuilder === fst && fst.has_body?
+        #     body = fst.remove_body
+        #     ans = build(*args, &block)
+        #     return_result(:array).first.send :fact, &body
+        #     ans
+        #   else
+        #       build(*args, &block)
+        #   end
         return_result(:array).each do |sig|
           ModelBuilder.in_model_body?           and
             mod = ModelBuilder.get.scope_module and

@@ -26,12 +26,19 @@ module Alloy
         if Class === range_cls && range_cls < Alloy::Ast::ASig
           flds = range_cls.meta.fields_including_sub_and_super
           add_field_methods(cls, flds)
+          flds = range_cls.meta.inv_fields_including_sub_and_super
+          add_field_methods(cls, flds)
         end
       end
 
       def self.add_field_methods(target_cls, fields, eval_meth=:class_eval)
         fields.each do |fld|
-          target_cls.send :define_method, "#{Field.getter_sym(fld)}" do
+          fname = if fld.is_inv?
+                    "#{fld.inv.getter_sym}!"
+                  else
+                    fld.getter_sym.to_s
+                  end
+          target_cls.send :define_method, "#{fname}" do
             self.apply_join fld.to_alloy_expr
           end
           #TODO setter?
@@ -114,6 +121,7 @@ module Alloy
         def apply_join(other)      apply_op("join", other) {|l,r| l.join(r)} end
 
         def apply_op(op_name, *args, &type_proc)
+          # Op.by_name(op_name).apply(*args)
           ans = if args.empty?
                   UnaryExpr.send op_name.to_sym, self
                 elsif args.size == 1
@@ -289,7 +297,7 @@ module Alloy
           if p=__parent()
             p.send sym, *args, &block
           else
-            raise ::NameError, "method #{sym} not found in #{self}:#{self.class}"
+            raise ::NameError, "method `#{sym}' not found in #{self}:#{self.class}"
           end
         end
 

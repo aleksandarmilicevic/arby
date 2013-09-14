@@ -51,7 +51,7 @@ module SDGUtils
       end
 
       def format_msg(indent)
-        new_indent = @msg.empty? ? indent : indent + @@tab
+        new_indent = (@msg.nil? || @msg.empty?) ? indent : indent + @@tab
         cause_msg = case @cause
                     when NilClass
                       ""

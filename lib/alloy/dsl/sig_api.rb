@@ -67,6 +67,13 @@ module Alloy
         Alloy.meta.add_sig(self)
       end
       def __params(*args)     fields(*args) end
+      def __eval_body(&block)
+        if SDGUtils::Lambda::Sourcerer.is_curly_block(block) #TODO rescue false
+          send :fact, &block
+        else
+          class_eval &block
+        end
+      end
       def __finish() end
 
       # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ private stuff ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #

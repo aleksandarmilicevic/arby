@@ -27,6 +27,8 @@ module Alloy
           new(mod_smbl)
         when ::Alloy::Dsl::SigBuilder
           type.apply_modifier(mod_smbl, nil, &block)
+        when ::Alloy::Ast::Expr::MExpr
+          ::Alloy::Ast::Expr::UnaryExpr.send mod_smbl, type
         else
           wrapped = ::Alloy::Ast::AType.get(type)
           ::Alloy::Ast::ModType.new(wrapped, mod_smbl)

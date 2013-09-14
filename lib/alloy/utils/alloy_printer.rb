@@ -187,7 +187,11 @@ module Alloy
       end
 
       def unaryexpr_to_als(ue)
-        @out.p("(").p(ue.op).p(" ").pn([ue.sub]).p(")")
+        sep = case ue.op.name
+              when "transpose" ; ""
+              else " "
+              end
+        @out.p("(").p(ue.op).p(sep).pn([ue.sub]).p(")")
       end
 
       def binaryexpr_to_als(be)

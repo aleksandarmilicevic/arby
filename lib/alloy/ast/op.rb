@@ -15,6 +15,15 @@ module Alloy
         @@op_by_name.merge!({name => self})
       end
 
+      # def apply(*args)
+      #   cls = case @arity
+      #         when 1; Expr::UnaryExpr
+      #         when 2; Expr::BinaryExpr
+      #         else;   Expr::NaryExpr
+      #         end
+
+      # end
+
       def to_s() sym.to_s end
 
       def self.by_sym(sym)   @@op_by_sym[sym] end

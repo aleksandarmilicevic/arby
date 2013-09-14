@@ -62,9 +62,16 @@ module Alloy
         fields(include_inherited) + inv_fields(include_inherited)
       end
 
+      def sigs_including_sub_and_super
+        all_supersigs + [sig_cls] + all_subsigs
+      end
+
       def fields_including_sub_and_super
-        sigs = all_supersigs + [sig_cls] + all_subsigs
-        sigs.map(&:meta).map(&:fields).flatten
+        sigs_including_sub_and_super.map(&:meta).map(&:fields).flatten
+      end
+
+      def inv_fields_including_sub_and_super
+        sigs_including_sub_and_super.map(&:meta).map(&:inv_fields).flatten
       end
 
       def all_subsigs

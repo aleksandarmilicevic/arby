@@ -13,10 +13,20 @@ module SDGUtils
         def initialize(fmt, src=nil) @fmt, @src = fmt, src end
       end
 
+      def is_curly_block(proc)
+        ast = parse_string(proc.source)               and
+          b = extract_block(ast)                      and
+          bb = extract_block_body(b)                  and
+          expr = bb.location.expression               and
+          full_source = expr.source_buffer.source     and
+          leading_src = full_source[expr.end_pos..-1] and
+          !!(leading_src =~ /^\s*\}/)
+      end
+
       # @param source_or_proc [String, Proc]
       def proc_to_src(source_or_proc)
         ast = case source_or_proc
-              when String; parse_string(source_or_proc)
+              when String; parse_proc_string(source_or_proc)
               when Proc; parse_proc(source_or_proc)
               else raise ArgumentError, "wrong type: #{source_or_proc.class}"
               end
@@ -25,11 +35,15 @@ module SDGUtils
 
       def parse_proc(proc)
         proc_src = proc.source rescue fail("source not available for proc #{proc}")
-        parse_string(proc_src)
+        parse_proc_string(proc_src)
       end
 
       def parse_string(str)
-        ast = Parser::CurrentRuby.parse(str)
+        Parser::CurrentRuby.parse(str)
+      end
+
+      def parse_proc_string(str)
+        ast = parse_string(str)
         block = extract_block(ast)
         extract_block_body(block)
       end
@@ -63,14 +77,14 @@ module SDGUtils
 
       def read_expression(node)
         node and
-          node.respond_to? :src and
-          src = node.src and
+          node.respond_to? :location and
+          src = node.location and
           src.expression
       end
 
       def read_src(node)
         expr = read_expression(node)
-        expr ? expr.to_source : ""
+        expr ? expr.source : ""
       end
 
       def compute_src(node, node2anno)
@@ -94,6 +108,7 @@ module SDGUtils
       end
 
       def reprint(node, &block)
+        return "" unless node
         node2anno = annotate_for_printing(node)
         nodes_bottomup = traverse_nodes(node).reverse
         nodes_bottomup.each do |node, parent|

@@ -14,17 +14,21 @@ alloy_model :A_M_FST do
   sig Entry [
     name: Name,
     contents: Obj
-  ]
+  ] {
+    one self.entries!
+  }
+
+  sig :File < Obj {
+    exist d: Folder do
+      self.in? d.entries.contents
+    end
+  }
 
   sig (Folder < Obj) [
     entries: (set Entry),
     parent: (lone Folder)
-  ]
-
-  sig :File < Folder {
-    some d: Folder do
-      self.in? d.entries.contents
-    end
+  ] {
+    parent == self.contents!.entries!
   }
 
   one sig Root < Folder {

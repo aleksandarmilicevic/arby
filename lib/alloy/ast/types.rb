@@ -47,10 +47,8 @@ module Alloy
         end
       end
 
-      def self.product(lhs, rhs)
-        ProductType.new(lhs, rhs)
-      end
-
+      def self.product(lhs, rhs) ProductType.new(lhs, rhs) end
+      def self.transpose(t)      AType.get(t.to_ary.reverse) end
       def self.join(lhs, rhs)
         lhs_range = lhs.range
         rhs_domain = rhs.domain
@@ -60,6 +58,7 @@ module Alloy
           NoType.new
         end
       end
+
 
       def self.included(base)
         base.extend(SDGUtils::Lambda::Class2Proc)
@@ -153,10 +152,8 @@ module Alloy
 
       def product(rhs) AType.product(self, rhs) end
       def *(rhs)       self.product(AType.get(rhs)) end
-
-      def join(rhs)
-        AType.join(self, rhs)
-      end
+      def join(rhs)    AType.join(self, rhs) end
+      def transpose()  AType.transpose(self) end
 
       def to_alloy
         case self

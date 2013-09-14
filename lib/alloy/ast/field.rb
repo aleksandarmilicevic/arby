@@ -41,6 +41,9 @@ require 'sdg_utils/string_utils'
         set_inv(hash[:inv])
       end
 
+      def getter_sym()         Field.getter_sym(self) end
+      def setter_sym()         Field.setter_sym(self) end
+
       def transient?()         @transient end
       def persistent?()        !@transient end
       def synth?()             @synth end
@@ -77,7 +80,15 @@ require 'sdg_utils/string_utils'
         SDGUtils::StringUtils.to_iden(full_name)
       end
 
-      def to_alloy_expr() Expr::FieldExpr.new(self) end
+      def to_alloy_expr()
+        if is_inv?
+          e = Expr::UnaryExpr.transpose Expr::FieldExpr.new(self.inv)
+          Expr.add_field_methods_for_type(e, self.inv.full_type.transpose)
+          e
+        else
+          Expr::FieldExpr.new(self)
+        end
+      end
 
       protected
 
