@@ -9,29 +9,38 @@ module Alloy
   module Ast
     module Expr
 
-      def self.as_atom(sig_inst, name)
+      def self.as_atom(sig_inst, name, type=sig_inst.class, expr_mod=MAtomExpr)
         cls = sig_inst.singleton_class
-        cls.send :include, Alloy::Ast::Expr::MAtomToExpr
+        cls.send :include, expr_mod
         cls.class_eval <<-RUBY, __FILE__, __LINE__+1
           def __name() #{name.inspect} end
-          def __type() @__atype ||= Alloy::Ast::AType.get(#{sig_inst.class.inspect}) end
+          def __type() @__atype ||= Alloy::Ast::AType.get(#{type.inspect}) end
         RUBY
-        Expr.add_field_methods_for_type(sig_inst, AType.get(cls), false)
+        Expr.add_methods_for_type(sig_inst, AType.get(type), false)
       end
 
-      def self.add_field_methods_for_type(target_inst, type, define_type_method=true)
+      def self.add_methods_for_type(target_inst, type, define_type_method=true)
         cls = target_inst.singleton_class
         cls.send :define_method, :__type, lambda{type} if define_type_method
         range_cls = type.range.klass
-        if Class === range_cls && range_cls < Alloy::Ast::ASig
-          flds = range_cls.meta.fields_including_sub_and_super
-          add_field_methods(cls, flds)
-          flds = range_cls.meta.inv_fields_including_sub_and_super
-          add_field_methods(cls, flds)
+        if (Alloy::Ast::ASig >= range_cls rescue false)
+          add_field_methods cls, range_cls.meta.fields_including_sub_and_super
+          add_field_methods cls, range_cls.meta.inv_fields_including_sub_and_super
+          add_fun_methods   cls, range_cls.meta.all_funs
+        elsif (Alloy::Dsl::ModelDslApi >= range_cls rescue false)
+          add_fun_methods   cls, range_cls.meta.all_funs
         end
       end
 
-      def self.add_field_methods(target_cls, fields, eval_meth=:class_eval)
+      def self.add_fun_methods(target_cls, funs)
+        funs.each do |fun|
+          target_cls.send :define_method, fun.name.to_sym do |*args|
+            self.apply_call fun, *args
+          end
+        end
+      end
+
+      def self.add_field_methods(target_cls, fields)
         fields.each do |fld|
           fname = if fld.is_inv?
                     "#{fld.inv.getter_sym}!"
@@ -68,6 +77,8 @@ module Alloy
       # expressions support both execution modes.
       # ============================================================================
       module MExpr
+        include Ops
+
         def self.included(base)
           base.class_eval <<-RUBY, __FILE__, __LINE__+1
           def self.new(*args, &block)
@@ -96,26 +107,22 @@ module Alloy
 
         def to_conjuncts() Expr.to_conjuncts(self) end
 
-        def ==(other)  apply_op("equals", other) end
-        def !=(other)  apply_op("not_equals", other) end
-        def +(other)   apply_op("plus", other) end
-        def -(other)   apply_op("minus", other) end
-        def /(other)   apply_op("div", other) end
-        def %(other)   apply_op("rem", other) end
-        def *(other)
-          if self.respond_to?(:__type) && self.__type.primitive?
-            apply_op("mul", other)
-          else
-            apply_op("product", other)
-          end
-        end
-        def [](other)  apply_op("select", other) end
-        def <(other)   apply_op("lt", other) end
-        def <=(other)  apply_op("lte", other) end
-        def >(other)   apply_op("gt", other) end
-        def >=(other)  apply_op("gte", other) end
-        def in?(other) apply_op("in", other) end
-        def &(other)   apply_op("intersect", other) end
+        def ==(other)        apply_op(EQUALS, other) end
+        def !=(other)        apply_op(NOT_EQUALS, other) end
+        def %(other)         apply_op(REM, other) end
+        def +(other)         apply_int_or_rel_op(IPLUS, PLUS, other) end
+        def -(other)         apply_int_or_rel_op(IMINUS, MINUS, other) end
+        def /(other)         apply_int_or_rel_op(DIV, MINUS, other) end
+        def *(other)         apply_int_or_rel_op(MUL, PRODUCT, other) end
+        def [](other)        apply_op("select", other) end
+        def <(other)         apply_op("lt", other) end
+        def <=(other)        apply_op("lte", other) end
+        def >(other)         apply_op("gt", other) end
+        def >=(other)        apply_op("gte", other) end
+        def in?(other)       apply_op("in", other) end
+        def not_in?(other)   apply_op("not_in", other) end
+        def contains?(other) resolve_expr(other).apply_op("in", self) end
+        def &(other)         apply_op("intersect", other) end
         def ^(other)
           join_rhs =
             case other
@@ -134,16 +141,26 @@ module Alloy
         def lone?()    apply_op("lone") end
         def one?()     apply_op("one") end
 
-
-
         def apply_ite(cond, then_expr, else_expr)
           ITEExpr.new(cond, then_expr, else_expr)
         end
 
-        def apply_call(fun, *args) CallExpr.new self, fun, *args end
+        def apply_call(fun, *args) CallExpr.new(self, fun, *args) end
         def apply_join(other)      apply_op("join", other) {|l,r| l.join(r)} end
 
+        def apply_int_or_rel_op(int_op, rel_op, *args, &type_proc)
+          if args.first.respond_to?(:__type) && args.first.__type.primitive?
+            apply_op(int_op, *args, &type_proc)
+          else
+            apply_op(rel_op, *args, &type_proc)
+          end
+        end
+
         def apply_op(op_name, *args, &type_proc)
+          op_name = case op_name
+                    when Op; op_name.name
+                    else op_name.to_s
+                    end
           # Op.by_name(op_name).apply(*args)
           ans = if args.empty?
                   UnaryExpr.send op_name.to_sym, self
@@ -158,7 +175,7 @@ module Alloy
             all_types = all_args.map(&:__type)
             if all_types.none?(&:nil?)
               result_type = type_proc.call(all_types)
-              Expr.add_field_methods_for_type(ans, result_type)
+              Expr.add_methods_for_type(ans, result_type)
             end
           end
           ans
@@ -272,7 +289,7 @@ module Alloy
           end
           type = Alloy::Ast::AType.get(type) if type
           @__name, @__type = name, type
-          Expr.add_field_methods_for_type(self, type, false) if type
+          Expr.add_methods_for_type(self, type, false) if type
         end
       end
 
@@ -307,16 +324,12 @@ module Alloy
       end
 
       # ============================================================================
-      # == Module +MAtomToExpr+
+      # == Module +MAtom+
       #
       # TODO
       # ============================================================================
-      module MAtomToExpr
+      module MAtomExpr
         include MVarExpr
-
-        def self.included(sig_cls)
-          Expr.add_field_methods(sig_cls, sig_cls.meta.fields)
-        end
 
         def method_missing(sym, *args, &block)
           if p=__parent()
@@ -327,6 +340,17 @@ module Alloy
         end
 
         def to_s() @__name end
+      end
+
+      # ============================================================================
+      # == Module +MAtomExpr+
+      #
+      # TODO
+      # ============================================================================
+      module MImplicitInst
+        include MAtomExpr
+        def apply_join(other) other end
+        def to_s() "super" end
       end
 
       # ============================================================================
@@ -438,15 +462,15 @@ module Alloy
           @target, @fun, @args = target, fun, args
         end
 
-        def op() (has_target?) ? Ops::JOIN : Ops.SELECT end
+        def op() (has_target?) ? Ops::JOIN : Ops::SELECT end
 
-        def has_target?() !!target end
+        def has_target?() !!target && !(MImplicitInst === target) end
 
         def exe_symbolic
-          if MExpr === target && args.all?{|a| MExpr === a}
+          if (MExpr === target || target.nil?) && args.all?{|a| MExpr === a}
             self
           else
-            t = resolve_expr(target, self, "target")
+            t = resolve_expr(target, self, "target") unless target.nil?
             as = args.map{|a| resolve_expr(a, self, "argument")}
             self.class.new t, fun, *as
           end

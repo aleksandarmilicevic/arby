@@ -72,15 +72,16 @@ module Alloy
             Alloy::Ast::TypeChecker.check_alloy_module(cls)
             obj = Object.new
             obj.singleton_class.send :include, cls
+            obj.define_singleton_method :make_me_sym_expr do |name="self"|
+              Alloy::Ast::Expr.as_atom(self, name, cls, Expr::MImplicitInst)
+            end
             obj
           end
         end
 
         def dummy_instance_expr(cls, name="self")
           inst = dummy_instance(cls)
-          if Alloy::Ast::ASig === inst
-            inst.make_me_sym_expr(name)
-          end
+          inst.make_me_sym_expr(name)
           inst
         end
 

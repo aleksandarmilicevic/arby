@@ -37,10 +37,6 @@ module Alloy
         _create_and_add_fn(:assertion, *args, &block)
       end
 
-      def invariant(&block)
-        _define_method(:invariant, &block)
-      end
-
       def method_missing(sym, *args, &block)
         return super if Alloy.is_caller_from_alloy?(caller[0])
         begin

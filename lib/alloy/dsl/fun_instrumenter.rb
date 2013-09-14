@@ -20,10 +20,15 @@ module Alloy
               cond_src = compute_src(node.children[0], anno)
               then_src = compute_src(node.children[1], anno)
               else_src = compute_src(node.children[2], anno)
-              "Alloy::Ast::Expr::ITEExpr.new(" +
-                "#{cond_src}, " +
-                "proc{#{then_src}}, " +
-                "proc{#{else_src}})"
+              if else_src.empty?
+                "Alloy::Ast::Expr::BinaryExpr.implies(" +
+                  "#{cond_src}, proc{#{then_src}}) "
+              else
+                "Alloy::Ast::Expr::ITEExpr.new(" +
+                  "#{cond_src}, " +
+                  "proc{#{then_src}}, " +
+                  "proc{#{else_src}})"
+              end
             when :and, :or
               lhs_src = compute_src(node.children[0], anno)
               rhs_src = compute_src(node.children[1], anno)

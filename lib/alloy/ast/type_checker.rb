@@ -41,6 +41,7 @@ module Alloy
         raise_not_mod[] unless Module === mod
         raise_not_mod[] unless mod.respond_to? :meta
         raise_not_mod[] unless Alloy::Ast::Model === mod.meta
+        mod.meta
       end
     end
 

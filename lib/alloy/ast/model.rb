@@ -17,11 +17,11 @@ module Alloy
         init_searchable_attrs
       end
 
-      attr_searchable :sig, :fun, :pred, :assertion, :fact
+      attr_searchable :sig, :fun, :pred, :assertion, :fact, :command
 
-      def all_funs
-        funs + preds + assertions + facts
-      end
+      def all_funs() funs + preds + assertions + facts end
+      def checks() commands.select{|c| c.check?} end
+      def runs()   commands.select{|c| c.run?} end
     end
 
   end

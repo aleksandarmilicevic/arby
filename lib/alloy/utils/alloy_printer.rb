@@ -50,6 +50,7 @@ module Alloy
             _fail[]
           end
         when Alloy::Ast::Fun;          fun_to_als(alloy_obj)
+        when Alloy::Ast::Command;      command_to_als(alloy_obj)
         when Alloy::Ast::Field;        field_to_als(alloy_obj)
         when Alloy::Ast::AType;        type_to_als(alloy_obj)
         when Alloy::Ast::Arg;          arg_to_als(alloy_obj)
@@ -64,31 +65,40 @@ module Alloy
         @out.pl "module #{model.name}"
         @out.pl
         @out.pn model.sigs, "\n"
-        @out.pl unless model.all_funs.empty?
-        @out.pn model.all_funs, "\n"
+        unless model.all_funs.empty?
+          @out.pl
+          @out.pn model.all_funs, "\n"
+        end
+        unless model.commands.empty?
+          @out.pl
+          @out.pn model.commands, "\n"
+        end
       end
 
       def sig_to_als(sig)
         psig = sig.superclass
         abs_str = (mult=sig.meta.multiplicity) ? "#{mult} " : ""
-        psig_str = (psig != Alloy::Ast::Sig) ? "extends #{psig.relative_name} " : ""
-        @out.pl "#{abs_str}sig #{sig.relative_name} #{psig_str} {"
-        @out.in do
-          @out.pn sig.meta.fields, ",\n"
+        psig_str = (psig != Alloy::Ast::Sig) ? "extends #{psig.relative_name}" : ""
+        @out.p "#{abs_str}sig #{sig.relative_name} #{psig_str} {"
+        unless sig.meta.fields.empty?
+          @out.pl
+          @out.in do
+            @out.pn sig.meta.fields, ",\n"
+          end
+          @out.pl
         end
-        @out.pl unless sig.meta.fields.empty?
         @out.p "}"
         if sig.meta.facts.empty?
           @out.pl
         else
-          @out.pl " {"
           @in_appended_facts = true
+          @out.pl " {"
           @out.in do
             @out.pn sig.meta.facts.map{|f| f.sym_exe("this").to_conjuncts}.flatten, "\n"
           end
-          @out.pl unless sig.meta.facts.empty?
-          @in_appended_facts = false
+          @out.pl
           @out.pl "}"
+          @in_appended_facts = false
         end
         funs = sig.meta.funs + sig.meta.preds
         @out.pl unless funs.empty?
@@ -127,7 +137,19 @@ module Alloy
           @out.pn [fun.sym_exe]
         end
         @out.pl "\n}"
+      end
 
+      def command_to_als(cmd)
+        name = (cmd.name.empty?) ? " " : "#{cmd.name} "
+        @out.p "#{cmd.kind} #{name}{"
+        if cmd.fun
+          @out.pl
+          @out.in do
+            @out.pn [cmd.fun.sym_exe]
+          end
+          @out.pl
+        end
+        @out.pl "} #{cmd.scope}"
       end
 
       def type_to_als(type)
@@ -225,7 +247,7 @@ module Alloy
       end
 
       def callexpr_to_als(ce)
-        pre = ce.target ? "#{export_to_als ce.target}." : ""
+        pre = (ce.has_target?) ? "#{export_to_als ce.target}." : ""
         fun = case f=ce.fun
               when Alloy::Ast::Fun; f.name
               else f

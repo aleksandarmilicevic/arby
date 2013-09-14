@@ -291,7 +291,7 @@ module Alloy
             raise TypeError, "nil is not a valid type"
           when ColType
             sym
-          when Class
+          when Module
             if sym == Integer
               IntColType.new(sym)
             elsif sym == Float
@@ -314,7 +314,7 @@ module Alloy
             mgr = Alloy::Dsl::ModelBuilder.get
             builtin ||= UnresolvedRefColType.new(sym, mgr.scope_module)
           else
-            raise TypeError, "`#{sym}' must be Class or Symbol or String, instead it is #{sym.class}"
+            raise TypeError, "`#{sym}' must be Module or Symbol or String, instead it is #{sym.class}"
           end
         end
 

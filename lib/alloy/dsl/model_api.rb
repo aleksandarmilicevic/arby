@@ -1,4 +1,5 @@
 require 'alloy/dsl/helpers'
+require 'alloy/dsl/command_helper'
 require 'alloy/dsl/sig_builder'
 require 'alloy/ast/model'
 require 'sdg_utils/lambda/sourcerer'
@@ -16,6 +17,7 @@ module Alloy
       include QuantHelper
       include AbstractHelper
       include FunHelper
+      include CommandHelper
       extend self
 
       protected

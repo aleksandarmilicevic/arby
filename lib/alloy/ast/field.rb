@@ -83,7 +83,7 @@ require 'sdg_utils/string_utils'
       def to_alloy_expr()
         if is_inv?
           e = Expr::UnaryExpr.transpose Expr::FieldExpr.new(self.inv)
-          Expr.add_field_methods_for_type(e, self.inv.full_type.transpose)
+          Expr.add_methods_for_type(e, self.inv.full_type.transpose)
           e
         else
           Expr::FieldExpr.new(self)
