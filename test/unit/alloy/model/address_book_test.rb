@@ -8,25 +8,25 @@ alloy_model :A_M_ABT do
   sig Name, Addr
 
   sig Book, {
-    addr: Name * (lone Addr)
+    addr: Name ** (lone Addr)
   } do
     pred add[ans: Book, n: Name, a: Addr] {
-      ans.addr == addr + n*a
+      ans.addr == addr + n**a
     }
 
     pred del[ans: Book, n: Name] {
-      ans.addr == addr - n*Addr
+      ans.addr == addr - n**Addr
     }
 
     # fun do_add[n: Name, a: Addr][Book] {
     #   ans = Book.new
-    #   ans.addr = addr + n*a
+    #   ans.addr = addr + n**a
     #   ans
     # }
 
     # fun do_del[n: Name][Book] {
     #   ans = Book.new
-    #   ans.addr = addr - n*a
+    #   ans.addr = addr - n**a
     #   ans
     # }
   end

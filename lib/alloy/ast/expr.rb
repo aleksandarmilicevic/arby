@@ -113,7 +113,7 @@ module Alloy
         def +(other)         apply_int_or_rel_op(IPLUS, PLUS, other) end
         def -(other)         apply_int_or_rel_op(IMINUS, MINUS, other) end
         def /(other)         apply_int_or_rel_op(DIV, MINUS, other) end
-        def *(other)         apply_int_or_rel_op(MUL, PRODUCT, other) end
+        def **(other)        apply_op(PRODUCT, other) end
         def [](other)        apply_op("select", other) end
         def <(other)         apply_op("lt", other) end
         def <=(other)        apply_op("lte", other) end
@@ -123,7 +123,20 @@ module Alloy
         def not_in?(other)   apply_op("not_in", other) end
         def contains?(other) resolve_expr(other).apply_op("in", self) end
         def &(other)         apply_op("intersect", other) end
+        def *(other)
+          apply_int_or_rel_op(MUL, proc{
+            join_rhs =
+              case other
+              when MExpr; other
+              when String, Symbol;
+                joined = self.send other #returns a "join" BinaryExpr
+                joined.rhs
+              end
+            apply_join(join_rhs.apply_op("rclosure"))
+          }, other)
+        end
         def ^(other)
+          #TODO: DRY
           join_rhs =
             case other
             when MExpr; other
@@ -149,11 +162,13 @@ module Alloy
         def apply_join(other)      apply_op("join", other) {|l,r| l.join(r)} end
 
         def apply_int_or_rel_op(int_op, rel_op, *args, &type_proc)
-          if args.first.respond_to?(:__type) && args.first.__type.primitive?
-            apply_op(int_op, *args, &type_proc)
-          else
-            apply_op(rel_op, *args, &type_proc)
-          end
+          op =
+            if args.first.respond_to?(:__type) && args.first.__type.primitive?
+              int_op
+            else
+              rel_op
+            end
+          Proc === op ? op.call : apply_op(rel_op, *args, &type_proc)
         end
 
         def apply_op(op_name, *args, &type_proc)

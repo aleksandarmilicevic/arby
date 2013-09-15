@@ -25,7 +25,7 @@ alloy_model :A_M_FST do
   ] {
     parent == self.contents!.entries! and
     self.not_in? self.^:parent and
-    ((self.^:parent).contains?(Root) if self != Root) and
+    (self.*:parent).contains?(Root) and
     all e1: Entry, e2: Entry do     # make it so that decl can be any expr
       e1 == e2 if (e1 + e2).in?(entries) && e1.name == e2.name
     end

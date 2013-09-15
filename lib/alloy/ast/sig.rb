@@ -252,9 +252,11 @@ module Alloy
       meta.set_placeholder
     end
 
-    # TODO: this looks unnecessary
     def self.create_sig(name, super_cls=Alloy::Ast::Sig)
-      Alloy::Dsl::ModelDslApi.sig([name.to_sym, super_cls], {})
+      sb = Alloy::Dsl::SigBuilder.new({
+             :superclass => super_cls,
+             :return     => :as_is
+      }).sig(name)
     end
 
   end

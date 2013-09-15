@@ -109,7 +109,7 @@ module SDGUtils
       private
 
       def init(cls, scope_mod, scope_cls, params, body)
-        if @conf.include_scope_module
+        if @conf.include_scope_module && scope_mod
           @cls.send(:include, scope_mod) unless Class === scope_mod
         end
 

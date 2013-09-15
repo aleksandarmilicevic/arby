@@ -20,7 +20,7 @@ module Alloy
       include CommandHelper
       extend self
 
-      protected
+      # protected
 
       # --------------------------------------------------------------
       # Creates a new class, subclass of either Alloy::Ast::Sig or a

@@ -27,6 +27,9 @@ class Class
   def *(rhs)
     to_atype * rhs
   end
+  def **(rhs)
+    to_atype * rhs
+  end
 
   def set_of()   Alloy::Dsl::MultHelper.set(self) end
   def is_sig?()  ancestors.member? Alloy::Ast::ASig end
