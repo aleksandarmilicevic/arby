@@ -4,12 +4,12 @@ require 'alloy/initializer.rb'
 
 include Alloy::Dsl
 
-alloy_model :A_M_ABT do
+alloy :A_M_ABT do
   sig Name, Addr
 
-  sig Book, {
+  sig Book [
     addr: Name ** (lone Addr)
-  } do
+  ] do
     pred add[ans: Book, n: Name, a: Addr] {
       ans.addr == addr + n**a
     }

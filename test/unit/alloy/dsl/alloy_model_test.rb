@@ -1,3 +1,4 @@
+require 'my_test_helper'
 require 'alloy/helpers/test/dsl_helpers'
 
 include Alloy::Dsl
@@ -10,6 +11,7 @@ end
 
 class TestAlloyUserModel < Test::Unit::TestCase
   include Alloy::Helpers::Test::DslHelpers
+  include SDGUtils::Testing::Assertions
 
   def test1() create_module "MyModel1" end
   def test2() create_module :MyModel2 end
@@ -25,8 +27,8 @@ class TestAlloyUserModel < Test::Unit::TestCase
   end
 
   def test_already_defined
-    mod = Alloy::Dsl::alloy_model("MyModel1")
-    assert_equal MyModel1, mod
+    blder = Alloy::Dsl::alloy_model("MyModel1")
+    assert_seq_equal [MyModel1], blder.return_result(:array)
   end
 
 end

@@ -84,7 +84,8 @@ module Alloy
         end
 
         def create_module(name)
-          mod = Alloy::Dsl::alloy_model(name)
+          blder = Alloy::Dsl::alloy_model(name)
+          mod = blder.return_result(:array).first
           assert_module_helper(mod, name)
         end
       end

@@ -18,14 +18,14 @@ module Alloy
     # are automatically converted to symbols.
     # ----------------------------------------------------------------
     def alloy_model(name="", &block)
-      ModelBuilder.new.model(:alloy, name, &block)
+      ModelBuilder.new({:return => :builder}).model(:alloy, name, &block)
     end
 
     # ----------------------------------------------------------------
     # Different aliases for the +alloy_model+ method.
     # ----------------------------------------------------------------
     alias_method :alloy_module, :alloy_model
-
+    alias_method :alloy, :alloy_model
   end
 
 end
