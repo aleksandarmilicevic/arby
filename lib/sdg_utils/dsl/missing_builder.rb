@@ -11,6 +11,7 @@ module SDGUtils
 
       def initialize(name, &block)
         super(name)
+        # puts "created: #{name}: has block: #{!!block}"
         @name = name
         @args = {}
         @ret_type = notype
