@@ -38,7 +38,6 @@ module Alloy
             else
               nil
             end
-          # anno[node.__id__].src = new_src if new_src
         end
         [orig_src, instr_src]
       end
