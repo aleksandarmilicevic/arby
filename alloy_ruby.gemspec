@@ -9,4 +9,9 @@ Gem::Specification.new do |s|
   s.description = "Embedding of the Alloy modeling language into Ruby"
   s.files = Dir['lib/**/*.rb']
   s.require_paths = ["lib"]
+  s.test_files = Dir['test/**/*test.rb']
+
+  s.add_runtime_dependency "nilio"
+  s.add_runtime_dependency "parser", ["~>2.0.0.pre7"]
+  s.add_runtime_dependency "method_source", ["~>0.8.3"]
 end

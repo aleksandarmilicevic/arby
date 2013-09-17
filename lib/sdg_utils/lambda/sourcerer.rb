@@ -1,5 +1,6 @@
 require 'method_source'
 require 'parser/current'
+require 'sdg_utils/visitors/visitor'
 
 module SDGUtils
   module Lambda
@@ -59,11 +60,6 @@ module SDGUtils
             msg = "expected :#{ast.type} with exactly 3 children"
             failparse[msg] unless ast.children.size == 3
             extract_block(ast.children[2])
-            # if ast.children[2].type == :block
-            #   ast.children[2]
-            # else
-            #   ast
-            # end
           else
             failparse["wrong root node, got :#{ast.type}"]
           end
@@ -95,7 +91,7 @@ module SDGUtils
         src = anno.src and return src
         fmt = anno.fmt
         node.children.each do |ch|
-          ch_expr = read_expression(ch) #TODO ch.src.expression rescue nil
+          ch_expr = read_expression(ch) #TODO  rescue nil
           if ch_expr
             ch_src = compute_src(ch, node2anno)
             out.concat fmt[idx]
@@ -145,7 +141,6 @@ module SDGUtils
 
 
       def traverse_nodes(node, visit_opts={}, visitor_obj=nil, &visitor_blk)
-        require 'sdg_utils/visitors/visitor'
         visitor = SDGUtils::Visitors::Visitor.new(visitor_obj, &visitor_blk)
 
         # array of (node, parent) pairs
