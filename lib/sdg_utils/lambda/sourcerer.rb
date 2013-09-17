@@ -108,7 +108,10 @@ module SDGUtils
         node2anno = annotate_for_printing(node)
         nodes_bottomup = traverse_nodes(node).reverse
         nodes_bottomup.each do |node, parent|
-          yield(node, parent, node2anno) if node2anno[node.__id__]
+          if node2anno[node.__id__]
+            new_src = yield(node, parent, node2anno) 
+            node2anno[node.__id__].src = new_src if new_src
+          end
         end
         compute_src(node, node2anno)
       end
