@@ -27,11 +27,14 @@ module Alloy
       # user supplied super class, creates a constant with a given
       # +name+ in the callers namespace and assigns the created class
       # to it.
+      #
+      # @param args [Array] --- @see +SigBuilder#sig+
+      # @return [SigBuilder]
       # --------------------------------------------------------------
-      def sig(name, fields={}, &block)
+      def sig(*args, &block)
         SigBuilder.new({
           :return => :builder
-        }).sig(name, fields, &block)
+        }).sig(*args, &block)
       end
 
       def __created(scope_module)

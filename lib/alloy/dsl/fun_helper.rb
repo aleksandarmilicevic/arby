@@ -15,15 +15,51 @@ module Alloy
       include FieldsHelper
 
       # ---------------------------------------------------------
-      # TODO: DOCS
+      # Creates a new function inside the current scope (either class
+      # corresponding to an Alloy sig, or module corresponding to an
+      # Alloy model.
+      #
+      # @param args [Array] --- valid formats are
+      #
+      #    (1) [String, Symbol]
+      #
+      #          - for fun name:    +args[0].to_s+ is used
+      #          - for args:        +block+ param names mapped to nil
+      #                             types are used
+      #          - for return type: nil is used
+      #          - for body:        +block+ is used
+      #
+      #    (2) [String, Symbol], [Hash(String, AType)]
+      #
+      #          - for fun name:    +args[0].to_s+ is used
+      #          - for args:        +args[1][0..-1]+ is used
+      #          - for return type: +args[1][-1].value is used
+      #          - for body:        +block+ is used
+      #
+      #    (3) [String, Symbol], [Hash(String, AType)], [AType]
+      #
+      #          - for fun name:    +args[0].to_s+ is used
+      #          - for args:        +args[1]+ is used
+      #          - for return type: +args[2]+ is used
+      #          - for body:        +block+ is used
+      #
+      #    (4) [MissingBuilder]
+      #
+      #          - for fun name:    +args[0].name+ is used
+      #          - for args:        +args[0].args+ is used
+      #          - for return type: +args[0].ret_type+ is used
+      #          - for body:        +args[0].body || block+ is used
+      #
+      # @param block [Proc] --- defaults to +proc{}+
+      # @return [Alloy::Ast::Fun]
       # ---------------------------------------------------------
-
-      def pred(*args, &block)
-        _create_and_add_fn(:pred, *args, &block)
-      end
 
       def fun(*args, &block)
         _create_and_add_fn(:fun, *args, &block)
+      end
+
+      def pred(*args, &block)
+        _create_and_add_fn(:pred, *args, &block)
       end
 
       def fact(name=nil, &block)

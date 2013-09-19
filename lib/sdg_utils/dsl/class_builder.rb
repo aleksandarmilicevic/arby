@@ -66,15 +66,6 @@ module SDGUtils
             # new class with the same name in the current (scope)
             # module.
             [to_clsname(name), supercls]
-          when Array
-            msg = "If the first argument is an array, it must have " +
-                  "2 elements, name and super class: Symbol -> Class"
-            raise ArgumentError, msg unless name.length == 2
-            msg = "Specified super class #{name[1]} is not a class but #{name[1].class}"
-            raise ArgumentError, msg unless name[1].class == Class
-            msg = "Super class (#{name[1]}) must be a subclass of #{supercls}"
-            raise ArgumentError, msg unless name[1] <= supercls
-            [to_clsname(name[0]), name[1]]
           else
             raise ArgumentError, "wrong type of the name argument: #{name}:#{name.class}"
           end

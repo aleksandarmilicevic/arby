@@ -4,13 +4,6 @@ require 'sdg_utils/dsl/class_builder'
 module Alloy
   module Dsl
 
-    # class NameSuperclassPair
-    #   attr_reader :name, :supercls
-    #   def initialize(name, supercls)
-    #     @name, @supercs = name, supercls
-    #   end
-    # end
-
     # ============================================================================
     # == Class +SigBuilder+
     #
@@ -30,24 +23,37 @@ module Alloy
         new.sig(*args, &block)
       end
 
-      # --------------------------------------------------------------
       # Creates a new class, subclass of either +Alloy::Ast::Sig+ or a
-      # user supplied super class, creates a constant with a given
-      # +name+ in the callers namespace and assigns the created class
-      # to it.
-      # --------------------------------------------------------------
+      # user supplied super class, and assigns a constant to it (named
+      # +name+ in the current scope)
+      #
+      # @param args [Array] --- valid formats are:
+      #
+      #    (1) +args.all?{|a| a.respond_to :to_sym}+
+      #
+      #          for each +a+ in +args+ creates an empty sig with that
+      #          name and default parent
+      #
+      #    (2) [Class, String, Symbol], [Hash, NilClass]
+      #
+      #          - for class name:   +args[0].to_s+ is used
+      #          - for parent sig:   the default is used
+      #          - for class params: +args[1] || {}+ is used
+      #
+      #    (3) [MissingBuilder], [Hash, NilClass]
+      #
+      #          - for class name:   +args[0].name+ is used
+      #          - for parent sig:   +args[0].super || default_supercls+ is used
+      #          - for class params: +args[0.args.merge(args[1])+ is used
+      #
+      # @param block [Proc] --- if the block is given insided the
+      #    curly braces, it is interpreted as appended facts;
+      #    otherwise (given inside do ... end) it is evaluated using
+      #    +class_eval+.
       def sig(*args, &block)
         # special case for missing builder with appended facts block
         fst = args.first
         ans = build(*args, &block)
-        # ans = if SDGUtils::DSL::MissingBuilder === fst && fst.has_body?
-        #     body = fst.remove_body
-        #     ans = build(*args, &block)
-        #     return_result(:array).first.send :fact, &body
-        #     ans
-        #   else
-        #       build(*args, &block)
-        #   end
         return_result(:array).each do |sig|
           ModelBuilder.in_model_body?           and
             mod = ModelBuilder.get.scope_module and
