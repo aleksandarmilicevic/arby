@@ -1,1 +1,1 @@
-gem build alloy_ruby.gemspec && gem install --no-rdoc --no-ri alloy_ruby-0.0.1.gem
+gem build arby.gemspec && gem install --no-rdoc --no-ri arby-0.0.1.gem
