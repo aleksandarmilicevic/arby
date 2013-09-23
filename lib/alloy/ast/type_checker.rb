@@ -23,7 +23,9 @@ module Alloy
       extend self
 
       def check_type(expected, actual)
-        actual <= expected #TODO: incomplete
+        Class === expected &&
+          Class === actual &&
+          actual <= expected #TODO: incomplete
       end
 
       def check_sig_class(cls, supercls=Alloy::Ast::ASig, msg="")

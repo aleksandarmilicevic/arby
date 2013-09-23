@@ -81,10 +81,21 @@ module Alloy
           # use this as the last resort
           raise ex unless Alloy.conf.allow_undef_vars
           raise ex unless SDGUtils::DSL::BaseBuilder.in_body?
-          raise ex unless args.empty? || (args.size == 1 && Array === args.first)
-          ans = SDGUtils::DSL::MissingBuilder.new(sym, &block)
-          ans[*args.first] unless args.empty?
-          ans
+          case
+          when args.empty? || (args.size == 1 && Array === args.first)
+            mb = SDGUtils::DSL::MissingBuilder.new(sym, &block)
+            mb[*args.first] unless args.empty?
+            mb
+          when args.size == 1 &&
+              SDGUtils::DSL::MissingBuilder === args.first &&
+              args.first.nameless?
+            mb = SDGUtils::DSL::MissingBuilder.new(sym, &block)
+            mb.append(args.first)
+            args.first.consume
+            mb
+          else
+            raise ex
+          end
         end
       end
 

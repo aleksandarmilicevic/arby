@@ -19,7 +19,7 @@ alloy_model :A_M_FST do
     some d: Folder do self.in? d.entries.contents end
   }
 
-  sig (Folder < Obj) [
+  sig Folder extends Obj [
     entries: (set Entry),
     parent: (lone Folder)
   ] {
@@ -31,11 +31,11 @@ alloy_model :A_M_FST do
     end
   }
 
-  one sig Root < Folder {
+  one sig Root extends Folder {
     no parent
   }
 
-  lone sig Curr < Folder
+  lone sig Curr extends Folder
 
   # all directories besides root have one parent
   pred oneParent_buggyVersion {
@@ -67,6 +67,71 @@ alloy_model :A_M_FST do
   check("for 5 expect 0") { noDirAliases if oneParent_correctVersion }
 end
 
+Expected_alloy = """
+module A_M_FST
+
+abstract sig Obj  {}
+
+sig Name  {}
+
+sig Entry  {
+  name: Name,
+  contents: Obj
+} {
+  one this.~@entries
+}
+
+sig File extends Obj {} {
+  some d: Folder {
+    this in d.@entries.@contents
+  }
+}
+
+sig Folder extends Obj {
+  entries: set Entry,
+  parent: lone Folder
+} {
+  this.@parent = this.~@contents.~@entries
+  this !in this.^@parent
+  Root in this.*@parent
+  all e1: Entry, e2: Entry {
+    e1 + e2 in this.@entries && e1.@name = e2.@name => e1 = e2
+  }
+}
+
+one sig Root extends Folder {} {
+  no this.@parent
+}
+
+lone sig Curr extends Folder {}
+
+pred oneParent_buggyVersion {
+  all d: Folder {
+    d !in Root => one d.parent
+  }
+}
+
+pred oneParent_correctVersion {
+  all d: Folder {
+    d !in Root => one d.parent && one d.~contents
+  }
+}
+
+pred noDirAliases {
+  all o: Folder {
+    lone o.~contents
+  }
+}
+
+check  {
+  oneParent_buggyVersion[] => noDirAliases[]
+} for 5 expect 1
+
+check  {
+  oneParent_correctVersion[] => noDirAliases[]
+} for 5 expect 0
+"""
+
 class FileSystemTest < Test::Unit::TestCase
   include Alloy::Helpers::Test::DslHelpers
   include SDGUtils::Testing::SmartSetup
@@ -82,11 +147,8 @@ class FileSystemTest < Test::Unit::TestCase
   end
 
   def test
-    # ans = A_M_ABT.delUndoesAdd
-    # puts "#{ans}"
-    # puts "-----------"
-    # ans = A_M_ABT.delUndoesAdd_alloy
-    # puts "#{ans}"
-    puts Alloy.meta.to_als
+    ans = Alloy.meta.to_als
+    puts ans
+    assert_equal Expected_alloy.strip, ans.strip
   end
 end

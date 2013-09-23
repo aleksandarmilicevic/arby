@@ -83,13 +83,13 @@ module SDGUtils
         end
       end
 
-      def apply_modifier(modifier, expected_cls=nil, &block)
+      def apply_modifier(modifier, expected_cls=nil, *args, &block)
         build self, &block
         return_result(:array).each do |obj|
           unless check_type(obj, expected_cls) && obj.respond_to?(:"set_#{modifier}")
             raise_illegal_modifier(obj, modifier)
           end
-          obj.send :"set_#{modifier}"
+          obj.send :"set_#{modifier}", *args
         end
         return_result
       end
