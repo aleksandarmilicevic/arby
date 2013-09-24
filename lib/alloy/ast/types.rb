@@ -98,15 +98,20 @@ module Alloy
       def isFile?()    false end
 
       # @return [Symbol]
-      def multiplicity() @@DEFAULT_MULT end
-      def remove_multiplicity() self end
+      def multiplicity()          @@DEFAULT_MULT end
+      def has_multiplicity?()     false end
+      def modifiers()             [] end
+      def has_modifier?(mod)      modifiers.member?(mod.to_sym) end
+
+      def apply_multiplicity(mult)  ModType.new(self, mult.to_sym, []) end
+      def apply_modifier(mod)       ModType.new(self, nil, [mod.to_sym]) end
+
+      def remove_multiplicity()     ModType.new(@type, nil, modifiers) end
 
       def scalar?
         case multiplicity
-        when :one, :lone
-          true
-        else
-          false
+        when :one, :lone; true
+        else;             false
         end
       end
 
@@ -503,20 +508,42 @@ module Alloy
     class ModType
       include AType
 
-      attr_reader :mult, :type
+      attr_reader :mult, :mods, :type
+
+      def self.new(type, mult, mods)
+        msg = "Cannot set multiplicity to `#{mult}': " +
+               "type `#{type}' already has multiplicity set to `#{type.multiplicity}'"
+        raise ArgumentError, msg if type.has_multiplicity? && mult
+        if mult.nil? && mods.empty?
+          type
+        else
+          if ModType === type
+            mult = mult || type.mult
+            mods = mods + type.mods
+            type = type.type
+          end
+          obj = allocate
+          obj.send :initialize, type, mult, mods
+          obj
+        end
+      end
 
       # @param type [AType]
       # @param mult [Symbol]
-      def initialize(type, mult)
+      def initialize(type, mult, mods)
         @type = type
         @mult = mult
+        @mods = mods
         freeze
       end
 
       def arity()               @type.arity end
       def column!(idx)          @type.column!(idx) end
-      def multiplicity()        @mult end
-      def remove_multiplicity() @type end
+      def klass()               @type.klass end
+
+      def has_multiplicity?()     !!@mult end
+      def multiplicity()          (has_multiplicity?) ? @mult : super end
+      def modifiers()             @mods end
 
       def to_s
         if @type.arity > 1

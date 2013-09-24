@@ -30,8 +30,8 @@ module Alloy
         when ::Alloy::Ast::Expr::MExpr
           ::Alloy::Ast::Expr::UnaryExpr.send mod_smbl, type
         else
-          wrapped = ::Alloy::Ast::AType.get(type)
-          ::Alloy::Ast::ModType.new(wrapped, mod_smbl)
+          atype = ::Alloy::Ast::AType.get(type)
+          atype.apply_multiplicity(mod_smbl)
         end
       end
 

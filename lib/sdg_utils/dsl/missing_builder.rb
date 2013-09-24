@@ -63,6 +63,7 @@ module SDGUtils
         self
       end
 
+      # Appends a given name-value pair to the list of modifiers
       def add_modifier(mod_name, *value)
         if mod_name == :extends
           self.<(*value)
