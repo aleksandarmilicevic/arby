@@ -17,7 +17,7 @@ module Alloy
         case op
         when Ops::UNKNOWN
           raise ArgumentError, "Cannot apply the unknown operator"
-        when Ops::EQUALS
+        when Ops::EQUALS, Ops::NOT_EQUALS
           # TODO: check that args.length == 2
           ans = Expr::BinaryExpr.new(op, *args)
           #result_type = nil #TODO ...
