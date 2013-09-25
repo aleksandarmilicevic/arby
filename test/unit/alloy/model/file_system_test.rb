@@ -12,19 +12,19 @@ alloy_model :A_M_FST do
     name: Name,
     contents: Obj
   ] {
-    one self.entries!
+    one entries!
   }
 
   sig :File < Obj {
-    some d: Folder do self.in? d.entries.contents end
+    some d: Folder do in? d.entries.contents end
   }
 
   sig Folder extends Obj [
     entries: (set Entry),
     parent: (lone Folder)
   ] {
-    parent == self.contents!.entries! and
-    self.not_in? self.^:parent and
+    parent == contents!.entries! and
+    not_in? self.^:parent and
     (self.*:parent).contains?(Root) and
     all e1: Entry, e2: Entry do     # make it so that decl can be any expr
       e1 == e2 if (e1 + e2).in?(entries) && e1.name == e2.name
