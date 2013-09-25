@@ -375,7 +375,7 @@ module Alloy
       # ============================================================================
       class NaryExpr
         include MExpr
-        # TODO: rename refactor 
+        # TODO: rename refactor... 
         attr_reader :op, :children
 
         def initialize(op, *children)
