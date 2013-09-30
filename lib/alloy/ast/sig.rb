@@ -60,14 +60,15 @@ module Alloy
         end
 
         def method_missing(sym, *args, &block)
-          # TODO: remove these functinos as well, and instead generate
-          #       methods for alloy funs
-          if block.nil? && fun=meta.any_fun(sym)
-            # use the instance method bound to self.to_alloy_expr
-            to_alloy_expr().apply_call(fun, *args)
-          else
-            return super
-          end
+          to_alloy_expr().send sym, *args, &block
+          # # TODO: remove these functinos as well, and instead generate
+          # #       methods for alloy funs
+          # if block.nil? && fun=meta.any_fun(sym)
+          #   # use the instance method bound to self.to_alloy_expr
+          #   to_alloy_expr().apply_call(fun, *args)
+          # else
+          #   return super
+          # end
         end
 
         # @see +SigMeta#abstract?+

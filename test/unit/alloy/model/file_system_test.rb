@@ -26,8 +26,8 @@ alloy_model :A_M_FST do
     parent == self.contents!.entries! and
     self.not_in? self.^:parent and
     (self.*:parent).contains?(Root) and
-    all e1: Entry, e2: Entry do     # make it so that decl can be any expr
-      e1 == e2 if (e1 + e2).in?(entries) && e1.name == e2.name
+    all [:e1, :e2] => entries do
+      e1 == e2 if e1.name == e2.name
     end
   }
 
@@ -39,20 +39,15 @@ alloy_model :A_M_FST do
 
   # all directories besides root have one parent
   pred oneParent_buggyVersion {
-    all d: Folder do
-      if d.not_in?(Root)
-        one d.parent
-      end
+    all d: Folder - Root do
+      one d.parent
     end
   }
 
   # all directories besides root have one parent
   pred oneParent_correctVersion {
-    all d: Folder do
-      if d.not_in?(Root)
-        one d.parent and
-        one d.contents!
-      end
+    all d: Folder - Root do
+      one d.parent and one d.contents!
     end
   }
 
@@ -67,7 +62,8 @@ alloy_model :A_M_FST do
   check("for 5 expect 0") { noDirAliases if oneParent_correctVersion }
 end
 
-Expected_alloy = """
+module A_M_FST
+  Expected_alloy = """
 module A_M_FST
 
 abstract sig Obj  {}
@@ -94,8 +90,8 @@ sig Folder extends Obj {
   this.@parent = this.~@contents.~@entries
   this !in this.^@parent
   Root in this.*@parent
-  all e1: Entry, e2: Entry {
-    e1 + e2 in this.@entries && e1.@name = e2.@name => e1 = e2
+  all e1: this.@entries, e2: this.@entries {
+    e1.@name = e2.@name => e1 = e2
   }
 }
 
@@ -106,14 +102,14 @@ one sig Root extends Folder {} {
 lone sig Curr extends Folder {}
 
 pred oneParent_buggyVersion {
-  all d: Folder {
-    d !in Root => one d.parent
+  all d: Folder - Root {
+    one d.parent
   }
 }
 
 pred oneParent_correctVersion {
-  all d: Folder {
-    d !in Root => one d.parent && one d.~contents
+  all d: Folder - Root {
+    one d.parent && one d.~contents
   }
 }
 
@@ -131,6 +127,7 @@ check  {
   oneParent_correctVersion[] => noDirAliases[]
 } for 5 expect 0
 """
+end
 
 class FileSystemTest < Test::Unit::TestCase
   include Alloy::Helpers::Test::DslHelpers
@@ -149,6 +146,6 @@ class FileSystemTest < Test::Unit::TestCase
   def test
     ans = Alloy.meta.to_als
     puts ans
-    assert_equal Expected_alloy.strip, ans.strip
+    assert_equal A_M_FST::Expected_alloy.strip, ans.strip
   end
 end

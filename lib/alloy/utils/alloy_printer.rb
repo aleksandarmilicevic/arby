@@ -1,4 +1,5 @@
 require 'alloy/alloy_ast'
+require 'sdg_utils/config'
 require 'sdg_utils/visitors/visitor'
 require 'sdg_utils/print_utils/code_printer'
 
@@ -30,8 +31,13 @@ module Alloy
 
       protected
 
-      def initialize
+      def initialize(config={})
         @out = new_code_printer
+        @conf = SDGUtils::Config.new(nil, {
+          :sig_namer => lambda{|sig| sig.relative_name},
+          :fun_namer => lambda{|fun| fun.name},
+          :arg_namer => lambda{|fld| fld.name}
+        }).extend(config)
       end
 
       def new_code_printer
@@ -78,8 +84,9 @@ module Alloy
       def sig_to_als(sig)
         psig = sig.superclass
         abs_str = (mult=sig.meta.multiplicity) ? "#{mult} " : ""
-        psig_str = (psig != Alloy::Ast::Sig) ? "extends #{psig.relative_name}" : ""
-        @out.p "#{abs_str}sig #{sig.relative_name} #{psig_str} {"
+        psig_str = (psig != Alloy::Ast::Sig) ? "extends #{@conf.sig_namer[psig]}" : ""
+        sig_name = @conf.sig_namer[sig]
+        @out.p "#{abs_str}sig #{sig_name} #{psig_str} {"
         unless sig.meta.fields.empty?
           @out.pl
           @out.in do
@@ -106,7 +113,7 @@ module Alloy
       end
 
       def field_to_als(fld)
-        @out.p "#{fld.name}: #{fld.type.to_alloy}"
+        @out.p "#{@conf.arg_namer[fld]}: #{fld.type.to_alloy}"
       end
 
       def fun_to_als(fun)
@@ -132,7 +139,8 @@ module Alloy
                else
                  fun.kind
                end
-        @out.pl "#{kind} #{fun.name}#{params_str}#{ret_str} {"
+        fun_name = @conf.fun_namer[fun]
+        @out.pl "#{kind} #{fun_name}#{params_str}#{ret_str} {"
         @out.in do
           @out.pn [fun.sym_exe]
         end
@@ -156,13 +164,31 @@ module Alloy
         case type
         when Alloy::Ast::NoType
           @out.p "univ"
+        when Alloy::Ast::UnaryType
+          cls = type.klass
+          if cls <= Alloy::Ast::ASig
+            @out.p @conf.sig_namer[cls]
+          else
+            @out.p type.cls.to_s.relative_name
+          end
+        when Alloy::Ast::ProductType
+          @out.pn type.lhs
+          @out.p " -> "
+          @out.p "(" if type.rhs.arity > 1
+          @out.pn type.rhs
+          @out.p ")" if type.rhs.arity > 1
+        when Alloy::Ast::ModType
+          @out.p "#{type.mult} "
+          @out.p "(" if type.arity > 1
+          @out.pn type.type
+          @out.p ")" if type.arity > 1
         else
           @out.p type.to_s
         end
       end
 
       def arg_to_als(arg)
-        @out.p "#{arg.name}: #{export_to_als arg.type}"
+        @out.p "#{arg.name}: #{export_to_als arg.expr}"
       end
 
       def expr_visitor()
@@ -184,11 +210,12 @@ module Alloy
         @out.p v.__name
       end
 
-      def fieldexpr_to_als(v)
+      def fieldexpr_to_als(fe)
+        fld_name = @conf.arg_namer[fe.__field]
         if @in_appended_facts
-          @out.p "@#{v.__name}"
+          @out.p "@#{fld_name}"
         else
-          mvarexpr_to_als(v)
+          @out.p "#{fld_name}"
         end
       end
 
@@ -198,11 +225,17 @@ module Alloy
                     when :exist; "some"
                     else expr.kind
                     end
-        @out.pl "#{expr_kind} #{decl_str} {"
-        @out.in do
+        if expr.comprehension?
+          @out.p "{#{decl_str} | "
           @out.pn [expr.body]
+          @out.p "}"
+        else
+          @out.pl "#{expr_kind} #{decl_str} {"
+          @out.in do
+            @out.pn [expr.body]
+          end
+          @out.pl "\n}"
         end
-        @out.pl "\n}"
       end
 
       def iteexpr_to_als(ite)
@@ -223,7 +256,7 @@ module Alloy
       end
 
       def sigexpr_to_als(se)
-        @out.p se.__sig.relative_name
+        @out.p @conf.sig_namer[se.__sig]
       end
 
       def unaryexpr_to_als(ue)
