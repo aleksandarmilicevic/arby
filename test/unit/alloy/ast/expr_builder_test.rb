@@ -71,9 +71,57 @@ module Alloy
         ans = ExprBuilder.apply(REM,10,5)
         assert Expr::BinaryExpr === ans
         assert_equal REM, ans.op
-        puts "#$$$$$$"
-        puts ans
-        puts "#$$$$$"
+      end
+
+      def test_in
+        ans = ExprBuilder.apply(IN,0,[1,2,3])
+        assert Expr::BinaryExpr === ans
+        assert_equal IN, ans.op
+      end
+
+      def test_notIn
+        ans = ExprBuilder.apply(NOT_IN,0,[1,2,3])
+        assert Expr::BinaryExpr === ans
+        assert_equal NOT_IN, ans.op
+
+      end
+      ## not sure what to put in lhs rhs
+      def test_select
+        ans = ExprBuilder.apply(SELECT,0,1)
+        assert Expr::BinaryExpr === ans
+        assert_equal SELECT, ans.op
+      end
+
+      def test_not
+        ans = ExprBuilder.apply(NOT,1)
+        assert Expr::UnaryExpr === ans
+        assert_equal NOT, ans.op
+      end
+
+
+      def test_no
+        ans = ExprBuilder.apply(NO,1)
+        assert Expr::UnaryExpr === ans
+        assert_equal NO, ans.op
+      end
+
+      def test_some
+        ans = ExprBuilder.apply(SOME,1)
+        assert Expr::UnaryExpr === ans
+        assert_equal SOME, ans.op
+      end
+
+
+      def test_lone
+        ans = ExprBuilder.apply(LONE,1)
+        assert Expr::UnaryExpr === ans
+        assert_equal LONE, ans.op
+      end
+
+      def test_one
+        ans = ExprBuilder.apply(ONE,1)
+        assert Expr::UnaryExpr === ans
+        assert_equal ONE, ans.op
       end
 
       def test_int_bin_ops
