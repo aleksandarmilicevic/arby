@@ -109,7 +109,7 @@ module Alloy
 
         def ==(other)        apply_op(EQUALS, other) end #
         def !=(other)        apply_op(NOT_EQUALS, other) end #
-        def %(other)         apply_op(REM, other) end
+        def %(other)         apply_op(REM, other) end#
         def +(other)         apply_int_or_rel_op(IPLUS, PLUS, other) end
         def -(other)         apply_int_or_rel_op(IMINUS, MINUS, other) end
         def /(other)         apply_int_or_rel_op(DIV, MINUS, other) end
@@ -119,8 +119,8 @@ module Alloy
         def <=(other)        apply_op("lte", other) end #
         def >(other)         apply_op("gt", other) end #
         def >=(other)        apply_op("gte", other) end #
-        def in?(other)       apply_op("in", other) end
-        def not_in?(other)   apply_op("not_in", other) end
+        def in?(other)       apply_op("in", other) end#
+        def not_in?(other)   apply_op("not_in", other) end#
         def contains?(other) resolve_expr(other).apply_op("in", self) end
         def &(other)         apply_op("intersect", other) end
         def *(other)

@@ -18,12 +18,17 @@ module Alloy
         when Ops::UNKNOWN
           raise ArgumentError, "Cannot apply the unknown operator"
       
-        when Ops::EQUALS, Ops::NOT_EQUALS, Ops::LT, Ops::LTE, Ops::GT, Ops::GTE, Ops::REM
+        when Ops::EQUALS, Ops::NOT_EQUALS, Ops::LT, Ops::LTE, Ops::GT, Ops::GTE, Ops::REM, Ops::IN, Ops::NOT_IN,
+             Ops::SELECT
           # TODO: check that args.length == 2
           ans = Expr::BinaryExpr.new(op, *args)
           #result_type = nil #TODO ...
           #Expr.add_methods_for_type(ans, result_type)
-        end
+        when Ops::NOT, Ops::NO, Ops::SOME, Ops::LONE, Ops::ONE
+          ans = Expr::UnaryExpr.new(op, *args)
+        #when op === EMPTY ### do i need this? can i do this?
+        #    ans = Expr::UnaryExpr.new(NO, *args)
+        #end
       end
     end
 
