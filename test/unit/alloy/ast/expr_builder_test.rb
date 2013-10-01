@@ -79,6 +79,7 @@ module Alloy
       def test_select
         ans = ExprBuilder.apply(SELECT,0,1)
         assert Expr::BinaryExpr === ans
+        puts ans
         assert_equal SELECT, ans.op
       end
 
