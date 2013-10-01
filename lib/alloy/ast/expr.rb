@@ -85,6 +85,7 @@ module Alloy
         end
         case e
         when NilClass; default_val || else_cb.call
+        when Integer; IntExpr.new(e)
         when MExpr; e
         when AType; TypeExpr.new(e)
         when Proc; resolve_expr(e.call, parent, kind_in_parent, default_val, &else_cb)
@@ -122,6 +123,13 @@ module Alloy
             expr.exe
           end
           RUBY
+        end
+
+        attr_reader :__type
+
+        def initialize(type=nil)
+          @__type = Alloy::Ast::AType.get(type) if type
+          Expr.add_methods_for_type(self, @__type, false) if @__type
         end
 
         def exe
@@ -209,7 +217,9 @@ module Alloy
 
         def apply_int_or_rel_op(int_op, rel_op, *args, &type_proc)
           op =
-            if args.first.respond_to?(:__type) && args.first.__type.primitive?
+            if args.first.respond_to?(:__type) && 
+                args.first.__type &&
+                args.first.__type.primitive?
               int_op
             else
               rel_op
@@ -309,8 +319,15 @@ module Alloy
       # ============================================================================
       module MVarExpr
         include MExpr
-        attr_reader :__name, :__type
-        def op() Ops::NOOP end
+        attr_reader :__name
+        def initialize(name, type=nil)
+          super(type)
+          unless String === name || Symbol === name
+            fail "Expected String or Symbol for Var name, got #{name}:#{name.class}"
+          end
+          @__name = name
+        end
+        def op()   Ops::NOOP end
         def to_s() "#{__name}" end
       end
 
@@ -321,14 +338,6 @@ module Alloy
       # ============================================================================
       class Var
         include MVarExpr
-        def initialize(name, type=nil)
-          unless String === name || Symbol === name
-            fail "Expected String or Symbol for Var name, got #{name}:#{name.class}"
-          end
-          type = Alloy::Ast::AType.get(type) if type
-          @__name, @__type = name, type
-          Expr.add_methods_for_type(self, type, false) if type
-        end
       end
 
       # ============================================================================
@@ -371,6 +380,22 @@ module Alloy
           super(type.to_alloy, type)
         end
         def exe_concrete() __type end
+      end
+
+      # ============================================================================
+      # == Class +IntExpr+
+      #
+      # TODO
+      # ============================================================================
+      class IntExpr
+        include MExpr
+        attr_reader :__value
+        def initialize(value)
+          #TODO: define some constants in AType for built-in types
+          super(Alloy::Ast::AType.get(Integer)) 
+          @__value = value
+        end
+        def exe_concrete() __value end
       end
 
       # ============================================================================
