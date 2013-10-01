@@ -128,6 +128,10 @@ module Alloy
         attr_reader :__type
 
         def initialize(type=nil)
+          set_type(type)
+        end
+
+        def set_type(type=nil)
           @__type = Alloy::Ast::AType.get(type) if type
           Expr.add_methods_for_type(self, @__type, false) if @__type
         end
@@ -220,7 +224,7 @@ module Alloy
 
         def apply_int_or_rel_op(int_op, rel_op, *args, &type_proc)
           op =
-            if args.first.respond_to?(:__type) && 
+            if args.first.respond_to?(:__type) &&
                 args.first.__type &&
                 args.first.__type.primitive?
               int_op
@@ -395,7 +399,7 @@ module Alloy
         attr_reader :__value
         def initialize(value)
           #TODO: define some constants in AType for built-in types
-          super(Alloy::Ast::AType.get(Integer)) 
+          super(Alloy::Ast::AType.get(Integer))
           @__value = value
         end
         def exe_concrete() __value end
@@ -438,7 +442,7 @@ module Alloy
       # ============================================================================
       class NaryExpr
         include MExpr
-        # TODO: rename refactor... 
+        # TODO: rename refactor...
         attr_reader :op, :children
 
         def initialize(op, *children)
