@@ -9,6 +9,10 @@ module Alloy
 
       include Alloy::Ast::Ops
 
+      def setup
+        # Alloy.set_symbolic_mode
+      end
+
       def test_unknown
         assert_raise(ArgumentError) do
           ExprBuilder.apply(UNKNOWN, 1, 2)
@@ -70,6 +74,18 @@ module Alloy
         puts "#$$$$$$"
         puts ans
         puts "#$$$$$"
+      end
+
+      def test_int_bin_ops
+        ops = [LT, LTE, GT, GTE, REM]
+        ops.each do |op|
+          lhs, rhs = 2, 3
+          ans = ExprBuilder.apply(op, lhs, rhs)
+          assert Expr::BinaryExpr === ans
+          assert_equal op, ans.op
+          assert_equal lhs, ans.lhs
+          assert_equal rhs, ans.rhs
+        end
       end
 
     end
