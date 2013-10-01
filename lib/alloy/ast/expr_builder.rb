@@ -17,7 +17,12 @@ module Alloy
         case op
         when Ops::UNKNOWN
           raise ArgumentError, "Cannot apply the unknown operator"
-
+        when Ops::PRODUCT
+          # TODO: check that args.length == 2
+          ans = Expr::BinaryExpr.new(op, *args)
+          type = TypeComputer.compute_type(op, *ans.children)
+          ans.set_type(type) if type
+          ans
         when Ops::EQUALS, Ops::NOT_EQUALS, Ops::LT, Ops::LTE, Ops::GT,
              Ops::GTE, Ops::REM, Ops::IN, Ops::NOT_IN, Ops::SELECT
           # TODO: check that args.length == 2
@@ -29,6 +34,24 @@ module Alloy
           ans = Expr::UnaryExpr.new(op, *args)
         #when op === EMPTY ### do i need this? can i do this?
         #    ans = Expr::UnaryExpr.new(NO, *args)
+        end
+      end
+    end
+
+    module TypeComputer
+      extend self
+
+      # @param op [Alloy::Ast::Op] --- operator
+      # @param args [Array(Alloy::Ast::MExpr)] --- operands
+      def compute_type(op, *args)
+        unless args.all?{|a| a.respond_to?(:__type) && a.__type}
+          return nil
+        end
+        types = args.map(&:__type)
+        case op
+        when Ops::PRODUCT
+          types[1..-1].reduce(types[0]){|acc, type| Alloy::Ast::AType.product(acc, type)}
+        #TODO: finish
         end
       end
     end

@@ -155,9 +155,8 @@ module Alloy
         end
       end
 
-      def to_ary
-        map{|e| e}
-      end
+      def columns() map{|e| e} end
+      alias_method :to_ary, :columns
 
       def product(rhs) AType.product(self, rhs) end
       def *(rhs)       self.product(AType.get(rhs)) end
