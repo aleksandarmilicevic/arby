@@ -60,7 +60,9 @@ module Alloy
           NoType.new
         end
       end
-
+      def self.union(lhs, rhs)
+        #TODO: implement
+      end
 
       def self.included(base)
         base.extend(SDGUtils::Lambda::Class2Proc)

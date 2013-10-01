@@ -17,11 +17,12 @@ module Alloy
         case op
         when Ops::UNKNOWN
           raise ArgumentError, "Cannot apply the unknown operator"
-      
-        when Ops::EQUALS, Ops::NOT_EQUALS, Ops::LT, Ops::LTE, Ops::GT, 
+
+        when Ops::EQUALS, Ops::NOT_EQUALS, Ops::LT, Ops::LTE, Ops::GT,
              Ops::GTE, Ops::REM, Ops::IN, Ops::NOT_IN, Ops::SELECT
           # TODO: check that args.length == 2
           ans = Expr::BinaryExpr.new(op, *args)
+          # oans.set_type(type)
           #result_type = nil #TODO ...
           #Expr.add_methods_for_type(ans, result_type)
         when Ops::NOT, Ops::NO, Ops::SOME, Ops::LONE, Ops::ONE
