@@ -106,13 +106,14 @@ module Alloy
       IFF        = Bop.new(:"<=>", "iff",        3)
 
       # quantifier operators
-      LET       = Qop.new(:"let",  "let")
-      SUM       = Qop.new(:"sum",  "sum")
-      ALLOF     = Qop.new(:"all",  "all")
-      SOMEOF    = Qop.new(:"some", "exist")
-      NONEOF    = Qop.new(:"no",   "noneof")
-      ONEOF     = Qop.new(:"one",  "oneof")
-      LONEOF    = Qop.new(:"one",  "loneof")
+      LET       = Qop.new(:"let",    "let")
+      SUM       = Qop.new(:"sum",    "sum")
+      SETCPH    = Qop.new(:"{}",     "comprehension")
+      ALLOF     = Qop.new(:"all",    "all")
+      SOMEOF    = Qop.new(:"some",   "exist")
+      NONEOF    = Qop.new(:"no",     "noneof")
+      ONEOF     = Qop.new(:"one",    "oneof")
+      LONEOF    = Qop.new(:"lone",   "loneof")
 
       # other
       IF_ELSE   = Op.new(:"=>else", "if_else", 3, 4)

@@ -54,6 +54,16 @@ module Alloy
         end
       end
 
+      def self.ensure_type(expr)
+        type = nil
+        expr.respond_to?(:__type) and
+          type = expr.__type
+        if type.nil? || Alloy::Ast::NoType === type
+          fail "type not present in expr `#{expr}'"
+        end
+        type
+      end
+
       def self.replace_subexpressions(e, orig, replacement)
         rbilder = Alloy::Utils::ExprRebuilder.new do |expr|
           (expr.__id__ == orig.__id__) ? replacement : nil
@@ -67,6 +77,31 @@ module Alloy
         else
           [e]
         end
+      end
+
+      def self.resolve_expr(e, parent=nil, kind_in_parent=nil, default_val=nil, &else_cb)
+        if else_cb.nil?
+          else_cb = proc { not_expr_fail(e, parent, kind_in_parent) }
+        end
+        case e
+        when NilClass; default_val || else_cb.call
+        when MExpr; e
+        when AType; TypeExpr.new(e)
+        when Proc; resolve_expr(e.call, parent, kind_in_parent, default_val, &else_cb)
+        else
+          if e.respond_to? :to_alloy_expr
+            al_expr = e.send :to_alloy_expr
+            resolve_expr(al_expr, parent, kind_in_parent, default_val, &else_cb)
+          else
+            else_cb.call
+          end
+        end
+      end
+
+      def self.not_expr_fail(e, parent=nil, kind_in_parent=nil)
+        kind = kind_in_parent ? "#{kind_in_parent} " : "#{e}"
+        par = parent ? " in #{parent}" : ""
+        fail "#{kind} is not an expression#{par}"
       end
 
       # ============================================================================
@@ -110,9 +145,10 @@ module Alloy
         def ==(other)        apply_op(EQUALS, other) end #
         def !=(other)        apply_op(NOT_EQUALS, other) end #
         def %(other)         apply_op(REM, other) end
-        def +(other)         apply_int_or_rel_op(IPLUS, PLUS, other) end
-        def -(other)         apply_int_or_rel_op(IMINUS, MINUS, other) end
-        def /(other)         apply_int_or_rel_op(DIV, MINUS, other) end
+        #TODO!!! the type_proc is not right
+        def +(other)         apply_int_or_rel_op(IPLUS, PLUS, other)   {|l,r| l} end
+        def -(other)         apply_int_or_rel_op(IMINUS, MINUS, other) {|l,r| l} end
+        def /(other)         apply_int_or_rel_op(DIV, MINUS, other)    {|l,r| l} end
         def **(other)        apply_op(PRODUCT, other) end
         def [](other)        apply_op("select", other) end
         def <(other)         apply_op("lt", other) end #
@@ -121,7 +157,7 @@ module Alloy
         def >=(other)        apply_op("gte", other) end #
         def in?(other)       apply_op("in", other) end
         def not_in?(other)   apply_op("not_in", other) end
-        def contains?(other) resolve_expr(other).apply_op("in", self) end
+        def contains?(other) Expr.resolve_expr(other).apply_op("in", self) end
         def &(other)         apply_op("intersect", other) end
         def *(other)
           apply_int_or_rel_op(MUL, proc{
@@ -153,6 +189,16 @@ module Alloy
         def some?()    apply_op("some") end
         def lone?()    apply_op("lone") end
         def one?()     apply_op("one") end
+        def select(&blk)
+          type = Expr.ensure_type(self)
+          fail "only unary types supported for set comprehension" unless type.unary?
+          fail "select block must have exactly one formal arg" unless blk.arity == 1
+          args = [Alloy::Ast::Arg.new(blk.parameters[0][1], self)]
+          # args = type.each_with_index.map do |col_type, idx|
+          #   Alloy::Ast::Arg.new(blk.parameters[idx][1], col_type)
+          # end
+          QuantExpr.comprehension(args, blk)
+        end
 
         def apply_ite(cond, then_expr, else_expr)
           ITEExpr.new(cond, then_expr, else_expr)
@@ -185,7 +231,7 @@ module Alloy
                   op_args = [self] + args
                   NaryExpr.send op_name.to_sym, *op_args
                 end
-          all_args = [self] + args
+          all_args = ans.children
           if type_proc && all_args.all?{|a| a.respond_to?(:__type)}
             all_types = all_args.map(&:__type)
             if all_types.none?(&:nil?)
@@ -221,29 +267,6 @@ module Alloy
 
         protected
 
-        def resolve_expr(e, parent=nil, kind_in_parent=nil, default_val=nil, &else_cb)
-          if else_cb.nil?
-            else_cb = proc { not_expr_fail(e, parent, kind_in_parent) }
-          end
-          case e
-          when NilClass; default_val || else_cb.call
-          when MExpr; e
-          when Proc; resolve_expr(e.call, parent, kind_in_parent, default_val, &else_cb)
-          else
-            if e.respond_to? :to_alloy_expr
-              al_expr = e.send :to_alloy_expr
-              resolve_expr(al_expr, parent, kind_in_parent, default_val, &else_cb)
-            else
-              else_cb.call
-            end
-          end
-        end
-
-        def not_expr_fail(e, parent=nil, kind_in_parent=nil)
-          kind = kind_in_parent ? "#{kind_in_parent} " : "#{e}"
-          par = parent ? " in #{parent}" : ""
-          fail "#{kind} is not an expression#{par}"
-        end
       end
 
 
@@ -334,8 +357,20 @@ module Alloy
           super(sig.relative_name, Alloy::Ast::AType.get(sig))
           @__sig = sig
         end
-        def to_s() @__sig ? @__sig.relative_name : "" end
+        def to_s()         @__sig ? @__sig.relative_name : "" end
         def exe_concrete() __sig end
+      end
+
+      # ============================================================================
+      # == Class +TypeExpr+
+      #
+      # TODO
+      # ============================================================================
+      class TypeExpr < Var
+        def initialize(type)
+          super(type.to_alloy, type)
+        end
+        def exe_concrete() __type end
       end
 
       # ============================================================================
@@ -387,7 +422,7 @@ module Alloy
           if children.all?{|ch| MExpr === ch}
             self
           else
-            chldrn = children.map{|ch| resolve_expr(ch, self, "operand")}
+            chldrn = children.map{|ch| Expr.resolve_expr(ch, self, "operand")}
             self.class.new op, *chldrn
           end
         end
@@ -439,7 +474,7 @@ module Alloy
           if MExpr === sub
             self
           else
-            ParenExpr.new resolve_expr(sub)
+            ParenExpr.new Expr.resolve_expr(sub)
           end
         end
 
@@ -486,8 +521,8 @@ module Alloy
           if (MExpr === target || target.nil?) && args.all?{|a| MExpr === a}
             self
           else
-            t = resolve_expr(target, self, "target") unless target.nil?
-            as = args.map{|a| resolve_expr(a, self, "argument")}
+            t = Expr.resolve_expr(target, self, "target") unless target.nil?
+            as = args.map{|a| Expr.resolve_expr(a, self, "argument")}
             self.class.new t, fun, *as
           end
         end
@@ -516,8 +551,8 @@ module Alloy
           when MExpr === then_expr && MExpr === else_expr
             self
           else
-            te = resolve_expr(then_expr, self, "then branch", BoolConst::TRUE)
-            ee = resolve_expr(else_expr, self, "else branch", BoolConst::TRUE)
+            te = Expr.resolve_expr(then_expr, self, "then branch", BoolConst::TRUE)
+            ee = Expr.resolve_expr(else_expr, self, "else branch", BoolConst::TRUE)
             ITEExpr.new(cond, te, ee)
           end
         end
@@ -550,8 +585,15 @@ module Alloy
           self.new(Ops::SOMEOF, decl, body)
         end
 
-        def all?()   op == Ops::ALLOF end
-        def exist?() op == Ops::SOMEOF end
+        def self.comprehension(decl, body)
+          ans = self.new(Ops::SETCPH, decl, body)
+          Expr.add_methods_for_type(ans, decl.last.type)
+          ans
+        end
+
+        def all?()           op == Ops::ALLOF end
+        def exist?()         op == Ops::SOMEOF end
+        def comprehension?() op == Ops::SETCPH end
 
         def kind()   op.sym end
 
@@ -560,16 +602,20 @@ module Alloy
           when MExpr; self
           else
             wrapped_body = (Proc === body) ? wrap(body) : body
-            b = resolve_expr(wrapped_body, self, "body", BoolConst::TRUE)
+            b = Expr.resolve_expr(wrapped_body, self, "body", BoolConst::TRUE)
             QuantExpr.new(op, decl, b)
           end
         end
 
         def to_s
-          decl_str = decl.map{|k,v| "#{k}: #{v}"}.join(", ")
-          "#{kind} #{decl_str} {\n" +
-          "  #{body}\n" +
-          "}"
+          decl_str = decl.map{|a| "#{a.name}: #{a.expr}"}.join(", ")
+          if comprehension?
+            "{#{decl_str} | #{body}}"
+          else
+            "#{kind} #{decl_str} {\n" +
+            "  #{body}\n" +
+            "}"
+          end
         end
 
         private

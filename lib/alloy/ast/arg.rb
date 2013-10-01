@@ -14,7 +14,7 @@ module Alloy
     class Arg
       include Checks
 
-      attr_reader :name, :type
+      attr_reader :name, :type, :expr
 
       class << self
         def getter_sym(fld)
@@ -36,12 +36,32 @@ module Alloy
         end
       end
 
-      # Hash keys:
-      #   :name [String]    - name
-      #   :type [AType]     - type
-      def initialize(hash)
-        @name    = check_iden hash[:name], "arg name"
-        @type    = Alloy::Ast::AType.get(hash[:type])
+      # @param args [Array] --- valid formats are:
+      #
+      #   (1) [Hash], in which keys are
+      #         :name [String]    - name = args.first[:name]
+      #         :type [AType]     - type = args.first[:type]
+      #
+      #   (2) [String, AType], s.t.
+      #         name = args[0]
+      #         type = args[1]
+      def initialize(*args)
+        case
+        when args.size == 1 && Hash === args.first
+          hash = args.first
+          @name    = check_iden hash[:name], "arg name"
+          @expr    = hash[:type]
+        when args.size == 2
+          @name = args[0]
+          @expr = args[1]
+        else
+          raise ArgumentError, "expected either a hash or a name/type pair; got `#{args}'"
+        end
+        @type = Alloy::Ast::AType.get(@expr)
+      end
+
+      def expr()
+        @resolved_expr ||= Alloy::Ast::Expr.resolve_expr(@expr, self, "expression")
       end
 
       def scalar?()    @type.scalar? end

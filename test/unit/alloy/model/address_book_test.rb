@@ -56,6 +56,40 @@ alloy :A_M_ABT do
   # }
 end
 
+module A_M_ABT
+  Expected_alloy = """
+module A_M_ABT
+
+sig Name  {}
+
+sig Addr  {}
+
+sig Book  {
+  addr: Name -> Addr
+}
+
+pred add[self: Book, ans: Book, n: Name, a: Addr] {
+  ans.addr = self.addr + n -> a
+}
+
+pred del[self: Book, ans: Book, n: Name] {
+  ans.addr = self.addr - n -> Addr
+}
+
+assert delUndoesAdd {
+  all b1: Book, b2: Book, b3: Book, n: Name, a: Addr {
+    no b1.addr[n] && b1.add[b2, n, a] && b2.del[b3, n] => b1.addr = b3.addr
+  }
+}
+
+assert addIdempotent {
+  all b1: Book, b2: Book, b3: Book, n: Name, a: Addr {
+    b1.add[b2, n, a] && b2.add[b3, n, a] => b2.addr = b3.addr
+  }
+}
+"""
+end
+
 class AddressBookTest < Test::Unit::TestCase
   include Alloy::Helpers::Test::DslHelpers
   include SDGUtils::Testing::SmartSetup
@@ -76,6 +110,8 @@ class AddressBookTest < Test::Unit::TestCase
     # puts "-----------"
     # ans = A_M_ABT.delUndoesAdd_alloy
     # puts "#{ans}"
-    puts Alloy.meta.to_als
+    ans = Alloy.meta.to_als
+    assert_equal A_M_ABT::Expected_alloy.strip, ans.strip
+    puts ans
   end
 end

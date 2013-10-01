@@ -19,6 +19,8 @@ module Alloy
         when NilClass; NoType.new
         when Proc; DependentType.new(obj)
         when AType; obj
+        when Alloy::Ast::Expr::MExpr;
+          obj.__type
         when Array;
           if obj.empty?
             NoType.new
@@ -161,22 +163,7 @@ module Alloy
       def transpose()  AType.transpose(self) end
 
       def to_alloy
-        case self
-        when UnaryType
-          self.cls.to_s.relative_name
-        when ProductType
-          if self.rhs.arity > 1
-            "#{lhs.to_alloy} -> (#{rhs.to_alloy})"
-          else
-            "#{lhs.to_alloy} -> #{rhs.to_alloy}"
-          end
-        when ModType
-          if @type.arity > 1
-            "#{@mult} (#{@type.to_alloy})"
-          else
-            "#{@mult} #{@type.to_alloy}"
-          end
-        end
+        Alloy::Utils::AlloyPrinter.export_to_als(self)
       end
     end
 

@@ -10,7 +10,7 @@ module SDGUtils
         ctx.define_singleton_method mth_name.to_sym, lambda{ret_val}
       end
       begin
-        block.call
+        block.call *hash.values[0...(block.arity)]
       ensure
         hash.each do |mth_name, _|
           ctx.define_singleton_method mth_name.to_sym do super() end
