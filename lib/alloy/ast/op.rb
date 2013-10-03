@@ -86,6 +86,7 @@ module Alloy
       DIV        = Bop.new(:"/",   "div",        19)
       REM        = Bop.new(:"%",   "rem",        19)
       IMPLIES    = Bop.new(:"=>",  "implies",    4)
+      ASSIGN     = Bop.new(:":=",  "assign",     7)
       EQUALS     = Bop.new(:"=",   "equals",     7)
       NOT_EQUALS = Bop.new(:"!=",  "not_equals", 7)
       LT         = Bop.new(:"<",   "lt",         7)
@@ -104,6 +105,7 @@ module Alloy
       AND        = Bop.new(:"&&",  "and",        5)
       OR         = Bop.new(:"||",  "or",         2)
       IFF        = Bop.new(:"<=>", "iff",        3)
+
 
       # quantifier operators
       LET       = Qop.new(:"let",    "let")

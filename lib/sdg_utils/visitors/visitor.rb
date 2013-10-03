@@ -9,7 +9,9 @@ module SDGUtils
         case visitor_obj
         when NilClass
           if visitor_blk
-            target.define_singleton_method :visit, visitor_blk
+            target.define_singleton_method :visit do |*args|
+              visitor_blk.call(*args)
+            end
           else
             target.define_singleton_method :visit, proc{|*a,&b|}
           end
