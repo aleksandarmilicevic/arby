@@ -132,6 +132,9 @@ module Alloy
         def __op() @__op || Ops::UNKNOWN end
         def op() __op end #TODO remove
 
+        def __eq(other)  self.__id__ == other.__id__ end
+        def __neq(other) !__eq(other) end
+
         def initialize(type=nil)
           set_type(type)
         end
