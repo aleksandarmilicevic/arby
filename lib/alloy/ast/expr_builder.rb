@@ -9,8 +9,6 @@ module Alloy
     module ExprBuilder
       extend self
 
-
-
       # Keep track of result type
       #
       # @param op [Alloy::Ast::Op] --- operator
@@ -31,59 +29,48 @@ module Alloy
         #unary operators
         when Ops::NOT, Ops::NO, Ops::SOME, Ops::LONE, Ops::ONE, Ops::TRANSPOSE,
              Ops::RCLOSURE, Ops::CLOSURE, Ops::CARDINALITY, Ops::NOOP
-          if args.length == 1
-            ans = Expr::UnaryExpr.new(op, *args)
-          else
-            raise ArgumentError, "UnaryExpr requires 1 argument"
-
-          end
+          check_arity args, 1, "UnaryExpr requires 1 argument"
+          ans = Expr::UnaryExpr.new(op, *args)
        
         when Ops::EQUALS, Ops::NOT_EQUALS , Ops::IN, Ops::NOT_IN, Ops::SELECT
-          if args.length == 2
-            ans = Expr::BinaryExpr.new(op, *args)
-          else
-            raise ArgumentError, "BinaryExpr requires 2 argument"
-          end
+          check_arity args, 2, "BinaryExpr requires 2 argument"
+          ans = Expr::BinaryExpr.new(op, *args)
           # oans.set_type(type)
           #result_type = nil #TODO ...
           #Expr.add_methods_for_type(ans, result_type)
+
          ##integers
         when Ops::LT, Ops::LTE, Ops::GT, Ops::GTE, Ops::REM, Ops::NOT_LT, 
              Ops::NOT_LTE, Ops::NOT_GT, Ops::NOT_GTE, Ops::IPLUS, Ops::IMINUS,
              Ops::DIV, Ops::MUL, Ops::PLUSPLUS
-          if args.length == 2
-            ans = Expr::BinaryExpr.new(op, *args)
-          else
-            raise ArgumentError, "BinaryExpr requires 2 argument"
-          end
+          check_arity args, 2, "BinaryExpr requires 2 argument"
+          ans = Expr::BinaryExpr.new(op, *args)
+
         #non-integers
         when Ops::PLUS, Ops::MINUS
-          if args.length == 2
-            ans = Expr::BinaryExpr.new(op, *args)
-          else
-            raise ArgumentError, "BinaryExpr requires 2 argument"
-          end
+          check_arity args, 2, "BinaryExpr requires 2 argument"
+          ans = Expr::BinaryExpr.new(op, *args)
 
         #logic op  
         when Ops::SHL, Ops::SHA, Ops::SHR, Ops::AND, Ops::OR, Ops::IFF, Ops::IMPLIES
-          if args.length == 2
-            ans = Expr::BinaryExpr.new(op, *args)
-          else
-            raise ArgumentError, "BinaryExpr requires 2 argument"
-          end
+          check_arity args, 2, "BinaryExpr requires 2 argument"
+          ans = Expr::BinaryExpr.new(op, *args)
 
         when Ops::JOIN, Ops::PRODUCT, Ops::DOMAIN, Ops::RANGE, Ops::INTERSECT
-          if args.length == 2
-            ans = Expr::BinaryExpr.new(op, *args)
-          else
-            raise ArgumentError, "BinaryExpr requires 2 argument"
-          end
+          check_arity args, 2, "BinaryExpr requires 2 argument"
+          ans = Expr::BinaryExpr.new(op, *args)
 
         #Quantifier op
         when Ops::LET, Ops::SUM, Ops::SETCPH, Ops::ALLOF, Ops::SOMEOF, Ops::NONEOF,
              Ops::ONEOF, Ops::LONEOF
              ans = Expr::QuantExpr.new(op, *args)
         end
+      end
+
+      def check_arity(arr, expected_arity, err_msg=nil)
+        msg = "expected arity: #{expected_arity}, actual: #{arr.length}"
+        msg += err_msg if err_msg
+        raise ArgumentError, msg unless arr.length == expected_arity
       end
     end
 
