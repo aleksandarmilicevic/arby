@@ -210,16 +210,9 @@ module Alloy
         def some?()    apply_op("some") end
         def lone?()    apply_op("lone") end
         def one?()     apply_op("one") end
-        def select(&blk)
-          type = Expr.ensure_type(self)
-          fail "only unary types supported for set comprehension" unless type.unary?
-          fail "select block must have exactly one formal arg" unless blk.arity == 1
-          args = [Alloy::Ast::Arg.new(blk.parameters[0][1], self)]
-          # args = type.each_with_index.map do |col_type, idx|
-          #   Alloy::Ast::Arg.new(blk.parameters[idx][1], col_type)
-          # end
-          QuantExpr.comprehension(args, blk)
-        end
+
+        def select(&blk) _blk_to_quant(:comprehension, &blk) end
+        def all?(&blk)   _blk_to_quant(:all, &blk) end
 
         def apply_ite(cond, then_expr, else_expr)
           ITEExpr.new(cond, then_expr, else_expr)
@@ -289,6 +282,22 @@ module Alloy
         end
 
         protected
+
+        # @param kind [:all, :some, :comprehension]
+        def _blk_to_quant(kind, &blk)
+          type = Expr.ensure_type(self)
+          # fail "only unary types supported for QuantExpr.#{kind}" unless type.unary?
+          msg = "block must have same arity as lhs type: \n" + 
+                "  block arity: #{blk.arity}\n" +
+                "  type arity: #{type.arity} (#{type})"
+          fail msg unless blk.arity == type.arity
+          args = blk.parameters.map{|p| Alloy::Ast::Arg.new(p[1], self)}
+          args = [Alloy::Ast::Arg.new(blk.parameters[0][1], self)]
+          # args = type.each_with_index.map do |col_type, idx|
+          #   Alloy::Ast::Arg.new(blk.parameters[idx][1], col_type)
+          # end
+          QuantExpr.send kind, args, blk
+        end
 
       end
 
