@@ -64,6 +64,10 @@ module Alloy
         when Ops::LET, Ops::SUM, Ops::SETCPH, Ops::ALLOF, Ops::SOMEOF, Ops::NONEOF,
              Ops::ONEOF, Ops::LONEOF
              ans = Expr::QuantExpr.new(op, *args)
+
+        #ITE expression 
+        when Ops:: IF_ELSE
+          ans = Expr::ITEExpr.new(ops, *args)     
         end
       end
 
@@ -73,20 +77,6 @@ module Alloy
         raise ArgumentError, msg unless arr.length == expected_arity
       end
     end
-
-
-
-      # multiplicity type modifiers
-     # SET         = Mop.new(:"set",        "set",         8)
-      #SEQ         = Mop.new(:"seq",        "set",         8)
-
-
-      #ITEExpr.new(cond, te, ee)
-      #IF_ELSE   = Op.new(:"=>else", "if_else", 3, 4)
-
-
-
-
 
     module TypeComputer
       extend self
@@ -102,6 +92,7 @@ module Alloy
         when Ops::PRODUCT
           types[1..-1].reduce(types[0]){|acc, type| Alloy::Ast::AType.product(acc, type)}
         #TODO: finish
+        when  Ops::EQUALS, Ops::NOT_EQUALS
         end
       end
     end
