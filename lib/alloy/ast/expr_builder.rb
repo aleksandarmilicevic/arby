@@ -35,6 +35,10 @@ module Alloy
         when Ops::EQUALS, Ops::NOT_EQUALS , Ops::IN, Ops::NOT_IN, Ops::SELECT
           check_arity args, 2, "BinaryExpr requires 2 argument"
           ans = Expr::BinaryExpr.new(op, *args)
+          type = TypeComputer.compute_type(op,*ans.children)
+          ans.set_type(type) if type
+          ans
+
           # oans.set_type(type)
           #result_type = nil #TODO ...
           #Expr.add_methods_for_type(ans, result_type)
@@ -89,10 +93,28 @@ module Alloy
         end
         types = args.map(&:__type)
         case op
-        when Ops::PRODUCT
+
+        when Ops::UNKNOWN
+          Alloy::Ast::NoType
+          
+        when Ops::PRODUCT, Ops::JOIN,  Ops::NOT, Ops::NO, Ops::SOME, Ops::LONE, Ops::ONE, Ops::SELECT
           types[1..-1].reduce(types[0]){|acc, type| Alloy::Ast::AType.product(acc, type)}
-        #TODO: finish
-        when  Ops::EQUALS, Ops::NOT_EQUALS
+
+        when Ops::EQUALS, Ops::NOT_EQUALS
+          Alloy::Ast::AType.get(Bool)
+
+        when Ops::IPLUS, Ops::IMINUS, Ops::REM, Ops::DIV, Ops::MUL, Ops::PLUSPLUS
+          Alloy::Ast::Atype.get(Integer)
+
+        when Ops::LT, Ops::LTE, Ops::GT, Ops::GTE, Ops::NOT_LT, 
+             Ops::NOT_LTE, Ops::NOT_GT, Ops::NOT_GTE
+          Alloy::Ast::AType.get(Bool)
+
+        when Ops::SHL, Ops::SHA, Ops::SHR
+          Alloy::Ast::Atype.get(Integer)
+
+
+
         end
       end
     end
