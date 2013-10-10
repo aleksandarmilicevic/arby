@@ -26,7 +26,7 @@ module Alloy
         Alloy.initializer.resolve_fields
         Alloy.initializer.init_inv_fields
 
-        # Alloy.set_symbolic_mode
+        Alloy.set_symbolic_mode
       end
 
       def assert_type(type_array, expr)
@@ -49,29 +49,18 @@ module Alloy
         #assert_type [SigA, SigB], ans
       #end
 
-      def test_int_bin_ops
-        ops = [LT, LTE, GT, GTE, REM, NOT_LT, NOT_LTE, NOT_GT, NOT_GTE, IPLUS, IMINUS, DIV, MUL, PLUSPLUS]
-        ops.each do |op|
-          lhs, rhs = 2, 3
-          ans = ExprBuilder.apply(op, lhs, rhs)
-          assert Expr::BinaryExpr === ans
-          assert_equal op, ans.op
-          assert_equal lhs, ans.lhs
-          assert_equal rhs, ans.rhs
-        end
-      end
 
-      def test_srting_bin_ops
-        ops = [PLUS, MINUS]
-        ops.each do |op|
-          lhs, rhs = "Hello","o"
-          ans = ExprBuilder.apply(op,lhs,rhs)
-          assert Expr::BinaryExpr === ans
-          assert_equal op, ans.op
-          assert_equal lhs, ans.lhs
-          assert_equal rhs, ans.rhs
-        end
-      end
+     # def srting_bin_ops
+      #  ops = [PLUS, MINUS]
+       # ops.each do |op|
+        #  lhs, rhs = "Hello","o" #FIX ME
+         # ans = ExprBuilder.apply(op,lhs,rhs)
+         # assert Expr::BinaryExpr === ans
+          #assert_equal op, ans.op
+          #assert_equal lhs, ans.lhs
+          #assert_equal rhs, ans.rhs
+        #end
+      #end
 
       def test_equality_ops
         ops = [EQUALS, NOT_EQUALS]
@@ -82,12 +71,53 @@ module Alloy
           assert_equal op, ans.op
           assert_equal lhs, ans.lhs
           assert_equal rhs, ans.rhs
+          assert_type [:Bool], ans
+        end
+      end
+
+      def test_int_size_equality_ops
+        ops = [LT, LTE, GT, GTE, NOT_LT, NOT_LTE, NOT_GT, NOT_GTE]
+        ops.each do |op|
+          lhs, rhs = 2, 3
+          ans = ExprBuilder.apply(op, lhs, rhs)
+          assert Expr::BinaryExpr === ans
+          assert_equal op, ans.op
+          assert_equal lhs, ans.lhs
+          assert_equal rhs, ans.rhs
+          assert_type [:Bool], ans
+        end
+      end
+
+      def test_int_bin_ops
+        ops = [REM, IPLUS, IMINUS, DIV, MUL, PLUSPLUS]
+        ops.each do |op|
+          lhs, rhs = 5, 3
+          ans = ExprBuilder.apply(op, lhs, rhs)
+          assert Expr::BinaryExpr === ans
+          assert_equal op, ans.op
+          assert_equal lhs, ans.lhs
+          assert_equal rhs, ans.rhs
+          assert_type [:Integer], ans
+        end
+      end
+
+      def test_shift_ops
+        ops = [SHL, SHA, SHR]
+        ops.each do |op|
+          lhs, rhs = 10001, 2
+          ans = ExprBuilder.apply(op, lhs, rhs)
+          assert Expr::BinaryExpr === ans
+          assert_equal op, ans.op
+          assert_equal lhs, ans.lhs
+          assert_equal rhs, ans.rhs
+          assert_type [:Integer], ans
         end
       end
 
       def test_unknown
         assert_raise(ArgumentError) do
           ExprBuilder.apply(UNKNOWN, 1, 2)
+          ExprBuilder.apply(NOOP, 1)
         end
       end
     end

@@ -31,8 +31,12 @@ module Alloy
              Ops::RCLOSURE, Ops::CLOSURE, Ops::CARDINALITY, Ops::NOOP
           check_arity args, 1, "UnaryExpr requires 1 argument"
           ans = Expr::UnaryExpr.new(op, *args)
+          type = TypeComputer.compute_type(op, *ans.children)
+          ans.set_type(type) if type
+          ans
+
        
-        when Ops::EQUALS, Ops::NOT_EQUALS , Ops::IN, Ops::NOT_IN, Ops::SELECT
+        when Ops::EQUALS, Ops::NOT_EQUALS , Ops::IN, Ops::NOT_IN
           check_arity args, 2, "BinaryExpr requires 2 argument"
           ans = Expr::BinaryExpr.new(op, *args)
           type = TypeComputer.compute_type(op,*ans.children)
@@ -44,11 +48,15 @@ module Alloy
           #Expr.add_methods_for_type(ans, result_type)
 
          ##integers
-        when Ops::LT, Ops::LTE, Ops::GT, Ops::GTE, Ops::REM, Ops::NOT_LT, 
-             Ops::NOT_LTE, Ops::NOT_GT, Ops::NOT_GTE, Ops::IPLUS, Ops::IMINUS,
+         #compute types, and if possible try to compute types
+        when Ops::LT, Ops::LTE, Ops::GT, Ops::GTE, Ops::NOT_LT, 
+             Ops::NOT_LTE, Ops::NOT_GT, Ops::NOT_GTE, Ops::IPLUS, Ops::IMINUS, Ops::REM,
              Ops::DIV, Ops::MUL, Ops::PLUSPLUS
           check_arity args, 2, "BinaryExpr requires 2 argument"
           ans = Expr::BinaryExpr.new(op, *args)
+          type = TypeComputer.compute_type(op,*ans.children)
+          ans.set_type(type) if type
+          ans
 
         #non-integers
         when Ops::PLUS, Ops::MINUS
@@ -59,12 +67,16 @@ module Alloy
         when Ops::SHL, Ops::SHA, Ops::SHR, Ops::AND, Ops::OR, Ops::IFF, Ops::IMPLIES
           check_arity args, 2, "BinaryExpr requires 2 argument"
           ans = Expr::BinaryExpr.new(op, *args)
+          type = TypeComputer.compute_type(op,*ans.children)
+          ans.set_type(type) if type
+          ans
+
 
         when Ops::JOIN, Ops::PRODUCT, Ops::DOMAIN, Ops::RANGE, Ops::INTERSECT
           check_arity args, 2, "BinaryExpr requires 2 argument"
           ans = Expr::BinaryExpr.new(op, *args)
 
-        #Quantifier op
+        #Quantifier op  #ignore types
         when Ops::LET, Ops::SUM, Ops::SETCPH, Ops::ALLOF, Ops::SOMEOF, Ops::NONEOF,
              Ops::ONEOF, Ops::LONEOF
              ans = Expr::QuantExpr.new(op, *args)
@@ -88,7 +100,8 @@ module Alloy
       # @param op [Alloy::Ast::Op] --- operator
       # @param args [Array(Alloy::Ast::MExpr)] --- operands
       def compute_type(op, *args)
-        unless args.all?{|a| a.respond_to?(:__type) && a.__type}
+        unless args.all?{|a| a.respond_to?(:__type) && a.__type} # check only when we care about the type
+          binding.pry
           return nil
         end
         types = args.map(&:__type)
@@ -97,21 +110,30 @@ module Alloy
         when Ops::UNKNOWN
           Alloy::Ast::NoType
           
-        when Ops::PRODUCT, Ops::JOIN,  Ops::NOT, Ops::NO, Ops::SOME, Ops::LONE, Ops::ONE, Ops::SELECT
+        when Ops::PRODUCT
           types[1..-1].reduce(types[0]){|acc, type| Alloy::Ast::AType.product(acc, type)}
+       # when Ops::JOIN
+            ##Alloy::Ast::AType.join(acc, type)
+        #    only on binary op , join on lhs and rhs 
+        #Ops::NOT
+         # bool
+        #, Ops::NO, Ops::SOME, Ops::LONE, Ops::ONE, 
+         # bool . are applied on a set and return a bool
 
+        #Ops::SELECT
+         # hash k -> v h[x] return value get the type of the argument 
         when Ops::EQUALS, Ops::NOT_EQUALS
-          Alloy::Ast::AType.get(Bool)
+          Alloy::Ast::AType.get(:Bool)
 
         when Ops::IPLUS, Ops::IMINUS, Ops::REM, Ops::DIV, Ops::MUL, Ops::PLUSPLUS
-          Alloy::Ast::Atype.get(Integer)
+          Alloy::Ast::AType.get(:Integer)
 
         when Ops::LT, Ops::LTE, Ops::GT, Ops::GTE, Ops::NOT_LT, 
              Ops::NOT_LTE, Ops::NOT_GT, Ops::NOT_GTE
-          Alloy::Ast::AType.get(Bool)
+          Alloy::Ast::AType.get(:Bool)
 
         when Ops::SHL, Ops::SHA, Ops::SHR
-          Alloy::Ast::Atype.get(Integer)
+          Alloy::Ast::AType.get(Integer)
 
 
 
