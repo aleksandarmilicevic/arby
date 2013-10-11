@@ -75,6 +75,20 @@ module Alloy
         end
       end
 
+      def test_in_not_in_ops
+        ops = [IN, NOT_IN]
+        ops.each do |op|
+          lhs, rhs = 2, 1
+          ans = ExprBuilder.apply(op,lhs,rhs)
+          assert Expr::BinaryExpr === ans
+          assert_equal op, ans.op
+          assert_equal lhs, ans.lhs
+          assert_equal rhs, ans.rhs
+          assert_type [:Bool], ans
+        end
+      end
+
+
       def test_int_size_equality_ops
         ops = [LT, LTE, GT, GTE, NOT_LT, NOT_LTE, NOT_GT, NOT_GTE]
         ops.each do |op|
@@ -111,6 +125,19 @@ module Alloy
           assert_equal lhs, ans.lhs
           assert_equal rhs, ans.rhs
           assert_type [:Integer], ans
+        end
+      end
+
+      def _and_or_ops
+        ops = [AND, OR]
+        ops.each do |op|
+          lhs, rhs = true, false
+          ans = ExprBuilder.apply(op, lhs, rhs)
+          assert Expr::BinaryExpr === ans
+          assert_equal op, ans.op
+          assert_equal lhs, ans.lhs
+          assert_equal rhs, ans.rhs
+          assert_type [:Bool], ans
         end
       end
 

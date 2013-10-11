@@ -43,10 +43,6 @@ module Alloy
           ans.set_type(type) if type
           ans
 
-          # oans.set_type(type)
-          #result_type = nil #TODO ...
-          #Expr.add_methods_for_type(ans, result_type)
-
          ##integers
          #compute types, and if possible try to compute types
         when Ops::LT, Ops::LTE, Ops::GT, Ops::GTE, Ops::NOT_LT, 
@@ -122,7 +118,7 @@ module Alloy
 
         #Ops::SELECT
          # hash k -> v h[x] return value get the type of the argument 
-        when Ops::EQUALS, Ops::NOT_EQUALS
+        when Ops::EQUALS, Ops::NOT_EQUALS,Ops::IN, Ops::NOT_IN
           Alloy::Ast::AType.get(:Bool)
 
         when Ops::IPLUS, Ops::IMINUS, Ops::REM, Ops::DIV, Ops::MUL, Ops::PLUSPLUS
@@ -134,6 +130,9 @@ module Alloy
 
         when Ops::SHL, Ops::SHA, Ops::SHR
           Alloy::Ast::AType.get(Integer)
+
+        when Ops::AND, Ops::OR, Ops::IFF, Ops::IMPLIES
+          Alloy::Ast::AType.get(:Bool)
 
 
 
