@@ -55,7 +55,7 @@ module Alloy
           ans
 
         #non-integers
-        when Ops::PLUS, Ops::MINUS
+        when Ops::PLUS, Ops::MINUS, Ops::SELECT
           check_arity args, 2, "BinaryExpr requires 2 argument"
           ans = Expr::BinaryExpr.new(op, *args)
 
@@ -108,8 +108,8 @@ module Alloy
           
         when Ops::PRODUCT
           types[1..-1].reduce(types[0]){|acc, type| Alloy::Ast::AType.product(acc, type)}
-       # when Ops::JOIN
-            ##Alloy::Ast::AType.join(acc, type)
+        #when Ops::JOIN
+         #    Alloy::Ast::AType.join(acc, type)
         #    only on binary op , join on lhs and rhs 
         #Ops::NOT
          # bool
@@ -134,7 +134,17 @@ module Alloy
         when Ops::AND, Ops::OR, Ops::IFF, Ops::IMPLIES
           Alloy::Ast::AType.get(:Bool)
 
+        when Ops::CARDINALITY
+          Alloy::Ast::AType.get(:Integer)
 
+        when Ops::ALLOF, Ops::SOMEOF, Ops::NONEOF,Ops::ONEOF, Ops::LONEOF
+          Alloy::Ast::AType.get(:Bool)
+
+      #  when Ops::TRANSPOSE
+       #   AType.transpose(types[0])  #how to turn this to the right type. As in how to get the type of sigA/ maybe Alloy::Ast::AType.get?
+
+        when Ops::SUM
+          Alloy::Ast::AType.get(:Integer)
 
         end
       end
