@@ -1,5 +1,6 @@
 require 'alloy/alloy'
 require 'alloy/ast/op'
+require 'alloy/ast/expr_builder'
 require 'alloy/ast/field'
 require 'alloy/ast/types'
 require 'alloy/utils/codegen_repo'
@@ -162,26 +163,26 @@ module Alloy
 
         def to_conjuncts() Expr.to_conjuncts(self) end
 
-        def ==(other)        apply_op(EQUALS, other) end #
-        def !=(other)        apply_op(NOT_EQUALS, other) end #
+        def ==(other)        ExprBuilder.apply(EQUALS, self, other) end
+        def !=(other)        ExprBuilder.apply(NOT_EQUALS, self, other) end
 
-        def %(other)         apply_op(REM, other) end
+        def %(other)         ExprBuilder.apply(REM, self, other) end
         #TODO!!! the type_proc is not right
         def +(other)         apply_int_or_rel_op(IPLUS, PLUS, other)   {|l,r| l} end
         def -(other)         apply_int_or_rel_op(IMINUS, MINUS, other) {|l,r| l} end
         def /(other)         apply_int_or_rel_op(DIV, MINUS, other)    {|l,r| l} end
-        def **(other)        apply_op(PRODUCT, other) end
-        def [](other)        apply_op("select", other) end
-        def <(other)         apply_op("lt", other) end
-        def <=(other)        apply_op("lte", other) end
-        def >(other)         apply_op("gt", other) end
-        def >=(other)        apply_op("gte", other) end
+        def **(other)        ExprBuilder.apply(PRODUCT, self, other) end
+        def [](other)        ExprBuilder.apply(SELECT, self, other) end
+        def <(other)         ExprBuilder.apply(LT, self, other) end
+        def <=(other)        ExprBuilder.apply(LTE, self, other) end
+        def >(other)         ExprBuilder.apply(GT, self, other) end
+        def >=(other)        ExprBuilder.apply(TTE, self, other) end
 
-        def in?(other)       apply_op("in", other) end
-        def not_in?(other)   apply_op("not_in", other) end
-        def contains?(other) Expr.resolve_expr(other).apply_op("in", self) end
+        def in?(other)       ExprBuilder.apply(IN, self, other) end
+        def not_in?(other)   ExprBuilder.apply(NOT_IN, self, other) end
+        def contains?(other) ExprBuilder.apply(IN, other, self) end
 
-        def &(other)         apply_op("intersect", other) end
+        def &(other)         ExprBuilder.apply(INTERSECT, self, other) end
         def *(other)
           apply_int_or_rel_op(MUL, proc{
             join_rhs =
@@ -205,23 +206,19 @@ module Alloy
             end
           apply_join(join_rhs.apply_op("closure"))
         end
-        def !()        apply_op("not") end
+        def !()        ExprBuilder.apply(NOT, self) end
 
-        def empty?()   apply_op("no") end
-        def no?()      apply_op("no") end
-        def some?()    apply_op("some") end
-        def lone?()    apply_op("lone") end
-        def one?()     apply_op("one") end
+        def empty?()   ExprBuilder.apply(NO, self) end
+        def no?()      ExprBuilder.apply(NO) end
+        def some?()    ExprBuilder.apply(SOME) end
+        def lone?()    ExprBuilder.apply(LONE) end
+        def one?()     ExprBuilder.apply(ONE) end
 
         def select(&blk) _blk_to_quant(:comprehension, &blk) end
         def all?(&blk)   _blk_to_quant(:all, &blk) end
 
-        def apply_ite(cond, then_expr, else_expr)
-          ITEExpr.new(cond, then_expr, else_expr)
-        end
-
         def apply_call(fun, *args) CallExpr.new(self, fun, *args) end
-        def apply_join(other)      apply_op("join", other) {|l,r| l.join(r)} end
+        def apply_join(other)      ExprBuilder.apply(JOIN, self, other) end 
 
         def apply_int_or_rel_op(int_op, rel_op, *args, &type_proc)
           op =

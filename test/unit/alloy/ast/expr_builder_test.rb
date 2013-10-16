@@ -5,9 +5,11 @@ require 'alloy/alloy_dsl'
 include Alloy::Dsl
 
 alloy :A_A_EBT do
- sig SigA[
- intFld: Int]
- sig SigB
+  sig SigA [
+    intFld: Int
+  ]
+
+  sig SigB
 end
 
 module Alloy
@@ -80,7 +82,6 @@ module Alloy
         assert_equal TRANSPOSE, ans.op
       end
 
-
       def test_equality_ops
         ops = [EQUALS, NOT_EQUALS]
         ops.each do |op|
@@ -106,7 +107,6 @@ module Alloy
           assert_type [:Bool], ans
         end
       end
-
 
       def test_int_size_equality_ops
         ops = [LT, LTE, GT, GTE, NOT_LT, NOT_LTE, NOT_GT, NOT_GTE]
@@ -198,7 +198,6 @@ module Alloy
         assert Expr::QuantExpr === ans
         assert_type [:Integer], ans
       end
-
 
       def test_unknown
         assert_raise(ArgumentError) do

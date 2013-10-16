@@ -17,14 +17,13 @@ module Alloy
         case op
         when Ops::UNKNOWN
           raise ArgumentError, "Cannot apply the unknown operator"
-        when Ops::PRODUCT
-          # TODO: check that args.length == 2
-          ans = Expr::BinaryExpr.new(op, *args)
-          type = TypeComputer.compute_type(op, *ans.children)
-          ans.set_type(type) if type
-          ans
-        ##binary operators
-         ##boolean 
+
+        # when Ops::PRODUCT
+        #   check_arity args, 2, "PRODUCT requires exactly 2 operands"
+        #   ans = Expr::BinaryExpr.new(op, *args)
+        #   type = TypeComputer.compute_type(op, *ans.children)
+        #   ans.set_type(type) if type
+        #   ans
 
         #unary operators
         when Ops::NOT, Ops::NO, Ops::SOME, Ops::LONE, Ops::ONE, Ops::TRANSPOSE,
@@ -35,7 +34,6 @@ module Alloy
           ans.set_type(type) if type
           ans
 
-       
         when Ops::EQUALS, Ops::NOT_EQUALS , Ops::IN, Ops::NOT_IN
           check_arity args, 2, "BinaryExpr requires 2 argument"
           ans = Expr::BinaryExpr.new(op, *args)
@@ -43,8 +41,7 @@ module Alloy
           ans.set_type(type) if type
           ans
 
-         ##integers
-         #compute types, and if possible try to compute types
+        # integer ops
         when Ops::LT, Ops::LTE, Ops::GT, Ops::GTE, Ops::NOT_LT, 
              Ops::NOT_LTE, Ops::NOT_GT, Ops::NOT_GTE, Ops::IPLUS, Ops::IMINUS, Ops::REM,
              Ops::DIV, Ops::MUL, Ops::PLUSPLUS
@@ -67,12 +64,14 @@ module Alloy
           ans.set_type(type) if type
           ans
 
-
         when Ops::JOIN, Ops::PRODUCT, Ops::DOMAIN, Ops::RANGE, Ops::INTERSECT
           check_arity args, 2, "BinaryExpr requires 2 argument"
           ans = Expr::BinaryExpr.new(op, *args)
+          type = TypeComputer.compute_type(op, *ans.children)
+          ans.set_type(type) if type
+          ans
 
-        #Quantifier op  #ignore types
+        # Quantifier op 
         when Ops::LET, Ops::SUM, Ops::SETCPH, Ops::ALLOF, Ops::SOMEOF, Ops::NONEOF,
              Ops::ONEOF, Ops::LONEOF
           ans = Expr::QuantExpr.new(op, *args)
@@ -110,9 +109,10 @@ module Alloy
           
         when Ops::PRODUCT
           types[1..-1].reduce(types[0]){|acc, type| Alloy::Ast::AType.product(acc, type)}
-        #when Ops::JOIN
-         #    Alloy::Ast::AType.join(acc, type)
-        #    only on binary op , join on lhs and rhs 
+
+        when Ops::JOIN
+          Alloy::Ast::AType.join(types[0], types[1])
+
         #Ops::NOT
          # bool
         #, Ops::NO, Ops::SOME, Ops::LONE, Ops::ONE, 
