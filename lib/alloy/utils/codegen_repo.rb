@@ -13,12 +13,14 @@ module Utils
       @@gen_code = []
       def gen_code() @@gen_code end
 
-      def get_code_for_target(target)
+      def for_target(target)
         @@gen_code.select{|e|
           e.target == target || e.desc.target == target
-        }.map{|e|
-          e.code
         }
+      end
+
+      def get_code_for_target(target)
+        for_target(target).map(&:code)
       end
 
       # @param location [String] e.g., file name
