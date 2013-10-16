@@ -75,7 +75,10 @@ module Alloy
         #Quantifier op  #ignore types
         when Ops::LET, Ops::SUM, Ops::SETCPH, Ops::ALLOF, Ops::SOMEOF, Ops::NONEOF,
              Ops::ONEOF, Ops::LONEOF
-             ans = Expr::QuantExpr.new(op, *args)
+          ans = Expr::QuantExpr.new(op, *args)
+          type = TypeComputer.compute_type(op) #TODO: what args to pass to TypeComputer???
+          ans.set_type(type) if type
+          ans
 
         #ITE expression 
         when Ops:: IF_ELSE

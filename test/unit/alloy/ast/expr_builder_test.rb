@@ -192,10 +192,9 @@ module Alloy
         assert_type [SigB, SigA], ans
       end 
 
-      def _sum_op
-        decl = {a: SigA}
+      def test_sum_op
+        decl = [Arg.new("a", SigA)]
         body = Expr::Var.new("a", SigA).intFld 
-        binding.pry  # binery expr missing name
         ans = ExprBuilder.apply(SUM, decl, body)
         assert Expr::QuantExpr === ans
         assert_type [:Integer], ans
