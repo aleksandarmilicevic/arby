@@ -143,7 +143,7 @@ module Alloy
           Alloy::Ast::AType.get(:Bool)
 
        when Ops::TRANSPOSE
-          AType.transpose(types[0].__type)  #how to turn this to the right type. As in how to get the type of sigA/ maybe Alloy::Ast::AType.get?
+          AType.transpose(types[0])  #how to turn this to the right type. As in how to get the type of sigA/ maybe Alloy::Ast::AType.get?
 
         when Ops::SUM
           Alloy::Ast::AType.get(:Integer)

@@ -74,10 +74,10 @@ module Alloy
 
 
       def test_transpose
-          sub = SigA.to_alloy_expr 
-          ans = ExprBuilder.apply(TRANSPOSE, sub)
-          assert Expr::UnaryExpr === ans
-          assert_equal TRANSPOSE, ans.op
+        sub = SigA.to_alloy_expr 
+        ans = ExprBuilder.apply(TRANSPOSE, sub)
+        assert Expr::UnaryExpr === ans
+        assert_equal TRANSPOSE, ans.op
       end
 
 
