@@ -187,7 +187,6 @@ module Alloy
       def test_transpose_op
         expr = ExprBuilder.apply(PRODUCT, SigA, SigB)
         assert_type [SigA, SigB], expr
-        binding.pry
         ans = ExprBuilder.apply(TRANSPOSE, expr)
         assert_type [SigB, SigA], ans
       end 
