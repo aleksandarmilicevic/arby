@@ -100,7 +100,6 @@ module Alloy
       # @param args [Array(Alloy::Ast::MExpr)] --- operands
       def compute_type(op, *args)
         unless args.all?{|a| a.respond_to?(:__type) && a.__type} # check only when we care about the type
-          binding.pry
           return nil
         end
         types = args.map(&:__type)
@@ -144,7 +143,6 @@ module Alloy
           Alloy::Ast::AType.get(:Bool)
 
        when Ops::TRANSPOSE
-          binding.pry
           AType.transpose(types[0].__type)  #how to turn this to the right type. As in how to get the type of sigA/ maybe Alloy::Ast::AType.get?
 
         when Ops::SUM
