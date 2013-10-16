@@ -140,8 +140,9 @@ module Alloy
         when Ops::ALLOF, Ops::SOMEOF, Ops::NONEOF,Ops::ONEOF, Ops::LONEOF
           Alloy::Ast::AType.get(:Bool)
 
-      #  when Ops::TRANSPOSE
-       #   AType.transpose(types[0])  #how to turn this to the right type. As in how to get the type of sigA/ maybe Alloy::Ast::AType.get?
+       when Ops::TRANSPOSE
+          binding.pry
+          AType.transpose(types[0].__type)  #how to turn this to the right type. As in how to get the type of sigA/ maybe Alloy::Ast::AType.get?
 
         when Ops::SUM
           Alloy::Ast::AType.get(:Integer)
