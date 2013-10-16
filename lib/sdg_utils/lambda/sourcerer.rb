@@ -34,6 +34,15 @@ module SDGUtils
         read_src(ast)
       end
 
+      # @param proc [Proc]
+      def proc_to_src_and_loc(proc)
+        ast = parse_proc(proc)
+        src = read_src(ast)
+        line_offset = read_expression(ast).line
+        file, line = proc.source_location
+        [src, file, line + line_offset - 1]
+      end
+
       def parse_proc(proc)
         proc_src = proc.source rescue fail("source not available for proc #{proc}")
         parse_proc_string(proc_src)
@@ -60,6 +69,8 @@ module SDGUtils
             msg = "expected :#{ast.type} with exactly 3 children"
             failparse[msg] unless ast.children.size == 3
             extract_block(ast.children[2])
+          when :lvasgn
+            extract_block(ast.children[1])
           else
             failparse["wrong root node, got :#{ast.type}"]
           end

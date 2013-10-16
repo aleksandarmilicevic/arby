@@ -9,7 +9,9 @@ module SDGUtils
         case visitor_obj
         when NilClass
           if visitor_blk
-            target.define_singleton_method :visit, visitor_blk
+            target.define_singleton_method :visit do |*args|
+              visitor_blk.call(*args)
+            end
           else
             target.define_singleton_method :visit, proc{|*a,&b|}
           end
@@ -46,6 +48,7 @@ module SDGUtils
       def initialize(visitor_obj=nil, opts={}, &visitor_blk)
         @visitor = Visitor.mk_visitor_obj(visitor_obj, &visitor_blk)
         @conf = Conf.extend(opts)
+        @stack = []
       end
 
       # Assumes that the first argument is the node to be visited.
@@ -54,16 +57,23 @@ module SDGUtils
       def visit(*args, &block)
         return if args.empty?
         node = args.first
-        node.singleton_class.ancestors.select{|cls|
-          cls <= @conf.top_class
-        }.each do |cls|
-          kind = cls.relative_name.downcase
-          meth = @conf.visit_meth_namer[cls, kind].to_sym
-          if @visitor.respond_to? meth
-            return @visitor.send meth, node
+        @stack.push node
+        begin
+          node.singleton_class.ancestors.select{|cls|
+            cls <= @conf.top_class
+          }.each do |cls|
+            kind = cls.relative_name.downcase
+            meth = @conf.visit_meth_namer[cls, kind].to_sym
+            if @visitor.respond_to? meth
+              meth_arity = @visitor.method(meth).arity
+              meth_args = [node, @stack[-2]][0...meth_arity]
+              return @visitor.send meth, *meth_args
+            end
           end
+          return @conf.default_return[node]
+        ensure
+          @stack.pop
         end
-        return @conf.default_return[node]
       end
     end
 

@@ -6,7 +6,9 @@ module Alloy
 
     class ExprDelegatingVisitor < SDGUtils::Visitors::TypeDelegatingVisitor
       def initialize(visitor_obj=nil, opts={}, &visitor_blk)
-        super(visitor_obj, {top_class: Alloy::Ast::Expr::MExpr}.merge(opts), &visitor_blk)
+        super(visitor_obj,
+              {top_class: Alloy::Ast::Expr::MExpr}.merge(opts),
+              &visitor_blk)
       end
 
     end

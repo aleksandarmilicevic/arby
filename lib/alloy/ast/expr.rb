@@ -50,7 +50,10 @@ module Alloy
           target_cls.send :define_method, "#{fname}" do
             self.apply_join fld.to_alloy_expr
           end
-          #TODO setter?
+          target_cls.send :define_method, "#{fname}=" do |val|
+            ans = self.apply_join(fld.to_alloy_expr).apply_op(Ops::ASSIGN, val)
+            Alloy.boss.add_side_effect(ans)
+          end
         end
       end
 
@@ -127,7 +130,12 @@ module Alloy
           RUBY
         end
 
-        attr_reader :__type
+        attr_reader :__type, :__op
+        def __op() @__op || Ops::UNKNOWN end
+        def op() __op end #TODO remove
+
+        def __eq(other)  self.__id__ == other.__id__ end
+        def __neq(other) !__eq(other) end
 
         def initialize(type=nil)
           set_type(type)
@@ -149,8 +157,6 @@ module Alloy
         def exe_symbolic() self end
         def exe_concrete() self end
 
-        def op() Ops::UNKNOWN end
-
         def is_disjunction() false end
         def is_conjunction() false end
 
@@ -166,10 +172,10 @@ module Alloy
         def /(other)         apply_int_or_rel_op(DIV, MINUS, other)    {|l,r| l} end
         def **(other)        apply_op(PRODUCT, other) end
         def [](other)        apply_op("select", other) end
-        def <(other)         apply_op("lt", other) end #
-        def <=(other)        apply_op("lte", other) end #
-        def >(other)         apply_op("gt", other) end #
-        def >=(other)        apply_op("gte", other) end #
+        def <(other)         apply_op("lt", other) end
+        def <=(other)        apply_op("lte", other) end
+        def >(other)         apply_op("gt", other) end
+        def >=(other)        apply_op("gte", other) end
 
         def in?(other)       apply_op("in", other) end
         def not_in?(other)   apply_op("not_in", other) end
@@ -206,16 +212,9 @@ module Alloy
         def some?()    apply_op("some") end
         def lone?()    apply_op("lone") end
         def one?()     apply_op("one") end
-        def select(&blk)
-          type = Expr.ensure_type(self)
-          fail "only unary types supported for set comprehension" unless type.unary?
-          fail "select block must have exactly one formal arg" unless blk.arity == 1
-          args = [Alloy::Ast::Arg.new(blk.parameters[0][1], self)]
-          # args = type.each_with_index.map do |col_type, idx|
-          #   Alloy::Ast::Arg.new(blk.parameters[idx][1], col_type)
-          # end
-          QuantExpr.comprehension(args, blk)
-        end
+
+        def select(&blk) _blk_to_quant(:comprehension, &blk) end
+        def all?(&blk)   _blk_to_quant(:all, &blk) end
 
         def apply_ite(cond, then_expr, else_expr)
           ITEExpr.new(cond, then_expr, else_expr)
@@ -286,6 +285,22 @@ module Alloy
 
         protected
 
+        # @param kind [:all, :some, :comprehension]
+        def _blk_to_quant(kind, &blk)
+          type = Expr.ensure_type(self)
+          # fail "only unary types supported for QuantExpr.#{kind}" unless type.unary?
+          msg = "block must have same arity as lhs type: \n" + 
+                "  block arity: #{blk.arity}\n" +
+                "  type arity: #{type.arity} (#{type})"
+          fail msg unless blk.arity == type.arity
+          args = blk.parameters.map{|p| Alloy::Ast::Arg.new(p[1], self)}
+          args = [Alloy::Ast::Arg.new(blk.parameters[0][1], self)]
+          # args = type.each_with_index.map do |col_type, idx|
+          #   Alloy::Ast::Arg.new(blk.parameters[idx][1], col_type)
+          # end
+          QuantExpr.send kind, args, blk
+        end
+
       end
 
 
@@ -336,7 +351,7 @@ module Alloy
           end
           @__name = name
         end
-        def op()   Ops::NOOP end
+        def __op()   Ops::NOOP end
         def to_s() "#{__name}" end
       end
 
@@ -445,10 +460,10 @@ module Alloy
       class NaryExpr
         include MExpr
         # TODO: rename refactor...
-        attr_reader :op, :children
+        attr_reader :children
 
         def initialize(op, *children)
-          @op = op
+          @__op = op
           @children = children
         end
 
@@ -547,7 +562,7 @@ module Alloy
           @target, @fun, @args = target, fun, args
         end
 
-        def op() (has_target?) ? Ops::JOIN : Ops::SELECT end
+        def __op() (has_target?) ? Ops::JOIN : Ops::SELECT end
 
         def has_target?() !!target && !(MImplicitInst === target) end
 
@@ -574,10 +589,10 @@ module Alloy
       # ============================================================================
       class ITEExpr
         include MExpr
-        attr_reader :cond, :then_expr, :else_expr, :op
+        attr_reader :cond, :then_expr, :else_expr
         def initialize(cond, then_expr, else_expr)
           @cond, @then_expr, @else_expr = cond, then_expr, else_expr
-          @op = Ops::IF_ELSE
+          @__op = Ops::IF_ELSE
         end
 
         def exe_symbolic
@@ -609,7 +624,7 @@ module Alloy
       # ============================================================================
       class QuantExpr
         include MExpr
-        attr_reader :op, :decl, :body
+        attr_reader :decl, :body
 
         def self.all(decl, body)
           self.new(Ops::ALLOF, decl, body)
@@ -655,8 +670,8 @@ module Alloy
         private
 
         def initialize(op, decl, body)
-          @op, @decl, @body = op, decl, body
-          fail unless Qop === @op
+          @__op, @decl, @body = op, decl, body
+          fail unless Qop === @__op
           # fake_body_src = "<failed to extract body source>"
           # @body_src = Alloy::Utils::CodegenRepo.proc_to_src(body) || fake_body_src
         end
