@@ -88,8 +88,8 @@ module Alloy
         when Integer; IntExpr.new(e)
         when MExpr; e
         when AType; TypeExpr.new(e)
-        when true, BoolConst::TRUE
-        when false , BoolConst::FALSE
+        when TrueClass; BoolConst::TRUE
+        when FalseClass; BoolConst::FALSE
         when Proc; resolve_expr(e.call, parent, kind_in_parent, default_val, &else_cb)
         else
           if e.respond_to? :to_alloy_expr
