@@ -25,8 +25,15 @@ module Alloy
         Alloy.meta.restrict_to(A_A_EBT)
         Alloy.initializer.resolve_fields
         Alloy.initializer.init_inv_fields
+      end
 
+      def setup_test
+        @curr_exe_mode = Alloy.exe_mode
         Alloy.set_symbolic_mode
+      end
+
+      def teardown
+        Alloy.restore_exe_mode(@curr_exe_mode)
       end
 
       def assert_type(type_array, expr)
