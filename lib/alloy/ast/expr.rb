@@ -1,5 +1,6 @@
 require 'alloy/alloy'
 require 'alloy/ast/op'
+require 'alloy/ast/expr_builder'
 require 'alloy/ast/field'
 require 'alloy/ast/types'
 require 'alloy/utils/codegen_repo'
@@ -51,7 +52,7 @@ module Alloy
             self.apply_join fld.to_alloy_expr
           end
           target_cls.send :define_method, "#{fname}=" do |val|
-            ans = self.apply_join(fld.to_alloy_expr).apply_op(Ops::ASSIGN, val)
+            ans = ExprBuilder.apply(Ops::ASSIGN, self.apply_join(fld.to_alloy_expr), val)
             Alloy.boss.add_side_effect(ans)
           end
         end
@@ -91,6 +92,8 @@ module Alloy
         when Integer; IntExpr.new(e)
         when MExpr; e
         when AType; TypeExpr.new(e)
+        when TrueClass; BoolConst::TRUE
+        when FalseClass; BoolConst::FALSE
         when Proc; resolve_expr(e.call, parent, kind_in_parent, default_val, &else_cb)
         else
           if e.respond_to? :to_alloy_expr
@@ -141,7 +144,7 @@ module Alloy
 
         def set_type(type=nil)
           @__type = Alloy::Ast::AType.get(type) if type
-          Expr.add_methods_for_type(self, @__type, false) if @__type
+          Expr.add_methods_for_type(self, @__type, false) if @__type && !@__type.empty?
         end
 
         def exe
@@ -160,109 +163,68 @@ module Alloy
 
         def to_conjuncts() Expr.to_conjuncts(self) end
 
-        def ==(other)        apply_op(EQUALS, other) end #
-        def !=(other)        apply_op(NOT_EQUALS, other) end #
+        def ==(other)        ExprBuilder.apply(EQUALS, self, other) end
+        def !=(other)        ExprBuilder.apply(NOT_EQUALS, self, other) end
 
-        def %(other)         apply_op(REM, other) end
-        #TODO!!! the type_proc is not right
-        def +(other)         apply_int_or_rel_op(IPLUS, PLUS, other)   {|l,r| l} end
-        def -(other)         apply_int_or_rel_op(IMINUS, MINUS, other) {|l,r| l} end
-        def /(other)         apply_int_or_rel_op(DIV, MINUS, other)    {|l,r| l} end
-        def **(other)        apply_op(PRODUCT, other) end
-        def [](other)        apply_op("select", other) end
-        def <(other)         apply_op("lt", other) end
-        def <=(other)        apply_op("lte", other) end
-        def >(other)         apply_op("gt", other) end
-        def >=(other)        apply_op("gte", other) end
+        def %(other)         ExprBuilder.apply(REM, self, other) end
 
-        def in?(other)       apply_op("in", other) end
-        def not_in?(other)   apply_op("not_in", other) end
-        def contains?(other) Expr.resolve_expr(other).apply_op("in", self) end
+        def +(other)         pick_and_apply(IPLUS, PLUS, self, other) end
+        def -(other)         pick_and_apply(IMINUS, MINUS, self, other) end
+        def /(other)         pick_and_apply(DIV, MINUS, self, other) end
+        def **(other)        ExprBuilder.apply(PRODUCT, self, other) end
+        def [](other)        ExprBuilder.apply(SELECT, self, other) end
+        def <(other)         ExprBuilder.apply(LT, self, other) end
+        def <=(other)        ExprBuilder.apply(LTE, self, other) end
+        def >(other)         ExprBuilder.apply(GT, self, other) end
+        def >=(other)        ExprBuilder.apply(TTE, self, other) end
 
-        def &(other)         apply_op("intersect", other) end
-        def *(other)
-          apply_int_or_rel_op(MUL, proc{
-            join_rhs =
-              case other
-              when MExpr; other
-              when String, Symbol;
-                joined = self.send other #returns a "join" BinaryExpr
-                joined.rhs
-              end
-            apply_join(join_rhs.apply_op("rclosure"))
-          }, other)
-        end
-        def ^(other)
-          #TODO: DRY
-          join_rhs =
-            case other
-            when MExpr; other
-            when String, Symbol;
-              joined = self.send other #returns a "join" BinaryExpr
-              joined.rhs
-            end
-          apply_join(join_rhs.apply_op("closure"))
-        end
-        def !()        apply_op("not") end
+        def in?(other)       ExprBuilder.apply(IN, self, other) end
+        def not_in?(other)   ExprBuilder.apply(NOT_IN, self, other) end
+        def contains?(other) ExprBuilder.apply(IN, other, self) end
 
-        def empty?()   apply_op("no") end
-        def no?()      apply_op("no") end
-        def some?()    apply_op("some") end
-        def lone?()    apply_op("lone") end
-        def one?()     apply_op("one") end
+        def &(other)         ExprBuilder.apply(INTERSECT, self, other) end
+        def *(other)         join_closure(RCLOSURE, other) end
+        def ^(other)         join_closure(CLOSURE, other) end
+
+        def !()              ExprBuilder.apply(NOT, self) end
+        def empty?()         ExprBuilder.apply(NO, self) end
+        def no?()            ExprBuilder.apply(NO) end
+        def some?()          ExprBuilder.apply(SOME) end
+        def lone?()          ExprBuilder.apply(LONE) end
+        def one?()           ExprBuilder.apply(ONE) end
 
         def select(&blk) _blk_to_quant(:comprehension, &blk) end
         def all?(&blk)   _blk_to_quant(:all, &blk) end
 
-        def apply_ite(cond, then_expr, else_expr)
-          ITEExpr.new(cond, then_expr, else_expr)
-        end
-
         def apply_call(fun, *args) CallExpr.new(self, fun, *args) end
-        def apply_join(other)      apply_op("join", other) {|l,r| l.join(r)} end
+        def apply_join(other)      ExprBuilder.apply(JOIN, self, other) end
 
-        def apply_int_or_rel_op(int_op, rel_op, *args, &type_proc)
-          op =
-            if self.respond_to?(:__type) &&
-                self.__type &&
-                self.__type.primitive?
-              int_op
-            else
-              rel_op
-            end
-          Proc === op ? op.call : apply_op(op, *args, &type_proc)
+        def pick_and_apply(int_op, rel_op, *args)
+          op = if args.first.respond_to?(:__type) &&
+                   args.first.__type &&
+                   args.first.__type.primitive?
+                 int_op
+               else
+                 rel_op
+               end
+          ExprBuilder.apply(op, *args)
         end
 
-        def apply_op(op_name, *args, &type_proc)
-          op_name = case op_name
-                    when Op; op_name.name
-                    else op_name.to_s
-                    end
-          # Op.by_name(op_name).apply(*args)
-          ans = if args.empty?
-                  UnaryExpr.send op_name.to_sym, self
-                elsif args.size == 1
-                  BinaryExpr.send op_name.to_sym, self, args[0]
-                else
-                  op_args = [self] + args
-                  NaryExpr.send op_name.to_sym, *op_args
-                end
-          all_args = ans.children
-          if type_proc && all_args.all?{|a| a.respond_to?(:__type)}
-            all_types = all_args.map(&:__type)
-            if all_types.none?(&:nil?)
-              result_type = type_proc.call(all_types)
-              Expr.add_methods_for_type(ans, result_type)
-            end
-          end
-          ans
+        def join_closure(closure_op, other)
+          closure_operand = case other
+                            when MExpr; other
+                            when String, Symbol;
+                              joined = self.send other #returns a "join" BinaryExpr
+                              joined.rhs
+                            end
+          ExprBuilder.apply(JOIN, self, ExprBuilder.apply(closure_op, closure_operand))
         end
 
         def method_missing(sym, *args, &block)
           return super if Alloy.is_caller_from_alloy?(caller[0])
           if args.empty?
             return super unless Alloy.conf.sym_exe.convert_missing_fields_to_joins
-            apply_join Var.new(sym)
+            ExprBuilder.apply(JOIN, self, Var.new(sym))
           else
             return super unless Alloy.conf.sym_exe.convert_missing_methods_to_fun_calls
             apply_call sym, *args
@@ -287,7 +249,7 @@ module Alloy
         def _blk_to_quant(kind, &blk)
           type = Expr.ensure_type(self)
           # fail "only unary types supported for QuantExpr.#{kind}" unless type.unary?
-          msg = "block must have same arity as lhs type: \n" + 
+          msg = "block must have same arity as lhs type: \n" +
                 "  block arity: #{blk.arity}\n" +
                 "  type arity: #{type.arity} (#{type})"
           fail msg unless blk.arity == type.arity
