@@ -409,7 +409,7 @@ module Alloy
       def isTime?()    scalar? && ColType::TimeColType === @cls end
       def isBool?()    scalar? && ColType::BoolColType === @cls end
       def isBlob?()    scalar? && ColType::BlobColType === @cls end
-      def isFile?()    scalar? && (klass.isFile?() rescue false) end
+      def isFile?()    scalar? && klass.respond_to?(:isFile?) && klass.isFile?() end
 
       def to_s
         @cls.to_s

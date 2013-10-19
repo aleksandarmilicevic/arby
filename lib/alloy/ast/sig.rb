@@ -205,21 +205,21 @@ module Alloy
       end
 
       def _fld_pre_read(fld)
-        Alloy.boss.fire E_FIELD_TRY_READ, :object => self, :field => fld
+        # Alloy.boss.fire E_FIELD_TRY_READ, object: self, field: fld
         _check_fld_read_access(fld)
       end
 
       def _fld_pre_write(fld, val)
-        Alloy.boss.fire E_FIELD_TRY_WRITE, :object => self, :field => fld, :value => val
+        # Alloy.boss.fire E_FIELD_TRY_WRITE, object: self, field: fld, value: val
         _check_fld_write_access(fld, val)
       end
 
       def _fld_post_read(fld, val)
-        Alloy.boss.fire E_FIELD_READ, :object => self, :field => fld, :return => val
+        Alloy.boss.fire E_FIELD_READ, object: self, field: fld, :return => val
       end
 
       def _fld_post_write(fld, val)
-        Alloy.boss.fire E_FIELD_WRITTEN, :object => self, :field => fld, :value => val
+        Alloy.boss.fire E_FIELD_WRITTEN, object: self, field: fld, value: val
       end
 
       def init_default_transient_values
@@ -233,13 +233,11 @@ module Alloy
 
       # checks field read access and raises an error if a violation is detected
       def _check_fld_read_access(fld)
-        #TODO
         true
       end
 
       # checks field write access and raises an error if a violation is detected
       def _check_fld_write_access(fld, value)
-        #TODO
         true
       end
 

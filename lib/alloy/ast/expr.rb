@@ -223,14 +223,14 @@ module Alloy
 
         def apply_int_or_rel_op(int_op, rel_op, *args, &type_proc)
           op =
-            if args.first.respond_to?(:__type) &&
-                args.first.__type &&
-                args.first.__type.primitive?
+            if self.respond_to?(:__type) &&
+                self.__type &&
+                self.__type.primitive?
               int_op
             else
               rel_op
             end
-          Proc === op ? op.call : apply_op(rel_op, *args, &type_proc)
+          Proc === op ? op.call : apply_op(op, *args, &type_proc)
         end
 
         def apply_op(op_name, *args, &type_proc)
