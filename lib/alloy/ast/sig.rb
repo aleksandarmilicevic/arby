@@ -43,6 +43,10 @@ module Alloy
         end
 
         def to_alloy_expr() Expr::SigExpr.new(self) end
+        def e()             to_alloy_expr() end
+        def f(fname)
+          meta().field(fname)
+        end
 
         def add_method_for_field(fld)
           unless respond_to?(fld.name.to_sym)
