@@ -29,10 +29,17 @@ module Alloy
 
         def new(*a, &b)
           sig_inst = super
+          meta().register_atom(sig_inst)
           if Alloy.symbolic_mode?
             sig_inst.make_me_sym_expr
           end
           sig_inst
+        end
+
+        def allocate
+          obj = super
+          meta().register_atom(obj)
+          obj
         end
 
         def to_alloy_expr() Expr::SigExpr.new(self) end
@@ -107,18 +114,6 @@ module Alloy
         #------------------------------------------------------------------------
         def to_alloy
           Alloy::Utils::AlloyPrinter.export_to_als(self)
-#           psig = superclass
-#           psig_str = (psig != Sig.class) ? "extends #{psig.relative_name} " : ""
-#           <<-EOS
-# sig #{relative_name} #{psig_str} {
-# #{meta.fields_to_alloy}
-
-# // inv fields (synthesized)
-# /*
-# #{meta.inv_fields_to_alloy}
-# */
-# }
-# EOS
         end
 
         #------------------------------------------------------------------------
@@ -171,7 +166,11 @@ module Alloy
       def initialize(*args)
         super
         init_default_transient_values
+        meta().register_atom(self)
       end
+
+      def registered?()    @registered end
+      def set_registered() @registered = true end
 
       def read_field(fld)       send Alloy::Ast::Field.getter_sym(fld) end
       def write_field(fld, val) send Alloy::Ast::Field.setter_sym(fld), val end
@@ -195,7 +194,6 @@ module Alloy
         _fld_pre_read(fld)
         value = yield
         _fld_post_read(fld, value)
-        value
       end
 
       def intercept_write(fld, value)
@@ -206,20 +204,22 @@ module Alloy
 
       def _fld_pre_read(fld)
         # Alloy.boss.fire E_FIELD_TRY_READ, object: self, field: fld
-        _check_fld_read_access(fld)
+        true
       end
 
       def _fld_pre_write(fld, val)
         # Alloy.boss.fire E_FIELD_TRY_WRITE, object: self, field: fld, value: val
-        _check_fld_write_access(fld, val)
+        true
       end
 
       def _fld_post_read(fld, val)
         Alloy.boss.fire E_FIELD_READ, object: self, field: fld, :return => val
+        val
       end
 
       def _fld_post_write(fld, val)
         Alloy.boss.fire E_FIELD_WRITTEN, object: self, field: fld, value: val
+        val
       end
 
       def init_default_transient_values
@@ -230,17 +230,6 @@ module Alloy
           end
         end
       end
-
-      # checks field read access and raises an error if a violation is detected
-      def _check_fld_read_access(fld)
-        true
-      end
-
-      # checks field write access and raises an error if a violation is detected
-      def _check_fld_write_access(fld, value)
-        true
-      end
-
     end
 
     #================================================================

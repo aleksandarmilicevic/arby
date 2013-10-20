@@ -1,6 +1,7 @@
 require 'alloy/ast/field'
 require 'alloy/ast/fun'
 require 'sdg_utils/caching/searchable_attr'
+require 'weakref'
 
 module Alloy
   module Ast
@@ -28,8 +29,29 @@ module Alloy
         @parent_sig   = sig_cls.superclass if (sig_cls.superclass.is_sig? rescue nil)
         @placeholder  = placeholder
         @extra        = {}
+        @atoms        = []
         set_abstract if abstract
         init_searchable_attrs(SigMeta)
+      end
+
+      def unregister_atom(atom) @atoms.delete(WeakRef.new(atom)) end
+      def register_atom(atom)
+        unless atom.registered?
+          @atoms << WeakRef.new(atom)
+          atom.set_registered
+        end
+      end
+      def register_atoms(atoms)
+        if ASig === atoms
+          register_atom(atoms)
+        else
+          atoms.each(&method(:register_atom))
+        end
+      end
+      def atoms
+        alive_refs = @atoms.select(&:weakref_alive?)
+        @atoms = alive_refs
+        alive_refs.map(&:__getobj__)
       end
 
       def all_funs()        funs + preds end
