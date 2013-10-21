@@ -25,10 +25,11 @@ module Alloy
       def length() tuples.length end
       alias_method :size, :length
 
-      def no?()   length == 0 end
-      def one?()  length == 1 end
-      def some?() length > 0 end
-      def lone?() no? || one? end
+      def no?(&b)    len = b ? select(&b).size : length; len == 0 end
+      def one?(&b)   len = b ? select(&b).size : length; len == 1 end
+      def some?(&b)  len = b ? select(&b).size : length; len > 0 end
+      def lone?(&b)  no?(&b) || one?(&b) end
+      def select(&b) tuples.select(&b) end
       alias_method :empty?, :no?
 
       def each

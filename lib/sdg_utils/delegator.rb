@@ -4,7 +4,7 @@ module SDGUtils
     # #TODO def respond_to?
 
     def method_missing(name, *args, &block)
-      return super unless @target
+      # return super unless @target
       begin
         # let the super method_missing run first (if defined)
         super
