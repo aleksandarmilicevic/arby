@@ -58,10 +58,13 @@ module SDGUtils
 
       def summary
         sum = {}
+        cnt = {}
         add_time = lambda{|task, time|
           task = task.split("\n").first
           task_time = sum[task] || 0
           sum[task] = task_time + time
+          task_cnt  = cnt[task] || 0
+          cnt[task] = task_cnt + 1
         }
         @tree_printer.traverse(@root) do |node|
           if n=node.props[:unaccounted_for]
@@ -72,7 +75,9 @@ module SDGUtils
             add_time.call("#{node.task} (total)", node.time)
           end
         end
-        sum
+        ans = {}
+        sum.each{|key, time| ans[key] = [time, cnt[key]]}
+        ans
       end
     end
 
