@@ -4,3 +4,4 @@ gem 'method_source', "~>0.8.3", :git => 'https://github.com/aleksandarmilicevic/
 gem 'parser', "~>2.0.0.pre7"
 gem 'nilio'
 gem 'pry'
+gem 'rjb'
