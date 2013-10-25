@@ -60,8 +60,17 @@ module Alloy
           NoType.new
         end
       end
+
       def self.union(lhs, rhs)
-        #TODO: implement
+        rhs #TODO: WRONG!
+      end
+
+      def self.difference(lhs, rhs)
+        lhs #TODO: WRONG!
+      end
+
+      def self.intersect(lhs, rhs)
+        lhs #TODO: WRONG!
       end
 
       def self.included(base)
@@ -86,9 +95,10 @@ module Alloy
       def arity()      fail "Class #{self.class} must override `arity'" end
       def column!(idx) fail "Class #{self.class} must override `column!'" end
 
-      def unary?() arity == 1 end
-      def binary?() arity == 2 end
-      def ternary?() arity == 3 end
+      def empty?()    arity == 0 end
+      def unary?()    arity == 1 end
+      def binary?()   arity == 2 end
+      def ternary?()  arity == 3 end
 
       def primitive?() false end
       def isInt?()     false end
