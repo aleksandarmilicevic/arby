@@ -19,9 +19,14 @@ module Utils
         }
       end
 
-      def get_code_for_target(target)
-        for_target(target).map(&:code)
+      def for_kind(kind)
+        @@gen_code.select{|e|
+          e.kind == kind || e.desc.kind == kind
+        }
       end
+
+      def get_code_for_target(target) for_target(target).map(&:code) end
+      def get_code_for_kind(kind)     for_kind(kind).map(&:code) end
 
       # @param location [String] e.g., file name
       def source_for_location(location)

@@ -60,7 +60,7 @@ module SDGUtils
 
       private
 
-      def diff(actual, expected)
+      def diff(expected, actual)
         "\nactual: #{actual.inspect}\nexpected: #{expected.inspect}"
       end
 
