@@ -9,6 +9,15 @@ module Alloy
     module ExprBuilder
       extend self
 
+      # Reduces the given operands (+args+) by applying the given
+      # binary operator (+op+)
+      #
+      # @param op   [Alloy::Ast::Op] --- binary operator
+      # @param args [Array(Expr)]    --- operands
+      def reduce_to_binary(op, *args)
+        args[1..-1].reduce(args[0]){|acc, rhs| apply(op, acc, rhs)}
+      end
+
       # Keep track of result type
       #
       # @param op [Alloy::Ast::Op] --- operator
@@ -17,13 +26,6 @@ module Alloy
         case op
         when Ops::UNKNOWN
           raise ArgumentError, "Cannot apply the unknown operator"
-
-        # when Ops::PRODUCT
-        #   check_arity args, 2, "PRODUCT requires exactly 2 operands"
-        #   ans = Expr::BinaryExpr.new(op, *args)
-        #   type = TypeComputer.compute_type(op, *ans.children)
-        #   ans.set_type(type) if type
-        #   ans
 
         # unary operators
         when Ops::NOT, Ops::NO, Ops::SOME, Ops::LONE, Ops::ONE, Ops::TRANSPOSE,

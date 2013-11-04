@@ -248,17 +248,25 @@ module Alloy
         # @param kind [:all, :some, :comprehension]
         def _blk_to_quant(kind, &blk)
           type = Expr.ensure_type(self)
-          # fail "only unary types supported for QuantExpr.#{kind}" unless type.unary?
           msg = "block must have same arity as lhs type: \n" +
                 "  block arity: #{blk.arity}\n" +
                 "  type arity: #{type.arity} (#{type})"
           fail msg unless blk.arity == type.arity
-          args = blk.parameters.map{|p| Alloy::Ast::Arg.new(p[1], self)}
-          args = [Alloy::Ast::Arg.new(blk.parameters[0][1], self)]
-          # args = type.each_with_index.map do |col_type, idx|
-          #   Alloy::Ast::Arg.new(blk.parameters[idx][1], col_type)
-          # end
-          QuantExpr.send kind, args, blk
+          domain = self
+          if type.unary?
+            args = [Alloy::Ast::Arg.new(blk.parameters[0][1], domain)]
+            body = blk
+          else
+            args = type.each_with_index.map{ |col_type, idx|
+              Alloy::Ast::Arg.new(blk.parameters[idx][1], col_type)
+            }
+            body = proc { |*args|
+              tuple = ExprBuilder.reduce_to_binary(PRODUCT, *args)
+              ExprBuilder.apply(IMPLIES, domain.contains?(tuple), blk.call(*args))
+            }
+          end
+          require 'pry'; binding.pry
+          QuantExpr.send kind, args, body
         end
 
       end
@@ -637,7 +645,6 @@ module Alloy
         end
 
         def wrap(proc)
-          proc_self = proc.binding.eval "self"
           vars = decl.reduce({}) do |acc, arg|
             acc[arg.name] = Var.new(arg.name, arg.type)
             acc
