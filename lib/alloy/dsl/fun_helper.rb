@@ -251,7 +251,6 @@ RUBY
                 :args     => Alloy::Ast::Fun.proc_args(block),
                 :ret_type => nil }
             else
-              binding.pry
               _raise_invalid_format("invalid single arg type: #{a.class}")
             end
           when args.size == 2
@@ -267,7 +266,6 @@ RUBY
               :args     => _to_args(args[1]),
               :ret_type => args[2] }
           else
-            binding.pry
             _raise_invalid_format
           end
         msg = "two blocks provided (both in args and explicitly)"

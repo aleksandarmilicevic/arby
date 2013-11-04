@@ -97,7 +97,6 @@ module SDGUtils
       protected
 
       def raise_illegal_modifier(obj, modifier)
-        binding.pry
         raise SyntaxError, "Modifier `#{modifier}' is illegal for #{obj}:#{obj.class}"
       end
 

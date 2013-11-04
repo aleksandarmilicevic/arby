@@ -66,6 +66,7 @@ module SDGUtils
             meth = @conf.visit_meth_namer[cls, kind].to_sym
             if @visitor.respond_to? meth
               meth_arity = @visitor.method(meth).arity
+              meth_arity = -meth_arity if meth_arity < 0
               meth_args = [node, @stack[-2]][0...meth_arity]
               return @visitor.send meth, *meth_args
             end

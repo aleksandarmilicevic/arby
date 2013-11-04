@@ -265,7 +265,6 @@ module Alloy
               ExprBuilder.apply(IMPLIES, domain.contains?(tuple), blk.call(*args))
             }
           end
-          require 'pry'; binding.pry
           QuantExpr.send kind, args, body
         end
 
@@ -589,6 +588,9 @@ module Alloy
       # == Class +QuantExpr+
       #
       # Represents a first-order quantifier expression.
+      #
+      # @attribute decl [Array(Arg)]
+      # @attribute body [Proc, MExpr]
       # ============================================================================
       class QuantExpr
         include MExpr
@@ -613,6 +615,7 @@ module Alloy
         def comprehension?() op == Ops::SETCPH end
 
         def kind()   op.sym end
+        def arity()  decl.size end
 
         def exe_symbolic
           case body
