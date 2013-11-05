@@ -48,11 +48,11 @@ opt.solver = opt.solver.SAT4J
 sol = TranslateAlloyToKodkod_RJB.execute_command(rep,world.getAllSigs, cmd, opt)
 out.println(sol.to_string)
 
-for i in 0..(world.getAllReachableSigs.size-1)
+for i in 0...(world.getAllReachableSigs.size)
 	sig = world.getAllReachableSigs.get(i)
     out.println("traversing sig: " + sig.to_string)
     fields = sig.getFields
-    for j in 0..(fields.size  - 1)
+    for j in 0...(fields.size)
     	field = fields.get(j)
     	out.println("traversing field: " + field.to_string)
     	ts = sol.eval(field)
