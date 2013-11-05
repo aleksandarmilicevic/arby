@@ -14,77 +14,63 @@ require 'pry'
 #ExampleUsingTheCompiler
 ###
 #(this cmd should return "nil")
-Rjb::load('/Users/potter/MIT/4thyear/Fall2013/6uap/alloy/dist/alloy4.2_2013-10-22.jar', ['-Xmx512m', '-Xms256m'])
-computil = Rjb::import('edu.mit.csail.sdg.alloy4compiler.parser.CompUtil')
-a4rep = Rjb::import('edu.mit.csail.sdg.alloy4.A4Reporter')
+Rjb::load('/Users/potter/MIT/4thyear/Fall2013/6uap/alloy/dist/alloy4.2_2013-11-02.jar', ['-Xmx512m', '-Xms256m'])
+
+A4Reporter_RJB = Rjb::import('edu.mit.csail.sdg.alloy4.A4Reporter')
+CompUtil_RJB = Rjb::import('edu.mit.csail.sdg.alloy4compiler.parser.CompUtil')
+ConstList_RJB = Rjb::import('edu.mit.csail.sdg.alloy4.ConstList')
+Err_RJB = Rjb::import('edu.mit.csail.sdg.alloy4.Err')
+ErrorAPI_RJB = Rjb::import('edu.mit.csail.sdg.alloy4.ErrorAPI')
+SafeList_RJB = Rjb::import('edu.mit.csail.sdg.alloy4.SafeList')
+Command_RJB = Rjb::import('edu.mit.csail.sdg.alloy4compiler.ast.Command')
+SigField_RJB = Rjb::import('edu.mit.csail.sdg.alloy4compiler.ast.Sig$Field')
+parser_CompModule_RJB= Rjb::import('edu.mit.csail.sdg.alloy4compiler.parser.CompModule')
+A4Options_RJB = Rjb::import('edu.mit.csail.sdg.alloy4compiler.translator.A4Options')
+A4Solution_RJB = Rjb::import('edu.mit.csail.sdg.alloy4compiler.translator.A4Solution')
+A4Tuple_RJB = Rjb::import('edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple')
+A4TupleSet_RJB = Rjb::import('edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet')
+TranslateAlloyToKodkod_RJB = Rjb::import('edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod')
 str = Rjb::import('java.lang.String')
 out = Rjb::import('java.lang.System').out
-option = Rjb::import('edu.mit.csail.sdg.alloy4compiler.translator.A4Options')
-satSolverClass = Rjb::import('edu.mit.csail.sdg.alloy4compiler.translator.A4Options$SatSolver')
+itr = Rjb::import('java.lang.Iterable')
+
+rep = A4Reporter_RJB.new
+model = "sig A { f: set A}\n\n run { #f > 1 } for 4"
+world = CompUtil_RJB.parseEverything_fromString(rep, model) #TODO model should be passed somehow?
+commands = world.getAllCommands()
+if (commands.size != 1)
+	Rjb::throw('ErrorAPI_RJB', 'Must specify exactly one command; number of commands found:' + commands.size )
+end
+cmd = commands.get(0)
+opt = A4Options_RJB.new
+
+opt.solver = opt.solver.SAT4J
+sol = TranslateAlloyToKodkod_RJB.execute_command(rep,world.getAllSigs, cmd, opt)
+out.println(sol.to_string)
+
+for i in 0..(world.getAllReachableSigs.size-1)
+	sig = world.getAllReachableSigs.get(i)
+    out.println("traversing sig: " + sig.to_string)
+    fields = sig.getFields
+    for j in 0..(fields.size  - 1)
+    	field = fields.get(j)
+    	out.println("traversing field: " + field.to_string)
+    	ts = sol.eval(field)
+        tsIterator = ts.iterator
+        while tsIterator.hasNext
+            out.print("    [")
+            t = tsIterator.next
+            arity = t.arity
+            for k in 0...(arity -1)
+                out.print(t.atom(k) + " ")
+            end
+            out.println("]")
+        end
+    end
+end
 
 
-toKodkod = Rjb::import('edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod')
-rep = a4rep.new
-modelget = 'sig A {} run {} for 4'
-world = computil.parseOneModule(modelget)
-world_ReachableSigs = world.getAllReachableSigs
-command = world.getAllCommands.get(0)
-#binding.pry
-options = option.new
-options.solver = satSolverClass.SAT4J
-binding.pry
-ans = toKodkod.execute_command(rep,world_ReachableSigs,command,options)
-binding.pry
 
 
 
 
-
-
-
-
-
-# #old
-# Rjb::load('/Users/potter/MIT/4thyear/Fall2013/6uap/alloy/dist/alloy4.2_2013-10-22.jar')
-# Rjb::import('edu.mit.csail.sdg.alloy4viz.VizGUI')
-# a4rep = Rjb::import('edu.mit.csail.sdg.alloy4.A4Reporter')
-# Rjb::import('import edu.mit.csail.sdg.alloy4.ErrorWarning')
-# Rjb::import('java.lang.String')
-# out = Rjb::import('java.lang.System').out
-# Rjb::import('edu.mit.csail.sdg.alloy4compiler.ast.Module')
-# Rjb::import('edu.mit.csail.sdg.alloy4compiler.translator.A4Solution')
-# Rjb::import('edu.mit.csail.sdg.alloy4compiler.ast.Command')
-# Rjb::import('edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod')
-# Rjb::import('edu.mit.csail.sdg.alloy4.Err')
-# #Rjb::load('/Users/potter/MIT/4thyear/Fall2013/6uap/alloy/dist/alloy4.2_2013-10-22.jar', ['-Xmx512m', '-Xms256m'])
-# # The visualizer (We will initialize it to nonnull when we visualize an Alloy solution)
-# VizGUI viz = null;
-# # Alloy4 sends diagnostic messages and progress reports to the A4Reporter.
-# #By default, the A4Reporter ignores all these events (but you can extend the A4Reporter to display the event for the user)
-# A4Reporter rep = new A4Reporter()
-# # not sure what is going on here or how to do this
-#     #         @Override public void warning(ErrorWarning msg) {
-#     #             System.out.print("Relevance Warning:\n"+(msg.toString().trim())+"\n\n");
-#     #             System.out.flush();
-#     #         }
-#     #     };
-
-# for filename in args [do]  #need to figure out what is filename and args
-# 	out.println("=========== Parsing+Typechecking "+filename+" =============")
-# 	Module world = CompUtil.parseEverything_fromFile(rep, null, filename);
-# 	A4Options options = new A4Options();
-# 	options.solver = A4Options.SatSolver.SAT4J;
-# 	for Command command in world.getAllCommands() [do]
-#    		out.println("============ Command "+command+": ============");
-#    		A4Solution ans = TranslateAlloyToKodkod.execute_command(rep, world.getAllReachableSigs(), command, options);
-#    		out.println(ans);
-#    		if ans.satisfiable
-#    			ans.writeXML("alloy_example_output.xml");
-#    		end
-#    		if viz == null
-#    			viz = new VizGUI(false, "alloy_example_output.xml", null);
-#    		else
-#    			viz.loadXML("alloy_example_output.xml",true);
-#    		end
-#     end
-# end
