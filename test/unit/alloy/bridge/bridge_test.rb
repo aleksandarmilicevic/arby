@@ -61,7 +61,7 @@ for i in 0..(world.getAllReachableSigs.size-1)
             out.print("    [")
             t = tsIterator.next
             arity = t.arity
-            for k in 0...(arity -1)
+            for k in 0...(arity)
                 out.print(t.atom(k) + " ")
             end
             out.println("]")
