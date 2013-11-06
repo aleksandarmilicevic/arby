@@ -1,6 +1,6 @@
 require 'rjb'
 require 'pry'
-
+require 'test/unit/alloy/bridge/A4Tuple'
 # def test_bridge_unit
 # 	Rjb::load(classpath = '.', jvmargs=[])
 # 	str = Rjb::import('java.lang.String')  # import String class into the varibale 'str'
@@ -56,7 +56,12 @@ for i in 0...(world.getAllReachableSigs.size)
     	field = fields.get(j)
     	out.println("traversing field: " + field.to_string)
     	ts = sol.eval(field)
+        #tuple = A4Tuple.new(ts.iterator.next,sol)
+        #binding.pry
+        #tuple = Rjb::bind(tuple, 'edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple')
+        #binding.pry
         tsIterator = ts.iterator
+        binding.pry
         while tsIterator.hasNext
             out.print("    [")
             t = tsIterator.next
