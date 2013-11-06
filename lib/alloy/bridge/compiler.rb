@@ -1,10 +1,10 @@
-require 'imports'
+require '/Users/potter/MIT/4thyear/Fall2013/6uap/arby/lib/alloy/bridge/imports'
 
-class compiler
+class Compiler
+  @rep = A4Reporter_RJB.new
   def compute_world(model_string)
-    rep = A4Reporter_RJB.new
     model = model_string
-    world = CompUtil_RJB.parseEverything_fromString(rep, model) 
+    world = CompUtil_RJB.parseEverything_fromString(@rep, model) 
     return world
   end
 
@@ -17,35 +17,36 @@ class compiler
     opt = A4Options_RJB.new
 
     opt.solver = opt.solver.SAT4J
-    sol = TranslateAlloyToKodkod_RJB.execute_command(rep,world.getAllSigs, cmd, opt)
+    sol = TranslateAlloyToKodkod_RJB.execute_command(@rep,world.getAllSigs, cmd, opt)
     return sol
   end
 
   def SigsFields(world)
     reachableSigs = world.getAllReachableSigs.size()
     for i in 0...reachableSigs
+      sig = world.getAllReachableSigs.get(i)
       fields = sig.getFields
     end
     return fields
   end
 
-  def listOfAtoms(fields)
-    A4TupleSets =[]
+  def listOfAtoms(fields,sol)
+    a4Tuple_Sets = []
     for i in 0...(fields.size)
       field = fields.get(i)
       ts = sol.eval(field)
       tsIterator = ts.iterator
-      A4Tuple =[]
+      a4_Tuple = Array.new
       while tsIterator.hasNext
         t = tsIterator.next
         arity = t.arity
         for j in 0...(arity)
-          A4Tuple.insert(j,t.atom(j))
+          a4_Tuple.insert(j,t.atom(j))
         end
       end
-      A4TupleSets.insert(i,A4Tuple)
+      a4Tuple_Sets.insert(i,a4_Tuple)
     end
-    return A4TupleSets
+    return a4Tuple_Sets
   end
 end
 

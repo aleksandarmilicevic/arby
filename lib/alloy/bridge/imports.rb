@@ -1,3 +1,5 @@
+require 'rjb'
+require 'pry'
 Rjb::load('vendor/alloy.jar', ['-Xmx512m', '-Xms256m'])
 
 A4Reporter_RJB = Rjb::import('edu.mit.csail.sdg.alloy4.A4Reporter')
