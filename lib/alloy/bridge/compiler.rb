@@ -36,15 +36,15 @@ class Compiler
       field = fields.get(i)
       ts = sol.eval(field)
       tsIterator = ts.iterator
-      a4_Tuple = Array.new
       while tsIterator.hasNext
+        a4_Tuple = []
         t = tsIterator.next
         arity = t.arity
         for j in 0...(arity)
           a4_Tuple.insert(j,t.atom(j))
         end
+        a4Tuple_Sets.insert(i,a4_Tuple)
       end
-      a4Tuple_Sets.insert(i,a4_Tuple)
     end
     return a4Tuple_Sets
   end
