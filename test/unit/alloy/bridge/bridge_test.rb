@@ -14,7 +14,7 @@ require 'pry'
 #ExampleUsingTheCompiler
 ###
 #(this cmd should return "nil")
-Rjb::load('/Users/potter/MIT/4thyear/Fall2013/6uap/alloy/dist/alloy4.2_2013-11-02.jar', ['-Xmx512m', '-Xms256m'])
+Rjb::load('vendor/alloy.jar', ['-Xmx512m', '-Xms256m'])
 
 A4Reporter_RJB = Rjb::import('edu.mit.csail.sdg.alloy4.A4Reporter')
 CompUtil_RJB = Rjb::import('edu.mit.csail.sdg.alloy4compiler.parser.CompUtil')
