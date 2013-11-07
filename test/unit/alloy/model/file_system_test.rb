@@ -158,5 +158,6 @@ class FileSystemTest < Test::Unit::TestCase
     sol = compiler.generate_A4Solutions(world)
     fields = compiler.SigsFields(world)
     atoms = compiler.listOfAtoms(fields,sol)
+    binding.pry
   end
 end
