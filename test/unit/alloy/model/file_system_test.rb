@@ -1,6 +1,8 @@
 require 'my_test_helper'
 require 'alloy/helpers/test/dsl_helpers'
 require 'alloy/initializer.rb'
+require '/Users/potter/MIT/4thyear/Fall2013/6uap/arby/lib/alloy/bridge/compiler'
+
 
 include Alloy::Dsl
 
@@ -147,5 +149,14 @@ class FileSystemTest < Test::Unit::TestCase
     ans = Alloy.meta.to_als
     puts ans
     assert_equal A_M_FST::Expected_alloy.strip, ans.strip
+  end
+
+  def test_file_system_compiler
+    ans = Alloy.meta.to_als
+    compiler = Compiler.new
+    world = compiler.compute_world(ans)
+    sol = compiler.generate_A4Solutions(world)
+    fields = compiler.SigsFields(world)
+    atoms = compiler.listOfAtoms(fields,sol)
   end
 end
