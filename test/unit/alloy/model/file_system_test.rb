@@ -1,7 +1,7 @@
 require 'my_test_helper'
 require 'alloy/helpers/test/dsl_helpers'
 require 'alloy/initializer.rb'
-require '/Users/potter/MIT/4thyear/Fall2013/6uap/arby/lib/alloy/bridge/compiler'
+require 'alloy/bridge/compiler'
 
 
 include Alloy::Dsl
@@ -147,7 +147,6 @@ class FileSystemTest < Test::Unit::TestCase
 
   def test
     ans = Alloy.meta.to_als
-    puts ans
     assert_equal A_M_FST::Expected_alloy.strip, ans.strip
   end
 

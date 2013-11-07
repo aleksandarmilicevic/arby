@@ -1,5 +1,5 @@
 require 'my_test_helper'
-require '/Users/potter/MIT/4thyear/Fall2013/6uap/arby/lib/alloy/bridge/compiler'
+require 'alloy/bridge/compiler'
 
 class CompilerTest < Test::Unit::TestCase
 

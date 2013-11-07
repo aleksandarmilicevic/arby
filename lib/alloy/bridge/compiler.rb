@@ -1,4 +1,4 @@
-require '/Users/potter/MIT/4thyear/Fall2013/6uap/arby/lib/alloy/bridge/imports'
+require 'alloy/bridge/imports'
 
 class Compiler
   @rep = A4Reporter_RJB.new
