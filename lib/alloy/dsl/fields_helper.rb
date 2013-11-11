@@ -24,6 +24,11 @@ module Alloy
         end
       end
 
+      # Invalid field format. Valid formats:
+      #   - field name, type, options_hash={}
+      #   - field name_type_hash, options_hash={}; where name_type_hash.size == 1
+      #   - field hash                           ; where name,type = hash.first
+      #                                            options_hash = Hash[hash.drop 1]
       def _traverse_field_args(args, cont)
         case
         when args.size == 3

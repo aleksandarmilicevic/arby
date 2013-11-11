@@ -17,7 +17,8 @@ require 'sdg_utils/string_utils'
     # @immutable
     # ----------------------------------------------------------------------
     class Field < Arg
-      attr_reader :parent, :default, :inv, :impl, :synth
+      attr_reader   :parent, :inv, :impl, :synth
+      attr_accessor :default
 
       def self.getter_sym(fld) Arg.getter_sym(fld) end
       def self.setter_sym(fld) Arg.setter_sym(fld) end

@@ -31,12 +31,20 @@ module Alloy
     end
 
     # ----------------------------------------------------------------
-    # Initializes everything.
+    # Initializes everything and freezes most of the meta stuff.
     # ----------------------------------------------------------------
     def init_all
+      init_all_no_freeze
+      deep_freeze
+    end
+
+    # ----------------------------------------------------------------
+    # Initializes everything.
+    # ----------------------------------------------------------------
+    def init_all_no_freeze
       resolve_fields
       init_inv_fields
-      deep_freeze
+      eval_sig_bodies
     end
 
     # ----------------------------------------------------------------
@@ -87,6 +95,17 @@ module Alloy
     end
 
     # ----------------------------------------------------------------
+    # Goes throug all the fields, searches for +UnresolvedRefColType+,
+    # resolves them and updates the field information.
+    # ----------------------------------------------------------------
+    def eval_sig_bodies(force=false)
+      return unless Alloy.conf.defer_body_eval
+      return unless force || Alloy.test_and_set(:sig_bodies_evaluated)
+      logger = Alloy.conf.logger
+      Alloy.meta.sig_builders.each(&:eval_body_now!)
+    end
+
+    # ----------------------------------------------------------------
     # Freezes most of the meta stuff.
     # ----------------------------------------------------------------
     def deep_freeze
@@ -94,7 +113,8 @@ module Alloy
       funs = sig_metas.map{|s| s.funs + s.preds}.flatten
       flds = sig_metas.map{|s| s.fields + s.inv_fields}.flatten
       args = funs.map(&:args).flatten
-      [Alloy.conf, Alloy.meta, *sig_metas, *flds, *args].each(&:freeze)
+      # [Alloy.conf, Alloy.meta, *sig_metas, *flds, *args].each(&:freeze)
+      [Alloy.conf, Alloy.meta, *flds, *args].each(&:freeze)
     end
   end
 

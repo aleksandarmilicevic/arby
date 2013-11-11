@@ -73,8 +73,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
   def setup_class
     Alloy.reset
     Alloy.meta.restrict_to(A_D_SPT)
-    Alloy.initializer.resolve_fields
-    Alloy.initializer.init_inv_fields
+    Alloy.initializer.init_all_no_freeze
   end
 
   def notype() Alloy::Ast::NoType.new end
@@ -92,6 +91,12 @@ class AlloyDslPredTest < Test::Unit::TestCase
 
   def get_preds(sig)
     sig.meta.preds.reduce({}){|acc,f| acc.merge!({f.name => f})}
+  end
+
+  def amodel(&block)
+    Alloy.conf.do_with :defer_body_eval => false do
+      alloy_model &block
+    end
   end
 
   def check_arg_names(fun, arg_names)
@@ -112,9 +117,10 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def test_invalid_body
+    sname = "SigTmp"
     ex = assert_raise(Alloy::Dsl::SyntaxError) do
-      alloy_model do
-        sig :SSS do
+      amodel do
+        sig sname do
           fun f1[a: S1, b: S2][Int] { |a|
             a + b
           }
@@ -127,9 +133,10 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def test_invalid_too_many_ret
+    sname = "SigTmp"
     ex = assert_raise(Alloy::Dsl::SyntaxError) do
-      alloy_model do
-        sig :SSS do
+      amodel do
+        sig sname do
           fun f1[a: S1, b: S2][Int,String] {
             a + b
           }
@@ -140,9 +147,10 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def test_invalid_after_ret
+    sname = "SigTmp"
     ex = assert_raise(Alloy::Dsl::SyntaxError) do
-      alloy_model do
-        sig :SSS do
+      amodel do
+        sig sname do
           fun f1[a: S1, b: S2][Int][] {
             a + b
           }
@@ -153,17 +161,19 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def test_invalid_fname_not_string
+    sname = "SigTmp"
     ex = assert_raise(Alloy::Dsl::SyntaxError) do
-      alloy_model do
-        sig :SSS do
+      amodel do
+        sig sname do
           fun S1, a: S1, b: S2, _: Int do |a,b| a + b end
         end
       end
     end
     assert_starts_with "`A_D_SPT::S1' (function name) is not a valid identifier", ex.message
+    sname = "SigTmp"
     ex = assert_raise(Alloy::Dsl::SyntaxError) do
-      alloy_model do
-        sig :SSS do
+      amodel do
+        sig sname do
           fun 1, a: S1, b: S2, _: Int do |a,b| a + b end
         end
       end
@@ -172,9 +182,10 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def test_invalid_argname_not_string
+    sname = "SigTmp"
     ex = assert_raise(Alloy::Dsl::SyntaxError) do
-      alloy_model do
-        sig :SSS do
+      amodel do
+        sig sname do
           fun f1[S1: S1][Int] {
             a + b
           }
@@ -185,9 +196,10 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def test_invalid_pred_rettype
+    sname = "SigTmp"
     ex = assert_raise(Alloy::Dsl::SyntaxError) do
-      alloy_model do
-        sig :SSS do
+      amodel do
+        sig sname do
           pred f1[s1: S1][Int] {
             a + b
           }
@@ -198,9 +210,10 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def test_invalid_pred_empty_rettype
+    sname = "SigTmp"
     ex = assert_raise(Alloy::Dsl::SyntaxError) do
-      alloy_model do
-        sig :SSS do
+      amodel do
+        sig sname do
           pred f1[s1: S1][] {
             a + b
           }

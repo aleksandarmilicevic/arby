@@ -32,9 +32,12 @@ module Alloy
       # @return [SigBuilder]
       # --------------------------------------------------------------
       def sig(*args, &block)
-        SigBuilder.new({
-          :return => :builder
+        sb = SigBuilder.new({
+          :return          => :builder, 
+          :defer_body_eval => Alloy.conf.defer_body_eval
         }).sig(*args, &block)
+        Alloy.meta.add_sig_builder(sb)
+        sb
       end
 
       def __created(scope_module)

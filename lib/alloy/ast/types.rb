@@ -315,7 +315,7 @@ module Alloy
             sym = sym.to_sym
             builtin = @@built_in_types[sym]
             mgr = Alloy::Dsl::ModelBuilder.get
-            builtin ||= UnresolvedRefColType.new(sym, mgr.scope_module)
+            builtin || UnresolvedRefColType.new(sym, mgr.scope_module)
           else
             raise TypeError, "`#{sym}' must be Module or Symbol or String, instead it is #{sym.class}"
           end

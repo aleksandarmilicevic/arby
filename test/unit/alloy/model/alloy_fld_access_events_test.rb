@@ -42,7 +42,7 @@ class AlloyFldAccessEventsTest < Test::Unit::TestCase
   def setup_class
     Alloy.reset
     Alloy.meta.restrict_to(AFAE)
-    Alloy.initializer.resolve_fields
+    Alloy.initializer.init_all_no_freeze
   end
 
   def setup_test

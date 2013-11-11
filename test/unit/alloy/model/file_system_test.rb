@@ -139,8 +139,7 @@ class FileSystemTest < Test::Unit::TestCase
   def setup_class
     Alloy.reset
     Alloy.meta.restrict_to(A_M_FST)
-    Alloy.initializer.resolve_fields
-    Alloy.initializer.init_inv_fields
+    Alloy.initializer.init_all_no_freeze
   end
 
   def test

@@ -46,11 +46,15 @@ module Alloy
       def reset
         @models = []
         @sigs = []
+        @sig_builders = []
         @restriction_mod = nil
         @cache = {}
       end
 
       attr_searchable :model, :sig
+
+      def add_sig_builder(sb) @sig_builders << sb end
+      def sig_builders()      @sig_builders.clone end
 
       def open_model(mod)
         @opened_model =
