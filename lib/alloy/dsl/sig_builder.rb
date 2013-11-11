@@ -15,7 +15,8 @@ module Alloy
 
       def initialize(options={})
         super({
-          :superclass => Alloy::Ast::Sig
+          :superclass => Alloy::Ast::Sig,
+          :defer_body_eval => Alloy.conf.defer_body_eval
         }.merge!(options))
       end
 
@@ -51,6 +52,7 @@ module Alloy
       #    otherwise (given inside do ... end) it is evaluated using
       #    +class_eval+.
       def sig(*args, &block)
+        Alloy.meta.add_sig_builder(self)
         # special case for missing builder with appended facts block
         fst = args.first
         ans = build(*args, &block)
