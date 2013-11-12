@@ -6,6 +6,7 @@ require 'alloy/ast/fun'
 require 'alloy/ast/sig_meta'
 require 'alloy/relations/relation'
 require 'alloy/utils/codegen_repo'
+require 'sdg_utils/dsl/missing_builder'
 require 'sdg_utils/meta_utils'
 require 'sdg_utils/random'
 
@@ -68,6 +69,10 @@ module Alloy
           else
             fld
           end
+        end
+
+        def |(*args)
+          AType.get(self).send :|, *args
         end
 
         def method_missing(sym, *args, &block)

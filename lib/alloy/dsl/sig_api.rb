@@ -2,6 +2,7 @@ require 'alloy/dsl/fields_helper'
 require 'alloy/dsl/fun_helper'
 require 'alloy/ast/arg'
 require 'alloy/ast/fun'
+require 'alloy/ast/types'
 
 module Alloy
   module Dsl
@@ -83,11 +84,13 @@ module Alloy
       # For a given field (name, type) creates a getter and a setter
       # (instance) method, and adds it to this sig's +meta+ instance.
       #
-      # @param fld_name [String]
-      # @param fld_type [AType]
+      # @param name [String]
+      # @param type [AType]
       #------------------------------------------------------------------------
       def _field(name, type, hash={})
-        fld = meta.add_field(name, type, hash)
+        type = Alloy::Ast::AType.get(type)
+        opts = hash.merge(type.args)
+        fld = meta.add_field(name, type, opts)
         fld_accessors fld
         fld
       end
