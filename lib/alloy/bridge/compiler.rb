@@ -36,11 +36,11 @@ module Alloy
         return a4fields
       end
 
-      def list_of_atoms(a4sol)
+      def flat_list_of_atoms(a4sol)
         return a4sol.getAllAtoms
       end
 
-      def listOfAtoms2(fields,sol)
+      def list_of_atoms_from_fields(fields,sol)
         a4Tuple_Sets = []
         for i in 0...(fields.size)
           field = fields[i]

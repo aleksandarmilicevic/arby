@@ -157,8 +157,8 @@ class FileSystemTest < Test::Unit::TestCase
     world = compiler.compute_world(ans)
     sol = compiler.generate_a4solutions(world)
     fields = compiler.sigs_fields(world)
-    atoms = compiler.list_of_atoms(sol)
-    atoms2 = compiler.listOfAtoms2(fields,sol)
+    atoms = compiler.flat_list_of_atoms(sol)
+    atoms2 = compiler.list_of_atoms_from_fields(fields,sol)
     binding.pry
   end
 end
