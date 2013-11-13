@@ -131,6 +131,7 @@ check  {
 """
 end
 
+
 class FileSystemTest < Test::Unit::TestCase
   include Alloy::Helpers::Test::DslHelpers
   include SDGUtils::Testing::SmartSetup
@@ -152,11 +153,12 @@ class FileSystemTest < Test::Unit::TestCase
 
   def test_file_system_compiler
     ans = Alloy.meta.to_als
-    compiler = Compiler.new
+    compiler = Alloy::Bridge::Compiler.new
     world = compiler.compute_world(ans)
-    sol = compiler.generate_A4Solutions(world)
-    fields = compiler.SigsFields(world)
-    atoms = compiler.listOfAtoms(fields,sol)
+    sol = compiler.generate_a4solutions(world)
+    fields = compiler.sigs_fields(world)
+    atoms = compiler.list_of_atoms(sol)
+    atoms2 = compiler.listOfAtoms2(fields,sol)
     binding.pry
   end
 end
