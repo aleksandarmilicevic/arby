@@ -158,6 +158,8 @@ module Alloy
     module ASig
       include SDGUtils::ShadowMethods
 
+      attr_accessor :label
+
       def self.included(base)
         base.extend(Alloy::Dsl::StaticHelpers)
         base.extend(Static)

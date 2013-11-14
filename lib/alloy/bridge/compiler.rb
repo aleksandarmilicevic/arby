@@ -32,12 +32,11 @@ module Alloy
             a4fields.push(fields.get(0))
           end
         end
-        binding.pry
         return a4fields
       end
 
       def flat_list_of_atoms(a4sol)
-        return a4sol.getAllAtoms
+        return a4sol.getAllAtoms        
       end
 
       def list_of_atoms_from_fields(fields,sol)
