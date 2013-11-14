@@ -11,9 +11,8 @@ module Alloy
         world = compiler.compute_world(model)
         sol = compiler.generate_a4solutions(world)
         fields = compiler.sigs_fields(world)
-        atoms = compiler.flat_list_of_atoms(sol)
-        # atoms = compiler.listOfAtoms2(fields,sol)
-        binding.pry
+        # atoms = compiler.flat_list_of_atoms(sol)
+        atoms = compiler.list_of_atoms_from_fields(fields, sol)
         assert_equal atoms.size , 2
         assert_equal atoms[0].size , 2
         assert_equal atoms[1].size , 2
