@@ -13,11 +13,11 @@ module Alloy
         fields = compiler.sigs_fields(world)
         # atoms = compiler.flat_list_of_atoms(sol)
         atoms = compiler.list_of_atoms_from_fields(fields, sol)
-        assert_equal atoms.size , 2
-        assert_equal atoms[0].size , 2
-        assert_equal atoms[1].size , 2
-        assert_equal atoms[0] , ["A$1", "A$1"]
-        assert_equal atoms[1] , ["A$1", "A$0"]
+        assert_equal atoms.size, 2
+        assert_equal atoms[0].size, 2
+        assert_equal atoms[1].size, 2
+        assert_equal atoms[0], ["A$1", "A$1"]
+        assert_equal atoms[1], ["A$1", "A$0"]
       end
     end
   end
