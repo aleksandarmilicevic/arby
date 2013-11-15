@@ -5,3 +5,4 @@ gem 'sdg_utils', :git => 'https://github.com/aleksandarmilicevic/sdg_utils.git'
 gem 'parser', "~>2.0.0.pre7"
 gem 'nilio'
 gem 'pry'
+gem 'rjb'
