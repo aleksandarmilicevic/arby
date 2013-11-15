@@ -43,7 +43,6 @@ module Alloy
         a4Tuple_Sets = []
         for i in 0...(fields.size)
           field = fields[i]
-          binding.pry
           ts = sol.eval(field)
           tsIterator = ts.iterator
           while tsIterator.hasNext
