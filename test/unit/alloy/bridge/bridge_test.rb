@@ -60,7 +60,6 @@ for i in 0...(world.getAllReachableSigs.size)
         while tsIterator.hasNext
             out.print("    [")
             t = tsIterator.next
-            binding.pry
             arity = t.arity
             for k in 0...(arity)
                 out.print(t.atom(k) + " ")
@@ -69,9 +68,3 @@ for i in 0...(world.getAllReachableSigs.size)
         end
     end
 end
-
-
-
-
-
-
