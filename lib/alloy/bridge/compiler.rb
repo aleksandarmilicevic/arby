@@ -2,7 +2,8 @@ require 'alloy/bridge/imports'
 module Alloy
   module Bridge
     class Compiler
-      @rep = Imports::A4Reporter_RJB.new
+      include Imports
+      @rep = A4Reporter_RJB.new
       def compute_world(model_string)
         model = model_string
         a4world = Imports::CompUtil_RJB.parseEverything_fromString(@rep, model) 
@@ -11,8 +12,8 @@ module Alloy
 
       def generate_a4solutions(a4world)
         commands = a4world.getAllCommands()
-        #if (commands.size != 1)
-        #  Rjb::throw('ErrorAPI_RJB', 'Must specify exactly one command; number of commands found:' + commands.size )
+        #if (commands.size != 1) TODO add integer to check this
+        #  raise('ErrorAPI_RJB', 'Must specify exactly one command; number of commands found:' + commands.size )
         #end
         cmd = commands.get(0)
         opt = Imports::A4Options_RJB.new
@@ -24,15 +25,14 @@ module Alloy
         
       def sigs_fields(world)
         reachableSigs = world.getAllReachableSigs.size()
+        sig = world.getAllReachableSigs
         a4fields = []
         for i in 0...reachableSigs
-          sig = world.getAllReachableSigs.get(i)
-          fields = sig.getFields
-          if not fields.isEmpty
-            a4fields.push(fields.get(0))
+          fields = sig.get(i).getFields
+          if not fields.isEmpty        # should i push empty fields?
+            a4fields.push(fields.get(0))#BUG) # BUG
           end
         end
-        binding.pry
         return a4fields
       end
 
@@ -40,11 +40,10 @@ module Alloy
         return a4sol.getAllAtoms
       end
 
-      def list_of_atoms_from_fields(fields,sol)
+      def list_of_atoms_from_fields(fields,sol) # try either a string or with this iterator 
         a4Tuple_Sets = []
         for i in 0...(fields.size)
           field = fields[i]
-          binding.pry
           ts = sol.eval(field)
           tsIterator = ts.iterator
           while tsIterator.hasNext
