@@ -53,8 +53,6 @@ module Alloy
       #    +class_eval+.
       def sig(*args, &block)
         Alloy.meta.add_sig_builder(self)
-        # special case for missing builder with appended facts block
-        fst = args.first
         ans = build(*args, &block)
         return_result(:array).each do |sig|
           ModelBuilder.in_model_body?           and

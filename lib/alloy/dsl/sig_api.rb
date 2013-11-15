@@ -69,7 +69,8 @@ module Alloy
       end
       def __params(*args)     fields(*args) end
       def __eval_body(&block) 
-        if SDGUtils::Lambda::Sourcerer.is_curly_block(block) #TODO rescue false
+        if Alloy.conf.detect_appended_facts && 
+            SDGUtils::Lambda::Sourcerer.is_curly_block(block) #TODO rescue false
           send :fact, &block
         else
           class_eval &block
