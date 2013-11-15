@@ -2,7 +2,7 @@ require 'my_test_helper'
 require 'alloy/helpers/test/dsl_helpers'
 require 'alloy/initializer.rb'
 require 'alloy/bridge/compiler'
-
+require 'alloy/bridge/translator'
 
 include Alloy::Dsl
 
@@ -157,7 +157,12 @@ class FileSystemTest < Test::Unit::TestCase
     world = compiler.compute_world(ans)
     sol = compiler.generate_a4solutions(world)
     fields = compiler.sigs_fields(world)
-    atoms = compiler.flat_list_of_atoms(sol)
-    binding.pry
+    a4atoms = compiler.flat_list_of_atoms(sol)
+    atoms = Alloy::Bridge::Translator.translate_atoms(a4atoms)
+    assert_equal 2, atoms.select{|a| a.instance_of? Name}.size
+    assert_equal 1, atoms.select{|a| a.instance_of? File}.size
+    assert_equal 1, atoms.select{|a| a.instance_of? Root}.size
+    assert_equal 1, atoms.select{|a| a.instance_of? Folder}.size
+    assert_equal 3, atoms.select{|a| a.instance_of? Entry}.size
   end
 end

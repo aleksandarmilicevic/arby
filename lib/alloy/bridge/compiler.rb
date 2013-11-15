@@ -37,7 +37,7 @@ module Alloy
       end
 
       def flat_list_of_atoms(a4sol)
-        return a4sol.getAllAtoms
+        return a4sol.getAllAtoms        
       end
 
       def list_of_atoms_from_fields(fields,sol) # try either a string or with this iterator 
