@@ -59,24 +59,28 @@ module Alloy
         return a4sol.getAllAtoms        
       end
 
-      # def list_of_atoms_from_fields(fields,sol) # try either a string or with this iterator 
-      #   a4Tuple_Sets = []
-      #   for i in 0...(fields.size)
-      #     field = fields[i]
-      #     ts = sol.eval(field)
-      #     tsIterator = ts.iterator
-      #     while tsIterator.hasNext
-      #       a4_Tuple = []
-      #       t = tsIterator.next
-      #       arity = t.arity
-      #       for j in 0...(arity)
-      #         a4_Tuple.insert(j,t.atom(j))
-      #       end
-      #       a4Tuple_Sets.insert(i,a4_Tuple)
-      #     end
-      #   end
-      #   return a4Tuple_Sets
-      # end
+      def list_of_atoms_from_fields(fields,sol) # try either a string or with this iterator 
+        a4Tuple_Sets = []
+        for i in 0...(fields.size)
+          field = fields[i]
+            if field.size >0
+              for j in 0...(field.size)
+                ts = sol.eval(field.get(j))
+                tsIterator = ts.iterator
+                while tsIterator.hasNext
+                  a4_Tuple = []
+                  t = tsIterator.next
+                  arity = t.arity
+                  for j in 0...(arity)
+                    a4_Tuple.insert(j,t.atom(j))
+                  end
+                  a4Tuple_Sets.insert(i,a4_Tuple)
+                end
+              end
+          end
+        end
+        return a4Tuple_Sets
+      end
 
 
     end

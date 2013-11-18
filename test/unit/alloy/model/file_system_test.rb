@@ -159,6 +159,7 @@ class FileSystemTest < Test::Unit::TestCase
     fields = compiler.sigs_fields(world)
     a4atoms = compiler.flat_list_of_atoms(sol)
     atoms = Alloy::Bridge::Translator.translate_atoms(a4atoms)
+    binding.pry
     assert_equal 2, atoms.select{|a| a.instance_of? Name}.size
     assert_equal 1, atoms.select{|a| a.instance_of? File}.size
     assert_equal 1, atoms.select{|a| a.instance_of? Root}.size
