@@ -111,16 +111,21 @@ module Alloy
       def isBlob?()    false end
       def isFile?()    false end
 
+      def |(args)                 self.apply_args(*Array(args)) end
+
+      def has_modifier?(mod)      modifiers.member?(mod.to_sym) end
+      def has_multiplicity?()     false end
+
       # @return [Symbol]
       def multiplicity()          @@DEFAULT_MULT end
-      def has_multiplicity?()     false end
       def modifiers()             [] end
-      def has_modifier?(mod)      modifiers.member?(mod.to_sym) end
+      def args()                  {} end
 
-      def apply_multiplicity(mult)  ModType.new(self, mult.to_sym, []) end
-      def apply_modifier(mod)       ModType.new(self, nil, [mod.to_sym]) end
+      def apply_multiplicity(mult)  ModType.new(self, mult.to_sym, [], {}) end
+      def apply_modifier(mod)       ModType.new(self, nil, [mod.to_sym], {}) end
+      def apply_args(args)          ModType.new(self, nil, [], args) end
 
-      def remove_multiplicity()     ModType.new(@type, nil, modifiers) end
+      def remove_multiplicity()     ModType.new(@type, nil, modifiers, args) end
 
       def scalar?
         case multiplicity
@@ -310,7 +315,7 @@ module Alloy
             end
           when SDGUtils::DSL::MissingBuilder
             sym.consume
-            self.get(sym.to_sym)
+            self.get(sym.name)
           when String, Symbol
             sym = sym.to_sym
             builtin = @@built_in_types[sym]
@@ -390,6 +395,7 @@ module Alloy
 
       def initialize(cls)
         @cls = ColType.get(cls)
+        self.apply_args(cls.args) if (SDGUtils::DSL::MissingBuilder === cls)
         unless @cls.instance_of? ColType::UnresolvedRefColType
           freeze
         end
@@ -506,32 +512,34 @@ module Alloy
     class ModType
       include AType
 
-      attr_reader :mult, :mods, :type
+      attr_reader :mult, :mods, :type, :args
 
-      def self.new(type, mult, mods)
+      def self.new(type, mult, mods, args)
         msg = "Cannot set multiplicity to `#{mult}': " +
                "type `#{type}' already has multiplicity set to `#{type.multiplicity}'"
         raise ArgumentError, msg if type.has_multiplicity? && mult
-        if mult.nil? && mods.empty?
+        if mult.nil? && mods.empty? && args.empty?
           type
         else
           if ModType === type
             mult = mult || type.mult
             mods = mods + type.mods
+            args = args.merge(type.args)
             type = type.type
           end
           obj = allocate
-          obj.send :initialize, type, mult, mods
+          obj.send :initialize, type, mult, mods, args
           obj
         end
       end
 
       # @param type [AType]
       # @param mult [Symbol]
-      def initialize(type, mult, mods)
+      def initialize(type, mult, mods, args)
         @type = type
         @mult = mult
         @mods = mods
+        @args = args
         freeze
       end
 
@@ -542,6 +550,7 @@ module Alloy
       def has_multiplicity?()     !!@mult end
       def multiplicity()          (has_multiplicity?) ? @mult : super end
       def modifiers()             @mods end
+      def args()                  @args end
 
       def to_s
         if @type.arity > 1

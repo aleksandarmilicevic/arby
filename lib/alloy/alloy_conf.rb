@@ -21,6 +21,7 @@ module Alloy
       c.allow_undef_vars       = true
       c.allow_undef_consts     = true
       c.defer_body_eval        = true
+      c.detect_appended_facts  = true
       c.sym_exe                = default_symexe_conf
       c.logger                 = Logger.new(NilIO.instance)
     end

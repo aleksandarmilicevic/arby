@@ -13,7 +13,7 @@ module Alloy
 		SafeList_RJB = Rjb::import('edu.mit.csail.sdg.alloy4.SafeList')
 		Command_RJB = Rjb::import('edu.mit.csail.sdg.alloy4compiler.ast.Command')
 		SigField_RJB = Rjb::import('edu.mit.csail.sdg.alloy4compiler.ast.Sig$Field')
-		parser_CompModule_RJB= Rjb::import('edu.mit.csail.sdg.alloy4compiler.parser.CompModule')
+		Parser_CompModule_RJB= Rjb::import('edu.mit.csail.sdg.alloy4compiler.parser.CompModule')
 		A4Options_RJB = Rjb::import('edu.mit.csail.sdg.alloy4compiler.translator.A4Options')
 		A4Solution_RJB = Rjb::import('edu.mit.csail.sdg.alloy4compiler.translator.A4Solution')
 		A4Tuple_RJB = Rjb::import('edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple')
