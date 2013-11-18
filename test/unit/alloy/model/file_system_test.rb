@@ -2,6 +2,7 @@ require 'my_test_helper'
 require 'alloy/helpers/test/dsl_helpers'
 require 'alloy/initializer.rb'
 require 'alloy/bridge/compiler'
+require 'alloy/bridge/solution'
 require 'alloy/bridge/translator'
 
 include Alloy::Dsl
@@ -136,6 +137,7 @@ class FileSystemTest < Test::Unit::TestCase
   include Alloy::Helpers::Test::DslHelpers
   include SDGUtils::Testing::SmartSetup
   include SDGUtils::Testing::Assertions
+  include Alloy::Bridge
 
   include A_M_FST
 
@@ -152,12 +154,12 @@ class FileSystemTest < Test::Unit::TestCase
   end
 
   def test_file_system_compiler
-    ans = Alloy.meta.to_als
-    compiler = Alloy::Bridge::Compiler.new
-    world = compiler.compute_world(ans)
-    sol = compiler.generate_a4solutions(world)
-    fields = compiler.sigs_fields(world)
-    a4atoms = compiler.flat_list_of_atoms(sol)
+    als_model = Alloy.meta.to_als
+    compiler  = Compiler.compile(als_model)
+    sol       = compiler.execute_command(0)
+    a4fields  = compiler.all_fields()
+    a4atoms   = sol.all_atoms()
+
     atoms = Alloy::Bridge::Translator.translate_atoms(a4atoms)
     binding.pry
     assert_equal 2, atoms.select{|a| a.instance_of? Name}.size
