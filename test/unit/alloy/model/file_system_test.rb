@@ -1,6 +1,9 @@
 require 'my_test_helper'
 require 'alloy/helpers/test/dsl_helpers'
 require 'alloy/initializer.rb'
+require 'alloy/bridge/compiler'
+require 'alloy/bridge/solution'
+require 'alloy/bridge/translator'
 
 include Alloy::Dsl
 
@@ -129,10 +132,12 @@ check  {
 """
 end
 
+
 class FileSystemTest < Test::Unit::TestCase
   include Alloy::Helpers::Test::DslHelpers
   include SDGUtils::Testing::SmartSetup
   include SDGUtils::Testing::Assertions
+  include Alloy::Bridge
 
   include A_M_FST
 
@@ -144,7 +149,21 @@ class FileSystemTest < Test::Unit::TestCase
 
   def test
     ans = Alloy.meta.to_als
-    puts ans
     assert_equal A_M_FST::Expected_alloy.strip, ans.strip
+  end
+
+  def test_file_system_compiler
+    als_model = Alloy.meta.to_als
+    compiler  = Compiler.compile(als_model)
+    sol       = compiler.execute_command(0)
+    a4fields  = compiler.all_fields()
+    a4atoms   = sol.all_atoms()
+
+    atoms = Alloy::Bridge::Translator.translate_atoms(a4atoms)
+    assert_equal 2, atoms.select{|a| a.instance_of? Name}.size
+    assert_equal 1, atoms.select{|a| a.instance_of? File}.size
+    assert_equal 1, atoms.select{|a| a.instance_of? Root}.size
+    assert_equal 1, atoms.select{|a| a.instance_of? Folder}.size
+    assert_equal 3, atoms.select{|a| a.instance_of? Entry}.size
   end
 end
