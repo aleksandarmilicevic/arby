@@ -4,7 +4,7 @@ module Alloy
     class Compiler
       include Imports
 
-      @@rep = A4Reporter_RJB.new
+      @@rep = nil # we don't care to listen to reports; 
       
       # Takes an Alloy model (in Alloy's native als format), parses it
       # into Alloy's native ast form and returns the result.
