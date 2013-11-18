@@ -156,8 +156,8 @@ class FileSystemTest < Test::Unit::TestCase
     compiler = Alloy::Bridge::Compiler.new
     a4world = compiler.compute_world(als_model)
     a4sol = compiler.execute_command(a4world, 0)
-    a4fields = compiler.sigs_fields(a4world)
-    a4atoms = compiler.flat_list_of_atoms(a4sol)
+    a4fields = compiler.all_fields(a4world)
+    a4atoms = compiler.all_atoms(a4sol)
     atoms = Alloy::Bridge::Translator.translate_atoms(a4atoms)
     assert_equal 2, atoms.select{|a| a.instance_of? Name}.size
     assert_equal 1, atoms.select{|a| a.instance_of? File}.size

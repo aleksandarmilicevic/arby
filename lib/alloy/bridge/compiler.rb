@@ -36,7 +36,7 @@ module Alloy
       # 
       # @param a4world [Rjb::Proxy ~> CompModule]
       # @return [Array(Rjb::Proxy ~> Sig$Field)]
-      def sigs_fields(a4world)
+      def all_fields(a4world)
         a4sigs = a4world.getAllReachableSigs
         alloy_fields = []
         num_sigs = a4sigs.size()
@@ -55,7 +55,7 @@ module Alloy
       # 
       # @param a4sol [Rjb::Proxy ~> A4Solution]
       # @return [Rjb::Proxy ~> SafeList<ExprVar>]
-      def flat_list_of_atoms(a4sol)
+      def all_atoms(a4sol)
         return a4sol.getAllAtoms        
       end
 

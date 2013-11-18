@@ -10,8 +10,8 @@ module Alloy
         compiler = Compiler.new
         a4world = compiler.compute_world(model)
         a4sol = compiler.execute_command(a4world)
-        a4fields = compiler.sigs_fields(a4world)
-        a4atoms = compiler.flat_list_of_atoms(a4sol)
+        a4fields = compiler.all_fields(a4world)
+        a4atoms = compiler.all_atoms(a4sol)
         assert_equal 2, a4atoms.size
         assert_equal "A$0", a4atoms.get(0).toString
         assert_equal "A$1", a4atoms.get(1).toString
