@@ -3,58 +3,58 @@ module Alloy
   module Bridge
     class Compiler
       include Imports
-      @rep = A4Reporter_RJB.new
+
+      @@rep = A4Reporter_RJB.new
       
-      # Takes an string model for alloy to evaluate,
-      # and converts it to a world (an Rjb::proxy -> CompModule) 
+      # Takes an Alloy model (in Alloy's native als format), parses it
+      # into Alloy's native ast form and returns the result.
       # 
-      # @param String
-      # @return Rjb::proxy -> CompModule
-      def compute_world(model_string)
-        model = model_string
-        a4world = Imports::CompUtil_RJB.parseEverything_fromString(@rep, model) 
+      # @param als_model [String]
+      # @return [Rjb::Proxy ~> CompModule]
+      def compute_world(als_model)
+        a4world = Imports::CompUtil_RJB.parseEverything_fromString(@@rep, als_model) 
         return a4world
       end
 
-      # Takes an Rjb Proxy object pointing to a world,
-      # and generates an Rjb Proxy in the form of an alloy solution
+      # Takes a proxy to an Alloy module and an index of a command to
+      # execute; executes that command and returns a proxy to an
+      # A4Solution object.
       # 
-      # @param a4world [Rjb::proxy -> CompModule]
-      # @return [Rjb::proxy -> A4Solution]
-      def generate_a4solutions(a4world)
+      # @param a4world [Rjb::Proxy ~> CompModule]
+      # @param command_index [Int] - index of the command to execute
+      # @return [Rjb::Proxy ~> A4Solution]
+      def execute_command(a4world, command_index=0)
         commands = a4world.getAllCommands()
-        #if (commands.size != 1) TODO add integer to check this
-        #  raise('ErrorAPI_RJB', 'Must specify exactly one command; number of commands found:' + commands.size )
-        #end
-        cmd = commands.get(0)
-        opt = Imports::A4Options_RJB.new
+        cmd = commands.get(command_index)
+        opt = A4Options_RJB.new
         opt.solver = opt.solver.SAT4J
-        a4sol = Imports::TranslateAlloyToKodkod_RJB.execute_command(@rep, a4world.getAllSigs, cmd, opt)
-        return a4sol
+        TranslateAlloyToKodkod_RJB.execute_command(@@rep, a4world.getAllSigs, cmd, opt)
       end
       
-      # Takes an Rjb Proxy object pointing to a world,
-      # and generates an arrau with Rjb Proxy in the form of 
-      # alloy fields
+      # Takes a proxy to an Alloy module and returns a flat list of
+      # Alloy fields.
       # 
-      # @param a4world [Rjb::proxy -> CompModule]
-      # @return [array[Rjb::proxy -> Sig$Field]
-      def sigs_fields(world)
-        reachableSigs = world.getAllReachableSigs.size()
-        sig = world.getAllReachableSigs
-        a4fields = []
-        for i in 0...reachableSigs
-          fields = sig.get(i).getFields
-            a4fields.push(fields) 
+      # @param a4world [Rjb::Proxy ~> CompModule]
+      # @return [Array(Rjb::Proxy ~> Sig$Field)]
+      def sigs_fields(a4world)
+        a4sigs = a4world.getAllReachableSigs
+        alloy_fields = []
+        num_sigs = a4sigs.size()
+        for i in 0...num_sigs
+          a4Fields = a4sigs.get(i).getFields
+          num_fields = a4Fields.size
+          for i in 0...num_fields
+            alloy_fields.push(a4Fields.get(i)) 
+          end
         end
-        return a4fields
+        return alloy_fields
       end
 
-      # Takes an Rjb Proxy of an alloy solution and converts it 
-      # to a list of alloy atoms.
+      # Takes a proxy to an Alloy solution and extract a list of all
+      # atoms from it.
       # 
-      # @param a4sol [Rjb::Proxy -> A4Solution]
-      # @return a4atoms [Rjb::Proxy -> SafeList<ExprVar>]
+      # @param a4sol [Rjb::Proxy ~> A4Solution]
+      # @return [Rjb::Proxy ~> SafeList<ExprVar>]
       def flat_list_of_atoms(a4sol)
         return a4sol.getAllAtoms        
       end
@@ -77,8 +77,6 @@ module Alloy
       #   end
       #   return a4Tuple_Sets
       # end
-
-
     end
   end
 end
