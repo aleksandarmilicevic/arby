@@ -36,7 +36,7 @@ run {
 
       def test_all_fields
         a4fields = get_all_fields
-        
+                
         field_names = a4fields.map &:label
         assert_set_equal ["f", "g"], field_names
         

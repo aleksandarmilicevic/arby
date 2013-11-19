@@ -26,6 +26,9 @@ module Alloy
         Solution.new(a4sol)
       end
       
+      def map_tuples_to_fields(a4fields,a4sol)
+         map = self.class.map_tuples_to_fields(a4fields,a4sol)
+      end
       private 
 
       def fail_if_not_parsed
@@ -86,24 +89,28 @@ module Alloy
           return alloy_fields
         end
 
-        # def list_of_atoms_from_fields(fields,sol) # try either a string or with this iterator 
-        #   a4Tuple_Sets = []
-        #   for i in 0...(fields.size)
-        #     field = fields[i]
-        #     ts = sol.eval(field)
-        #     tsIterator = ts.iterator
-        #     while tsIterator.hasNext
-        #       a4_Tuple = []
-        #       t = tsIterator.next
-        #       arity = t.arity
-        #       for j in 0...(arity)
-        #         a4_Tuple.insert(j,t.atom(j))
-        #       end
-        #       a4Tuple_Sets.insert(i,a4_Tuple)
-        #     end
-        #   end
-        #   return a4Tuple_Sets
-        # end
+         def map_tuples_to_fields(a4fields,a4sol)
+          tuples_to_fields = Hash.new
+
+          for i in 0...(a4fields.size)
+            field = a4fields[i]
+            key = field.label
+            ts = a4sol.get_sol.eval(field)
+            tsIterator = ts.iterator
+            a4_Tuples = []
+            while tsIterator.hasNext
+              t = tsIterator.next
+              a4_Tuple = []
+              for j in 0...(t.arity)
+                #TO DO look in the API for the ExprVar over the string
+                a4_Tuple.push(t.atom(j))
+              end
+              a4_Tuples.push(a4_Tuple)
+            end
+            tuples_to_fields[key] =  a4_Tuples
+          end
+        end
+
       end
 
     end

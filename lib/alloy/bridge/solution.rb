@@ -12,6 +12,10 @@ module Alloy
         self.class.all_atoms(@a4sol)
       end
 
+      def get_sol
+        @a4sol
+      end
+
       private 
 
       def fail_if_no_solution
@@ -31,6 +35,10 @@ module Alloy
         # @return [Rjb::Proxy ~> SafeList<ExprVar>]
         def all_atoms(a4sol)
           return a4sol.getAllAtoms        
+        end
+
+        def get_sol()
+          return a4sol
         end
       end
 
