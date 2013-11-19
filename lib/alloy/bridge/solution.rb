@@ -40,6 +40,7 @@ module Alloy
         def get_sol()
           return a4sol
         end
+        
       end
 
     end

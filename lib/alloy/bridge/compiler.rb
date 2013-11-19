@@ -89,7 +89,7 @@ module Alloy
           return alloy_fields
         end
 
-         def map_tuples_to_fields(a4fields,a4sol)
+        def map_tuples_to_fields(a4fields, a4sol)
           tuples_to_fields = Hash.new
 
           for i in 0...(a4fields.size)
@@ -100,6 +100,7 @@ module Alloy
             a4_Tuples = []
             while tsIterator.hasNext
               t = tsIterator.next
+              binding.pry
               a4_Tuple = []
               for j in 0...(t.arity)
                 #TO DO look in the API for the ExprVar over the string
@@ -112,7 +113,6 @@ module Alloy
         end
 
       end
-
     end
   end
 end
