@@ -158,6 +158,7 @@ class FileSystemTest < Test::Unit::TestCase
     sol       = compiler.execute_command(0)
     a4fields  = compiler.all_fields()
     a4atoms   = sol.all_atoms()
+    test      = compiler.map_tuples_to_fields(a4fields,sol)
 
     atoms = Alloy::Bridge::Translator.translate_atoms(a4atoms)
     assert_equal 2, atoms.select{|a| a.instance_of? Name}.size

@@ -25,13 +25,16 @@ module Alloy
         a4sol = self.class.execute_command(@a4world)
         Solution.new(a4sol)
       end
-      
-      private 
+
+      def map_tuples_to_fields(a4fields,a4sol)
+         map = self.class.map_tuples_to_fields(a4fields,a4sol)
+      end
+      private
 
       def fail_if_not_parsed
         fail "model not parsed; call `parse' first" unless @a4world
       end
-      
+
       def initialize(als_model)
         @rep       = nil # we don't care to listen to reports
         @als_model = als_model
@@ -45,17 +48,17 @@ module Alloy
 
         # Takes an Alloy model (in Alloy's native als format), parses it
         # into Alloy's native ast form and returns the result.
-        # 
+        #
         # @param als_model [String]
         # @return [Rjb::Proxy ~> CompModule]
         def parse(als_model)
-          CompUtil_RJB.parseEverything_fromString(@rep, als_model) 
+          CompUtil_RJB.parseEverything_fromString(@rep, als_model)
         end
 
         # Takes a proxy to an Alloy module and an index of a command to
         # execute; executes that command and returns a proxy to an
         # A4Solution object.
-        # 
+        #
         # @param a4world [Rjb::Proxy ~> CompModule]
         # @param command_index [Int] - index of the command to execute
         # @return [Rjb::Proxy ~> A4Solution]
@@ -66,10 +69,10 @@ module Alloy
           opt.solver = opt.solver.SAT4J
           TranslateAlloyToKodkod_RJB.execute_command(@rep, a4world.getAllSigs, cmd, opt)
         end
-        
+
         # Takes a proxy to an Alloy module and returns a flat list of
         # Alloy fields.
-        # 
+        #
         # @param a4world [Rjb::Proxy ~> CompModule]
         # @return [Array(Rjb::Proxy ~> Sig$Field)]
         def all_fields(a4world)
@@ -80,35 +83,39 @@ module Alloy
             a4Fields = a4sigs.get(i).getFields
             num_fields = a4Fields.size
             for i in 0...num_fields
-              alloy_fields.push(a4Fields.get(i)) 
+              alloy_fields.push(a4Fields.get(i))
             end
           end
           return alloy_fields
         end
 
-        # def list_of_atoms_from_fields(fields,sol) # try either a string or with this iterator 
-        #   a4Tuple_Sets = []
-        #   for i in 0...(fields.size)
-        #     field = fields[i]
-        #     ts = sol.eval(field)
-        #     tsIterator = ts.iterator
-        #     while tsIterator.hasNext
-        #       a4_Tuple = []
-        #       t = tsIterator.next
-        #       arity = t.arity
-        #       for j in 0...(arity)
-        #         a4_Tuple.insert(j,t.atom(j))
-        #       end
-        #       a4Tuple_Sets.insert(i,a4_Tuple)
-        #     end
-        #   end
-        #   return a4Tuple_Sets
-        # end
+        def map_tuples_to_fields(a4fields,a4sol)
+          tuples_to_fields = Hash.new
+
+          for i in 0...(a4fields.size)
+            field = a4fields[i]
+            key = field.label
+            ts = a4sol.get_sol.eval(field)
+            tsIterator = ts.iterator
+            a4_Tuples = []
+            while tsIterator.hasNext
+              t = tsIterator.next
+              a4_Tuple = []
+              for j in 0...(t.arity)
+                #TO DO look in the API for the ExprVar over the string
+                a4_Tuple.push(t.atom(j))
+              end
+              a4_Tuples.push(a4_Tuple)
+            end
+            tuples_to_fields[key] =  a4_Tuples
+          end
+
+          tuples_to_fields
+        end
+
       end
 
     end
   end
 end
-
-
 
