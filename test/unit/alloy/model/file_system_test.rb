@@ -159,7 +159,6 @@ class FileSystemTest < Test::Unit::TestCase
     sol       = compiler.execute_command(0)
     a4fields  = compiler.all_fields()
     a4atoms   = sol.all_atoms()
-    test      = compiler.map_tuples_to_fields(a4fields,sol)
 
     atoms = Alloy::Bridge::Translator.translate_atoms(a4atoms)
     assert_equal 2, atoms.select{|a| a.instance_of? Name}.size
@@ -168,4 +167,19 @@ class FileSystemTest < Test::Unit::TestCase
     assert_equal 1, atoms.select{|a| a.instance_of? Folder}.size
     assert_equal 3, atoms.select{|a| a.instance_of? Entry}.size
   end
+
+  def test_map
+    als_model = Alloy.meta.to_als
+    compiler  = Compiler.compile(als_model)
+    sol       = compiler.execute_command(0)
+    a4fields  = compiler.all_fields()
+    map      = compiler.map_tuples_to_fields(a4fields,sol)
+    assert_equal 4, map.size
+    assert_seq_equal ["name", "contents", "entries", "parent"], map.keys
+    assert_equal 3, map["name"].size
+    assert_equal 3, map["contents"].size
+    assert_equal 3, map["entries"].size
+    assert_equal 1, map["parent"].size
+  end
+  
 end

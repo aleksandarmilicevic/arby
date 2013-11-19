@@ -40,6 +40,7 @@ module Alloy
         @als_model = als_model
       end
 
+
       # =================================================================
       # Static, functional-style API (no state carried around)
       # =================================================================
@@ -91,6 +92,7 @@ module Alloy
 
         def map_tuples_to_fields(a4fields,a4sol)
           tuples_to_fields = Hash.new
+          atom = Struct.new(:name, :a4type)
 
           for i in 0...(a4fields.size)
             field = a4fields[i]
@@ -100,17 +102,17 @@ module Alloy
             a4_Tuples = []
             while tsIterator.hasNext
               t = tsIterator.next
-              binding.pry
-              a4_Tuple = []
+              a4_Tuple=[]
               for j in 0...(t.arity)
-                #TO DO look in the API for the ExprVar over the string
-                a4_Tuple.push(t.atom(j))
+                atom_name = t.atom(j)
+                a4_atom_type = t.sig(j)
+                structure = atom.new(atom_name, a4_atom_type)
+                a4_Tuple.push(structure)
               end
               a4_Tuples.push(a4_Tuple)
             end
             tuples_to_fields[key] =  a4_Tuples
           end
-
           tuples_to_fields
         end
 
