@@ -8,6 +8,7 @@ module Alloy
         compiler
       end
 
+      # @see Compiler.parse
       def parse
         fail "already parsed" if @a4world
         fail "als model not set" unless @als_model
@@ -15,11 +16,13 @@ module Alloy
         self
       end
 
+      # @see Compiler.all_fields
       def all_fields
         fail_if_not_parsed
         self.class.all_fields(@a4world)
       end
 
+      # @see Compiler.execute_command
       def execute_command(cmd_idx)
         fail_if_not_parsed
         a4sol = self.class.execute_command(@a4world)
@@ -36,7 +39,6 @@ module Alloy
         @rep       = nil # we don't care to listen to reports
         @als_model = als_model
       end
-
 
       # =================================================================
       # Static, functional-style API (no state carried around)
@@ -87,7 +89,7 @@ module Alloy
           return alloy_fields
           # (0...a4sigs.size).map{ |sig_idx|
           #   a4fields = a4sigs.get(sig_idx).getFields
-          #   (0...a4fields.size).map{ |fld_idx| 
+          #   (0...a4fields.size).map{ |fld_idx|
           #     a4fields.get(fld_idx)
           #   }
           # }.flatten

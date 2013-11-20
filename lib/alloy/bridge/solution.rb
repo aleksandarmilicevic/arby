@@ -8,17 +8,19 @@ module Alloy
         @compiler = compiler
       end
 
+      # @see Solution.all_atoms
       def all_atoms
         fail_if_no_solution
         self.class.all_atoms(@a4sol)
       end
 
+      # @see Solution.field_tuples
       def field_tuples()
         fields = @compiler.all_fields
         self.class.field_tuples(fields, @a4sol)
       end
 
-      private 
+      private
 
       def fail_if_no_solution
         fail "no A4Solution given" unless @a4sol
@@ -34,29 +36,31 @@ module Alloy
 
         # Takes a proxy to an Alloy solution and extract a list of all
         # atoms from it.
-        # 
+        #
         # @param a4sol [Rjb::Proxy ~> A4Solution]
         # @return [Rjb::Proxy ~> SafeList<ExprVar>]
         def all_atoms(a4sol)
-          return a4sol.getAllAtoms        
+          a4sol.getAllAtoms
         end
 
+        # Returns a hash of tuples grouped by field names.
+        #
+        # @param alloy_fields [Array(Rjb::Proxy ~> Sig$Field)]
+        # @param a4sol [Rjb::Proxy ~> A4Solution]
         def field_tuples(alloy_fields, a4sol)
           map = alloy_fields.map do |field|
-            key = field.label
+            fld_name = field.label
             a4_tuple_set = a4sol.eval(field)
             a4_iterator = a4_tuple_set.iterator
-            tuples = []
+            fld_tuples = []
             while a4_iterator.hasNext
               t = a4_iterator.next
-              tuples << (0...t.arity).map {|j| Atom.new(t.atom(j), t.sig(j)) }
+              fld_tuples << (0...t.arity).map{|col| Atom.new(t.atom(col), t.sig(col)) }
             end
-            [key, tuples]
+            [fld_name, fld_tuples]
           end
           Hash[map]
         end
-
-        
       end
 
     end
