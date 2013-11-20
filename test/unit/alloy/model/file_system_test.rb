@@ -146,6 +146,10 @@ class FileSystemTest < Test::Unit::TestCase
     Alloy.meta.restrict_to(A_M_FST)
     Alloy.initializer.resolve_fields
     Alloy.initializer.init_inv_fields
+
+    @@als_model = Alloy.meta.to_als
+    @@compiler  = Compiler.compile(@@als_model)
+    @@sol       = @@compiler.execute_command(0)
   end
 
   def test
@@ -154,11 +158,7 @@ class FileSystemTest < Test::Unit::TestCase
   end
 
   def test_file_system_compiler
-    als_model = Alloy.meta.to_als
-    compiler  = Compiler.compile(als_model)
-    sol       = compiler.execute_command(0)
-    a4fields  = compiler.all_fields()
-    a4atoms   = sol.all_atoms()
+    a4atoms   = @@sol.all_atoms()
 
     atoms = Alloy::Bridge::Translator.translate_atoms(a4atoms)
     assert_equal 2, atoms.select{|a| a.instance_of? Name}.size
@@ -169,11 +169,7 @@ class FileSystemTest < Test::Unit::TestCase
   end
 
   def test_map
-    als_model = Alloy.meta.to_als
-    compiler  = Compiler.compile(als_model)
-    sol       = compiler.execute_command(0)
-    a4fields  = compiler.all_fields()
-    map       = compiler.map_tuples_to_fields(a4fields,sol)
+    map = @@sol.field_tuples
     assert_equal 4, map.size
     assert_seq_equal ["name", "contents", "entries", "parent"], map.keys
     assert_equal 3, map["name"].size
@@ -183,15 +179,9 @@ class FileSystemTest < Test::Unit::TestCase
   end
 
   def test_graph
-    als_model = Alloy.meta.to_als
-    compiler  = Compiler.compile(als_model)
-    sol       = compiler.execute_command(0)
-    a4fields  = compiler.all_fields()
-    a4atoms   = sol.all_atoms()
-
-    map       = compiler.map_tuples_to_fields(a4fields,sol)
-    atoms     = Alloy::Bridge::Translator.translate_atoms(a4atoms)
-    graph     = Alloy::Bridge::Translator.recreate_object_graph(map,atoms)
+    map       = @@sol.field_tuples
+    atoms     = Alloy::Bridge::Translator.translate_atoms(@@sol.all_atoms)
+    graph     = Alloy::Bridge::Translator.recreate_object_graph(map, atoms)
   end
 
 end

@@ -1,4 +1,3 @@
-
 require 'alloy/bridge/imports'
 
 module Alloy
@@ -11,12 +10,12 @@ module Alloy
       # Takes an Rjb Proxy object pointing to a list of alloy atoms,
       # and converts them to instances of corresponding aRby sig
       # classes.
-      # 
+      #
       # @param a4atoms [Rjb::Proxy -> SafeList<ExprVar>]
       # @return [Array(Sig)]
       def translate_atoms(a4atoms)
         len = a4atoms.size
-        (0...len).to_a.map do |idx|
+        (0...len).map do |idx|
           translate_atom(a4atoms.get(idx))
         end
       end
@@ -24,7 +23,7 @@ module Alloy
       # Takes an Rjb Proxy object pointing to an alloy atom, and
       # converts it to an instance of the corresponding aRby sig
       # class.
-      # 
+      #
       # @param a4atom [Rjb::Proxy -> ExprVar]
       # @return [Sig]
       def translate_atom(a4atom)
@@ -39,7 +38,6 @@ module Alloy
 
       def recreate_object_graph(map, atoms)
        #atoms.each do |atom|
-      
        #arby_field = atom.meta.field(name) #TODO figure out what name is
        #atom.write_field(arby_field,"value") #TODO figure out what the value is
        #keys in map are the relation type
@@ -50,10 +48,10 @@ module Alloy
           # value a list of tuples, each list has 2 atoms
           # each atom has a name (String) and a type
           # for each atom in the map I should find the matched atom in
-          # atoms and based on the relation I should add a arby field and 
+          # atoms and based on the relation I should add a arby field and
           #write that field and its value
 
-          #issue what is name in field? 
+          #issue what is name in field?
           # it is based on this       def [](sym) field(sym.to_s) end
           # every value I tried gave me nil
 
