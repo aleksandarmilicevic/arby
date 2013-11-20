@@ -3,8 +3,9 @@ module Alloy
   module Bridge
     class Solution
 
-      def initialize(a4sol)
+      def initialize(a4sol, compiler=nil)
         @a4sol = a4sol
+        @compiler = compiler
       end
 
       def all_atoms
@@ -12,8 +13,9 @@ module Alloy
         self.class.all_atoms(@a4sol)
       end
 
-      def get_sol
-        @a4sol
+      def field_tuples()
+        fields = @compiler.all_fields
+        self.class.field_tuples(fields, @a4sol)
       end
 
       private 
@@ -28,6 +30,8 @@ module Alloy
       class << self
         include Imports
 
+        Atom = Struct.new(:name, :a4type)
+
         # Takes a proxy to an Alloy solution and extract a list of all
         # atoms from it.
         # 
@@ -37,9 +41,21 @@ module Alloy
           return a4sol.getAllAtoms        
         end
 
-        def get_sol()
-          return a4sol
+        def field_tuples(alloy_fields, a4sol)
+          map = alloy_fields.map do |field|
+            key = field.label
+            a4_tuple_set = a4sol.eval(field)
+            a4_iterator = a4_tuple_set.iterator
+            tuples = []
+            while a4_iterator.hasNext
+              t = a4_iterator.next
+              tuples << (0...t.arity).map {|j| Atom.new(t.atom(j), t.sig(j)) }
+            end
+            [key, tuples]
+          end
+          Hash[map]
         end
+
         
       end
 

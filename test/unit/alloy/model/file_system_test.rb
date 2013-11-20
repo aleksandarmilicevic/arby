@@ -169,8 +169,7 @@ class FileSystemTest < Test::Unit::TestCase
   end
 
   def test_map
-    a4fields  = @@compiler.all_fields()
-    map       = @@compiler.map_tuples_to_fields(a4fields, @@sol)
+    map = @@sol.field_tuples
     assert_equal 4, map.size
     assert_seq_equal ["name", "contents", "entries", "parent"], map.keys
     assert_equal 3, map["name"].size
@@ -180,11 +179,8 @@ class FileSystemTest < Test::Unit::TestCase
   end
 
   def test_graph
-    a4fields  = @@compiler.all_fields()
-    a4atoms   = @@sol.all_atoms()
-
-    map       = @@compiler.map_tuples_to_fields(a4fields, @@sol)
-    atoms     = Alloy::Bridge::Translator.translate_atoms(a4atoms)
+    map       = @@sol.field_tuples
+    atoms     = Alloy::Bridge::Translator.translate_atoms(@@sol.all_atoms)
     graph     = Alloy::Bridge::Translator.recreate_object_graph(map, atoms)
   end
 

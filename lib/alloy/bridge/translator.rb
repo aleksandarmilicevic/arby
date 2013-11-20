@@ -1,4 +1,3 @@
-
 require 'alloy/bridge/imports'
 
 module Alloy
