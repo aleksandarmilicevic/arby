@@ -8,6 +8,7 @@ module Alloy
         compiler
       end
 
+      # @see Compiler.parse
       def parse
         fail "already parsed" if @a4world
         fail "als model not set" unless @als_model
@@ -15,20 +16,19 @@ module Alloy
         self
       end
 
+      # @see Compiler.all_fields
       def all_fields
         fail_if_not_parsed
         self.class.all_fields(@a4world)
       end
 
+      # @see Compiler.execute_command
       def execute_command(cmd_idx)
         fail_if_not_parsed
         a4sol = self.class.execute_command(@a4world)
-        Solution.new(a4sol)
+        Solution.new(a4sol, self)
       end
 
-      def map_tuples_to_fields(a4fields,a4sol)
-         map = self.class.map_tuples_to_fields(a4fields,a4sol)
-      end
       private
 
       def fail_if_not_parsed
@@ -80,41 +80,21 @@ module Alloy
           alloy_fields = []
           num_sigs = a4sigs.size()
           for i in 0...num_sigs
-            a4Fields = a4sigs.get(i).getFields
-            num_fields = a4Fields.size
+            a4fields = a4sigs.get(i).getFields
+            num_fields = a4fields.size
             for i in 0...num_fields
-              alloy_fields.push(a4Fields.get(i))
+              alloy_fields.push(a4fields.get(i))
             end
           end
           return alloy_fields
+          # (0...a4sigs.size).map{ |sig_idx|
+          #   a4fields = a4sigs.get(sig_idx).getFields
+          #   (0...a4fields.size).map{ |fld_idx|
+          #     a4fields.get(fld_idx)
+          #   }
+          # }.flatten
         end
-
-        def map_tuples_to_fields(a4fields,a4sol)
-          tuples_to_fields = Hash.new
-
-          for i in 0...(a4fields.size)
-            field = a4fields[i]
-            key = field.label
-            ts = a4sol.get_sol.eval(field)
-            tsIterator = ts.iterator
-            a4_Tuples = []
-            while tsIterator.hasNext
-              t = tsIterator.next
-              a4_Tuple = []
-              for j in 0...(t.arity)
-                #TO DO look in the API for the ExprVar over the string
-                a4_Tuple.push(t.atom(j))
-              end
-              a4_Tuples.push(a4_Tuple)
-            end
-            tuples_to_fields[key] =  a4_Tuples
-          end
-
-          tuples_to_fields
-        end
-
       end
-
     end
   end
 end

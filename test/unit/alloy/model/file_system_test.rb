@@ -145,6 +145,10 @@ class FileSystemTest < Test::Unit::TestCase
     Alloy.reset
     Alloy.meta.restrict_to(A_M_FST)
     Alloy.initializer.init_all_no_freeze
+
+    @@als_model = Alloy.meta.to_als
+    @@compiler  = Compiler.compile(@@als_model)
+    @@sol       = @@compiler.execute_command(0)
   end
 
   def test
@@ -153,12 +157,7 @@ class FileSystemTest < Test::Unit::TestCase
   end
 
   def test_file_system_compiler
-    als_model = Alloy.meta.to_als
-    compiler  = Compiler.compile(als_model)
-    sol       = compiler.execute_command(0)
-    a4fields  = compiler.all_fields()
-    a4atoms   = sol.all_atoms()
-    test      = compiler.map_tuples_to_fields(a4fields,sol)
+    a4atoms   = @@sol.all_atoms()
 
     atoms = Alloy::Bridge::Translator.translate_atoms(a4atoms)
     assert_equal 2, atoms.select{|a| a.instance_of? Name}.size
@@ -167,4 +166,21 @@ class FileSystemTest < Test::Unit::TestCase
     assert_equal 1, atoms.select{|a| a.instance_of? Folder}.size
     assert_equal 3, atoms.select{|a| a.instance_of? Entry}.size
   end
+
+  def test_map
+    map = @@sol.field_tuples
+    assert_equal 4, map.size
+    assert_seq_equal ["name", "contents", "entries", "parent"], map.keys
+    assert_equal 3, map["name"].size
+    assert_equal 3, map["contents"].size
+    assert_equal 3, map["entries"].size
+    assert_equal 1, map["parent"].size
+  end
+
+  def test_graph
+    map       = @@sol.field_tuples
+    atoms     = Alloy::Bridge::Translator.translate_atoms(@@sol.all_atoms)
+    graph     = Alloy::Bridge::Translator.recreate_object_graph(map, atoms)
+  end
+
 end
