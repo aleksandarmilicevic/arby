@@ -173,7 +173,7 @@ class FileSystemTest < Test::Unit::TestCase
     compiler  = Compiler.compile(als_model)
     sol       = compiler.execute_command(0)
     a4fields  = compiler.all_fields()
-    map      = compiler.map_tuples_to_fields(a4fields,sol)
+    map       = compiler.map_tuples_to_fields(a4fields,sol)
     assert_equal 4, map.size
     assert_seq_equal ["name", "contents", "entries", "parent"], map.keys
     assert_equal 3, map["name"].size
@@ -181,5 +181,17 @@ class FileSystemTest < Test::Unit::TestCase
     assert_equal 3, map["entries"].size
     assert_equal 1, map["parent"].size
   end
-  
+
+  def test_graph
+    als_model = Alloy.meta.to_als
+    compiler  = Compiler.compile(als_model)
+    sol       = compiler.execute_command(0)
+    a4fields  = compiler.all_fields()
+    a4atoms   = sol.all_atoms()
+
+    map       = compiler.map_tuples_to_fields(a4fields,sol)
+    atoms     = Alloy::Bridge::Translator.translate_atoms(a4atoms)
+    graph     = Alloy::Bridge::Translator.recreate_object_graph(map,atoms)
+  end
+
 end
