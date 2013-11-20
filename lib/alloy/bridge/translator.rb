@@ -38,12 +38,14 @@ module Alloy
       end
 
       def recreate_object_graph(map, atoms)
-       atoms.each do |atom|
+       #atoms.each do |atom|
       
        #arby_field = atom.meta.field(name) #TODO figure out what name is
        #atom.write_field(arby_field,"value") #TODO figure out what the value is
        #keys in map are the relation type
          map.each do |key, value|
+          binding.pry
+
           # each key represent a relation type between two atoms
           # value a list of tuples, each list has 2 atoms
           # each atom has a name (String) and a type
