@@ -36,14 +36,20 @@ module Alloy
         atom
       end
 
+      # Takes a map of relations and tuple and a list of atoms objects aRby.
+      # Augments the atoms to include their relations to other atoms
+      #
+      # @param atoms [ExprVar]
+      # @param map [key:string, tuple[atom structure]]
+      # @return atoms [ExprVar]
+
       def recreate_object_graph(map, atoms)
          map.each do |key, value|
-          name = key
-          values =[] # this may be buggy need to test
+          values =[]
           for tuple in value
             rhs = extract_atom(atoms,tuple[0].name)
             lhs = extract_atom(atoms,tuple[1].name)
-            field = rhs.meta.field(name)
+            field = rhs.meta.field(key)
             if field.scalar?
               rhs.write_field(field,lhs)
             else
@@ -53,12 +59,10 @@ module Alloy
           end         
         end
       end
-
+      
       def extract_atom(atoms, label)
           return atoms.select { |atom|  atom.label == label }.first
       end
-
-
     end
   end
 end
