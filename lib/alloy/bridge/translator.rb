@@ -37,29 +37,25 @@ module Alloy
       end
 
       def recreate_object_graph(map, atoms)
-       #atoms.each do |atom|
-       #arby_field = atom.meta.field(name) #TODO figure out what name is
-       #atom.write_field(arby_field,"value") #TODO figure out what the value is
-       #keys in map are the relation type
          map.each do |key, value|
-          binding.pry
-
-          # each key represent a relation type between two atoms
-          # value a list of tuples, each list has 2 atoms
-          # each atom has a name (String) and a type
-          # for each atom in the map I should find the matched atom in
-          # atoms and based on the relation I should add a arby field and
-          #write that field and its value
-
-          #issue what is name in field?
-          # it is based on this       def [](sym) field(sym.to_s) end
-          # every value I tried gave me nil
-
-          #issue 2 what is value in write_field
-          #issue 3 is fld , is the same as the arby_field?
-          #question can translate_atoms be incorporated into this method
-         end
+          name = key
+          values =[] # this may be buggy need to test
+          for tuple in value
+            rhs = extract_atom(atoms,tuple[0].name)
+            lhs = extract_atom(atoms,tuple[1].name)
+            field = rhs.meta.field(name)
+            if field.scalar?
+              rhs.write_field(field,lhs)
+            else
+              values.push(lhs)
+              rhs.write_field(field,values)
+            end
+          end         
         end
+      end
+
+      def extract_atom(atoms, label)
+          return atoms.select { |atom|  atom.label == label }.first
       end
 
 
