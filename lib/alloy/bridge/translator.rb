@@ -45,7 +45,6 @@ module Alloy
 
       def recreate_object_graph(map, atoms)
          map.each do |key, value|
-          values  = []
           for tuple in value
             rhs   = extract_atom(atoms,tuple[0].name)
             lhs   = extract_atom(atoms,tuple[1].name)
@@ -53,8 +52,13 @@ module Alloy
             if field.scalar?
               rhs.write_field(field, lhs)
             else
-              values.push(lhs)
-              rhs.write_field(field, values)
+              if !rhs.read_field(field) #the field is not a scalar,
+                                        #and this is the first atom we are adding
+                                        # to this field
+                rhs.write_field(field, [lhs])
+              else 
+                rhs.write_field(field,rhs.read_field(field).push(lhs))
+              end
             end
           end         
         end

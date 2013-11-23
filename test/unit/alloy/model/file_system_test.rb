@@ -184,10 +184,10 @@ class FileSystemTest < Test::Unit::TestCase
     graph     = Alloy::Bridge::Translator.recreate_object_graph(map, atoms)
     assert_equal 8, atoms.size
     assert_equal "Root$0",  atoms[1].label
-    assert_equal 3, atoms[1].entries.size
-    assert_equal "Entry$2", atoms[1].entries[2].label
-    assert_equal "File$0",  atoms[1].entries[2].contents.label
-    assert_equal "Name$1",  atoms[1].entries[2].name.label
+    assert_equal 2, atoms[1].entries.size
+    assert_equal "Entry$1", atoms[1].entries[1].label
+    assert_equal "Folder$0",  atoms[1].entries[1].contents.label
+    assert_equal "Name$1",  atoms[1].entries[1].name.label
   end
 
 end
