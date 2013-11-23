@@ -45,23 +45,30 @@ module Alloy
 
       def recreate_object_graph(map, atoms)
          map.each do |key, value|
-          values =[]
+          values  = []
           for tuple in value
-            rhs = extract_atom(atoms,tuple[0].name)
-            lhs = extract_atom(atoms,tuple[1].name)
+            rhs   = extract_atom(atoms,tuple[0].name)
+            lhs   = extract_atom(atoms,tuple[1].name)
             field = rhs.meta.field(key)
             if field.scalar?
-              rhs.write_field(field,lhs)
+              rhs.write_field(field, lhs)
             else
               values.push(lhs)
-              rhs.write_field(field,values)
+              rhs.write_field(field, values)
             end
           end         
         end
       end
       
+      # Takes a list of atoms objects aRby, and an atom's label
+      # and returns the atom associated with the given label 
+      #
+      # @param atoms - [ExprVar]
+      # @param label - String atom's label
+      # @return atom - [ExprVar]
+
       def extract_atom(atoms, label)
-          return atoms.select { |atom|  atom.label == label }.first
+          return atoms.select { |atom| atom.label == label }.first
       end
     end
   end
