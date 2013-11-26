@@ -49,18 +49,18 @@ module Alloy
         label2atom = Hash[atoms.map{|a| [a.label, a]}]
         map.each do |key, value|
           for tuple in value
-            rhs   = label2atom[tuple[0].name]
-            lhs   = label2atom[tuple[1].name]
-            field = rhs.meta.field(key)
+            lhs   = label2atom[tuple[0].name]
+            rhs   = label2atom[tuple[1].name]
+            field = lhs.meta.field(key)
             if field.scalar?
-              rhs.write_field(field, lhs)
+              lhs.write_field(field, rhs)
             else
-              if !rhs.read_field(field)
+              if !lhs.read_field(field)
                 # the field is not a scalar, and this is the first
                 # atom we are adding to this field
-                rhs.write_field(field, [lhs])
+                lhs.write_field(field, [rhs])
               else
-                rhs.write_field(field,rhs.read_field(field).push(lhs))
+                lhs.write_field(field, lhs.read_field(field).push(rhs))
               end
             end
           end
