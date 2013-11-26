@@ -36,15 +36,17 @@ module Alloy
         atom
       end
 
-      # Takes a map of relations and tuple and a list of atoms objects aRby.
-      # Augments the atoms to include their relations to other atoms
+      # Takes a map of relations to tuples, and a list of aRby atom
+      # objects.  Populates the atoms' fields (instance variables) to
+      # the values in +map+.  Returns the same list of atoms it
+      # receives as the +atoms+ argument.
       #
-      # @param atoms [ExprVar]
-      # @param map [key:string, tuple[atom structure]]
-      # @return atoms [ExprVar]
-
+      # @param atoms [Array(Sig)]
+      # @param map [Hash(String, Array(Tuple)] - maps relation names
+      #                                          to lists of tuples
+      # @return [Array(Sig)]
       def recreate_object_graph(map, atoms)
-         map.each do |key, value|
+        map.each do |key, value|
           for tuple in value
             rhs   = extract_atom(atoms,tuple[0].name)
             lhs   = extract_atom(atoms,tuple[1].name)
@@ -52,27 +54,27 @@ module Alloy
             if field.scalar?
               rhs.write_field(field, lhs)
             else
-              if !rhs.read_field(field) #the field is not a scalar,
-                                        #and this is the first atom we are adding
-                                        # to this field
+              if !rhs.read_field(field)
+                # the field is not a scalar, and this is the first
+                # atom we are adding to this field
                 rhs.write_field(field, [lhs])
-              else 
+              else
                 rhs.write_field(field,rhs.read_field(field).push(lhs))
               end
             end
-          end         
+          end
         end
+        atoms
       end
-      
-      # Takes a list of atoms objects aRby, and an atom's label
-      # and returns the atom associated with the given label 
-      #
-      # @param atoms - [ExprVar]
-      # @param label - String atom's label
-      # @return atom - [ExprVar]
 
+      # Takes a list of atoms objects aRby, and an atom's label
+      # and returns the atom associated with the given label
+      #
+      # @param atoms [Array(Sig)]
+      # @param label [String] - String atom's label
+      # @return [Sig]
       def extract_atom(atoms, label)
-          return atoms.select { |atom| atom.label == label }.first
+        atoms.select{ |atom| atom.label == label }.first
       end
     end
   end
