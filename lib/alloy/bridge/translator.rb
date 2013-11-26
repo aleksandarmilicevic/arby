@@ -38,13 +38,13 @@ module Alloy
 
       # Takes a map of relations to tuples, and a list of aRby atom
       # objects.  Populates the atoms' fields (instance variables) to
-      # the values in +map+.  Returns the same list of atoms it
-      # receives as the +atoms+ argument.
+      # the values in +map+.  Returns a hash mapping atom labels to
+      # atoms.
       #
       # @param atoms [Array(Sig)]
       # @param map [Hash(String, Array(Tuple)] - maps relation names
       #                                          to lists of tuples
-      # @return [Array(Sig)]
+      # @return [Hash(String, Sig)]            - maps atom labels to atoms
       def recreate_object_graph(map, atoms)
         label2atom = Hash[atoms.map{|a| [a.label, a]}]
         map.each do |key, value|
@@ -65,7 +65,7 @@ module Alloy
             end
           end
         end
-        atoms
+        label2atom
       end
     end
   end
