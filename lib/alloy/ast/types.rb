@@ -12,7 +12,8 @@ module Alloy
     module AType
       include Enumerable
 
-      @@DEFAULT_MULT = :lone
+      @@DEF_UNARY_MULT = :lone
+      @@DEF_HIGHER_MULT = :set
 
       def self.get(obj)
         case obj
@@ -117,7 +118,8 @@ module Alloy
       def has_multiplicity?()     false end
 
       # @return [Symbol]
-      def multiplicity()          @@DEFAULT_MULT end
+      def multiplicity()          (self.unary?) ? @@DEF_UNARY_MULT : @@DEF_HIGHER_MULT end
+      def has_multiplicity?()     false end
       def modifiers()             [] end
       def args()                  {} end
 

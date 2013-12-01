@@ -36,32 +36,37 @@ module Alloy
         atom
       end
 
+      # Takes a map of relations to tuples, and a list of aRby atom
+      # objects.  Populates the atoms' fields (instance variables) to
+      # the values in +map+.  Returns a hash mapping atom labels to
+      # atoms.
+      #
+      # @param atoms [Array(Sig)]
+      # @param map [Hash(String, Array(Tuple)] - maps relation names
+      #                                          to lists of tuples
+      # @return [Hash(String, Sig)]            - maps atom labels to atoms
       def recreate_object_graph(map, atoms)
-       atoms.each do |atom|
-
-       #arby_field = atom.meta.field(name) #TODO figure out what name is
-       #atom.write_field(arby_field,"value") #TODO figure out what the value is
-       #keys in map are the relation type
-         map.each do |key, value|
-          # each key represent a relation type between two atoms
-          # value a list of tuples, each list has 2 atoms
-          # each atom has a name (String) and a type
-          # for each atom in the map I should find the matched atom in
-          # atoms and based on the relation I should add a arby field and
-          #write that field and its value
-
-          #issue what is name in field?
-          # it is based on this       def [](sym) field(sym.to_s) end
-          # every value I tried gave me nil
-
-          #issue 2 what is value in write_field
-          #issue 3 is fld , is the same as the arby_field?
-          #question can translate_atoms be incorporated into this method
-         end
+        label2atom = Hash[atoms.map{|a| [a.label, a]}]
+        map.each do |key, value|
+          for tuple in value
+            lhs   = label2atom[tuple[0].name]
+            rhs   = label2atom[tuple[1].name]
+            field = lhs.meta.field(key)
+            if field.scalar?
+              lhs.write_field(field, rhs)
+            else
+              if !lhs.read_field(field)
+                # the field is not a scalar, and this is the first
+                # atom we are adding to this field
+                lhs.write_field(field, [rhs])
+              else
+                lhs.write_field(field, lhs.read_field(field).push(rhs))
+              end
+            end
+          end
         end
+        label2atom
       end
-
-
     end
   end
 end

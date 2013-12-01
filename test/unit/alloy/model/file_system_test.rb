@@ -177,10 +177,29 @@ class FileSystemTest < Test::Unit::TestCase
     assert_equal 1, map["parent"].size
   end
 
+  # Expects the following solution:
+  #
+  #   Root$0
+  #     Entry$0: Name$0 -> Folder$0
+  #                          Entry$2: Name$1 -> File$0
+  #     Entry$1: Name$1 -> Folder$0
+  #                          Entry$2: Name$1 -> File$0
   def test_graph
-    map       = @@sol.field_tuples
-    atoms     = Alloy::Bridge::Translator.translate_atoms(@@sol.all_atoms)
-    graph     = Alloy::Bridge::Translator.recreate_object_graph(map, atoms)
+    map   = @@sol.field_tuples
+    atoms = Alloy::Bridge::Translator.translate_atoms(@@sol.all_atoms)
+    g     = Alloy::Bridge::Translator.recreate_object_graph(map, atoms)
+    assert_equal 8, atoms.size
+    root0 = g["Root$0"]
+    entry1 = g["Entry$1"]
+    assert_equal [], g["Root$0"].parent
+    assert_set_equal [[g["Entry$0"]], [g["Entry$1"]]], g["Root$0"].entries.unwrap
+    assert_equal g["Entry$0"].name, [[g["Name$0"]]]
+    assert_equal g["Entry$1"].name, [[g["Name$1"]]]
+    assert_equal g["Entry$2"].name, [[g["Name$1"]]]
+    assert_equal g["Entry$0"].contents, [[g["Folder$0"]]]
+    assert_equal g["Entry$1"].contents, [[g["Folder$0"]]]
+    assert_equal g["Entry$2"].contents, [[g["File$0"]]]
+    assert_set_equal [[g["Entry$2"]]], g["Folder$0"].entries.unwrap
   end
 
 end

@@ -84,6 +84,10 @@ module Alloy
         fields(include_inherited) + inv_fields(include_inherited)
       end
 
+      def any_field(name, include_inherited=false)
+        field(name, include_inherited) || inv_field(name, include_inherited)
+      end
+
       def sigs_including_sub_and_super
         all_supersigs + [sig_cls] + all_subsigs
       end

@@ -3,6 +3,7 @@ require 'alloy/ast/arg'
 require 'alloy/ast/expr'
 require 'alloy/ast/field'
 require 'alloy/ast/fun'
+require 'alloy/ast/set_proxy'
 require 'alloy/ast/sig_meta'
 require 'alloy/relations/relation'
 require 'alloy/utils/codegen_repo'
@@ -204,10 +205,12 @@ module Alloy
       def intercept_read(fld)
         _fld_pre_read(fld)
         value = yield
+        value = SetProxy.wrap(fld.type, value) if Alloy.conf.wrap_field_values
         _fld_post_read(fld, value)
       end
 
       def intercept_write(fld, value)
+        value = SetProxy.unwrap(value) if Alloy.conf.wrap_field_values
         _fld_pre_write(fld, value)
         yield
         _fld_post_write(fld, value)
