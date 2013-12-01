@@ -192,15 +192,15 @@ class FileSystemTest < Test::Unit::TestCase
     assert_equal 8, atoms.size
     root0 = g["Root$0"]
     entry1 = g["Entry$1"]
-    assert_nil g["Root$0"].parent
-    assert_set_equal [g["Entry$0"], g["Entry$1"]], g["Root$0"].entries
-    assert_equal g["Name$0"], g["Entry$0"].name
-    assert_equal g["Name$1"], g["Entry$1"].name
-    assert_equal g["Name$1"], g["Entry$2"].name
-    assert_equal g["Folder$0"], g["Entry$0"].contents
-    assert_equal g["Folder$0"], g["Entry$1"].contents
-    assert_equal g["File$0"],   g["Entry$2"].contents
-    assert_set_equal [g["Entry$2"]], g["Folder$0"].entries
+    assert_equal [], g["Root$0"].parent
+    assert_set_equal [[g["Entry$0"]], [g["Entry$1"]]], g["Root$0"].entries.unwrap
+    assert_equal g["Entry$0"].name, [[g["Name$0"]]]
+    assert_equal g["Entry$1"].name, [[g["Name$1"]]]
+    assert_equal g["Entry$2"].name, [[g["Name$1"]]]
+    assert_equal g["Entry$0"].contents, [[g["Folder$0"]]]
+    assert_equal g["Entry$1"].contents, [[g["Folder$0"]]]
+    assert_equal g["Entry$2"].contents, [[g["File$0"]]]
+    assert_set_equal [[g["Entry$2"]]], g["Folder$0"].entries.unwrap
   end
 
 end
