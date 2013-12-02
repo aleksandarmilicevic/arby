@@ -76,7 +76,6 @@ module Alloy
         tuples = Array(tuples)
         @tuples = tuples.map{|t| TupleProxy.wrap(type, t)}.reject(&:empty?)
         @type = type
-        binding.pry if $pera
         super(@tuples)
         # (type.scalar?) ? super(@tuples.first) : super(@tuples)
         add_methods_for_type
