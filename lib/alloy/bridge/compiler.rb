@@ -1,4 +1,6 @@
 require 'alloy/bridge/imports'
+require 'alloy/bridge/solution'
+
 module Alloy
   module Bridge
     class Compiler
@@ -27,9 +29,9 @@ module Alloy
       end
 
       # @see Compiler.execute_command
-      def execute_command(cmd_idx)
+      def execute_command(cmd_idx_or_name)
         fail_if_not_parsed
-        a4sol = self.class.execute_command(@a4world)
+        a4sol = self.class.execute_command(@a4world, cmd_idx_or_name)
         Solution.new(a4sol, self)
       end
 
@@ -64,9 +66,17 @@ module Alloy
         # A4Solution object.
         #
         # @param a4world [Rjb::Proxy ~> CompModule]
-        # @param command_index [Int] - index of the command to execute
+        # @param cmd_idx_or_name [Int, String] - index or name of the command to execute
         # @return [Rjb::Proxy ~> A4Solution]
-        def execute_command(a4world, command_index=0)
+        def execute_command(a4world, cmd_idx_or_name=0)
+          command_index = case cmd_idx_or_name
+                          when Integer
+                            cmd_idx_or_name
+                          when Symbol, String
+                            find_cmd_idx_by_name!(a4world, cmd_idx_or_name)
+                          else fail "wrong command type: expected Integer or String, " +
+                                    "got #{cmd_idx_or_name}:#{cmd_idx_or_name.class}"
+                          end
           commands = a4world.getAllCommands()
           cmd = commands.get(command_index)
           opt = A4Options_RJB.new
@@ -98,6 +108,22 @@ module Alloy
           #   }
           # }.flatten
         end
+
+        def find_cmd_idx_by_name(a4world, cmd_name)
+          commands = a4world.getAllCommands
+          num_commands = commands.size
+          for i in 0...num_commands
+            return i if cmd_str = commands.get(i).label == cmd_name.to_s
+          end
+          return -1
+        end
+
+        def find_cmd_idx_by_name!(a4world, cmd_name)
+          idx = find_cmd_idx_by_name(a4world, cmd_name)
+          fail "command #{cmd_name} not found" if idx == -1
+          idx
+        end
+
       end
     end
   end
