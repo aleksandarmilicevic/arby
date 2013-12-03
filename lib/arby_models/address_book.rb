@@ -53,6 +53,9 @@ module ArbyModels
     #     b1 == b3
     #   end
     # }
+
+    check :delUndoesAdd, "for 5 expect 0"
+    check :addIdempotent, "for 5 expect 0"
   end
 
 module AddressBook
@@ -86,6 +89,10 @@ assert addIdempotent {
     b1.add[b2, n, a] && b2.add[b3, n, a] => b2.addr = b3.addr
   }
 }
+
+check delUndoesAdd for 5 expect 0
+
+check addIdempotent for 5 expect 0
 """
 end
 

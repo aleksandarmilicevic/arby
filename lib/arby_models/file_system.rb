@@ -118,11 +118,11 @@ pred noDirAliases {
   }
 }
 
-check  {
+check {
   oneParent_buggyVersion[] => noDirAliases[]
 } for 5 expect 1
 
-check  {
+check {
   oneParent_correctVersion[] => noDirAliases[]
 } for 5 expect 0
 """

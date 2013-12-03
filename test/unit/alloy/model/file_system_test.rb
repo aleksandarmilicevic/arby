@@ -26,7 +26,7 @@ class FileSystemTest < Test::Unit::TestCase
 
   def test
     ans = Alloy.meta.to_als
-    assert_equal ArbyModels::FileSystem::Expected_alloy.strip, ans.strip
+    assert_equal_ignore_whitespace ArbyModels::FileSystem::Expected_alloy, ans
   end
 
   def test_file_system_compiler
@@ -72,6 +72,11 @@ class FileSystemTest < Test::Unit::TestCase
     assert_equal g["Entry$1"].contents, [[g["Folder$0"]]]
     assert_equal g["Entry$2"].contents, [[g["File$0"]]]
     assert_set_equal [[g["Entry$2"]]], g["Folder$0"].entries.unwrap
+  end
+
+  def test_correct_check
+    sol = @@compiler.execute_command(1)
+    assert !sol.satisfiable?
   end
 
 end

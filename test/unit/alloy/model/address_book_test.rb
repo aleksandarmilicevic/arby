@@ -2,6 +2,7 @@ require 'my_test_helper'
 require 'arby_models/address_book'
 require 'alloy/helpers/test/dsl_helpers'
 require 'alloy/initializer.rb'
+require 'alloy/bridge/compiler'
 
 
 class AddressBookTest < Test::Unit::TestCase
@@ -16,6 +17,9 @@ class AddressBookTest < Test::Unit::TestCase
     Alloy.meta.restrict_to(ArbyModels::AddressBook)
     Alloy.initializer.resolve_fields
     Alloy.initializer.init_inv_fields
+
+    @@als_model = Alloy.meta.to_als
+    @@compiler  = Alloy::Bridge::Compiler.compile(@@als_model)
   end
 
   def test
@@ -25,7 +29,18 @@ class AddressBookTest < Test::Unit::TestCase
     # ans = ArbyModels::AddressBook.delUndoesAdd_alloy
     # puts "#{ans}"
     ans = Alloy.meta.to_als
-    assert_equal ArbyModels::AddressBook::Expected_alloy.strip, ans.strip
-    puts ans
+    assert_equal_ignore_whitespace ArbyModels::AddressBook::Expected_alloy, ans
   end
+
+  def test_check_addIdempotent
+    sol = @@compiler.execute_command(:addIdempotent)
+    assert !sol.satisfiable?
+  end
+
+  def test_check_delUndoesAdd
+    sol = @@compiler.execute_command(:delUndoesAdd)
+    assert !sol.satisfiable?
+  end
+
+
 end
