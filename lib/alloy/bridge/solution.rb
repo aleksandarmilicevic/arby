@@ -32,7 +32,11 @@ module Alloy
       class << self
         include Imports
 
-        Atom = Struct.new(:name, :a4type)
+        class Atom
+          attr_reader :name, :a4type
+          def initialize(name, a4type) @name, @a4type = name, a4type end
+          def to_s()                   "#{name}: #{a4type.toString}" end
+        end
 
         # Takes a proxy to an Alloy solution and extract a list of all
         # atoms from it.
@@ -47,6 +51,7 @@ module Alloy
         #
         # @param alloy_fields [Array(Rjb::Proxy ~> Sig$Field)]
         # @param a4sol [Rjb::Proxy ~> A4Solution]
+        # @return [Hash(String, Array(Tuple))], where Tuple is Array(Atom)
         def field_tuples(alloy_fields, a4sol)
           map = alloy_fields.map do |field|
             fld_name = field.label

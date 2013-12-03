@@ -42,31 +42,53 @@ module Alloy
       # atoms.
       #
       # @param atoms [Array(Sig)]
-      # @param map [Hash(String, Array(Tuple)] - maps relation names
-      #                                          to lists of tuples
-      # @return [Hash(String, Sig)]            - maps atom labels to atoms
+      # @param map [Hash(String, Array(Tuple)], where Tuple is Array(Atom)
+      #                                         - maps relation names
+      #                                           to lists of tuples
+      # @return [Hash(String, Sig)]             - maps atom labels to atoms
       def recreate_object_graph(map, atoms)
         label2atom = Hash[atoms.map{|a| [a.label, a]}]
-        map.each do |key, value|
-          for tuple in value
-            lhs   = label2atom[tuple[0].name]
-            rhs   = label2atom[tuple[1].name]
-            field = lhs.meta.field(key)
-            if field.scalar?
-              lhs.write_field(field, rhs)
-            else
-              if !lhs.read_field(field)
-                # the field is not a scalar, and this is the first
-                # atom we are adding to this field
-                lhs.write_field(field, [rhs])
-              else
-                lhs.write_field(field, lhs.read_field(field).push(rhs))
-              end
-            end
+
+        atoms.each do |atom|
+          atom.meta.fields(false).each do |fld|
+            # select those tuples in +fld+s relation that have +atom+ on the lhs
+            fld_tuples = map[fld.name].select{|tuple| tuple.first.name == atom.label}
+            # strip the lhs and convert the rest to arby atoms (by looking up in
+            # the +label2atom+ hash) to obtain the field value for the +atom+ atom
+            fld_val = fld_tuples.map{|tuple|
+              tuple[1..-1].map{|a| label2atom[a.name]}
+            }
+            # write that field value
+            atom.write_field(fld, fld_val)
           end
         end
+
         label2atom
       end
+
+      # def recreate_object_graph(map, atoms)
+      #   label2atom = Hash[atoms.map{|a| [a.label, a]}]
+      #   map.each do |key, value|
+      #     for tuple in value
+      #       lhs   = label2atom[tuple[0].name]
+      #       rhs   = label2atom[tuple[1].name]
+      #       field = lhs.meta.field(key)
+      #       if field.scalar?
+      #         lhs.write_field(field, rhs)
+      #       else
+      #         if !lhs.read_field(field)
+      #           # the field is not a scalar, and this is the first
+      #           # atom we are adding to this field
+      #           lhs.write_field(field, [rhs])
+      #         else
+      #           lhs.write_field(field, lhs.read_field(field).push(rhs))
+      #         end
+      #       end
+      #     end
+      #   end
+      #   label2atom
+      # end
+
     end
   end
 end
