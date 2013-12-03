@@ -14,9 +14,14 @@ module Alloy
         @a4sol
       end
 
+      def satisfiable?
+        fail_if_no_solution
+        @a4sol.satisfiable
+      end
+
       # @see Solution.translate_atoms
       def translate_atoms
-        fail_if_no_solution
+        fail_if_unsat
         self.class.translate_atoms(@a4sol)
       end
 
@@ -26,7 +31,7 @@ module Alloy
       #
       # @return [Hash(String, Array(Tuple))], where Tuple is Array(Atom)
       def field_tuples()
-        fail_if_no_solution
+        fail_if_unsat
         self.class.field_tuples(@compiler._a4world, @a4sol)
       end
 
@@ -42,7 +47,7 @@ module Alloy
       #
       # @return [Hash(String, Sig)] - a map of atom labels to aRby atoms
       def translate_to_arby()
-        fail_if_no_solution
+        fail_if_unsat
         self.class.translate_to_arby(@compiler._a4world, @a4sol)
       end
 
@@ -50,7 +55,11 @@ module Alloy
 
       def fail_if_no_solution
         fail "no A4Solution given" unless @a4sol
-        # TODO: also fail if UNSAT
+      end
+
+      def fail_if_unsat
+        fail_if_no_solution
+        fail "No instance found (the problem is unsatisfiable)" unless satisfiable?
       end
 
       # =================================================================
