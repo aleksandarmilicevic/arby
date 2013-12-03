@@ -8,6 +8,10 @@ module Alloy
         compiler
       end
 
+      def _a4world
+        @a4world
+      end
+
       # @see Compiler.parse
       def parse
         fail "already parsed" if @a4world

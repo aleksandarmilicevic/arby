@@ -158,9 +158,8 @@ class FileSystemTest < Test::Unit::TestCase
   end
 
   def test_file_system_compiler
-    a4atoms   = @@sol.all_atoms()
+    atoms   = @@sol.translate_atoms()
 
-    atoms = Alloy::Bridge::Translator.translate_atoms(a4atoms)
     assert_equal 2, atoms.select{|a| a.instance_of? Name}.size
     assert_equal 1, atoms.select{|a| a.instance_of? File}.size
     assert_equal 1, atoms.select{|a| a.instance_of? Root}.size
@@ -170,6 +169,7 @@ class FileSystemTest < Test::Unit::TestCase
 
   def test_map
     map = @@sol.field_tuples
+
     assert_equal 4, map.size
     assert_seq_equal ["name", "contents", "entries", "parent"], map.keys
     assert_equal 3, map["name"].size
@@ -186,10 +186,9 @@ class FileSystemTest < Test::Unit::TestCase
   #     Entry$1: Name$1 -> Folder$0
   #                          Entry$2: Name$1 -> File$0
   def test_graph
-    map   = @@sol.field_tuples
-    atoms = Alloy::Bridge::Translator.translate_atoms(@@sol.all_atoms)
-    g     = Alloy::Bridge::Translator.recreate_object_graph(map, atoms)
-    assert_equal 8, atoms.size
+    g = @@sol.translate_to_arby
+
+    assert_equal 8, g.size
     root0 = g["Root$0"]
     entry1 = g["Entry$1"]
     assert_equal [], g["Root$0"].parent
