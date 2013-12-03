@@ -184,7 +184,11 @@ module Alloy
               _define_method "def #{fun.name}(#{args_str}) end", __FILE__, __LINE__
           else
             proc_src_loc = proc.source_location rescue nil
-            orig_src, instr_src = FunInstrumenter.new(proc).instrument # rescue []
+            orig_src, instr_src = if fun.body
+                                    FunInstrumenter.new(proc).instrument # rescue []
+                                  else
+                                    ["", ""]
+                                  end
             if proc_src_loc && orig_src
               define_orig and
                 _define_method <<-RUBY, *proc_src_loc
@@ -270,7 +274,7 @@ RUBY
           end
         msg = "two blocks provided (both in args and explicitly)"
         raise ArgumentError, msg if block && fun_opts[:body]
-        block = fun_opts[:body] || block || proc{}
+        block = fun_opts[:body] || block
         fun_opts.merge!({:body => block, :owner => self})
       end
 
