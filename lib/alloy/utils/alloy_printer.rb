@@ -68,7 +68,7 @@ module Alloy
       end
 
       def model_to_als(model)
-        @out.pl "module #{model.name}"
+        @out.pl "module #{model.relative_name}"
         @out.pl
         @out.pn model.sigs, "\n"
         unless model.all_funs.empty?
