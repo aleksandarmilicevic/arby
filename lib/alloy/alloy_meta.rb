@@ -22,14 +22,14 @@ module Alloy
 
       def restrict_to(mod)
         @restriction_mod = mod
+        respond_to? :clear_caches and self.clear_caches()
       end
 
       protected
 
       def _restrict(src)
         return src unless @restriction_mod
-        src.select {|e|
-          e.name && e.name.start_with?(@restriction_mod.to_s)}
+        src.select {|e| e.name && e.name.start_with?(@restriction_mod.to_s)}
       end
     end
 
@@ -69,6 +69,10 @@ module Alloy
         msg = "#{mod} is not the currently opened model"
         raise ArgumentError, msg unless @opened_model == mod
         @opened_model = nil
+      end
+
+      def clear_caches
+        _clear_caches :sig, :model
       end
 
       def to_als

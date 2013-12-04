@@ -146,6 +146,13 @@ module SDGUtils
         end
       end
 
+      def _clear_caches(*whats)
+        whats.each do |w|
+          instance_variable_set "@#{w}_cache", nil
+          instance_variable_set "@#{w}_fnd_cache", nil
+        end
+      end
+
       def _fetch(own_only, &block)
         ans = if !own_only && up = _hierarchy_up
                 up._fetch(false, &block)
