@@ -189,6 +189,7 @@ class FileSystemTest < Test::Unit::TestCase
     map   = @@sol.field_tuples
     atoms = Alloy::Bridge::Translator.translate_atoms(@@sol.all_atoms)
     g     = Alloy::Bridge::Translator.recreate_object_graph(map, atoms)
+    binding.pry
     assert_equal 8, atoms.size
     root0 = g["Root$0"]
     entry1 = g["Entry$1"]
