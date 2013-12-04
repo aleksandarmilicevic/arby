@@ -58,20 +58,20 @@ class FileSystemTest < Test::Unit::TestCase
   #     Entry$1: Name$1 -> Folder$0
   #                          Entry$2: Name$1 -> File$0
   def test_graph
-    g = @@sol.translate_to_arby
+    inst = @@sol.translate_to_arby
 
-    assert_equal 8, g.size
-    root0 = g["Root$0"]
-    entry1 = g["Entry$1"]
-    assert_equal [], g["Root$0"].parent
-    assert_set_equal [[g["Entry$0"]], [g["Entry$1"]]], g["Root$0"].entries.unwrap
-    assert_equal g["Entry$0"].name, [[g["Name$0"]]]
-    assert_equal g["Entry$1"].name, [[g["Name$1"]]]
-    assert_equal g["Entry$2"].name, [[g["Name$1"]]]
-    assert_equal g["Entry$0"].contents, [[g["Folder$0"]]]
-    assert_equal g["Entry$1"].contents, [[g["Folder$0"]]]
-    assert_equal g["Entry$2"].contents, [[g["File$0"]]]
-    assert_set_equal [[g["Entry$2"]]], g["Folder$0"].entries.unwrap
+    assert_equal 8, inst.size
+    root0 = inst["Root$0"]
+    entry1 = inst["Entry$1"]
+    assert_equal [], inst["Root$0"].parent
+    assert_set_equal [[inst["Entry$0"]], [inst["Entry$1"]]], inst["Root$0"].entries.unwrap
+    assert_equal inst["Entry$0"].name, [[inst["Name$0"]]]
+    assert_equal inst["Entry$1"].name, [[inst["Name$1"]]]
+    assert_equal inst["Entry$2"].name, [[inst["Name$1"]]]
+    assert_equal inst["Entry$0"].contents, [[inst["Folder$0"]]]
+    assert_equal inst["Entry$1"].contents, [[inst["Folder$0"]]]
+    assert_equal inst["Entry$2"].contents, [[inst["File$0"]]]
+    assert_set_equal [[inst["Entry$2"]]], inst["Folder$0"].entries.unwrap
   end
 
   def test_correct_check

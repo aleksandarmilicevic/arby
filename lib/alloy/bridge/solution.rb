@@ -25,16 +25,6 @@ module Alloy
         self.class.translate_atoms(@a4sol)
       end
 
-      # Returns tuples grouped by field names.
-      #
-      # @see Solution.field_tuples
-      #
-      # @return [Hash(String, Array(Tuple))], where Tuple is Array(Atom)
-      def field_tuples()
-        fail_if_unsat
-        self.class.field_tuples(@compiler._a4world, @a4sol)
-      end
-
       # Translates the underlying solution from Alloy to aRby:
       #
       #   - the Alloy atoms are converted to instances of
@@ -49,6 +39,16 @@ module Alloy
       def translate_to_arby()
         fail_if_unsat
         self.class.translate_to_arby(@compiler._a4world, @a4sol)
+      end
+
+      # Returns tuples grouped by field names.
+      #
+      # @see Solution.field_tuples
+      #
+      # @return [Hash(String, Array(Tuple))], where Tuple is Array(Atom)
+      def field_tuples()
+        fail_if_unsat
+        self.class.field_tuples(@compiler._a4world, @a4sol)
       end
 
       private
@@ -86,6 +86,17 @@ module Alloy
           Translator.translate_atoms(a4sol.getAllAtoms)
         end
 
+        # @see Translator.recreate_object_graph
+        #
+        # @param a4world [Rjb::Proxy ~> CompModule]
+        # @param a4sol [Rjb::Proxy ~> A4Solution]
+        # @return [Hash(String, Sig)]               - a map of atom labels to atoms
+        def translate_to_arby(a4world, a4sol)
+          field_map = field_tuples(a4world, a4sol)
+          atoms = translate_atoms(a4sol)
+          Translator.recreate_object_graph(field_map, atoms)
+        end
+
         # Returns a hash of tuples grouped by field names.
         #
         # @param a4world [Rjb::Proxy ~> CompModule]
@@ -107,16 +118,6 @@ module Alloy
           Hash[map]
         end
 
-        # @see Translator.recreate_object_graph
-        #
-        # @param a4world [Rjb::Proxy ~> CompModule]
-        # @param a4sol [Rjb::Proxy ~> A4Solution]
-        # @return [Hash(String, Sig)]               - a map of atom labels to atoms
-        def translate_to_arby(a4world, a4sol)
-          field_map = field_tuples(a4world, a4sol)
-          atoms = translate_atoms(a4sol)
-          Translator.recreate_object_graph(field_map, atoms)
-        end
       end
 
     end

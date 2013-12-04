@@ -44,6 +44,5 @@ class AddressBookTest < Test::Unit::TestCase
 
   def test_find_model
     inst = Alloy.meta.solve_model
-    puts inst
   end
 end

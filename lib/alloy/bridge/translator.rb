@@ -1,4 +1,5 @@
 require 'alloy/bridge/imports'
+require 'alloy/ast/instance'
 
 module Alloy
   module Bridge
@@ -63,7 +64,7 @@ module Alloy
           end
         end
 
-        label2atom
+        Alloy::Ast::Instance.new(atoms)
       end
 
       # def recreate_object_graph(map, atoms)
