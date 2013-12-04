@@ -96,18 +96,9 @@ module Alloy
     module MAtom
       include MRelation
 
-      def arity
-        1
-      end
-
-      def as_tuple
-        Tuple.new(1, [self])
-      end
-
-      def tuples
-        return [] if self.nil?
-        [as_tuple]
-      end
+      def arity() 1 end
+      def as_tuple() Tuple.new(1, [self]) end
+      def tuples() (self.nil?) ? [] : [as_tuple] end
     end
 
     #------------------------------------------
@@ -119,29 +110,13 @@ module Alloy
       include MRelation
 
       # @return [Array]
-      def values
-        fail "Must override"
-      end
+      def values()     fail "Must override" end
+      def atom_at(idx) values[idx] end
 
-      def atom_at(idx)
-        values[idx]
-      end
-
-      def length
-        arity
-      end
-
-      def arity
-        values.length
-      end
-
-      def tuples
-        [self]
-      end
-
-      def as_tuple
-        self
-      end
+      def length()   arity end
+      def arity()    values.length end
+      def tuples()   [self] end
+      def as_tuple() self end
 
       def tuple_product(rhs_tuple)
         self.product(rhs_tuple).tuples[0]
@@ -223,17 +198,9 @@ module Alloy
         freeze
       end
 
-      def arity
-        @arity
-      end
-
-      def tuples
-        @tuple_set
-      end
-
-      def to_s
-        @tuple_set.to_s
-      end
+      def arity()  @arity end
+      def tuples() @tuple_set end
+      def to_s()   @tuple_set.to_s end
 
       def == (other)
         return false if other == nil

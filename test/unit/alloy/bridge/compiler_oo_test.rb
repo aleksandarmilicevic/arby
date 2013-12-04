@@ -15,7 +15,7 @@ module Alloy
       protected
 
       # @override
-      def get_all_atoms()  @@solution.all_atoms end
+      def get_all_atoms()  @@solution._a4sol.getAllAtoms end
       # @override
       def get_all_fields() @@compiler.all_fields end
 

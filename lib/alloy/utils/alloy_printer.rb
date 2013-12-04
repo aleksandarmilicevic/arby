@@ -68,7 +68,7 @@ module Alloy
       end
 
       def model_to_als(model)
-        @out.pl "module #{model.name}"
+        @out.pl "module #{model.relative_name}"
         @out.pl
         @out.pn model.sigs, "\n"
         unless model.all_funs.empty?
@@ -148,16 +148,17 @@ module Alloy
       end
 
       def command_to_als(cmd)
-        name = (cmd.name.empty?) ? " " : "#{cmd.name} "
-        @out.p "#{cmd.kind} #{name}{"
-        if cmd.fun
-          @out.pl
+        name = (cmd.name.empty?) ? "" : "#{cmd.name} "
+        @out.p "#{cmd.kind} #{name}"
+        if cmd.fun && cmd.fun.body
+          @out.pl "{"
           @out.in do
             @out.pn [cmd.fun.sym_exe]
           end
           @out.pl
+          @out.p "} "
         end
-        @out.pl "} #{cmd.scope}"
+        @out.pl "#{cmd.scope}"
       end
 
       def type_to_als(type)

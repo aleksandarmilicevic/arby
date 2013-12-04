@@ -20,9 +20,9 @@ module Alloy
         end
 
         def assert_accessors_defined(sig_cls, fname)
-          assert sig_cls.method_defined?(fname.to_sym), 
+          assert sig_cls.method_defined?(fname.to_sym),
                  "method `#{fname}' not defined in #{sig_cls}"
-          assert sig_cls.method_defined?("#{fname}=".to_sym), 
+          assert sig_cls.method_defined?("#{fname}=".to_sym),
                  "method `#{fname}=' not defined in #{sig_cls}"
         end
 
@@ -49,8 +49,10 @@ module Alloy
           inst = sig_cls.new
           getter = inst.method(fname.to_sym)
           setter = inst.method("#{fname}=".to_sym)
-          setter.call(42)
-          assert_equal 42, getter.call
+          arity = sig_cls.meta.any_field(fname).type.arity
+          val = (0...arity).map{|_| 42}
+          setter.call([val])
+          assert_equal [val], getter.call.unwrap
         end
 
         def fld_acc_helper(sig_cls, fld_arr)

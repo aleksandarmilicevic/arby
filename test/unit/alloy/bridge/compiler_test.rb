@@ -10,12 +10,12 @@ module Alloy
       include SDGUtils::Testing::Assertions
 
       @@model = """
-sig A { 
+sig A {
   f: set A,
   g: Int
 }
 
-run { 
+run {
   #f > 1
 } for 4 but exactly 3 A
 """
@@ -36,17 +36,17 @@ run {
 
       def test_all_fields
         a4fields = get_all_fields
-                
+
         field_names = a4fields.map &:label
         assert_set_equal ["f", "g"], field_names
-        
+
         field_owners = a4fields.map(&:sig).map(&:label)
         assert_seq_equal ["this/A", "this/A"], field_owners
       end
 
       protected
 
-      def get_all_atoms()  Solution.all_atoms(@@a4sol) end
+      def get_all_atoms()  @@a4sol.getAllAtoms end
       def get_all_fields() Compiler.all_fields(@@a4world) end
 
     end
