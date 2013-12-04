@@ -42,5 +42,8 @@ class AddressBookTest < Test::Unit::TestCase
     assert !sol.satisfiable?
   end
 
-
+  def test_find_model
+    inst = Alloy.meta.solve_model
+    puts inst
+  end
 end
