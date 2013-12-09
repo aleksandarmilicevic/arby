@@ -9,9 +9,17 @@ Partial instance examples:
 
   - chameleon (by Alcino)
 
+  - squander-style for pure functions
+
+      - hamiltonian path    
+      - top sort
+      - k clique
+      - k coloring
+
 Staging examples:
 
-  - iteratively increasing/decreasing scope
-  - ?
-
-  
+  - iteratively/binary increasing/decreasing scope
+  - max clique
+  - traveling salesman problem
+  - longest path
+  - prim's algorithm
