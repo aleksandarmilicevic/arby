@@ -1,0 +1,17 @@
+Partial instance examples:
+
+  - sudoku
+
+  - from Derek's and Emina's papers
+ 
+       https://ece.uwaterloo.ca/~drayside/abz12-partial-instances.pdf
+       http://people.csail.mit.edu/emina/pubs/kodkod.alloy06.pdf
+
+  - chameleon (by Alcino)
+
+Staging examples:
+
+  - iteratively increasing/decreasing scope
+  - ?
+
+  
