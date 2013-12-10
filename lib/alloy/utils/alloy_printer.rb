@@ -143,7 +143,7 @@ module Alloy
         fun_name = @conf.fun_namer[fun]
         @out.pl "#{kind} #{fun_name}#{params_str}#{ret_str} {"
         @out.in do
-          @out.pn [fun.sym_exe]
+          @out.pn fun.sym_exe.to_conjuncts, "\n"
         end
         @out.pl "\n}"
       end
