@@ -4,8 +4,6 @@ require 'alloy/ast/expr'
 module Alloy
   module Ast
 
-    #TODO: move the "__type" method to MExpr
-
     module ExprBuilder
       extend self
 
@@ -15,8 +13,11 @@ module Alloy
       # @param op   [Alloy::Ast::Op] --- binary operator
       # @param args [Array(Expr)]    --- operands
       def reduce_to_binary(op, *args)
+        fail "received only #{args.size} args for #{op}" unless args.size > 1
         args[1..-1].reduce(args[0]){|acc, rhs| apply(op, acc, rhs)}
       end
+
+      def union(*args) reduce_to_binary(Ops::PLUS, *args) end
 
       # Keep track of result type
       #
