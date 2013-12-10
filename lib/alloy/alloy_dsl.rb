@@ -1,4 +1,5 @@
 require 'alloy/dsl/model_builder'
+require 'alloy/ast/types'
 
 module Alloy
 
@@ -26,6 +27,8 @@ module Alloy
     # Different aliases for the +alloy_model+ method.
     alias_method :alloy_module, :alloy_model
     alias_method :alloy, :alloy_model
+
+    Int = Alloy::Ast::AType.get(Integer)
   end
 
 end
