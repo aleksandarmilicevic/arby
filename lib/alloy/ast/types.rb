@@ -180,6 +180,7 @@ module Alloy
 
       def product(rhs) AType.product(self, rhs) end
       def *(rhs)       self.product(AType.get(rhs)) end
+      def **(rhs)      self * rhs end
       def join(rhs)    AType.join(self, rhs) end
       def transpose()  AType.transpose(self) end
 
