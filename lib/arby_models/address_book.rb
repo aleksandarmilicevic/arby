@@ -67,7 +67,7 @@ sig Name  {}
 sig Addr  {}
 
 sig Book  {
-  addr: Name -> Addr
+  addr: Name -> lone Addr
 }
 
 pred add[self: Book, ans: Book, n: Name, a: Addr] {

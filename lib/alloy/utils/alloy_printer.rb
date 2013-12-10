@@ -113,7 +113,8 @@ module Alloy
       end
 
       def field_to_als(fld)
-        @out.p "#{@conf.arg_namer[fld]}: #{fld.type.to_alloy}"
+        @out.p "#{@conf.arg_namer[fld]}: "
+        @out.pn [fld.type]
       end
 
       def fun_to_als(fun)
@@ -173,15 +174,15 @@ module Alloy
             @out.p type.cls.to_s.relative_name
           end
         when Alloy::Ast::ProductType
-          @out.pn type.lhs
+          @out.pn [type.lhs]
           @out.p " -> "
           @out.p "(" if type.rhs.arity > 1
-          @out.pn type.rhs
+          @out.pn [type.rhs]
           @out.p ")" if type.rhs.arity > 1
         when Alloy::Ast::ModType
           @out.p "#{type.mult} "
           @out.p "(" if type.arity > 1
-          @out.pn type.type
+          @out.pn [type.type]
           @out.p ")" if type.arity > 1
         else
           @out.p type.to_s
