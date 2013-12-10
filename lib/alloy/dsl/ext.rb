@@ -21,9 +21,8 @@ module SDGUtils
       # @see Alloy::Ast::UnaryType
       # @see Alloy::Ast::ProductType
       #--------------------------------------------------------
-      def *(rhs)
-        ::Alloy::Ast::UnaryType.new(self) * rhs
-      end
+      def *(rhs) ::Alloy::Ast::AType.get(self) * rhs end
+      def **(rhs) ::Alloy::Ast::AType.get(self) ** rhs end
     end
   end
 end
@@ -40,12 +39,8 @@ class Class
   # @see Alloy::Ast::UnaryType
   # @see Alloy::Ast::ProductType
   #--------------------------------------------------------
-  def *(rhs)
-    to_atype * rhs
-  end
-  def **(rhs)
-    to_atype * rhs
-  end
+  def *(rhs)  to_atype * rhs end
+  def **(rhs) to_atype ** rhs end
 
   def set_of()   Alloy::Dsl::MultHelper.set(self) end
   def is_sig?()  ancestors.member? Alloy::Ast::ASig end

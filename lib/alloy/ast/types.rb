@@ -29,6 +29,9 @@ module Alloy
             dom = AType.get(obj.first)
             obj[1..-1].reduce(dom){|acc, o| ProductType.new(acc, AType.get(o))}
           end
+        when SDGUtils::DSL::MissingBuilder
+          ans = UnaryType.new(obj)
+          ans.apply_args(obj.args)
         else
           UnaryType.new(obj)
         end
@@ -397,10 +400,7 @@ module Alloy
 
       def initialize(cls)
         @cls = ColType.get(cls)
-        self.apply_args(cls.args) if (SDGUtils::DSL::MissingBuilder === cls)
-        unless @cls.instance_of? ColType::UnresolvedRefColType
-          freeze
-        end
+        freeze unless @cls.instance_of?(ColType::UnresolvedRefColType)
       end
 
       def short_name
