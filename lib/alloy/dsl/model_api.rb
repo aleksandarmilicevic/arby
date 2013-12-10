@@ -2,6 +2,7 @@ require 'alloy/dsl/helpers'
 require 'alloy/dsl/command_helper'
 require 'alloy/dsl/sig_builder'
 require 'alloy/ast/model'
+require 'alloy/ast/expr_builder'
 require 'sdg_utils/lambda/sourcerer'
 
 module Alloy
@@ -18,6 +19,7 @@ module Alloy
       include AbstractHelper
       include FunHelper
       include CommandHelper
+      include Alloy::Ast::ExprHelper
       extend self
 
       # protected

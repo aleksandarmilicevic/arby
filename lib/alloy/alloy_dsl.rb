@@ -29,6 +29,7 @@ module Alloy
     alias_method :alloy, :alloy_model
 
     Int = Alloy::Ast::AType.get(Integer)
+    
   end
 
 end

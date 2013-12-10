@@ -4,8 +4,15 @@ require 'alloy/ast/expr'
 module Alloy
   module Ast
 
+    module ExprHelper
+      def union(*args) ExprBuilder.reduce_to_binary(Ops::PLUS, *args) end
+      def conj(*args)  ExprBuilder.reduce_to_binary(Ops::AND, *args) end
+      def disj(*args)  ExprBuilder.reduce_to_binary(Ops::AND, *args) end
+    end
+
     module ExprBuilder
       extend self
+      extend ExprHelper
 
       # Reduces the given operands (+args+) by applying the given
       # binary operator (+op+)
@@ -16,8 +23,6 @@ module Alloy
         fail "received only #{args.size} arg (#{args}) for #{op}" unless args.size > 1
         args[1..-1].reduce(args[0]){|acc, rhs| apply(op, acc, rhs)}
       end
-
-      def union(*args) reduce_to_binary(Ops::PLUS, *args) end
 
       # Keep track of result type
       #
