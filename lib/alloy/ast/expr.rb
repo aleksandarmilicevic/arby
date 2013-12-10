@@ -88,12 +88,13 @@ module Alloy
           else_cb = proc { not_expr_fail(e, parent, kind_in_parent) }
         end
         case e
-        when NilClass; default_val || else_cb.call
-        when Integer; IntExpr.new(e)
-        when MExpr; e
-        when AType; TypeExpr.new(e)
-        when TrueClass; BoolConst::TRUE
+        when NilClass;   default_val || else_cb.call
+        when Integer;    IntExpr.new(e)
+        when MExpr;      e
+        when AType;      TypeExpr.new(e)
+        when TrueClass;  BoolConst::TRUE
         when FalseClass; BoolConst::FALSE
+        when Range;      ExprBuilder.union(*e.map{|i| IntExpr.new(i)})
         when Proc; resolve_expr(e.call, parent, kind_in_parent, default_val, &else_cb)
         else
           if e.respond_to? :to_alloy_expr
@@ -385,8 +386,10 @@ module Alloy
           #TODO: define some constants in AType for built-in types
           super(Alloy::Ast::AType.get(Integer))
           @__value = value
+          @__op = Ops::NOOP
         end
         def exe_concrete() __value end
+        def to_s()         __value.to_s end
       end
 
       # ============================================================================

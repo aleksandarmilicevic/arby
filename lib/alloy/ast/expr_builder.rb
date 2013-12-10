@@ -13,7 +13,7 @@ module Alloy
       # @param op   [Alloy::Ast::Op] --- binary operator
       # @param args [Array(Expr)]    --- operands
       def reduce_to_binary(op, *args)
-        fail "received only #{args.size} args for #{op}" unless args.size > 1
+        fail "received only #{args.size} arg (#{args}) for #{op}" unless args.size > 1
         args[1..-1].reduce(args[0]){|acc, rhs| apply(op, acc, rhs)}
       end
 
