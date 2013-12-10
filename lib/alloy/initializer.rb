@@ -48,8 +48,9 @@ module Alloy
     end
 
     # ----------------------------------------------------------------
-    # Goes throug all the fields, searches for +UnresolvedRefColType+,
-    # resolves them and updates the field information.
+    # Goes through all the fields, searches for
+    # +UnresolvedRefColType+, resolves them and updates the field
+    # information.
     # ----------------------------------------------------------------
     def resolve_fields(force=false)
       return unless force || Alloy.test_and_set(:fields_resolved)
