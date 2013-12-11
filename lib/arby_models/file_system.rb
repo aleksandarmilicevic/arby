@@ -108,7 +108,8 @@ pred oneParent_buggyVersion {
 
 pred oneParent_correctVersion {
   all d: Folder - Root {
-    one d.parent && one d.~contents
+    one d.parent
+    one d.~contents
   }
 }
 
