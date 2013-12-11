@@ -35,7 +35,7 @@ module Alloy
           #TODO: do it the right way
           seq_flds = [Field.new(:name   => :elems,
                                 :parent => type,
-                                :type   => TypeConsts::Int.set_of)]
+                                :type   => type.remove_multiplicity.set_of)]
           add_field_methods cls, seq_flds
         end
       end
@@ -266,6 +266,7 @@ module Alloy
           domain = self
           if arity == 1
             args = [Alloy::Ast::Arg.new(blk.parameters[0][1], domain)]
+            binding.pry
             body = blk
           else
             Expr.ensure_type(self)
