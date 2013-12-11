@@ -549,8 +549,10 @@ module Alloy
       end
 
       def arity()               @type.arity end
-      def column!(idx)          @type.column!(idx) end
+      def column!(idx)          (self.unary?) ? self : @type.column!(idx) end
       def klass()               @type.klass end
+      def cls()                 @type.cls end
+      def update_cls(*a)        @type.update_cls(*a) end
 
       def has_multiplicity?()     !!@mult end
       def multiplicity()          (has_multiplicity?) ? @mult : super end
