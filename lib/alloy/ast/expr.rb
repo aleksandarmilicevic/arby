@@ -107,9 +107,9 @@ module Alloy
       end
 
       def self.not_expr_fail(e, parent=nil, kind_in_parent=nil)
-        kind = kind_in_parent ? "#{kind_in_parent} " : "#{e}"
-        par = parent ? " in #{parent}" : ""
-        fail "#{kind} is not an expression#{par}"
+        kind = kind_in_parent ? "#{kind_in_parent} `#{e}'" : "#{e}"
+        par = parent ? " in `#{parent}'" : ""
+        fail "#{kind} is not an expression#{par}, but is `#{e.class}'"
       end
 
       # ============================================================================
