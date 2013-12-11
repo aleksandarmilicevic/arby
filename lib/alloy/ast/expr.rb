@@ -35,7 +35,10 @@ module Alloy
           #TODO: do it the right way
           seq_flds = [Field.new(:name   => :elems,
                                 :parent => type,
-                                :type   => type.remove_multiplicity.set_of)]
+                                :type   => type.remove_multiplicity.set_of),
+                      Field.new(:name   => :inds,
+                                :parent => type,
+                                :type   => TypeConsts::Int.set_of)]
           add_field_methods cls, seq_flds
         end
       end
