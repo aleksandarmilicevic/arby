@@ -12,7 +12,7 @@ class SeqFilteringTest < Test::Unit::TestCase
     Alloy.meta.restrict_to(ArbyModels::SeqFiltering)
     Alloy.initializer.init_all_no_freeze
 
-    @@als_model = Alloy.meta.to_als
+    @@als_model = ArbyModels::SeqFiltering.meta.to_als
   end
 
   def test1
