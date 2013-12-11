@@ -20,6 +20,7 @@ module Alloy
       include FunHelper
       include CommandHelper
       include Alloy::Ast::ExprHelper
+      include Alloy::Ast::TypeConsts
       extend self
 
       # protected

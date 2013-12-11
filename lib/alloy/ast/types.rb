@@ -566,5 +566,11 @@ module Alloy
       end
     end
 
+    module TypeConsts
+      Int = UnaryType.new(Integer)
+
+      def Int() TypeConsts::Int end
+    end
+
   end
 end
