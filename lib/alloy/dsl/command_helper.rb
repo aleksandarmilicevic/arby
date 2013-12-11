@@ -16,9 +16,13 @@ module Alloy
         __command(:check, *name_and_scope, &body)
       end
 
-      # def run(scope, given_name=nil, &body)
-      #   __command(:run, scope, given_name, &body)
-      # end
+      def run(*name_and_scope, &body)
+        if caller[0].end_with?("block in _run_suite'")
+          super
+        else
+          __command(:run, *name_and_scope, &body)
+        end
+      end
 
       private
 
