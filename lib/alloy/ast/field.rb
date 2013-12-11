@@ -56,8 +56,21 @@ require 'sdg_utils/string_utils'
       def impl()               Proc === @impl ? @impl.call : @impl end
       def belongs_to_parent?() !!@belongs_to_parent end
 
-      def full_name() "#{@parent.name}.#{name}" end
-      def full_type() Alloy::Ast::ProductType.new(@parent.to_atype, @type) end
+      def full_name()
+        if @parent
+          "#{@parent.name}.#{name}"
+        else
+          name
+        end
+      end
+
+      def full_type()
+        if @parent
+          Alloy::Ast::ProductType.new(@parent.to_atype, @type)
+        else
+          @type
+        end
+      end
 
       # @param owner [Alloy::Ast::ASig]
       # @param value [Object]

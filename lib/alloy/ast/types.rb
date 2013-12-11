@@ -127,12 +127,17 @@ module Alloy
       def modifiers()             [] end
       def args()                  {} end
 
-      def apply_multiplicity(mult)  ModType.new(self, mult.to_sym, [], {}) end
-      def apply_modifier(mod)       ModType.new(self, nil, [mod.to_sym], {}) end
-      # @param args [Array]
-      def apply_args(args)          ModType.new(self, nil, [], Array(args)) end
+      def set_of()  self.apply_multiplicity(:set) end
+      def seq_of()  self.apply_multiplicity(:seq) end
+      def one_of()  self.apply_multiplicity(:one) end
+      def lone_of() self.apply_multiplicity(:lone) end
 
-      def remove_multiplicity()     ModType.new(@type, nil, modifiers, args) end
+      def apply_multiplicity(mult) ModType.new(self, mult.to_sym, [], {}) end
+      def apply_modifier(mod)      ModType.new(self, nil, [mod.to_sym], {}) end
+      # @param args [Array]
+      def apply_args(args)         ModType.new(self, nil, [], Array(args)) end
+
+      def remove_multiplicity()    ModType.new(@type, nil, modifiers, args) end
 
       def scalar?
         case multiplicity

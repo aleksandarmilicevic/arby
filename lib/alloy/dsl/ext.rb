@@ -44,5 +44,9 @@ class Class
 
   def set_of()   Alloy::Dsl::MultHelper.set(self) end
   def is_sig?()  ancestors.member? Alloy::Ast::ASig end
-  def to_atype() Alloy::Ast::UnaryType.new(self) end
+  def to_atype() Alloy::Ast::AType.get(self) end
+end
+
+class Object
+  def to_atype() Alloy::Ast::AType.get(self) end
 end

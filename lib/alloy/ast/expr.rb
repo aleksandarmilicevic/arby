@@ -32,6 +32,11 @@ module Alloy
           add_fun_methods   cls, range_cls.meta.all_funs
         end
         if type.range.seq?
+          #TODO: do it the right way
+          seq_flds = [Field.new(:name   => :elems,
+                                :parent => type,
+                                :type   => TypeConsts::Int.set_of)]
+          add_field_methods cls, seq_flds
         end
       end
 
