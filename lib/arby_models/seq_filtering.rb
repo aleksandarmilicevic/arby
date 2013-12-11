@@ -30,6 +30,8 @@ module ArbyModels
         end
       }
     }
+
+    run :filter, "for 4 but exactly 3 A"
   end
 
 
