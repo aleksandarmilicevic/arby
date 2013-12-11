@@ -229,12 +229,12 @@ module Alloy
                     end
         if expr.comprehension?
           @out.p "{#{decl_str} | "
-          @out.pn [expr.body]
+          @out.pn expr.body.to_conjuncts, "\n"
           @out.p "}"
         else
           @out.pl "#{expr_kind} #{decl_str} {"
           @out.in do
-            @out.pn [expr.body]
+            @out.pn expr.body.to_conjuncts, "\n"
           end
           @out.pl "\n}"
         end
@@ -264,7 +264,7 @@ module Alloy
       def unaryexpr_to_als(ue)
         op_str =
           case ue.op
-          when TRANSPOSE, CLOSURE, RCLOSURE; ue.op.to_s
+          when TRANSPOSE, CLOSURE, RCLOSURE, CARDINALITY; ue.op.to_s
           else "#{ue.op} "
           end
         @out.p "#{op_str}#{enclose ue.op, ue.sub}"
