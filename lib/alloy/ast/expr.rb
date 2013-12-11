@@ -31,6 +31,8 @@ module Alloy
         elsif (Alloy::Dsl::ModelDslApi >= range_cls rescue false)
           add_fun_methods   cls, range_cls.meta.all_funs
         end
+        if type.range.seq?
+        end
       end
 
       def self.add_fun_methods(target_cls, funs)
