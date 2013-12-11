@@ -115,7 +115,8 @@ module Alloy
       def isBlob?()    false end
       def isFile?()    false end
 
-      def |(args)                 self.apply_args(*Array(args)) end
+      def |(args)                 self.apply_args(args) end
+      def [](*args)               self.apply_args(args) end
 
       def has_modifier?(mod)      modifiers.member?(mod.to_sym) end
       def has_multiplicity?()     false end
@@ -128,7 +129,8 @@ module Alloy
 
       def apply_multiplicity(mult)  ModType.new(self, mult.to_sym, [], {}) end
       def apply_modifier(mod)       ModType.new(self, nil, [mod.to_sym], {}) end
-      def apply_args(args)          ModType.new(self, nil, [], args) end
+      # @param args [Array]
+      def apply_args(args)          ModType.new(self, nil, [], Array(args)) end
 
       def remove_multiplicity()     ModType.new(@type, nil, modifiers, args) end
 
