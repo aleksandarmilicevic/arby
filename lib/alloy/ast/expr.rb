@@ -248,16 +248,20 @@ module Alloy
 
         # @param kind [:all, :some, :comprehension]
         def _blk_to_quant(kind, &blk)
-          type = Expr.ensure_type(self)
-          msg = "block must have same arity as lhs type: \n" +
-                "  block arity: #{blk.arity}\n" +
-                "  type arity: #{type.arity} (#{type})"
-          fail msg unless blk.arity == type.arity
+          type = self.__type #Expr.ensure_type(self)
+          arity = blk.arity
+          if type
+            msg = "block must have same arity as lhs type: \n" +
+                  "  block arity: #{blk.arity}\n" +
+                  "  type arity: #{type.arity} (#{type})"
+            fail msg unless arity == type.arity
+          end
           domain = self
-          if type.unary?
+          if arity == 1
             args = [Alloy::Ast::Arg.new(blk.parameters[0][1], domain)]
             body = blk
           else
+            Expr.ensure_type(self)
             args = type.each_with_index.map{ |col_type, idx|
               Alloy::Ast::Arg.new(blk.parameters[idx][1], col_type)
             }
@@ -609,7 +613,7 @@ module Alloy
 
         def self.comprehension(decl, body)
           ans = self.new(Ops::SETCPH, decl, body)
-          Expr.add_methods_for_type(ans, decl.last.type)
+          Expr.add_methods_for_type(ans, decl.last.type) if decl.last.type
           ans
         end
 
