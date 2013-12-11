@@ -196,10 +196,12 @@ module Alloy
 
         def !()              ExprBuilder.apply(NOT, self) end
         def empty?()         ExprBuilder.apply(NO, self) end
-        def no?()            ExprBuilder.apply(NO) end
-        def some?()          ExprBuilder.apply(SOME) end
-        def lone?()          ExprBuilder.apply(LONE) end
-        def one?()           ExprBuilder.apply(ONE) end
+        def no?()            ExprBuilder.apply(NO, self) end
+        def some?()          ExprBuilder.apply(SOME, self) end
+        def lone?()          ExprBuilder.apply(LONE, self) end
+        def one?()           ExprBuilder.apply(ONE, self) end
+
+        def size()           ExprBuilder.apply(CARDINALITY, self) end
 
         def select(&blk) _blk_to_quant(:comprehension, &blk) end
         def all?(&blk)   _blk_to_quant(:all, &blk) end
@@ -266,7 +268,6 @@ module Alloy
           domain = self
           if arity == 1
             args = [Alloy::Ast::Arg.new(blk.parameters[0][1], domain)]
-            binding.pry
             body = blk
           else
             Expr.ensure_type(self)
