@@ -3,18 +3,26 @@ require 'alloy/ast/instance'
 
 module Alloy
   module Bridge
+
+    class Atom
+      attr_reader :name, :a4type
+      def initialize(name, a4type) @name, @a4type = name, a4type end
+      def to_s()                   "#{name}: #{a4type.toString}" end
+    end
+
     module Translator
       extend self
 
       SIG_PREFIX = "this/"
 
-      # Takes an Rjb Proxy object pointing to a list of alloy atoms,
-      # and converts them to instances of corresponding aRby sig
-      # classes.
+      # Takes an Rjb Proxy object pointing to an A4Solution, gets all
+      # atoms from it, and converts them to instances of
+      # corresponding aRby sig classes.
       #
-      # @param a4atoms [Rjb::Proxy -> SafeList<ExprVar>]
+      # @param a4atoms [Rjb::Proxy -> A4Solution]
       # @return [Array(Sig)]
-      def translate_atoms(a4atoms)
+      def translate_atoms(a4sol)
+        a4atoms = a4sol.getAllAtoms
         len = a4atoms.size
         (0...len).map do |idx|
           translate_atom(a4atoms.get(idx))
@@ -37,6 +45,28 @@ module Alloy
         atom
       end
 
+      # Returns a hash of tuples grouped by field names.
+      #
+      # @param a4world [Rjb::Proxy ~> CompModule]
+      # @param a4sol [Rjb::Proxy ~> A4Solution]
+      # @return [Hash(String, Array(Tuple))], where Tuple is Array(Atom)
+      def field_tuples(a4world, a4sol)
+        alloy_fields = Compiler.all_fields(a4world)
+        map = alloy_fields.map do |field|
+          fld_name = field.label
+          a4_tuple_set = a4sol.eval(field)
+          a4_iterator = a4_tuple_set.iterator
+          fld_tuples = []
+          while a4_iterator.hasNext
+            t = a4_iterator.next
+            fld_tuples << (0...t.arity).map{|col| Atom.new(t.atom(col), t.sig(col)) }
+          end
+          [fld_name, fld_tuples]
+        end
+        Hash[map]
+      end
+
+
       # Takes a map of relations to tuples, and a list of aRby atom
       # objects.  Populates the atoms' fields (instance variables) to
       # the values in +map+.  Returns a hash mapping atom labels to
@@ -47,7 +77,9 @@ module Alloy
       #                                               to lists of tuples
       # @param atoms [Array(Sig)]
       # @return [Hash(String, Sig)]                 - maps atom labels to atoms
-      def recreate_object_graph(fld_map, atoms)
+      def recreate_object_graph(a4world, a4sol)
+        atoms = translate_atoms(a4sol)
+        fld_map = field_tuples(a4world, a4sol)
         label2atom = Hash[atoms.map{|a| [a.label, a]}]
 
         atoms.each do |atom|
