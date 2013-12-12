@@ -96,8 +96,8 @@ module Alloy
 
       def instantiated?() true end
 
-      def arity()      fail "Class #{self.class} must override `arity'" end
-      def column!(idx) fail "Class #{self.class} must override `column!'" end
+      def arity()       fail "Class #{self.class} must override `arity'" end
+      def column!(idx)  fail "Class #{self.class} must override `column!'" end
 
       def empty?()    arity == 0 end
       def unary?()    arity == 1 end
@@ -190,6 +190,16 @@ module Alloy
       def **(rhs)      self * rhs end
       def join(rhs)    AType.join(self, rhs) end
       def transpose()  AType.transpose(self) end
+
+      def ===(obj)
+        tuple = Array(obj)
+        (0...arity).each do |idx|
+          unless column(idx).type_of? tuple[idx]
+            return false
+          end
+        end
+        true
+      end
 
       def to_alloy
         Alloy::Utils::AlloyPrinter.export_to_als(self)
@@ -415,6 +425,15 @@ module Alloy
         klass.relative_name
       end
 
+      def type_of?(obj)
+        if isBool?
+          # TODO: implement union type
+          FalseClass === obj || TrueClass === obj
+        else
+          klass === obj
+        end
+      end
+
       # Allowed to call this method only once, only to
       # update an unresolved type
       def update_cls(cls)
@@ -553,16 +572,17 @@ module Alloy
         freeze
       end
 
-      def arity()               @type.arity end
-      def column!(idx)          (self.unary?) ? self : @type.column!(idx) end
-      def klass()               @type.klass end
-      def cls()                 @type.cls end
-      def update_cls(*a)        @type.update_cls(*a) end
+      def arity()             @type.arity end
+      def column!(idx)        (self.unary?) ? self : @type.column!(idx) end
+      def klass()             @type.klass end
+      def cls()               @type.cls end
+      def update_cls(*a)      @type.update_cls(*a) end
+      def type_of?(obj)       @type.type_of?(obj) end
 
-      def has_multiplicity?()     !!@mult end
-      def multiplicity()          (has_multiplicity?) ? @mult : super end
-      def modifiers()             @mods end
-      def args()                  @args end
+      def has_multiplicity?() !!@mult end
+      def multiplicity()      (has_multiplicity?) ? @mult : super end
+      def modifiers()         @mods end
+      def args()              @args end
 
       def to_s
         if @type.arity > 1

@@ -1,3 +1,5 @@
+require 'alloy/alloy_conf'
+require 'alloy/ast/types'
 require 'sdg_utils/errors'
 
 module Alloy
@@ -28,16 +30,32 @@ module Alloy
           actual <= expected #TODO: incomplete
       end
 
+      # @param type - anything that can be converted to +AType+ via +AType.get+
+      # @param tuple [Array]
+      def typecheck!(type, tuple)
+        atype = AType.get(type)
+        tuple = Array(tuple)
+        msg = "tuple #{tuple} doesn't typecheck against #{atype}"
+        raise TypeError, "arities differ: #{msg}" unless atype.arity == tuple.size
+        raise TypeError, msg unless atype === tuple
+      end
+
+      def typecheck(type, tuple)
+        Alloy.conf.typecheck and typecheck!(type, tuple)
+      end
+
       def check_sig_class(cls, supercls=Alloy::Ast::ASig, msg="")
         msg = "#{msg}\n" unless msg.to_s.empty?
-        raise_not_sig = proc{raise TypeError, "#{msg}#{cls} is not a #{supercls} class"}
+        raise_not_sig = proc {
+          raise TypeError, "#{msg}#{cls} is not a #{supercls} class"
+        }
         raise_not_sig[] unless Class === cls
         raise_not_sig[] unless cls < supercls
       end
 
       def check_alloy_module(mod, msg="")
         msg = "#{msg}\n" unless msg.to_s.empty?
-        raise_not_mod = proc{
+        raise_not_mod = proc {
           raise TypeError, "#{msg}#{mod} is not a ruby module used as Alloy model"
         }
         raise_not_mod[] unless Module === mod

@@ -29,12 +29,13 @@ module Alloy
       private
 
       def initialize(type, atoms)
-        atoms = Array(atoms).reject(&:nil?)
+        atoms = Array(atoms) #TODO: fail if there are nils .reject(&:nil?)
         unless type.arity == atoms.size
           msg = "The number of #{atoms.size} atoms (#{atoms}) doesn't match " +
             "given type's (#{type}) arity (#{type.arity})"
           raise TypeError, msg
         end
+        TypeChecker.typecheck(type, atoms)
         super(atoms)
         # type.arity == 1 ? super(atoms.first) : super(atoms)
         @type = type

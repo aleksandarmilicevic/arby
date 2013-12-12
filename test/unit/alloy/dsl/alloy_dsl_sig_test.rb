@@ -1,3 +1,4 @@
+require 'my_test_helper'
 require 'alloy/helpers/test/dsl_helpers'
 require 'alloy/helpers/test/dsl_sig_test_tmpl'
 

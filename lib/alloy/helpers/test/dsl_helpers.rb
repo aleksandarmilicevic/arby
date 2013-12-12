@@ -51,8 +51,10 @@ module Alloy
           setter = inst.method("#{fname}=".to_sym)
           arity = sig_cls.meta.any_field(fname).type.arity
           val = (0...arity).map{|_| 42}
-          setter.call([val])
-          assert_equal Set.new([val]), getter.call.unwrap
+          Alloy.conf.do_with(:typecheck => false) do
+            setter.call([val])
+            assert_equal Set.new([val]), getter.call.unwrap
+          end
         end
 
         def fld_acc_helper(sig_cls, fld_arr)
