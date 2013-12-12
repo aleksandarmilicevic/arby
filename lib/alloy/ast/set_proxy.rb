@@ -52,9 +52,11 @@ module Alloy
         end
       end
 
+      def unwrap() SetProxy.unwrap(self) end
       def values() @atoms.dup() end
 
       def _target() @target end
+      def _type()   @type end
 
       def _join_fld(fld)
         fname = fld.getter_sym.to_s
@@ -62,6 +64,9 @@ module Alloy
         ans = rhs ? (atoms[0...-1] + [rhs.send(fname)]) : nil
         TupleProxy.new(@type.join(fld.full_type()), ans)
       end
+
+      def to_s()    "<" + @atoms.map(&:to_s).join(", ") + ">" end
+      def inspect() to_s end
     end
 
     ###############################################
@@ -74,7 +79,7 @@ module Alloy
 
       def initialize(type, tuples)
         tuples = Array(tuples)
-        @tuples = tuples.map{|t| TupleProxy.wrap(type, t)}.reject(&:empty?)
+        @tuples = Set.new(tuples.map{|t| TupleProxy.wrap(type, t)}.reject(&:empty?))
         @type = type
         super(@tuples)
         # (type.scalar?) ? super(@tuples.first) : super(@tuples)
@@ -96,12 +101,14 @@ module Alloy
         when SetProxy   then self.unwrap(t._target)
         when TupleProxy then self.unwrap(t._target)
         when Array      then t.map{|e| self.unwrap(e)}
+        when Set        then Set.new(t.map{|e| self.unwrap(e)})
         else
           t
         end
       end
 
-      def _target()     @target end
+      def _target()    @target end
+      def _type()      @type end
 
       def arity()      @type.arity end
       def tuples()     @tuples.dup end
@@ -117,6 +124,9 @@ module Alloy
 
       def hash()    SetProxy.unwrap(self).hash end
       def ==(other) SetProxy.unwrap(self) == SetProxy.unwrap(other) end
+
+      def to_s()    "{" + @tuples.map(&:to_s).join(",\n  ") + "}" end
+      def inspect() to_s end
 
       private
 

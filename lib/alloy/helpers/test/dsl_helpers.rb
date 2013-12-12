@@ -52,7 +52,7 @@ module Alloy
           arity = sig_cls.meta.any_field(fname).type.arity
           val = (0...arity).map{|_| 42}
           setter.call([val])
-          assert_equal [val], getter.call.unwrap
+          assert_equal Set.new([val]), getter.call.unwrap
         end
 
         def fld_acc_helper(sig_cls, fld_arr)

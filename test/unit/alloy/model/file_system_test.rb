@@ -57,14 +57,14 @@ class FileSystemTest < Test::Unit::TestCase
     assert_equal 8, inst.atoms.size
     root0 = inst["Root$0"]
     entry1 = inst["Entry$1"]
-    assert_equal [], inst["Root$0"].parent
+    assert_set_equal [], inst["Root$0"].parent
     assert_set_equal [[inst["Entry$0"]], [inst["Entry$1"]]], inst["Root$0"].entries.unwrap
-    assert_equal inst["Entry$0"].name, [[inst["Name$0"]]]
-    assert_equal inst["Entry$1"].name, [[inst["Name$1"]]]
-    assert_equal inst["Entry$2"].name, [[inst["Name$1"]]]
-    assert_equal inst["Entry$0"].contents, [[inst["Folder$0"]]]
-    assert_equal inst["Entry$1"].contents, [[inst["Folder$0"]]]
-    assert_equal inst["Entry$2"].contents, [[inst["File$0"]]]
+    assert_equal inst["Entry$0"].name, Set.new([[inst["Name$0"]]])
+    assert_equal inst["Entry$1"].name, Set.new([[inst["Name$1"]]])
+    assert_equal inst["Entry$2"].name, Set.new([[inst["Name$1"]]])
+    assert_equal inst["Entry$0"].contents, Set.new([[inst["Folder$0"]]])
+    assert_equal inst["Entry$1"].contents, Set.new([[inst["Folder$0"]]])
+    assert_equal inst["Entry$2"].contents, Set.new([[inst["File$0"]]])
     assert_set_equal [[inst["Entry$2"]]], inst["Folder$0"].entries.unwrap
   end
 

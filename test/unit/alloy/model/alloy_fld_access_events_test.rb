@@ -59,7 +59,7 @@ class AlloyFldAccessEventsTest < Test::Unit::TestCase
     a.b = false
     x = a.b
     AFAE::SigA.new('y').b
-    assert_arry_equal ["x.b -> []", "x.b -> [[false]]", "y.b -> []"], @listener.format_reads
+    assert_arry_equal ["x.b -> {}","x.b -> {<false>}","y.b -> {}"], @listener.format_reads
     assert_arry_equal ["x.i <- 4", "x.b <- false"], @listener.format_writes
   end
 
