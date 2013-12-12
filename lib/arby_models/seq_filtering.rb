@@ -37,6 +37,4 @@ module ArbyModels
 
     run :filter, "for 4"
   end
-
-
 end

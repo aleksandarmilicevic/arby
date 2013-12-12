@@ -30,7 +30,6 @@ class SeqFilteringTest < Test::Unit::TestCase
       ans = to_arr inst.skolem("$filter_ans")
       puts "checking #{pr s} -> #{pr ans}"
       check_filter(s, ans)
-      puts "finding next"
       sol = sol.next()
     end
   end
