@@ -13,14 +13,12 @@ module Alloy
     module Translator
       extend self
 
-      SIG_PREFIX = "this/"
-
       # Takes an Rjb Proxy object pointing to an A4Solution, gets all
       # atoms from it, and converts them to instances of
       # corresponding aRby sig classes.
       #
       # @param a4atoms [Rjb::Proxy -> A4Solution]
-      # @return [Array(Sig)]
+      # @return [Array(Atom)]
       def translate_atoms(a4sol)
         a4atoms = a4sol.getAllAtoms
         len = a4atoms.size
@@ -36,13 +34,7 @@ module Alloy
       # @param a4atom [Rjb::Proxy -> ExprVar]
       # @return [Sig]
       def translate_atom(a4atom)
-        sig_name = a4atom.type.toExpr.toString
-        sig_name = sig_name[SIG_PREFIX.size..-1] if sig_name.start_with?(SIG_PREFIX)
-        sig_cls = Alloy.meta.find_sig(sig_name)
-        fail "sig #{sig_name} not found" unless sig_cls
-        atom = sig_cls.new()
-        atom.label = a4atom.toString
-        atom
+        Atom.new(a4atom.toString, a4atom.type.toExpr)
       end
 
       # Returns a hash of tuples grouped by field names.
@@ -95,12 +87,9 @@ module Alloy
         inst.atoms.each do |atom|
           atom.meta.fields(false).each do |fld|
             # select those tuples in +fld+s relation that have +atom+ on the lhs
-            fld_tuples = inst.field(fld.name).select{|tuple| tuple.first.name == atom.label}
-            # strip the lhs and convert the rest to arby atoms to
-            # obtain the field value for the +atom+ atom
-            fld_val = fld_tuples.map{|tuple|
-              tuple[1..-1].map{|a| inst.atom!(a.name)}
-            }
+            fld_tuples = inst.field(fld.name).select{|tuple| tuple.first == atom}
+            # strip the lhs
+            fld_val = fld_tuples.map{|tuple| tuple[1..-1]}
             # write that field value
             atom.write_field(fld, fld_val)
           end

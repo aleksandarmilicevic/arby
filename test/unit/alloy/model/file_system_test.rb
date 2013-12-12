@@ -28,18 +28,14 @@ class FileSystemTest < Test::Unit::TestCase
     assert_equal_ignore_whitespace ArbyModels::FileSystem::Expected_alloy, ans
   end
 
-  def test_file_system_compiler
-    atoms   = @@sol.translate_atoms()
-
-    assert_equal 2, atoms.select{|a| a.instance_of? Name}.size
-    assert_equal 1, atoms.select{|a| a.instance_of? File}.size
-    assert_equal 1, atoms.select{|a| a.instance_of? Root}.size
-    assert_equal 1, atoms.select{|a| a.instance_of? Folder}.size
-    assert_equal 3, atoms.select{|a| a.instance_of? Entry}.size
-  end
-
-  def test_map
+  def test_instance
     inst = @@sol.instance
+
+    assert_equal 2, inst.atoms.select{|a| a.instance_of? Name}.size
+    assert_equal 1, inst.atoms.select{|a| a.instance_of? File}.size
+    assert_equal 1, inst.atoms.select{|a| a.instance_of? Root}.size
+    assert_equal 1, inst.atoms.select{|a| a.instance_of? Folder}.size
+    assert_equal 3, inst.atoms.select{|a| a.instance_of? Entry}.size
 
     assert_set_equal ["name", "contents", "entries", "parent"], inst.fields
     assert_equal 3, inst.field("name").size
