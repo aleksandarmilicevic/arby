@@ -22,7 +22,7 @@ module Alloy
     module TypeChecker
       extend self
 
-      def check_type(expected, actual)
+      def check_subtype(expected, actual)
         Class === expected &&
           Class === actual &&
           actual <= expected #TODO: incomplete

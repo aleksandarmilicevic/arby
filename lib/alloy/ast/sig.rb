@@ -150,7 +150,7 @@ module Alloy
           varname, type = hash.first
           msg = "`#{varname}' is not a proper identifier"
           raise ArgumentError, msg unless SDGUtils::MetaUtils.check_identifier(varname)
-          Alloy::Ast::TypeChecker.check_type(expected_type, type)
+          Alloy::Ast::TypeChecker.check_subtype(expected_type, type)
         end
 
         def __parent() nil end
@@ -176,7 +176,7 @@ module Alloy
       end
 
       def meta() self.class.meta end
-      
+
       def initialize(*args)
         super
         init_default_transient_values
