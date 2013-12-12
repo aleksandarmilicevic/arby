@@ -165,6 +165,8 @@ module Alloy
 
       attr_accessor :label
 
+      def to_s() @label end
+
       def self.included(base)
         base.extend(Alloy::Dsl::StaticHelpers)
         base.extend(Static)
@@ -174,7 +176,7 @@ module Alloy
       end
 
       def meta() self.class.meta end
-
+      
       def initialize(*args)
         super
         init_default_transient_values
