@@ -9,12 +9,8 @@ module ArbyModels
     sig A [
       x: Int
     ] {
-      x >= 1 && x <= 4
+      x == 2 || x == 4
     }
-    # one sig A1 extends A { x == 1 }
-    # one sig A2 extends A { x == 2 }
-    # one sig A3 extends A { x == 3 }
-    # one sig A4 extends A { x == 4 }
 
     fun prevOccurrences[s: (seq A), idx: Int][set Int] {
       s.indsOf(s[idx]).select{|i| i < idx}

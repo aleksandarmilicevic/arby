@@ -17,7 +17,7 @@ class SeqFilteringTest < Test::Unit::TestCase
   end
 
 
-  def _test1
+  def test1
     als_model = ArbyModels::SeqFiltering.meta.to_als
     puts als_model
     puts "compiling..."
@@ -26,16 +26,26 @@ class SeqFilteringTest < Test::Unit::TestCase
     sol = compiler.execute_command(0)
     while sol.satisfiable? do
       inst = sol.translate_to_arby
-      pr inst.skolem("$filter_s")
-      pr inst.skolem("$filter_ans")
+      s = to_arr inst.skolem("$filter_s")
+      ans = to_arr inst.skolem("$filter_ans")
+      puts "checking #{pr s} -> #{pr ans}"
+      check_filter(s, ans)
       puts "finding next"
       sol = sol.next()
     end
   end
 
+  def to_arr(ts)
+    ts.map{|a| a[1]}
+  end
+
+  def check_filter(s, ans)
+    expected = s.select{|a| a.x < 3}
+    assert_seq_equal expected, ans
+  end
+
   def pr(ts)
-    a = ts.map{|a| "#{a[1].label}(#{a[1].x[0][0]})"}
-    puts a.inspect
+    ts.map{|a| "#{a.label}(#{a.x.first[0]})"}.inspect
   end
 
 end

@@ -79,7 +79,7 @@ module Alloy
         tuples = Array(tuples)
         @tuples = Set.new(tuples.map{|t| TupleProxy.wrap(t, type)}.reject(&:empty?))
         @type = type || AType.interpolate(@tuples.map(&:_type))
-        TypeChecker.ensure_type(@type)
+        TypeChecker.assert_type(@type)
         super(@tuples)
         # (type.scalar?) ? super(@tuples.first) : super(@tuples)
         add_methods_for_type
@@ -121,13 +121,34 @@ module Alloy
       def join(*a, &b) tuples.join(*a, &b) end
       def contains?(a) a.all?{|e| tuples.member?(e)} end
 
+      def <(other)     int_cmp(:<, other) end
+      def >(other)     int_cmp(:>, other) end
+      def <=(other)    int_cmp(:<=, other) end
+      def >=(other)    int_cmp(:>=, other) end
+
+      def sum
+        assert_int_set!
+        @tuples.reduce(0){|sum, t| sum + t[0]}
+      end
+      
       def hash()    SetProxy.unwrap(self).hash end
       def ==(other) SetProxy.unwrap(self) == SetProxy.unwrap(other) end
 
       def to_s()    "{" + @tuples.map(&:to_s).join(",\n  ") + "}" end
       def inspect() to_s end
 
+      def assert_int_set!
+        unless @type && @type.isInt?
+          raise TypeError, "#{self} must be an integer value to be able to apply #{op};"+
+            "instead, its type is #{@type}" 
+        end
+      end
+
       private
+
+      def int_cmp(op, other)
+        self.sum.send(op, SetProxy.wrap(other).sum)
+      end
 
       def delegate_and_wrap(func_sym, *a, &b)
         _wrap(tuples.send(func_sym, *a, &b))

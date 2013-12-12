@@ -66,10 +66,11 @@ module Alloy
       end
 
       # @param atypes [Array(AType)]
-      def self.interpolate(*atypes)
+      def self.interpolate(atypes)
+        atypes = Array(atypes)
         return NoType.new if atypes.empty?
         arity = atypes.first.arity
-        return NoType.new unless atypes.all{|t| t.arity == arity }
+        return NoType.new unless atypes.all?{|t| t.arity == arity }
 
         atypes.first #TODO: WRONG!!!!!!!!
       end
@@ -332,15 +333,15 @@ module Alloy
           when ColType
             sym
           when Module
-            if sym == Integer
+            if sym <= Integer 
               IntColType.new(sym)
-            elsif sym == Float
+            elsif sym <= Float
               FloatColType.new(sym)
-            elsif sym == String
+            elsif sym <= String
               StringColType.new(sym)
-            elsif sym == Date
+            elsif sym <= Date
               DateColType.new(sym)
-            elsif sym == Time
+            elsif sym <= Time
               TimeColType.new(sym)
             else
               RefColType.new(sym)
