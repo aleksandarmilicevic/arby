@@ -42,18 +42,18 @@ module Alloy
       # the values in +map+.  Returns a hash mapping atom labels to
       # atoms.
       #
+      # @param fld_map [Hash(String, Array(Tuple)], where Tuple is Array(Atom)
+      #                                             - maps relation names
+      #                                               to lists of tuples
       # @param atoms [Array(Sig)]
-      # @param map [Hash(String, Array(Tuple)], where Tuple is Array(Atom)
-      #                                         - maps relation names
-      #                                           to lists of tuples
-      # @return [Hash(String, Sig)]             - maps atom labels to atoms
-      def recreate_object_graph(map, atoms)
+      # @return [Hash(String, Sig)]                 - maps atom labels to atoms
+      def recreate_object_graph(fld_map, atoms)
         label2atom = Hash[atoms.map{|a| [a.label, a]}]
 
         atoms.each do |atom|
           atom.meta.fields(false).each do |fld|
             # select those tuples in +fld+s relation that have +atom+ on the lhs
-            fld_tuples = map[fld.name].select{|tuple| tuple.first.name == atom.label}
+            fld_tuples = fld_map[fld.name].select{|tuple| tuple.first.name == atom.label}
             # strip the lhs and convert the rest to arby atoms (by looking up in
             # the +label2atom+ hash) to obtain the field value for the +atom+ atom
             fld_val = fld_tuples.map{|tuple|

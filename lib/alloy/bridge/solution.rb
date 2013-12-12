@@ -19,6 +19,10 @@ module Alloy
         @a4sol.satisfiable
       end
 
+      def next()
+        Solution.new(@a4sol.next(), @compiler)
+      end
+
       # @see Solution.translate_atoms
       def translate_atoms
         fail_if_unsat
