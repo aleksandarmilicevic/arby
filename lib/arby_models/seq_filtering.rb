@@ -8,7 +8,13 @@ module ArbyModels
   alloy_model :SeqFiltering do
     sig A [
       x: Int
-    ]
+    ] {
+      x >= 1 && x <= 4
+    }
+    # one sig A1 extends A { x == 1 }
+    # one sig A2 extends A { x == 2 }
+    # one sig A3 extends A { x == 3 }
+    # one sig A4 extends A { x == 4 }
 
     fun prevOccurrences[s: (seq A), idx: Int][set Int] {
       s.indsOf(s[idx]).select{|i| i < idx}
@@ -16,6 +22,8 @@ module ArbyModels
 
     pred filter[s: (seq A), ans: (seq A)] {
       filtered = s.elems.select{|a| a.x < 3}
+      
+      s.size == 4 and
       ans.elems == filtered and
       all(a: filtered) { ans.a.size == s.a.size } and
       all(i1: s.inds, i2: s.inds) {
@@ -31,7 +39,7 @@ module ArbyModels
       }
     }
 
-    run :filter, "for 4 but exactly 3 A"
+    run :filter, "for 4"
   end
 
 
