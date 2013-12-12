@@ -47,80 +47,79 @@ module Alloy
 
       # Returns a hash of tuples grouped by field names.
       #
-      # @param a4world [Rjb::Proxy ~> CompModule]
-      # @param a4sol [Rjb::Proxy ~> A4Solution]
-      # @return [Hash(String, Array(Tuple))], where Tuple is Array(Atom)
-      def field_tuples(a4world, a4sol)
-        alloy_fields = Compiler.all_fields(a4world)
-        map = alloy_fields.map do |field|
-          fld_name = field.label
-          a4_tuple_set = a4sol.eval(field)
-          a4_iterator = a4_tuple_set.iterator
-          fld_tuples = []
-          while a4_iterator.hasNext
-            t = a4_iterator.next
-            fld_tuples << (0...t.arity).map{|col| Atom.new(t.atom(col), t.sig(col)) }
-          end
-          [fld_name, fld_tuples]
+      # @param a4tuple_set [Rjb::Proxy ~> A4TupleSet]
+      # @return [Array(Tuple)], where Tuple is Array(Atom)
+      def translate_tuple_set(a4tuple_set)
+        a4iterator = a4tuple_set.iterator
+        tuples = []
+        while a4iterator.hasNext
+          t = a4iterator.next
+          tuples << (0...t.arity).map{|col| Atom.new(t.atom(col), t.sig(col)) }
         end
-        Hash[map]
+        tuples
       end
 
+      # Returns a hash of tuples grouped by field names.
+      #
+      # @param a4world [Rjb::Proxy ~> CompModule]
+      # @param a4sol [Rjb::Proxy ~> A4Solution]
+      # @return [Alloy::Ast::Instance]
+      def to_instance(a4world, a4sol)
+        atoms = translate_atoms(a4sol)
+
+        fld_map = Compiler.all_fields(a4world).map do |field|
+          [field.label, translate_tuple_set(a4sol.eval(field))]
+        end
+        fld_map = Hash[fld_map]
+
+        skolem_map = jmap(a4sol.getAllSkolems) do |expr|
+          a4_tuple_set = a4sol.eval(expr)
+          [expr.toString, translate_tuple_set(a4sol.eval(expr))]
+        end
+        skolem_map = Hash[skolem_map]
+
+        Alloy::Ast::Instance.new(atoms, fld_map, skolem_map)
+      end
 
       # Takes a map of relations to tuples, and a list of aRby atom
       # objects.  Populates the atoms' fields (instance variables) to
       # the values in +map+.  Returns a hash mapping atom labels to
       # atoms.
       #
-      # @param fld_map [Hash(String, Array(Tuple)], where Tuple is Array(Atom)
-      #                                             - maps relation names
-      #                                               to lists of tuples
-      # @param atoms [Array(Sig)]
-      # @return [Hash(String, Sig)]                 - maps atom labels to atoms
+      # @param a4world [Rjb::Proxy ~> CompModule]
+      # @param a4sol [Rjb::Proxy ~> A4Solution]
+      # @return [Alloy::Ast::Instance]
       def recreate_object_graph(a4world, a4sol)
-        atoms = translate_atoms(a4sol)
-        fld_map = field_tuples(a4world, a4sol)
-        label2atom = Hash[atoms.map{|a| [a.label, a]}]
+        inst = to_instance(a4world, a4sol)
 
-        atoms.each do |atom|
+        inst.atoms.each do |atom|
           atom.meta.fields(false).each do |fld|
             # select those tuples in +fld+s relation that have +atom+ on the lhs
-            fld_tuples = fld_map[fld.name].select{|tuple| tuple.first.name == atom.label}
-            # strip the lhs and convert the rest to arby atoms (by looking up in
-            # the +label2atom+ hash) to obtain the field value for the +atom+ atom
+            fld_tuples = inst.field(fld.name).select{|tuple| tuple.first.name == atom.label}
+            # strip the lhs and convert the rest to arby atoms to
+            # obtain the field value for the +atom+ atom
             fld_val = fld_tuples.map{|tuple|
-              tuple[1..-1].map{|a| label2atom[a.name]}
+              tuple[1..-1].map{|a| inst.atom!(a.name)}
             }
             # write that field value
             atom.write_field(fld, fld_val)
           end
         end
 
-        Alloy::Ast::Instance.new(atoms)
+        inst
       end
 
-      # def recreate_object_graph(map, atoms)
-      #   label2atom = Hash[atoms.map{|a| [a.label, a]}]
-      #   map.each do |key, value|
-      #     for tuple in value
-      #       lhs   = label2atom[tuple[0].name]
-      #       rhs   = label2atom[tuple[1].name]
-      #       field = lhs.meta.field(key)
-      #       if field.scalar?
-      #         lhs.write_field(field, rhs)
-      #       else
-      #         if !lhs.read_field(field)
-      #           # the field is not a scalar, and this is the first
-      #           # atom we are adding to this field
-      #           lhs.write_field(field, [rhs])
-      #         else
-      #           lhs.write_field(field, lhs.read_field(field).push(rhs))
-      #         end
-      #       end
-      #     end
-      #   end
-      #   label2atom
-      # end
+      # @param a4arr [Rjb::Proxy ~> Array]
+      # @return [Array]
+      def java_to_ruby_array(a4arr)
+        size = a4arr.size
+        (0...size).map{|i| a4arr.get(i)}
+      end
+
+      # @param a4arr [Rjb::Proxy ~> Array]
+      def jmap(a4arr, &block)
+        java_to_ruby_array(a4arr).map(&block)
+      end
 
     end
   end

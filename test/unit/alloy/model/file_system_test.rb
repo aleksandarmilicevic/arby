@@ -39,14 +39,13 @@ class FileSystemTest < Test::Unit::TestCase
   end
 
   def test_map
-    map = @@sol.field_tuples
+    inst = @@sol.instance
 
-    assert_equal 4, map.size
-    assert_seq_equal ["name", "contents", "entries", "parent"], map.keys
-    assert_equal 3, map["name"].size
-    assert_equal 3, map["contents"].size
-    assert_equal 3, map["entries"].size
-    assert_equal 1, map["parent"].size
+    assert_set_equal ["name", "contents", "entries", "parent"], inst.fields
+    assert_equal 3, inst.field("name").size
+    assert_equal 3, inst.field("contents").size
+    assert_equal 3, inst.field("entries").size
+    assert_equal 1, inst.field("parent").size
   end
 
   # Expects the following solution:
@@ -59,7 +58,7 @@ class FileSystemTest < Test::Unit::TestCase
   def test_graph
     inst = @@sol.translate_to_arby
 
-    assert_equal 8, inst.size
+    assert_equal 8, inst.atoms.size
     root0 = inst["Root$0"]
     entry1 = inst["Entry$1"]
     assert_equal [], inst["Root$0"].parent

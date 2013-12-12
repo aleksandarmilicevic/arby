@@ -45,14 +45,14 @@ module Alloy
         Translator.recreate_object_graph(@compiler._a4world, @a4sol)
       end
 
-      # Returns tuples grouped by field names.
+      # Translates this Alloy solution to an aRby instance.
       #
-      # @see Solution.field_tuples
+      # @see Translator.to_instance
       #
-      # @return [Hash(String, Array(Tuple))], where Tuple is Array(Atom)
-      def field_tuples()
+      # @return [Alloy::Ast::Instance]
+      def instance()
         fail_if_unsat
-        Translator.field_tuples(@compiler._a4world, @a4sol)
+        Translator.to_instance(@compiler._a4world, @a4sol)
       end
 
       private
