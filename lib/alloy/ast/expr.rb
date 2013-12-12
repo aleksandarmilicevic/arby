@@ -187,7 +187,7 @@ module Alloy
         def <(other)         ExprBuilder.apply(LT, self, other) end
         def <=(other)        ExprBuilder.apply(LTE, self, other) end
         def >(other)         ExprBuilder.apply(GT, self, other) end
-        def >=(other)        ExprBuilder.apply(TTE, self, other) end
+        def >=(other)        ExprBuilder.apply(GTE, self, other) end
 
         def in?(other)       ExprBuilder.apply(IN, self, other) end
         def not_in?(other)   ExprBuilder.apply(NOT_IN, self, other) end
