@@ -40,9 +40,12 @@ module Alloy
         raise TypeError, msg unless atype === tuple
       end
 
-      def typecheck(type, tuple)
-        Alloy.conf.typecheck and typecheck!(type, tuple)
+      def ensure_type!(type)
+        raise TypeError, "no type given: #{type}" unless AType === type && type.arity > 0
       end
+
+      def typecheck(type, tuple) Alloy.conf.typecheck and typecheck!(type, tuple) end
+      def ensure_type(type)      Alloy.conf.typecheck and ensure_type!(type) end
 
       def check_sig_class(cls, supercls=Alloy::Ast::ASig, msg="")
         msg = "#{msg}\n" unless msg.to_s.empty?

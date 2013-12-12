@@ -65,6 +65,15 @@ module Alloy
         end
       end
 
+      # @param atypes [Array(AType)]
+      def self.interpolate(*atypes)
+        return NoType.new if atypes.empty?
+        arity = atypes.first.arity
+        return NoType.new unless atypes.all{|t| t.arity == arity }
+
+        atypes.first #TODO: WRONG!!!!!!!!
+      end
+
       def self.union(lhs, rhs)
         rhs #TODO: WRONG!
       end

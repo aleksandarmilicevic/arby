@@ -1,4 +1,5 @@
 require 'alloy/ast/sig'
+require 'alloy/ast/types'
 require 'alloy/ast/type_checker'
 require 'alloy/relations/relation'
 require 'sdg_utils/proxy'
@@ -30,11 +31,7 @@ module Alloy
 
       def initialize(type, atoms)
         atoms = Array(atoms) #TODO: fail if there are nils .reject(&:nil?)
-        unless type.arity == atoms.size
-          msg = "The number of #{atoms.size} atoms (#{atoms}) doesn't match " +
-            "given type's (#{type}) arity (#{type.arity})"
-          raise TypeError, msg
-        end
+        type ||= AType.get(atoms.map(&:class))
         TypeChecker.typecheck(type, atoms)
         super(atoms)
         # type.arity == 1 ? super(atoms.first) : super(atoms)
@@ -45,7 +42,7 @@ module Alloy
 
       public
 
-      def self.wrap(type, t)
+      def self.wrap(t, type=nil)
         case t
         when TupleProxy then t
         else
@@ -80,8 +77,9 @@ module Alloy
 
       def initialize(type, tuples)
         tuples = Array(tuples)
-        @tuples = Set.new(tuples.map{|t| TupleProxy.wrap(type, t)}.reject(&:empty?))
-        @type = type
+        @tuples = Set.new(tuples.map{|t| TupleProxy.wrap(t, type)}.reject(&:empty?))
+        @type = type || AType.interpolate(@tuples.map(&:_type))
+        TypeChecker.ensure_type(@type)
         super(@tuples)
         # (type.scalar?) ? super(@tuples.first) : super(@tuples)
         add_methods_for_type
@@ -89,7 +87,7 @@ module Alloy
 
       public
 
-      def self.wrap(type, t)
+      def self.wrap(t, type=nil)
         case t
         when SetProxy then t
         else
