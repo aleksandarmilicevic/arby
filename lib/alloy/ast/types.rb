@@ -15,14 +15,18 @@ module Alloy
       @@DEF_UNARY_MULT = :lone
       @@DEF_HIGHER_MULT = :set
 
-      def self.get(obj)
+      def self.builtin(sym)
+        TypeConsts.get(sym)
+      end
+
+      def self.get(obj, allow_nil=true)
         case obj
-        when NilClass; NoType.new
-        when Proc; DependentType.new(obj)
-        when AType; obj
-        when Alloy::Ast::Expr::MExpr;
+        when NilClass then allow_nil ? NoType.new : nil
+        when Proc     then DependentType.new(obj)
+        when AType    then  obj
+        when Alloy::Ast::Expr::MExpr
           obj.__type
-        when Array;
+        when Array
           if obj.empty?
             NoType.new
           else
@@ -326,6 +330,8 @@ module Alloy
           :Blob    => BlobColType.new(:Blob),
         }
 
+        def self.builtin(sym) @@built_in_types[sym.to_sym] end
+
         def self.get(sym)
           case sym
           when NilClass
@@ -333,7 +339,7 @@ module Alloy
           when ColType
             sym
           when Module
-            if sym <= Integer 
+            if sym <= Integer
               IntColType.new(sym)
             elsif sym <= Float
               FloatColType.new(sym)
@@ -353,7 +359,7 @@ module Alloy
             sym = sym.to_sym
             builtin = @@built_in_types[sym]
             mgr = Alloy::Dsl::ModelBuilder.get
-            builtin || UnresolvedRefColType.new(sym, mgr.scope_module)
+            builtin || UnresolvedRefColType.new(sym, mgr && mgr.scope_module)
           else
             raise TypeError, "`#{sym}' must be Module or Symbol or String, instead it is #{sym.class}"
           end
@@ -604,9 +610,20 @@ module Alloy
     end
 
     module TypeConsts
-      Int = UnaryType.new(Integer)
+      Univ1 = UnaryType.new(Object)
+      Int   = UnaryType.new(Integer)
+      Seq   = ProductType.new(Int, Univ1)
 
       def Int() TypeConsts::Int end
+
+      def self.get(sym)
+        case sym.to_s
+        when "Int", "Integer" then Int
+        when "seq/Int"        then Int
+        else
+          nil
+        end
+      end
     end
 
   end

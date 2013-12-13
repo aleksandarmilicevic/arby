@@ -16,7 +16,6 @@ class SeqFilteringTest < Test::Unit::TestCase
     Alloy.initializer.init_all_no_freeze
   end
 
-
   def test1
     als_model = ArbyModels::SeqFiltering.meta.to_als
     puts als_model
@@ -24,8 +23,12 @@ class SeqFilteringTest < Test::Unit::TestCase
     compiler = Compiler.compile(als_model)
     puts "solving..."
     sol = compiler.execute_command(0)
+    max_iter = 3 #10000000000000
+    iter = 0
     while sol.satisfiable? do
-      inst = sol.translate_to_arby
+      break if iter > max_iter
+      iter += 1
+      inst = sol.arby_instance()
       s = to_arr inst.skolem("$filter_s")
       ans = to_arr inst.skolem("$filter_ans")
       puts "checking #{pr s} -> #{pr ans}"

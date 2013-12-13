@@ -50,8 +50,9 @@ module Alloy
         end
       end
 
-      def unwrap() SetProxy.unwrap(self) end
-      def values() @atoms.dup() end
+      def unwrap()  SetProxy.unwrap(self) end
+      def atoms()   @atoms.dup() end
+      def atom(idx) @atoms[idx] end
 
       def _target() @target end
       def _type()   @type end
@@ -112,12 +113,8 @@ module Alloy
       def arity()      @type.arity end
       def tuples()     @tuples.dup end
       def unwrap()     SetProxy.unwrap(self) end
-      def map(*a, &b)  tuples.map(*a, &b) end
       def size()       tuples.size end
       def empty?()     tuples.empty? end
-      def reject(&b)   delegate_and_wrap(:reject, &b) end
-      def map(&b   )   delegate_and_wrap(:map, &b) end
-      def compact(&b)  delegate_and_wrap(:compact, &b) end
       def join(*a, &b) tuples.join(*a, &b) end
       def contains?(a) a.all?{|e| tuples.member?(e)} end
 
@@ -130,7 +127,7 @@ module Alloy
         assert_int_set!
         @tuples.reduce(0){|sum, t| sum + t[0]}
       end
-      
+
       def hash()    SetProxy.unwrap(self).hash end
       def ==(other) SetProxy.unwrap(self) == SetProxy.unwrap(other) end
 
@@ -140,7 +137,7 @@ module Alloy
       def assert_int_set!
         unless @type && @type.isInt?
           raise TypeError, "#{self} must be an integer value to be able to apply #{op};"+
-            "instead, its type is #{@type}" 
+            "instead, its type is #{@type}"
         end
       end
 
@@ -148,10 +145,6 @@ module Alloy
 
       def int_cmp(op, other)
         self.sum.send(op, SetProxy.wrap(other).sum)
-      end
-
-      def delegate_and_wrap(func_sym, *a, &b)
-        _wrap(tuples.send(func_sym, *a, &b))
       end
 
       def _wrap(result)

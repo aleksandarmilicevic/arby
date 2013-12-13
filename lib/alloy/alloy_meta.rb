@@ -92,7 +92,7 @@ module Alloy
         comp = Alloy::Bridge::Compiler.compile(als_model)
         sol = comp.execute_command(run_cmd_name)
         if sol.satisfiable?
-          sol.translate_to_arby
+          sol.arby_instance
         else
           nil
         end

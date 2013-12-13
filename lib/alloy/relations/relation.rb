@@ -51,9 +51,9 @@ module Alloy
         tuple_set = Set.new
         tuples.each do |t1|
           other.tuples.each do |t2|
-            if t1.atom_at(-1) == t2.atom_at(0)
-              tt1 = t1.length > 1 ? t1.values[0..-2] : []
-              tt2 = t2.length > 1 ? t2.values[1..-1] : []
+            if t1.atom(-1) == t2.atom(0)
+              tt1 = t1.length > 1 ? t1.atoms[0..-2] : []
+              tt2 = t2.length > 1 ? t2.atoms[1..-1] : []
               tuple_set.add(Tuple.new(newArity, tt1 + tt2))
             end
           end
@@ -111,36 +111,29 @@ module Alloy
       include MRelation
 
       # @return [Array]
-      def values()     fail "Must override" end
-      def atom_at(idx) values[idx] end
+      def atoms()    fail "Must override" end
+      def atom(idx)  atoms[idx] end
 
       def length()   arity end
-      def arity()    values.length end
+      def arity()    atoms.length end
       def tuples()   [self] end
       def as_tuple() self end
+
+      def each()     atoms.each { |t| yield t } end
 
       def tuple_product(rhs_tuple)
         self.product(rhs_tuple).tuples[0]
       end
 
-      def to_s
-        values.to_s
-      end
-
       def ==(other)
         return false if other == nil
         return false if other.class != Tuple
-        values == other.values
+        atoms == other.atoms
       end
 
-
-      def eql? (other)
-        self == other
-      end
-
-      def hash
-        values.hash
-      end
+      def eql?(other) self == other end
+      def hash()      atoms.hash end
+      def to_s()      atoms.to_s end
     end
 
     #------------------------------------------
@@ -169,7 +162,7 @@ module Alloy
         freeze
       end
 
-      def values(); @arr end
+      def atoms(); @arr end
     end
 
     #------------------------------------------

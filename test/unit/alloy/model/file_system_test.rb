@@ -31,11 +31,11 @@ class FileSystemTest < Test::Unit::TestCase
   def test_instance
     inst = @@sol.instance
 
-    assert_equal 2, inst.atoms.select{|a| a.instance_of? Name}.size
-    assert_equal 1, inst.atoms.select{|a| a.instance_of? File}.size
-    assert_equal 1, inst.atoms.select{|a| a.instance_of? Root}.size
-    assert_equal 1, inst.atoms.select{|a| a.instance_of? Folder}.size
-    assert_equal 3, inst.atoms.select{|a| a.instance_of? Entry}.size
+    # assert_equal 2, inst.atoms.select{|a| a.instance_of? Name}.size
+    # assert_equal 1, inst.atoms.select{|a| a.instance_of? File}.size
+    # assert_equal 1, inst.atoms.select{|a| a.instance_of? Root}.size
+    # assert_equal 1, inst.atoms.select{|a| a.instance_of? Folder}.size
+    # assert_equal 3, inst.atoms.select{|a| a.instance_of? Entry}.size
 
     assert_set_equal ["name", "contents", "entries", "parent"], inst.fields
     assert_equal 3, inst.field("name").size
@@ -52,7 +52,13 @@ class FileSystemTest < Test::Unit::TestCase
   #     Entry$1: Name$1 -> Folder$0
   #                          Entry$2: Name$1 -> File$0
   def test_graph
-    inst = @@sol.translate_to_arby
+    inst = @@sol.arby_instance
+
+    assert_equal 2, inst.atoms.select{|a| a.instance_of? Name}.size
+    assert_equal 1, inst.atoms.select{|a| a.instance_of? File}.size
+    assert_equal 1, inst.atoms.select{|a| a.instance_of? Root}.size
+    assert_equal 1, inst.atoms.select{|a| a.instance_of? Folder}.size
+    assert_equal 3, inst.atoms.select{|a| a.instance_of? Entry}.size
 
     assert_equal 8, inst.atoms.size
     root0 = inst["Root$0"]

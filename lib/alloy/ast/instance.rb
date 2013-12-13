@@ -1,18 +1,23 @@
+require 'alloy/ast/set_proxy'
+
 module Alloy
   module Ast
 
-    # @attr label2atom [Hash(String, Sig)]                  - atom labels to atoms
-    # @attr fld2tuples [Hash(String, Array(Array(Sig)))]    - atom labels to atoms
+    # @typeparam Atom     - anything that responds to :label
+    # @typeparam TupleSet - any array-like class
+    #
+    # @attr label2atom [Hash(String, Atom)]        - atom labels to atoms
+    # @attr fld2tuples [Hash(String, TupleSet)]    - field names to tuples
+    # @attr skolem2tuples [Hash(String, TupleSet)] - skolem names to tuples
     class Instance
 
-      # @param atoms [Array(AtomDecl)]
-      # @param fld_map [Hash(String, Array(Tuple)]    - field names to list of tuples
-      # @param skolem_map [Hash(String, Array(Tuple)] - skolem names to list of tuples
-      #    where Tuple is Array(AtomDecl), and Atom is Alloy::Bridge::AtomDecl
-      def initialize(atoms, fld_map, skolem_map)
-        @label2atom    = Hash[atoms.map{|a|                [a.name, _create_atom(a)]}]
-        @fld2tuples    = Hash[fld_map.map{|name, value|    [name, _to_set_proxy(value)]}]
-        @skolem2tuples = Hash[skolem_map.map{|name, value| [name, _to_set_proxy(value)]}]
+      # @param atoms [Array(Atom)]
+      # @param fld_map [Hash(String, TupleSet]    - field names to list of tuples
+      # @param skolem_map [Hash(String, TupleSet] - skolem names to list of tuples
+      def initialize(atoms=[], fld_map={}, skolem_map={}, dup=true)
+        @label2atom    = Hash[atoms.map{|a| [a.label, a]}]
+        @fld2tuples    = dup ? fld_map.dup : fld_map
+        @skolem2tuples = dup ? skolem_map.dup : skolem_map
 
         ([@label2atom, @fld2tuples, @skolem2, self] +
           @fld2tuples.values + @skolem2tuples.values).each(&:freeze)
@@ -40,26 +45,6 @@ module Alloy
       def skolem!(name) skolem(name) or fail("skolem `#{name}' not found") end
 
       alias_method :[], :atom
-
-      private
-
-      SIG_PREFIX = "this/"
-
-      def _create_atom(atom_decl)
-        sig_name = atom_decl.a4type.toString
-        sig_name = sig_name[SIG_PREFIX.size..-1] if sig_name.start_with?(SIG_PREFIX)
-        sig_cls = Alloy.meta.find_sig(sig_name)
-        fail "sig #{sig_name} not found" unless sig_cls
-        atom = sig_cls.new()
-        atom.label = atom_decl.name
-        atom
-      end
-
-      # @param tuples [Array(Array(Atom))]
-      def _to_set_proxy(tuples)
-        #TODO: finish - return SetProxy instead
-        tuples.map{|t| t.map{|a| atom!(a.name)}}
-      end
     end
 
   end

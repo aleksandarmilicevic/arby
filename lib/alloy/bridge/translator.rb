@@ -1,93 +1,38 @@
 require 'alloy/bridge/imports'
 require 'alloy/ast/instance'
+require 'alloy/ast/set_proxy'
+require 'alloy/ast/types'
 
 module Alloy
   module Bridge
 
-    class Atom
-      attr_reader :name, :a4type
-      def initialize(name, a4type) @name, @a4type = name, a4type end
-      def to_s()                   "#{name}: #{a4type.toString}" end
-    end
-
     module Translator
+      include Utils
       extend self
 
-      # Takes an Rjb Proxy object pointing to an A4Solution, gets all
-      # atoms from it, and converts them to instances of
-      # corresponding aRby sig classes.
+      # Takes an instance of Alloy::Ast::Instance parametrized with
+      # Alloy::Bridge::Atom, and Alloy::Bridge::TupleSet, and converts
+      # it to an instance of the same class parametrized with
+      # Alloy::Ast::Sig, and Alloy::Ast::SetProxy.  Additionally, it
+      # populates the field values of the newly created atoms
+      # according to field values in +inst+.
       #
-      # @param a4atoms [Rjb::Proxy -> A4Solution]
-      # @return [Array(Atom)]
-      def translate_atoms(a4sol)
-        a4atoms = a4sol.getAllAtoms
-        len = a4atoms.size
-        (0...len).map do |idx|
-          translate_atom(a4atoms.get(idx))
-        end
-      end
+      # @param inst [Alloy::Ast::Instance<Alloy::Bridge::Atom, Alloy::Bridge::TupleSet>]
+      # @return [Alloy::Ast::Instance<Alloy::Ast::Sig, Alloy::Ast::SetProxy>]
+      def to_arby_instance(inst)
+        atoms      = inst.atoms.map{|a| _create_atom(a)}
+        tmpi       = Alloy::Ast::Instance.new atoms
+        fld_map    = inst.fields.map{|name| [name, _to_set_proxy(tmpi, inst.field(name))]}
+        skolem_map = inst.skolems.map{|name| [name, _to_set_proxy(tmpi, inst.skolem(name))]}
 
-      # Takes an Rjb Proxy object pointing to an alloy atom, and
-      # converts it to an instance of the corresponding aRby sig
-      # class.
-      #
-      # @param a4atom [Rjb::Proxy -> ExprVar]
-      # @return [Sig]
-      def translate_atom(a4atom)
-        Atom.new(a4atom.toString, a4atom.type.toExpr)
-      end
-
-      # Returns a hash of tuples grouped by field names.
-      #
-      # @param a4tuple_set [Rjb::Proxy ~> A4TupleSet]
-      # @return [Array(Tuple)], where Tuple is Array(Atom)
-      def translate_tuple_set(a4tuple_set)
-        a4iterator = a4tuple_set.iterator
-        tuples = []
-        while a4iterator.hasNext
-          t = a4iterator.next
-          tuples << (0...t.arity).map{|col| Atom.new(t.atom(col), t.sig(col)) }
-        end
-        tuples
-      end
-
-      # Returns a hash of tuples grouped by field names.
-      #
-      # @param a4world [Rjb::Proxy ~> CompModule]
-      # @param a4sol [Rjb::Proxy ~> A4Solution]
-      # @return [Alloy::Ast::Instance]
-      def to_instance(a4world, a4sol)
-        atoms = translate_atoms(a4sol)
-
-        fld_map = Compiler.all_fields(a4world).map do |field|
-          [field.label, translate_tuple_set(a4sol.eval(field))]
-        end
-        fld_map = Hash[fld_map]
-
-        skolem_map = jmap(a4sol.getAllSkolems) do |expr|
-          a4_tuple_set = a4sol.eval(expr)
-          [expr.toString, translate_tuple_set(a4sol.eval(expr))]
-        end
+        fld_map    = Hash[fld_map]
         skolem_map = Hash[skolem_map]
 
-        Alloy::Ast::Instance.new(atoms, fld_map, skolem_map)
-      end
-
-      # Takes a map of relations to tuples, and a list of aRby atom
-      # objects.  Populates the atoms' fields (instance variables) to
-      # the values in +map+.  Returns a hash mapping atom labels to
-      # atoms.
-      #
-      # @param a4world [Rjb::Proxy ~> CompModule]
-      # @param a4sol [Rjb::Proxy ~> A4Solution]
-      # @return [Alloy::Ast::Instance]
-      def recreate_object_graph(a4world, a4sol)
-        inst = to_instance(a4world, a4sol)
-
-        inst.atoms.each do |atom|
+        # restore field values
+        atoms.each do |atom|
           atom.meta.fields(false).each do |fld|
             # select those tuples in +fld+s relation that have +atom+ on the lhs
-            fld_tuples = inst.field(fld.name).select{|tuple| tuple.first == atom}
+            fld_tuples = fld_map[fld.name].select{|tuple| tuple[0] == atom}
             # strip the lhs
             fld_val = fld_tuples.map{|tuple| tuple[1..-1]}
             # write that field value
@@ -95,19 +40,50 @@ module Alloy
           end
         end
 
-        inst
+        Alloy::Ast::Instance.new atoms, fld_map, skolem_map, false
       end
 
-      # @param a4arr [Rjb::Proxy ~> Array]
-      # @return [Array]
-      def java_to_ruby_array(a4arr)
-        size = a4arr.size
-        (0...size).map{|i| a4arr.get(i)}
+      private
+
+      SIG_PREFIX = "this/"
+
+      # @param atom [Alloy::Bridge::Atom]
+      # @return [Alloy::Ast::Sig]
+      def _create_atom(atom)
+        sig_cls = _type_to_sig!(atom.type)
+        a = sig_cls.new()
+        a.label = atom.label
+        a
       end
 
-      # @param a4arr [Rjb::Proxy ~> Array]
-      def jmap(a4arr, &block)
-        java_to_ruby_array(a4arr).map(&block)
+      def _type_to_atype(type)
+        Alloy::Ast::AType.get type.prim_sigs.map{ |a4prim_sig|
+          prim_sig_name = a4prim_sig.toString
+          sig_cls = _type_to_sig(nil, prim_sig_name)
+          (sig_cls ? sig_cls : Alloy::Ast::AType.builtin(prim_sig_name)) or break nil
+        }, false
+      end
+
+      def _type_to_sig(type, type_name=nil)
+        return nil if type and type.arity != 1
+        sig_name = type ? type.signature : type_name
+        sig_name = sig_name[SIG_PREFIX.size..-1] if sig_name.start_with?(SIG_PREFIX)
+        Alloy.meta.find_sig(sig_name)
+      end
+
+      def _type_to_atype!(type) _type_to_atype(type) or fail("type #{type} not found") end
+      def _type_to_sig!(type)   _type_to_sig(type) or fail("sig #{type} not found") end
+
+      # @param inst [Alloy::Ast::Instance<Alloy::Ast::Sig, Alloy::Ast::SetProxy>]
+      # @param ts [Alloy::Bridge::TupleSet]
+      def _to_set_proxy(inst, ts)
+        tuples = ts.tuples.map do |tuple|
+          atoms = tuple.map{|a| inst.atom!(a.label)}
+          # type = tuple.map{|a| _a4type_to_atype!(a.a4type)}
+          # TupleProxy.wrap(value, Alloy::Ast::AType.get(type))
+        end
+        type = _type_to_atype!(ts.type)
+        Alloy::Ast::SetProxy.wrap(tuples, type)
       end
 
     end
