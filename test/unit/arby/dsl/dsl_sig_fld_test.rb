@@ -40,7 +40,7 @@ end
 # puts Users::SigA.to_alloy
 # puts Users::SigB.to_alloy
 
-class AlloyDslTest < Test::Unit::TestCase
+class DslTest < Test::Unit::TestCase
   include Arby::Helpers::Test::DslHelpers
   include SDGUtils::Testing::SmartSetup
   include SDGUtils::Testing::Assertions

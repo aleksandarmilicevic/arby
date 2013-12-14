@@ -63,7 +63,7 @@ class String
   include SDGUtils::Lambda::Str2Proc
 end
 
-class AlloyDslPredTest < Test::Unit::TestCase
+class DslPredTest < Test::Unit::TestCase
   include Arby::Helpers::Test::DslHelpers
   include SDGUtils::Testing::SmartSetup
   include SDGUtils::Testing::Assertions
