@@ -1,6 +1,6 @@
 require 'alloy/bridge/imports'
 require 'alloy/ast/instance'
-require 'alloy/ast/set_proxy'
+require 'alloy/ast/tuple_set'
 require 'alloy/ast/types'
 
 module Alloy
@@ -22,8 +22,8 @@ module Alloy
       def to_arby_instance(inst)
         atoms      = inst.atoms.map{|a| _create_atom(a)}
         tmpi       = Alloy::Ast::Instance.new atoms
-        fld_map    = inst.fields.map{|name| [name, _to_set_proxy(tmpi, inst.field(name))]}
-        skolem_map = inst.skolems.map{|name| [name, _to_set_proxy(tmpi, inst.skolem(name))]}
+        fld_map    = inst.fields.map{|name| [name, _to_tuple_set(tmpi, inst.field(name))]}
+        skolem_map = inst.skolems.map{|name| [name, _to_tuple_set(tmpi, inst.skolem(name))]}
 
         fld_map    = Hash[fld_map]
         skolem_map = Hash[skolem_map]
@@ -76,7 +76,7 @@ module Alloy
 
       # @param inst [Alloy::Ast::Instance<Alloy::Ast::Sig, Alloy::Ast::TupleSet>]
       # @param ts [Alloy::Bridge::TupleSet]
-      def _to_set_proxy(inst, ts)
+      def _to_tuple_set(inst, ts)
         tuples = ts.tuples.map do |tuple|
           atoms = tuple.map{|a| inst.atom!(a.label)}
           # type = tuple.map{|a| _a4type_to_atype!(a.a4type)}

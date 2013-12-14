@@ -1,4 +1,4 @@
-require 'alloy/ast/set_proxy'
+require 'alloy/ast/tuple_set'
 
 module Alloy
   module Ast
