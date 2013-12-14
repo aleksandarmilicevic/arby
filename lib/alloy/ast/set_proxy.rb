@@ -50,7 +50,7 @@ module Alloy
         end
       end
 
-      def unwrap()  SetProxy.unwrap(self) end
+      def unwrap()  TupleSet.unwrap(self) end
       def atoms()   @atoms.dup() end
       def atom(idx) @atoms[idx] end
 
@@ -70,7 +70,7 @@ module Alloy
 
     ###############################################
 
-    class SetProxy < SDGUtils::Proxy
+    class TupleSet < SDGUtils::Proxy
       include Alloy::Relations::MRelation
       include TypeMethodsHelper
 
@@ -90,15 +90,15 @@ module Alloy
 
       def self.wrap(t, type=nil)
         case t
-        when SetProxy then t
+        when TupleSet then t
         else
-          SetProxy.new(type, t)
+          TupleSet.new(type, t)
         end
       end
 
       def self.unwrap(t)
         case t
-        when SetProxy   then self.unwrap(t._target)
+        when TupleSet   then self.unwrap(t._target)
         when TupleProxy then self.unwrap(t._target)
         when Array      then t.map{|e| self.unwrap(e)}
         when Set        then Set.new(t.map{|e| self.unwrap(e)})
@@ -112,7 +112,7 @@ module Alloy
 
       def arity()      @type.arity end
       def tuples()     @tuples.dup end
-      def unwrap()     SetProxy.unwrap(self) end
+      def unwrap()     TupleSet.unwrap(self) end
       def size()       tuples.size end
       def empty?()     tuples.empty? end
       def join(*a, &b) tuples.join(*a, &b) end
@@ -128,8 +128,8 @@ module Alloy
         @tuples.reduce(0){|sum, t| sum + t[0]}
       end
 
-      def hash()    SetProxy.unwrap(self).hash end
-      def ==(other) SetProxy.unwrap(self) == SetProxy.unwrap(other) end
+      def hash()    TupleSet.unwrap(self).hash end
+      def ==(other) TupleSet.unwrap(self) == TupleSet.unwrap(other) end
 
       def to_s()    "{" + @tuples.map(&:to_s).join(",\n  ") + "}" end
       def inspect() to_s end
@@ -144,17 +144,17 @@ module Alloy
       private
 
       def int_cmp(op, other)
-        self.sum.send(op, SetProxy.wrap(other).sum)
+        self.sum.send(op, TupleSet.wrap(other).sum)
       end
 
       def _wrap(result)
-        SetProxy.new(@type, result)
+        TupleSet.new(@type, result)
       end
 
       def _join_fld(fld)
         fname = fld.getter_sym.to_s
         ans = self.tuples.map(&fname).reject(&:no?)
-        SetProxy.new(@type.join(fld.full_type()), ans)
+        TupleSet.new(@type.join(fld.full_type()), ans)
       end
     end
 

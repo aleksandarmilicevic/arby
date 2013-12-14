@@ -207,12 +207,12 @@ module Alloy
       def intercept_read(fld)
         _fld_pre_read(fld)
         value = yield
-        value = SetProxy.wrap(value, fld.type) if Alloy.conf.wrap_field_values
+        value = TupleSet.wrap(value, fld.type) if Alloy.conf.wrap_field_values
         _fld_post_read(fld, value)
       end
 
       def intercept_write(fld, value)
-        value = SetProxy.unwrap(value) if Alloy.conf.wrap_field_values
+        value = TupleSet.unwrap(value) if Alloy.conf.wrap_field_values
         _fld_pre_write(fld, value)
         yield
         _fld_post_write(fld, value)

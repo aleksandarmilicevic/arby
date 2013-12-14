@@ -13,12 +13,12 @@ module Alloy
       # Takes an instance of Alloy::Ast::Instance parametrized with
       # Alloy::Bridge::Atom, and Alloy::Bridge::TupleSet, and converts
       # it to an instance of the same class parametrized with
-      # Alloy::Ast::Sig, and Alloy::Ast::SetProxy.  Additionally, it
+      # Alloy::Ast::Sig, and Alloy::Ast::TupleSet.  Additionally, it
       # populates the field values of the newly created atoms
       # according to field values in +inst+.
       #
       # @param inst [Alloy::Ast::Instance<Alloy::Bridge::Atom, Alloy::Bridge::TupleSet>]
-      # @return [Alloy::Ast::Instance<Alloy::Ast::Sig, Alloy::Ast::SetProxy>]
+      # @return [Alloy::Ast::Instance<Alloy::Ast::Sig, Alloy::Ast::TupleSet>]
       def to_arby_instance(inst)
         atoms      = inst.atoms.map{|a| _create_atom(a)}
         tmpi       = Alloy::Ast::Instance.new atoms
@@ -74,7 +74,7 @@ module Alloy
       def _type_to_atype!(type) _type_to_atype(type) or fail("type #{type} not found") end
       def _type_to_sig!(type)   _type_to_sig(type) or fail("sig #{type} not found") end
 
-      # @param inst [Alloy::Ast::Instance<Alloy::Ast::Sig, Alloy::Ast::SetProxy>]
+      # @param inst [Alloy::Ast::Instance<Alloy::Ast::Sig, Alloy::Ast::TupleSet>]
       # @param ts [Alloy::Bridge::TupleSet]
       def _to_set_proxy(inst, ts)
         tuples = ts.tuples.map do |tuple|
@@ -83,7 +83,7 @@ module Alloy
           # TupleProxy.wrap(value, Alloy::Ast::AType.get(type))
         end
         type = _type_to_atype!(ts.type)
-        Alloy::Ast::SetProxy.wrap(tuples, type)
+        Alloy::Ast::TupleSet.wrap(tuples, type)
       end
 
     end
