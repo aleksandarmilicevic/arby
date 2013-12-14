@@ -1,5 +1,5 @@
 require 'my_test_helper.rb'
-require 'alloy/relations/relation_ext'
+require 'arby/relations/relation_ext'
 
 include Alloy::Relations
 

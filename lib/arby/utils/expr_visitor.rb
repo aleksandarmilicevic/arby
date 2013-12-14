@@ -1,4 +1,4 @@
-require 'alloy/ast/expr'
+require 'arby/ast/expr'
 require 'sdg_utils/visitors/visitor'
 
 module Alloy

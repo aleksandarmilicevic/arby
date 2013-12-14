@@ -9,7 +9,7 @@ require 'set'
 require 'test/unit'
 require 'pry'
 
-require 'alloy/alloy'
+require 'arby/alloy'
 require 'sdg_utils/testing/assertions'
 require 'sdg_utils/testing/smart_setup'
 

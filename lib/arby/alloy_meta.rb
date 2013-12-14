@@ -1,4 +1,4 @@
-require 'alloy/utils/alloy_printer'
+require 'arby/utils/alloy_printer'
 require 'sdg_utils/caching/searchable_attr'
 require 'sdg_utils/event/events'
 require 'sdg_utils/meta_utils'
@@ -88,7 +88,7 @@ module Alloy
         run_cmd = "run #{run_cmd_name} {}"
         als_model = "#{to_als}\n\n#{run_cmd}"
 
-        require 'alloy/bridge/compiler'
+        require 'arby/bridge/compiler'
         comp = Alloy::Bridge::Compiler.compile(als_model)
         sol = comp.execute_command(run_cmd_name)
         if sol.satisfiable?

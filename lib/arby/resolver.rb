@@ -1,4 +1,4 @@
-require 'alloy/alloy_ast'
+require 'arby/alloy_ast'
 
 module Alloy
   extend self

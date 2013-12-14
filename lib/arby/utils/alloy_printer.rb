@@ -1,4 +1,4 @@
-require 'alloy/alloy_ast'
+require 'arby/alloy_ast'
 require 'sdg_utils/config'
 require 'sdg_utils/visitors/visitor'
 require 'sdg_utils/print_utils/code_printer'

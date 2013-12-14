@@ -1,4 +1,4 @@
-require 'alloy/ast/types'
+require 'arby/ast/types'
 
 module Alloy
   module Dsl

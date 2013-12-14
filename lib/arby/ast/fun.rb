@@ -1,7 +1,7 @@
-require 'alloy/ast/expr.rb'
-require 'alloy/ast/types'
-require 'alloy/ast/type_checker'
-require 'alloy/ast/utils'
+require 'arby/ast/expr.rb'
+require 'arby/ast/types'
+require 'arby/ast/type_checker'
+require 'arby/ast/utils'
 
 module Alloy
   module Ast

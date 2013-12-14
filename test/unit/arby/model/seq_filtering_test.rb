@@ -1,6 +1,6 @@
 require 'my_test_helper'
-require 'alloy/bridge/compiler'
-require 'alloy/bridge/solution'
+require 'arby/bridge/compiler'
+require 'arby/bridge/solution'
 require 'arby_models/seq_filtering'
 
 class SeqFilteringTest < Test::Unit::TestCase

@@ -1,5 +1,5 @@
-require 'alloy/ast/types'
-require 'alloy/ast/utils'
+require 'arby/ast/types'
+require 'arby/ast/utils'
 
 module Alloy
   module Ast

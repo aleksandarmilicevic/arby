@@ -1,7 +1,7 @@
-require 'alloy/ast/sig'
-require 'alloy/ast/types'
-require 'alloy/ast/type_checker'
-require 'alloy/relations/relation'
+require 'arby/ast/sig'
+require 'arby/ast/types'
+require 'arby/ast/type_checker'
+require 'arby/relations/relation'
 require 'sdg_utils/proxy'
 
 module Alloy

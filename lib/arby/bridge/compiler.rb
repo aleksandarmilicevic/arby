@@ -1,5 +1,5 @@
-require 'alloy/bridge/imports'
-require 'alloy/bridge/solution'
+require 'arby/bridge/imports'
+require 'arby/bridge/solution'
 
 module Alloy
   module Bridge

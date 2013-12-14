@@ -1,7 +1,7 @@
-require 'alloy/bridge/imports'
-require 'alloy/ast/instance'
-require 'alloy/ast/tuple_set'
-require 'alloy/ast/types'
+require 'arby/bridge/imports'
+require 'arby/ast/instance'
+require 'arby/ast/tuple_set'
+require 'arby/ast/types'
 
 module Alloy
   module Bridge

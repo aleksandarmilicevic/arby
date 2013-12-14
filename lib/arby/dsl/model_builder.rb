@@ -1,4 +1,4 @@
-require 'alloy/dsl/model_api'
+require 'arby/dsl/model_api'
 require 'sdg_utils/dsl/module_builder'
 
 module Alloy

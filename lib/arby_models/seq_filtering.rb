@@ -1,4 +1,4 @@
-require 'alloy/alloy_dsl'
+require 'arby/alloy_dsl'
 
 Alloy.conf.sym_exe.convert_missing_fields_to_joins = true
 

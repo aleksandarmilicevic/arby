@@ -1,6 +1,6 @@
-require 'alloy/alloy_meta'
-require 'alloy/alloy_conf'
-require 'alloy/resolver.rb'
+require 'arby/alloy_meta'
+require 'arby/alloy_conf'
+require 'arby/resolver.rb'
 
 module Alloy
 

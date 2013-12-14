@@ -1,5 +1,5 @@
-require 'alloy/alloy'
-require 'alloy/alloy_dsl'
+require 'arby/alloy'
+require 'arby/alloy_dsl'
 
 include Alloy::Dsl
 

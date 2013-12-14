@@ -24,7 +24,7 @@ module Alloy
       def runs()   commands.select{|c| c.run?} end
 
       def to_als()
-        require 'alloy/utils/alloy_printer'
+        require 'arby/utils/alloy_printer'
         Alloy::Utils::AlloyPrinter.export_to_als(self)
       end
     end

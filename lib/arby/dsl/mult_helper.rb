@@ -1,4 +1,4 @@
-require 'alloy/dsl/mod_builder'
+require 'arby/dsl/mod_builder'
 
 module Alloy
   module Dsl

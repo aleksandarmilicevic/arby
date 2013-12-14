@@ -1,5 +1,5 @@
-require 'alloy/ast/command'
-require 'alloy/ast/fun'
+require 'arby/ast/command'
+require 'arby/ast/fun'
 
 module Alloy
   module Dsl

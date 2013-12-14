@@ -1,8 +1,8 @@
-require 'alloy/dsl/helpers'
-require 'alloy/dsl/command_helper'
-require 'alloy/dsl/sig_builder'
-require 'alloy/ast/model'
-require 'alloy/ast/expr_builder'
+require 'arby/dsl/helpers'
+require 'arby/dsl/command_helper'
+require 'arby/dsl/sig_builder'
+require 'arby/ast/model'
+require 'arby/ast/expr_builder'
 require 'sdg_utils/lambda/sourcerer'
 
 module Alloy
@@ -41,7 +41,7 @@ module Alloy
       end
 
       def __created(scope_module)
-        require 'alloy/alloy.rb'
+        require 'arby/alloy.rb'
         mod = Alloy.meta.find_model(name) || __create_model(scope_module)
         Alloy.meta.add_model(mod)
         __define_meta(mod)

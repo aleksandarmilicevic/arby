@@ -1,4 +1,4 @@
-require 'alloy/ast/tuple_set'
+require 'arby/ast/tuple_set'
 
 module Alloy
   module Ast

@@ -1,8 +1,8 @@
 #TODO consider moving some of this stuff to sdg_utils/dsl
 
-require 'alloy/alloy_ast'
-require 'alloy/alloy_dsl'
-require 'alloy/ast/types'
+require 'arby/alloy_ast'
+require 'arby/alloy_dsl'
+require 'arby/ast/types'
 require 'sdg_utils/dsl/ext'
 require 'sdg_utils/meta_utils'
 require 'sdg_utils/dsl/missing_builder'

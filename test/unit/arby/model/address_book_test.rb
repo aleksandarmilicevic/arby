@@ -1,8 +1,8 @@
 require 'my_test_helper'
 require 'arby_models/address_book'
-require 'alloy/helpers/test/dsl_helpers'
-require 'alloy/initializer.rb'
-require 'alloy/bridge/compiler'
+require 'arby/helpers/test/dsl_helpers'
+require 'arby/initializer.rb'
+require 'arby/bridge/compiler'
 
 
 class AddressBookTest < Test::Unit::TestCase

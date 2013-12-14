@@ -1,5 +1,5 @@
-require 'alloy/ast/expr'
-require 'alloy/ast/decl'
+require 'arby/ast/expr'
+require 'arby/ast/decl'
 
 module Alloy
   module Dsl

@@ -1,4 +1,4 @@
-require 'alloy/alloy_dsl'
+require 'arby/alloy_dsl'
 
 module ArbyModels
   extend Alloy::Dsl

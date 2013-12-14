@@ -1,7 +1,7 @@
-require 'alloy/ast/instance'
-require 'alloy/bridge/imports'
-require 'alloy/bridge/helpers'
-require 'alloy/bridge/translator'
+require 'arby/ast/instance'
+require 'arby/bridge/imports'
+require 'arby/bridge/helpers'
+require 'arby/bridge/translator'
 require 'sdg_utils/proxy'
 
 module Alloy

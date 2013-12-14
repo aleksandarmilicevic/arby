@@ -1,4 +1,4 @@
-require 'alloy/ast/sig'
+require 'arby/ast/sig'
 require 'sdg_utils/dsl/class_builder'
 
 module Alloy

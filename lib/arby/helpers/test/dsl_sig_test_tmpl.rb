@@ -6,7 +6,7 @@ module Alloy
         extend self
         def get_test_template(cls_name, model_func, sig_func, base_sig_cls)
           <<-EOM
-    require 'alloy/helpers/test/dsl_helpers'
+    require 'arby/helpers/test/dsl_helpers'
     require 'sdg_utils/meta_utils.rb'
 
     #{model_func} do

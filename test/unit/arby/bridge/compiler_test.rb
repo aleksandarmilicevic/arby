@@ -1,6 +1,6 @@
 require 'my_test_helper'
-require 'alloy/bridge/compiler'
-require 'alloy/bridge/solution'
+require 'arby/bridge/compiler'
+require 'arby/bridge/solution'
 
 module Alloy
   module Bridge

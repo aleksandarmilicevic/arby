@@ -1,9 +1,9 @@
 require 'my_test_helper'
 require 'arby_models/sudoku'
-require 'alloy/helpers/test/dsl_helpers'
-require 'alloy/initializer.rb'
-require 'alloy/bridge/compiler'
-require 'alloy/bridge/solution'
+require 'arby/helpers/test/dsl_helpers'
+require 'arby/initializer.rb'
+require 'arby/bridge/compiler'
+require 'arby/bridge/solution'
 
 class SudokuTest < Test::Unit::TestCase
   include Alloy::Helpers::Test::DslHelpers

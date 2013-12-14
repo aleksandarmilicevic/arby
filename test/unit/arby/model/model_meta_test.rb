@@ -1,6 +1,6 @@
 require 'my_test_helper'
-require 'alloy/helpers/test/dsl_helpers'
-require 'alloy/initializer.rb'
+require 'arby/helpers/test/dsl_helpers'
+require 'arby/initializer.rb'
 
 include Alloy::Dsl
 

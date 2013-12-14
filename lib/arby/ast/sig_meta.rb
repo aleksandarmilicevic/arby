@@ -1,5 +1,5 @@
-require 'alloy/ast/field'
-require 'alloy/ast/fun'
+require 'arby/ast/field'
+require 'arby/ast/fun'
 require 'sdg_utils/caching/searchable_attr'
 require 'weakref'
 

@@ -1,8 +1,8 @@
-require 'alloy/dsl/fields_helper'
-require 'alloy/dsl/fun_helper'
-require 'alloy/ast/arg'
-require 'alloy/ast/fun'
-require 'alloy/ast/types'
+require 'arby/dsl/fields_helper'
+require 'arby/dsl/fun_helper'
+require 'arby/ast/arg'
+require 'arby/ast/fun'
+require 'arby/ast/types'
 
 module Alloy
   module Dsl
@@ -64,7 +64,7 @@ module Alloy
 
       def __created()
         _define_meta()
-        require 'alloy/alloy.rb'
+        require 'arby/alloy.rb'
         Alloy.meta.add_sig(self)
       end
       def __params(*args)     fields(*args) end

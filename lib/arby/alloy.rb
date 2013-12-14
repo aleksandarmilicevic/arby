@@ -1,5 +1,5 @@
-require 'alloy/alloy_conf'
-require 'alloy/alloy_event_constants'
+require 'arby/alloy_conf'
+require 'arby/alloy_event_constants'
 require 'sdg_utils/test_and_set'
 require 'sdg_utils/meta_utils'
 
@@ -40,22 +40,22 @@ module Alloy
     end
 
     def meta
-      require 'alloy/alloy_meta'
+      require 'arby/alloy_meta'
       @meta ||= Alloy::Model::MetaModel.new
     end
 
     def boss
-      require 'alloy/alloy_boss'
+      require 'arby/alloy_boss'
       @boss ||= Alloy::BigBoss.new
     end
 
     def conf
-      require 'alloy/alloy_conf'
+      require 'arby/alloy_conf'
       @conf ||= def_conf.dup
     end
 
     def initializer
-      require 'alloy/initializer'
+      require 'arby/initializer'
       @initializer ||= Alloy::CInitializer.new
     end
 

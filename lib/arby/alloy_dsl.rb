@@ -1,5 +1,5 @@
-require 'alloy/dsl/model_builder'
-require 'alloy/ast/types'
+require 'arby/dsl/model_builder'
+require 'arby/ast/types'
 
 module Alloy
 
@@ -31,4 +31,4 @@ module Alloy
 
 end
 
-require 'alloy/dsl/ext.rb'
+require 'arby/dsl/ext.rb'

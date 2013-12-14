@@ -1,8 +1,8 @@
 require 'my_test_helper'
 
-require 'alloy/helpers/test/dsl_helpers'
-require 'alloy/initializer.rb'
-require 'alloy/dsl/errors'
+require 'arby/helpers/test/dsl_helpers'
+require 'arby/initializer.rb'
+require 'arby/dsl/errors'
 require 'sdg_utils/lambda/proc'
 
 include Alloy::Dsl

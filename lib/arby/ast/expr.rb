@@ -1,10 +1,10 @@
-require 'alloy/alloy'
-require 'alloy/ast/op'
-require 'alloy/ast/expr_builder'
-require 'alloy/ast/field'
-require 'alloy/ast/types'
-require 'alloy/utils/codegen_repo'
-require 'alloy/utils/expr_visitor'
+require 'arby/alloy'
+require 'arby/ast/op'
+require 'arby/ast/expr_builder'
+require 'arby/ast/field'
+require 'arby/ast/types'
+require 'arby/utils/codegen_repo'
+require 'arby/utils/expr_visitor'
 
 module Alloy
   module Ast
