@@ -1,4 +1,4 @@
-require 'arby/alloy_ast'
+require 'arby/arby_ast'
 
 module Arby
   extend self

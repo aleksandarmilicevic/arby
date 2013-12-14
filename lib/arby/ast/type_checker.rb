@@ -1,4 +1,4 @@
-require 'arby/alloy_conf'
+require 'arby/arby_conf'
 require 'arby/ast/types'
 require 'sdg_utils/errors'
 

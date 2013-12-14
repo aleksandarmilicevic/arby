@@ -1,7 +1,7 @@
 #TODO consider moving some of this stuff to sdg_utils/dsl
 
-require 'arby/alloy_ast'
-require 'arby/alloy_dsl'
+require 'arby/arby_ast'
+require 'arby/arby_dsl'
 require 'arby/ast/types'
 require 'sdg_utils/dsl/ext'
 require 'sdg_utils/meta_utils'

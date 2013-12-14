@@ -1,6 +1,6 @@
 require 'my_test_helper'
 require 'arby/ast/expr_builder'
-require 'arby/alloy_dsl'
+require 'arby/arby_dsl'
 
 include Arby::Dsl
 

@@ -1,6 +1,6 @@
 require 'my_test_helper.rb'
 
-require 'arby/alloy'
+require 'arby/arby'
 require 'arby/dsl/alloy_dsl'
 
 include Arby::Dsl

@@ -1,5 +1,5 @@
-require 'arby/alloy_conf'
-require 'arby/alloy_event_constants'
+require 'arby/arby_conf'
+require 'arby/arby_event_constants'
 require 'sdg_utils/test_and_set'
 require 'sdg_utils/meta_utils'
 
@@ -40,17 +40,17 @@ module Arby
     end
 
     def meta
-      require 'arby/alloy_meta'
+      require 'arby/arby_meta'
       @meta ||= Arby::Model::MetaModel.new
     end
 
     def boss
-      require 'arby/alloy_boss'
+      require 'arby/arby_boss'
       @boss ||= Arby::BigBoss.new
     end
 
     def conf
-      require 'arby/alloy_conf'
+      require 'arby/arby_conf'
       @conf ||= def_conf.dup
     end
 

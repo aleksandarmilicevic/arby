@@ -1,5 +1,5 @@
-require 'arby/alloy_meta'
-require 'arby/alloy_conf'
+require 'arby/arby_meta'
+require 'arby/arby_conf'
 require 'arby/resolver.rb'
 
 module Arby

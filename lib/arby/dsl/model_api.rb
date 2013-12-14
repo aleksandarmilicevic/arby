@@ -41,7 +41,7 @@ module Arby
       end
 
       def __created(scope_module)
-        require 'arby/alloy.rb'
+        require 'arby/arby.rb'
         mod = Arby.meta.find_model(name) || __create_model(scope_module)
         Arby.meta.add_model(mod)
         __define_meta(mod)

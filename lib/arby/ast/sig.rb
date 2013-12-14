@@ -1,4 +1,4 @@
-require 'arby/alloy_event_constants.rb'
+require 'arby/arby_event_constants.rb'
 require 'arby/ast/arg'
 require 'arby/ast/expr'
 require 'arby/ast/field'

@@ -64,7 +64,7 @@ module Arby
 
       def __created()
         _define_meta()
-        require 'arby/alloy.rb'
+        require 'arby/arby.rb'
         Arby.meta.add_sig(self)
       end
       def __params(*args)     fields(*args) end

@@ -1,5 +1,5 @@
-require 'arby/alloy_conf'
-require 'arby/alloy_dsl'
+require 'arby/arby_conf'
+require 'arby/arby_dsl'
 
 require 'arby/ast/expr'
 require 'arby/ast/type_checker'

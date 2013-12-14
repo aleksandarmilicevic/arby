@@ -1,4 +1,4 @@
-require 'arby/alloy'
+require 'arby/arby'
 require 'arby/ast/op'
 require 'arby/ast/expr_builder'
 require 'arby/ast/field'
