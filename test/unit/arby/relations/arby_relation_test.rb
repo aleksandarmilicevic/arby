@@ -1,4 +1,4 @@
-require_relative 'alloy_rel_test_helper.rb'
+require_relative 'arby_rel_test_helper.rb'
 
 include Arby::Relations
 
@@ -6,7 +6,7 @@ class AtomCls
   include Arby::Relations::MAtom
 end
 
-class TestAlloyRelation < Test::Unit::TestCase
+class TestArbyRelation < Test::Unit::TestCase
   include ArbyRelationTestHelper
 
   def test1
@@ -130,7 +130,7 @@ end
 #------------------------------------------
 # == Class TestTuple
 #------------------------------------------
-class TestAlloyTuple < Test::Unit::TestCase
+class TestArbyTuple < Test::Unit::TestCase
   include ArbyRelationTestHelper
 
   def test_arity_0

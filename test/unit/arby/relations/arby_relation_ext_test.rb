@@ -1,9 +1,9 @@
-require_relative 'alloy_rel_test_helper.rb'
+require_relative 'arby_rel_test_helper.rb'
 
 #------------------------------------------
-# == Class TestRelationExt
+# == Class TestArbyRelationExt
 #------------------------------------------
-class TestAlloyRelationExt < Test::Unit::TestCase
+class TestArbyRelationExt < Test::Unit::TestCase
   include ArbyRelationTestHelper
 
   def testArrayExt
