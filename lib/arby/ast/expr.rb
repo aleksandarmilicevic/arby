@@ -6,7 +6,7 @@ require 'arby/ast/types'
 require 'arby/utils/codegen_repo'
 require 'arby/utils/expr_visitor'
 
-module Alloy
+module Arby
   module Ast
     module Expr
 
@@ -15,7 +15,7 @@ module Alloy
         cls.send :include, expr_mod
         cls.class_eval <<-RUBY, __FILE__, __LINE__+1
           def __name() #{name.inspect} end
-          def __type() @__atype ||= Alloy::Ast::AType.get(#{type.inspect}) end
+          def __type() @__atype ||= Arby::Ast::AType.get(#{type.inspect}) end
         RUBY
         Expr.add_methods_for_type(sig_inst, AType.get(type), false)
       end
@@ -24,11 +24,11 @@ module Alloy
         cls = target_inst.singleton_class
         cls.send :define_method, :__type, lambda{type} if define_type_method
         range_cls = type.range.klass
-        if (Alloy::Ast::ASig >= range_cls rescue false)
+        if (Arby::Ast::ASig >= range_cls rescue false)
           add_field_methods cls, range_cls.meta.fields_including_sub_and_super
           add_field_methods cls, range_cls.meta.inv_fields_including_sub_and_super
           add_fun_methods   cls, range_cls.meta.all_funs
-        elsif (Alloy::Dsl::ModelDslApi >= range_cls rescue false)
+        elsif (Arby::Dsl::ModelDslApi >= range_cls rescue false)
           add_fun_methods   cls, range_cls.meta.all_funs
         end
         if type.range.seq?
@@ -63,7 +63,7 @@ module Alloy
           end
           target_cls.send :define_method, "#{fname}=" do |val|
             ans = ExprBuilder.apply(Ops::ASSIGN, self.apply_join(fld.to_alloy_expr), val)
-            Alloy.boss.add_side_effect(ans)
+            Arby.boss.add_side_effect(ans)
           end
         end
       end
@@ -72,14 +72,14 @@ module Alloy
         type = nil
         expr.respond_to?(:__type) and
           type = expr.__type
-        if type.nil? || Alloy::Ast::NoType === type
+        if type.nil? || Arby::Ast::NoType === type
           fail "type not present in expr `#{expr}'"
         end
         type
       end
 
       def self.replace_subexpressions(e, orig, replacement)
-        rbilder = Alloy::Utils::ExprRebuilder.new do |expr|
+        rbilder = Arby::Utils::ExprRebuilder.new do |expr|
           (expr.__id__ == orig.__id__) ? replacement : nil
         end
         rbilder.rebuild(e)
@@ -154,14 +154,14 @@ module Alloy
         end
 
         def set_type(type=nil)
-          @__type = Alloy::Ast::AType.get(type) if type
+          @__type = Arby::Ast::AType.get(type) if type
           Expr.add_methods_for_type(self, @__type, false) if @__type && !@__type.empty?
         end
 
         def exe
           case
-          when Alloy.symbolic_mode?; exe_symbolic
-          when Alloy.concrete_mode?; exe_concrete
+          when Arby.symbolic_mode?; exe_symbolic
+          when Arby.concrete_mode?; exe_concrete
           else fail "unknown mode: #{mode}"
           end
         end
@@ -234,12 +234,12 @@ module Alloy
         end
 
         def method_missing(sym, *args, &block)
-          return super if Alloy.is_caller_from_alloy?(caller[0])
+          return super if Arby.is_caller_from_alloy?(caller[0])
           if args.empty?
-            return super unless Alloy.conf.sym_exe.convert_missing_fields_to_joins
+            return super unless Arby.conf.sym_exe.convert_missing_fields_to_joins
             ExprBuilder.apply(JOIN, self, Var.new(sym))
           else
-            return super unless Alloy.conf.sym_exe.convert_missing_methods_to_fun_calls
+            return super unless Arby.conf.sym_exe.convert_missing_methods_to_fun_calls
             apply_call sym, *args
             # if sym == :[] && args.size == 1
             #   lhs = (MExpr === args[0]) ? args[0] : Var.new(args[0])
@@ -270,12 +270,12 @@ module Alloy
           end
           domain = self
           if arity == 1
-            args = [Alloy::Ast::Arg.new(blk.parameters[0][1], domain)]
+            args = [Arby::Ast::Arg.new(blk.parameters[0][1], domain)]
             body = blk
           else
             Expr.ensure_type(self)
             args = type.each_with_index.map{ |col_type, idx|
-              Alloy::Ast::Arg.new(blk.parameters[idx][1], col_type)
+              Arby::Ast::Arg.new(blk.parameters[idx][1], col_type)
             }
             body = proc { |*args|
               tuple = ExprBuilder.reduce_to_binary(PRODUCT, *args)
@@ -371,7 +371,7 @@ module Alloy
       class SigExpr < Var
         attr_reader :__sig
         def initialize(sig)
-          super(sig.relative_name, Alloy::Ast::AType.get(sig))
+          super(sig.relative_name, Arby::Ast::AType.get(sig))
           @__sig = sig
         end
         def to_s()         @__sig ? @__sig.relative_name : "" end
@@ -400,7 +400,7 @@ module Alloy
         attr_reader :__value
         def initialize(value)
           #TODO: define some constants in AType for built-in types
-          super(Alloy::Ast::AType.get(Integer))
+          super(Arby::Ast::AType.get(Integer))
           @__value = value
           @__op = Ops::NOOP
         end
@@ -471,7 +471,7 @@ module Alloy
           ops.each do |op|
             class_eval <<-RUBY, __FILE__, __LINE__+1
               def self.#{op.name}(*args)
-                self.new(Alloy::Ast::Op.by_name(#{op.name.inspect}), *args)
+                self.new(Arby::Ast::Op.by_name(#{op.name.inspect}), *args)
               end
             RUBY
           end
@@ -487,7 +487,7 @@ module Alloy
         def initialize(op, sub) super(op, sub) end
         def sub()               children.first end
 
-        add_constructors_for_ops Alloy::Ast::Op.by_arity(1)
+        add_constructors_for_ops Arby::Ast::Op.by_arity(1)
 
         def to_s
           "(#{op} #{sub})"
@@ -526,7 +526,7 @@ module Alloy
         def lhs()                    children[0] end
         def rhs()                    children[1] end
 
-        add_constructors_for_ops Alloy::Ast::Op.by_arity(2)
+        add_constructors_for_ops Arby::Ast::Op.by_arity(2)
 
         def to_s
           op_str = op.to_s
@@ -663,7 +663,7 @@ module Alloy
           @__op, @decl, @body = op, decl, body
           fail unless Qop === @__op
           # fake_body_src = "<failed to extract body source>"
-          # @body_src = Alloy::Utils::CodegenRepo.proc_to_src(body) || fake_body_src
+          # @body_src = Arby::Utils::CodegenRepo.proc_to_src(body) || fake_body_src
         end
 
         def wrap(proc)

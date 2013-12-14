@@ -5,7 +5,7 @@ require 'arby/initializer.rb'
 require 'arby/dsl/errors'
 require 'sdg_utils/lambda/proc'
 
-include Alloy::Dsl
+include Arby::Dsl
 
 module A_D_SPT
   alloy_model do
@@ -64,22 +64,22 @@ class String
 end
 
 class AlloyDslPredTest < Test::Unit::TestCase
-  include Alloy::Helpers::Test::DslHelpers
+  include Arby::Helpers::Test::DslHelpers
   include SDGUtils::Testing::SmartSetup
   include SDGUtils::Testing::Assertions
 
   include A_D_SPT
 
   def setup_class
-    Alloy.reset
-    Alloy.meta.restrict_to(A_D_SPT)
-    Alloy.initializer.init_all_no_freeze
+    Arby.reset
+    Arby.meta.restrict_to(A_D_SPT)
+    Arby.initializer.init_all_no_freeze
   end
 
-  def notype() Alloy::Ast::NoType.new end
+  def notype() Arby::Ast::NoType.new end
 
   def atype
-    lambda {|cls| Alloy::Ast::AType.get(cls)}
+    lambda {|cls| Arby::Ast::AType.get(cls)}
   end
 
   def get_funs(sig)
@@ -94,7 +94,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def amodel(&block)
-    Alloy.conf.do_with :defer_body_eval => false do
+    Arby.conf.do_with :defer_body_eval => false do
       alloy_model &block
     end
   end
@@ -109,8 +109,8 @@ class AlloyDslPredTest < Test::Unit::TestCase
   end
 
   def check_fun(fun, arg_names, arg_types, ret_type)
-    arg_types ||= fun.arity.times.map{Alloy::Ast::NoType.new}
-    ret_type ||= Alloy::Ast::NoType.new
+    arg_types ||= fun.arity.times.map{Arby::Ast::NoType.new}
+    ret_type ||= Arby::Ast::NoType.new
     check_arg_names(fun, arg_names)
     check_arg_types(fun, arg_types)
     assert_equal atype[ret_type], fun.ret_type
@@ -118,7 +118,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
 
   def test_invalid_body
     sname = "SigTmp"
-    ex = assert_raise(Alloy::Dsl::SyntaxError) do
+    ex = assert_raise(Arby::Dsl::SyntaxError) do
       amodel do
         sig sname do
           fun f1[a: S1, b: S2][Int] { |a|
@@ -134,7 +134,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
 
   def test_invalid_too_many_ret
     sname = "SigTmp"
-    ex = assert_raise(Alloy::Dsl::SyntaxError) do
+    ex = assert_raise(Arby::Dsl::SyntaxError) do
       amodel do
         sig sname do
           fun f1[a: S1, b: S2][Int,String] {
@@ -148,7 +148,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
 
   def test_invalid_after_ret
     sname = "SigTmp"
-    ex = assert_raise(Alloy::Dsl::SyntaxError) do
+    ex = assert_raise(Arby::Dsl::SyntaxError) do
       amodel do
         sig sname do
           fun f1[a: S1, b: S2][Int][] {
@@ -162,7 +162,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
 
   def test_invalid_fname_not_string
     sname = "SigTmp"
-    ex = assert_raise(Alloy::Dsl::SyntaxError) do
+    ex = assert_raise(Arby::Dsl::SyntaxError) do
       amodel do
         sig sname do
           fun S1, a: S1, b: S2, _: Int do |a,b| a + b end
@@ -171,7 +171,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
     end
     assert_starts_with "`A_D_SPT::S1' (function name) is not a valid identifier", ex.message
     sname = "SigTmp"
-    ex = assert_raise(Alloy::Dsl::SyntaxError) do
+    ex = assert_raise(Arby::Dsl::SyntaxError) do
       amodel do
         sig sname do
           fun 1, a: S1, b: S2, _: Int do |a,b| a + b end
@@ -183,7 +183,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
 
   def test_invalid_argname_not_string
     sname = "SigTmp"
-    ex = assert_raise(Alloy::Dsl::SyntaxError) do
+    ex = assert_raise(Arby::Dsl::SyntaxError) do
       amodel do
         sig sname do
           fun f1[S1: S1][Int] {
@@ -197,7 +197,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
 
   def test_invalid_pred_rettype
     sname = "SigTmp"
-    ex = assert_raise(Alloy::Dsl::SyntaxError) do
+    ex = assert_raise(Arby::Dsl::SyntaxError) do
       amodel do
         sig sname do
           pred f1[s1: S1][Int] {
@@ -211,7 +211,7 @@ class AlloyDslPredTest < Test::Unit::TestCase
 
   def test_invalid_pred_empty_rettype
     sname = "SigTmp"
-    ex = assert_raise(Alloy::Dsl::SyntaxError) do
+    ex = assert_raise(Arby::Dsl::SyntaxError) do
       amodel do
         sig sname do
           pred f1[s1: S1][] {

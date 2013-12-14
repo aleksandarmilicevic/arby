@@ -1,13 +1,13 @@
 require 'arby/ast/expr'
 require 'sdg_utils/visitors/visitor'
 
-module Alloy
+module Arby
   module Utils
 
     class ExprDelegatingVisitor < SDGUtils::Visitors::TypeDelegatingVisitor
       def initialize(visitor_obj=nil, opts={}, &visitor_blk)
         super(visitor_obj,
-              {top_class: Alloy::Ast::Expr::MExpr}.merge(opts),
+              {top_class: Arby::Ast::Expr::MExpr}.merge(opts),
               &visitor_blk)
       end
 
@@ -98,7 +98,7 @@ module Alloy
         notify(e) do
           sub = rebuild(e.sub)
           unless_obj_eq(e, sub, e.sub) do
-            Alloy::Ast::Expr::UnaryExpr.new e.op, sub
+            Arby::Ast::Expr::UnaryExpr.new e.op, sub
           end
         end
       end
@@ -108,7 +108,7 @@ module Alloy
           lhs = rebuild(e.lhs)
           rhs = rebuild(e.rhs)
           unless_obj_eq(e, lhs, rhs, e.lhs, e.rhs) do
-            Alloy::Ast::Expr::BinaryExpr.new e.op, lhs, rhs
+            Arby::Ast::Expr::BinaryExpr.new e.op, lhs, rhs
           end
         end
       end
@@ -117,7 +117,7 @@ module Alloy
         notify(e) do
           ch = e.children.map(&method(:rebuild))
           unless_obj_eq(e, *ch, *e.children) do
-            Alloy::Ast::Expr::NaryExpr.new e.op, *ch
+            Arby::Ast::Expr::NaryExpr.new e.op, *ch
           end
         end
       end
@@ -126,7 +126,7 @@ module Alloy
         notify(e) do
           sub = rebuild(e.sub)
           unless_obj_eq(e, sub, e.sub) do
-            Alloy::Ast::Expr::ParenExpr.new e.op, sub
+            Arby::Ast::Expr::ParenExpr.new e.op, sub
           end
         end
       end
@@ -136,7 +136,7 @@ module Alloy
           target = rebuild(e.target)
           args = e.args.map(&method(:rebuild))
           unless_obj_eq(e, target, *args, e.target, *e.args) do
-            Alloy::Ast::Expr::CallExpr.new target, e.fun, *args
+            Arby::Ast::Expr::CallExpr.new target, e.fun, *args
           end
         end
       end
@@ -146,7 +146,7 @@ module Alloy
           e_args = [e.cond, e.then_expr, e.else_expr]
           args = e_args.map(&method(:rebuild))
           unless_obj_eq(e, *args, *e_args) do
-            Alloy::Ast::Expr::ITEExpr.new *args
+            Arby::Ast::Expr::ITEExpr.new *args
           end
         end
       end
@@ -156,9 +156,9 @@ module Alloy
           body = rebuild(e.body)
           unless_obj_eq(e, body, e.body) do
             if e.all?
-              Alloy::Ast::Expr::QuantExpr.all(e.decl, body)
+              Arby::Ast::Expr::QuantExpr.all(e.decl, body)
             elsif e.exist?
-              Alloy::Ast::Expr::QuantExpr.exist(e.decl, body)
+              Arby::Ast::Expr::QuantExpr.exist(e.decl, body)
             end
           end
         end

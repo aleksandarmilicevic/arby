@@ -1,10 +1,10 @@
 require 'arby/ast/expr'
 
-module Alloy
+module Arby
   module Dsl
 
     module ExprHelper
-      def no(expr) Alloy::Ast::Expr::UnaryExpr.no(expr) end
+      def no(expr) Arby::Ast::Expr::UnaryExpr.no(expr) end
     end
 
   end

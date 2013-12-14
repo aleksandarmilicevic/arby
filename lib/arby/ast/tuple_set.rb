@@ -4,7 +4,7 @@ require 'arby/ast/type_checker'
 require 'arby/relations/relation'
 require 'sdg_utils/proxy'
 
-module Alloy
+module Arby
   module Ast
 
     module TypeMethodsHelper
@@ -12,7 +12,7 @@ module Alloy
         return unless @type
         cls = (class << self; self end)
         range_cls = @type.range.klass
-        if (Alloy::Ast::ASig >= range_cls rescue false)
+        if (Arby::Ast::ASig >= range_cls rescue false)
           fields = range_cls.meta.fields_including_sub_and_super
           # field += range_cls.meta.inv_fields_including_sub_and_super
           fields.each do |fld|
@@ -24,7 +24,7 @@ module Alloy
     end
 
     class Tuple < SDGUtils::Proxy
-      include Alloy::Relations::MTuple
+      include Arby::Relations::MTuple
       include TypeMethodsHelper
 
       private
@@ -71,7 +71,7 @@ module Alloy
     ###############################################
 
     class TupleSet < SDGUtils::Proxy
-      include Alloy::Relations::MRelation
+      include Arby::Relations::MRelation
       include TypeMethodsHelper
 
       private

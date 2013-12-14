@@ -2,7 +2,7 @@ require 'logger'
 require 'nilio'
 require 'sdg_utils/config'
 
-module Alloy
+module Arby
 
   def self.default_symexe_conf
     SDGUtils::Config.new do |c|

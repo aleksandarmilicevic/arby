@@ -1,6 +1,6 @@
 require 'sdg_utils/caching/searchable_attr'
 
-module Alloy
+module Arby
   module Ast
 
     class Model
@@ -25,7 +25,7 @@ module Alloy
 
       def to_als()
         require 'arby/utils/alloy_printer'
-        Alloy::Utils::AlloyPrinter.export_to_als(self)
+        Arby::Utils::AlloyPrinter.export_to_als(self)
       end
     end
 

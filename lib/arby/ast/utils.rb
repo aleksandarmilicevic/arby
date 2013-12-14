@@ -1,7 +1,7 @@
 require 'sdg_utils/dsl/missing_builder'
 require 'sdg_utils/meta_utils'
 
-module Alloy
+module Arby
   module Ast
 
     module Checks

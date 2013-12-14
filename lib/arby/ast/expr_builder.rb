@@ -1,7 +1,7 @@
 require 'arby/ast/op'
 require 'arby/ast/expr'
 
-module Alloy
+module Arby
   module Ast
 
     module ExprHelper
@@ -17,7 +17,7 @@ module Alloy
       # Reduces the given operands (+args+) by applying the given
       # binary operator (+op+)
       #
-      # @param op   [Alloy::Ast::Op] --- binary operator
+      # @param op   [Arby::Ast::Op] --- binary operator
       # @param args [Array(Expr)]    --- operands
       def reduce_to_binary(op, *args)
         fail "received only #{args.size} arg (#{args}) for #{op}" unless args.size > 1
@@ -26,7 +26,7 @@ module Alloy
 
       # Keep track of result type
       #
-      # @param op [Alloy::Ast::Op] --- operator
+      # @param op [Arby::Ast::Op] --- operator
       # @param args [Array(Expr)] --- operands
       def apply(op, *args)
         case op
@@ -105,8 +105,8 @@ module Alloy
     module TypeComputer
       extend self
 
-      # @param op [Alloy::Ast::Op] --- operator
-      # @param args [Array(Alloy::Ast::MExpr)] --- operands
+      # @param op [Arby::Ast::Op] --- operator
+      # @param args [Array(Arby::Ast::MExpr)] --- operands
       def compute_type(op, *args)
         # TODO: check only when we care about the operand types
         unless args.all?{|a| a.respond_to?(:__type) && a.__type}
@@ -117,25 +117,25 @@ module Alloy
 
         case op
         when Ops::UNKNOWN
-          Alloy::Ast::NoType
+          Arby::Ast::NoType
 
         when Ops::PRODUCT
-          types[1..-1].reduce(types[0]){|acc, type| Alloy::Ast::AType.product(acc, type)}
+          types[1..-1].reduce(types[0]){|acc, type| Arby::Ast::AType.product(acc, type)}
 
         when Ops::JOIN
-          Alloy::Ast::AType.join(types[0], types[1])
+          Arby::Ast::AType.join(types[0], types[1])
 
         when Ops::SELECT
-          Alloy::Ast::AType.join(types[1], types[0])
+          Arby::Ast::AType.join(types[1], types[0])
 
         when Ops::PLUS
-          Alloy::Ast::AType.union(*types)
+          Arby::Ast::AType.union(*types)
 
         when Ops::MINUS
-          Alloy::Ast::AType.difference(*types)
+          Arby::Ast::AType.difference(*types)
 
         when Ops::INTERSECT
-          Alloy::Ast::AType.intersect(*types)
+          Arby::Ast::AType.intersect(*types)
 
         when Ops::TRANSPOSE
           AType.transpose(types[0])
@@ -149,34 +149,34 @@ module Alloy
 
         when Ops::NO, Ops::SOME, Ops::LONE, Ops::ONE,
           # TODO type check: all operand types are relations
-          Alloy::Ast::AType.get(:Bool)
+          Arby::Ast::AType.get(:Bool)
 
         when Ops::EQUALS, Ops::NOT_EQUALS,Ops::IN, Ops::NOT_IN
-          Alloy::Ast::AType.get(:Bool)
+          Arby::Ast::AType.get(:Bool)
 
         when Ops::IPLUS, Ops::IMINUS, Ops::REM, Ops::DIV, Ops::MUL, Ops::PLUSPLUS,
              Ops::SHL, Ops::SHA, Ops::SHR
           #TODO type check: all operand types are integer
-          Alloy::Ast::AType.get(:Integer)
+          Arby::Ast::AType.get(:Integer)
 
         when Ops::LT, Ops::LTE, Ops::GT, Ops::GTE, Ops::NOT_LT,
              Ops::NOT_LTE, Ops::NOT_GT, Ops::NOT_GTE
           #TODO type check: all operand types are integer
-          Alloy::Ast::AType.get(:Bool)
+          Arby::Ast::AType.get(:Bool)
 
         when Ops::AND, Ops::OR, Ops::IFF, Ops::IMPLIES, Ops::NOT
           #TODO type check: all operand types are boolean
-          Alloy::Ast::AType.get(:Bool)
+          Arby::Ast::AType.get(:Bool)
 
         when Ops::CARDINALITY
           # type check: all operand types are relations
-          Alloy::Ast::AType.get(:Integer)
+          Arby::Ast::AType.get(:Integer)
 
         when Ops::ALLOF, Ops::SOMEOF, Ops::NONEOF,Ops::ONEOF, Ops::LONEOF
-          Alloy::Ast::AType.get(:Bool)
+          Arby::Ast::AType.get(:Bool)
 
         when Ops::SUM
-          Alloy::Ast::AType.get(:Integer)
+          Arby::Ast::AType.get(:Integer)
 
         end
       end

@@ -1,6 +1,6 @@
 require 'arby/ast/tuple_set'
 
-module Alloy
+module Arby
   module Ast
 
     # @typeparam Atom     - anything that responds to :label

@@ -1,7 +1,7 @@
 require 'my_test_helper'
 require 'arby/helpers/test/dsl_helpers'
 
-include Alloy::Dsl
+include Arby::Dsl
 
 alloy_model "A_D_AME" do
   sig Credential
@@ -66,7 +66,7 @@ end
 
 
 class TestAlloyModelExpr < Test::Unit::TestCase
-  include Alloy::Helpers::Test::DslHelpers
+  include Arby::Helpers::Test::DslHelpers
 
   def test_dummy
   end

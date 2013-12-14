@@ -1,4 +1,4 @@
-module Alloy
+module Arby
   module Helpers
     module Test
 

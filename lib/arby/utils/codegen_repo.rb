@@ -2,7 +2,7 @@ require 'ostruct'
 require 'sdg_utils/lambda/sourcerer'
 require 'sdg_utils/random'
 
-module Alloy
+module Arby
 module Utils
 
   module CodegenRepo

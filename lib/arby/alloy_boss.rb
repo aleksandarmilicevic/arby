@@ -1,6 +1,6 @@
 require 'sdg_utils/event/events'
 
-module Alloy
+module Arby
 
   class BigBoss
     include SDGUtils::Events::EventProvider

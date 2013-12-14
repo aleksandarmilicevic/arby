@@ -1,6 +1,6 @@
 require 'rjb'
 
-module Alloy
+module Arby
   module Bridge
     module Imports
 

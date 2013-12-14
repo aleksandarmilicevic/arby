@@ -1,7 +1,7 @@
-module Alloy
+module Arby
   module Helpers
     module Test
-      
+
       module DslSigTestTmpl
         extend self
         def get_test_template(cls_name, model_func, sig_func, base_sig_cls)
@@ -50,7 +50,7 @@ end
     end
 
     class #{cls_name} < Test::Unit::TestCase
-      include Alloy::Helpers::Test::DslHelpers
+      include Arby::Helpers::Test::DslHelpers
 
       def test_sig_inner1
         #{model_func} do
@@ -166,7 +166,7 @@ end
 
       def test_base_sig_not_sig2
         assert_raise(ArgumentError) do
-          #{model_func} do; #{sig_func} X5_#{cls_name} < Alloy::Ast::SigMeta end
+          #{model_func} do; #{sig_func} X5_#{cls_name} < Arby::Ast::SigMeta end
         end
       end
 

@@ -1,9 +1,9 @@
 require 'arby/alloy'
 require 'arby/alloy_dsl'
 
-include Alloy::Dsl
+include Arby::Dsl
 
-module Alloy
+module Arby
   module Helpers
     module Test
 
@@ -51,7 +51,7 @@ module Alloy
           setter = inst.method("#{fname}=".to_sym)
           arity = sig_cls.meta.any_field(fname).type.arity
           val = (0...arity).map{|_| 42}
-          Alloy.conf.do_with(:typecheck => false) do
+          Arby.conf.do_with(:typecheck => false) do
             setter.call([val])
             assert_equal Set.new([val]), getter.call.unwrap
           end
@@ -88,7 +88,7 @@ module Alloy
         end
 
         def create_module(name)
-          blder = Alloy::Dsl::alloy_model(name)
+          blder = Arby::Dsl::alloy_model(name)
           mod = blder.return_result(:array).first
           assert_module_helper(mod, name)
         end

@@ -4,7 +4,7 @@ require 'arby/ast/arg'
 require 'arby/ast/fun'
 require 'arby/ast/types'
 
-module Alloy
+module Arby
   module Dsl
 
     # ============================================================================
@@ -65,11 +65,11 @@ module Alloy
       def __created()
         _define_meta()
         require 'arby/alloy.rb'
-        Alloy.meta.add_sig(self)
+        Arby.meta.add_sig(self)
       end
       def __params(*args)     fields(*args) end
-      def __eval_body(&block) 
-        if Alloy.conf.detect_appended_facts && 
+      def __eval_body(&block)
+        if Arby.conf.detect_appended_facts &&
             SDGUtils::Lambda::Sourcerer.is_curly_block(block) #TODO rescue false
           send :fact, &block
         else
@@ -89,7 +89,7 @@ module Alloy
       # @param type [AType]
       #------------------------------------------------------------------------
       def _field(name, type, hash={})
-        type = Alloy::Ast::AType.get(type)
+        type = Arby::Ast::AType.get(type)
         opts = hash.merge(type.args)
         fld = meta.add_field(name, type, opts)
         fld_accessors fld
@@ -115,7 +115,7 @@ module Alloy
           :target => self,
           :field => fld_sym
         }
-        Alloy::Utils::CodegenRepo.eval_code cls, <<-RUBY, __FILE__, __LINE__+1, desc
+        Arby::Utils::CodegenRepo.eval_code cls, <<-RUBY, __FILE__, __LINE__+1, desc
         def #{fld_sym}
           intercept_read(#{find_fld_src}) { #{_fld_reader_code(fld)} }
         end

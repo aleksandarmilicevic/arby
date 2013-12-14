@@ -1,6 +1,6 @@
 require 'arby/dsl/mod_builder'
 
-module Alloy
+module Arby
   module Dsl
 
     # ================================================================

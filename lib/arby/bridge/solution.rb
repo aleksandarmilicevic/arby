@@ -4,7 +4,7 @@ require 'arby/bridge/helpers'
 require 'arby/bridge/translator'
 require 'sdg_utils/proxy'
 
-module Alloy
+module Arby
   module Bridge
 
     # ------------------------------------------------------------------
@@ -41,7 +41,7 @@ module Alloy
     #
     # @attr a4atom [Rjb::Proxy ~> edu.mit.csail.sdg.alloy4compiler.ast.ExprVar]
     # @attr label [String]
-    # @attr type [Alloy::Bridge::Type]
+    # @attr type [Arby::Bridge::Type]
     # ------------------------------------------------------------------
     class Atom
       attr_reader :a4atom, :label, :type
@@ -63,8 +63,8 @@ module Alloy
     # ------------------------------------------------------------------
     # Simple wrapper for an Alloy TupleSet.
     #
-    # @attr type [Alloy::Bridge::Type]
-    # @tuples [Array(Array(Alloy::Bridge::Atom))]
+    # @attr type [Arby::Bridge::Type]
+    # @tuples [Array(Array(Arby::Bridge::Atom))]
     # ------------------------------------------------------------------
     class TupleSet < SDGUtils::Proxy
       attr_reader :type, :tuples
@@ -79,13 +79,13 @@ module Alloy
       include Helpers
       extend self
 
-      # Returns an object of type +Alloy::Ast::Instance+ with type
+      # Returns an object of type +Arby::Ast::Instance+ with type
       # parameters +Atom+ and +TupleSet+ corrsponding to
-      # +Alloy::Bridge::Atom+ and +Alloy::Bridge::TupleSet+.
+      # +Arby::Bridge::Atom+ and +Arby::Bridge::TupleSet+.
       #
       # @param a4world [Rjb::Proxy ~> CompModule]
       # @param a4sol [Rjb::Proxy ~> A4Solution]
-      # @return [Alloy::Ast::Instance]
+      # @return [Arby::Ast::Instance]
       def to_instance(a4world, a4sol)
         atoms = []
         fld_map = {}
@@ -105,14 +105,14 @@ module Alloy
           skolem_map = Hash[skolem_map]
         end
 
-        Alloy::Ast::Instance.new atoms, fld_map, skolem_map, false
+        Arby::Ast::Instance.new atoms, fld_map, skolem_map, false
       end
 
       # Takes an Rjb Proxy object pointing to an A4Solution, gets all
-      # atoms from it, and wraps them in +Alloy::Bridge::Atom+.
+      # atoms from it, and wraps them in +Arby::Bridge::Atom+.
       #
       # @param a4atoms [Rjb::Proxy -> A4Solution]
-      # @return [Array(Alloy::Bridge::Atom)]
+      # @return [Array(Arby::Bridge::Atom)]
       def wrap_atoms(a4sol)
         a4atoms = a4sol.getAllAtoms
         len = a4atoms.size
@@ -123,7 +123,7 @@ module Alloy
       #
       # @param a4sol [Rjb::Proxy ~> A4Solution]
       # @param a4sol [Rjb::Proxy ~> Expr]
-      # @return [Alloy::Bridge::TupleSet]
+      # @return [Arby::Bridge::TupleSet]
       def eval_expr(a4sol, a4expr)
         expr_type = Type.new(a4expr.type)
         expr_tuples = translate_tuple_set(a4sol.eval(a4expr))
@@ -172,7 +172,7 @@ module Alloy
       #
       # @return [Hash(String, Sig)] - a map of atom labels to aRby atoms
       def arby_instance()
-        return Alloy::Ast::Instance.new unless satisfiable?
+        return Arby::Ast::Instance.new unless satisfiable?
         @arby_instance ||= Translator.to_arby_instance(instance())
       end
 

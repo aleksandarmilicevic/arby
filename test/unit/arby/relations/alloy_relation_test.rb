@@ -1,13 +1,13 @@
 require_relative 'alloy_rel_test_helper.rb'
 
-include Alloy::Relations
+include Arby::Relations
 
 class AtomCls
-  include Alloy::Relations::MAtom
+  include Arby::Relations::MAtom
 end
 
 class TestAlloyRelation < Test::Unit::TestCase
-  include AlloyRelationTestHelper
+  include ArbyRelationTestHelper
 
   def test1
     a = AtomCls.new
@@ -131,7 +131,7 @@ end
 # == Class TestTuple
 #------------------------------------------
 class TestAlloyTuple < Test::Unit::TestCase
-  include AlloyRelationTestHelper
+  include ArbyRelationTestHelper
 
   def test_arity_0
     assert_raise(ArityError) { Tuple.new(0, [2, 3]) }

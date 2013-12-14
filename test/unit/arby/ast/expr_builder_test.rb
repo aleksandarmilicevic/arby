@@ -2,7 +2,7 @@ require 'my_test_helper'
 require 'arby/ast/expr_builder'
 require 'arby/alloy_dsl'
 
-include Alloy::Dsl
+include Arby::Dsl
 
 alloy :A_A_EBT do
   sig SigA [ intFld: Int ]
@@ -11,29 +11,29 @@ alloy :A_A_EBT do
   sig SubB
 end
 
-module Alloy
+module Arby
   module Ast
 
     class ExprBuilderTest < Test::Unit::TestCase
       include SDGUtils::Testing::Assertions
       include SDGUtils::Testing::SmartSetup
 
-      include Alloy::Ast::Ops
+      include Arby::Ast::Ops
       include A_A_EBT
 
       def setup_class
-        Alloy.reset
-        Alloy.meta.restrict_to(A_A_EBT)
-        Alloy.initializer.init_all_no_freeze
+        Arby.reset
+        Arby.meta.restrict_to(A_A_EBT)
+        Arby.initializer.init_all_no_freeze
       end
 
       def setup_test
-        @curr_exe_mode = Alloy.exe_mode
-        Alloy.set_symbolic_mode
+        @curr_exe_mode = Arby.exe_mode
+        Arby.set_symbolic_mode
       end
 
       def teardown
-        Alloy.restore_exe_mode(@curr_exe_mode)
+        Arby.restore_exe_mode(@curr_exe_mode)
       end
 
       def apply(*args)
@@ -44,7 +44,7 @@ module Alloy
         assert expr.respond_to?(:__type), "Expr `#{expr}' doesn't respond to __type"
         t = expr.__type
         assert t, "Expr `#{expr}' type is nil"
-        type_array = type_array.map(&Alloy::Ast::AType.method(:get))
+        type_array = type_array.map(&Arby::Ast::AType.method(:get))
         assert_equal type_array.size, t.arity,
                      "Expected arity #{type_array.size}, actual #{t.arity}\n" +
                      "lhs = #{type_array}; rhs = #{t}"

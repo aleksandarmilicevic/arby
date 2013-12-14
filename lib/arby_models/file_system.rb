@@ -1,7 +1,7 @@
 require 'arby/alloy_dsl'
 
 module ArbyModels
-  extend Alloy::Dsl
+  extend Arby::Dsl
 
   alloy_model :FileSystem do
     abstract sig Obj

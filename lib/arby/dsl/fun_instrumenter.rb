@@ -1,6 +1,6 @@
 require 'sdg_utils/lambda/sourcerer'
 
-module Alloy
+module Arby
   module Dsl
 
     class FunInstrumenter
@@ -21,10 +21,10 @@ module Alloy
               then_src = compute_src(node.children[1], anno)
               else_src = compute_src(node.children[2], anno)
               if else_src.empty?
-                "Alloy::Ast::Expr::BinaryExpr.implies(" +
+                "Arby::Ast::Expr::BinaryExpr.implies(" +
                   "#{cond_src}, proc{#{then_src}}) "
               else
-                "Alloy::Ast::Expr::ITEExpr.new(" +
+                "Arby::Ast::Expr::ITEExpr.new(" +
                   "#{cond_src}, " +
                   "proc{#{then_src}}, " +
                   "proc{#{else_src}})"
@@ -32,7 +32,7 @@ module Alloy
             when :and, :or
               lhs_src = compute_src(node.children[0], anno)
               rhs_src = compute_src(node.children[1], anno)
-              "Alloy::Ast::Expr::BinaryExpr.#{node.type}(" +
+              "Arby::Ast::Expr::BinaryExpr.#{node.type}(" +
                 "proc{#{lhs_src}}, " +
                 "proc{#{rhs_src}})"
             else

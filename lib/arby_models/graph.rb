@@ -1,7 +1,7 @@
 require 'arby/alloy_dsl'
 
 module ArbyModels
-  extend Alloy::Dsl
+  extend Arby::Dsl
 
   alloy_model :Graph do
 
@@ -10,7 +10,7 @@ module ArbyModels
     ]
 
     sig Edge [
-      src: Node, 
+      src: Node,
       dst: Node,
       cost: Int
     ]

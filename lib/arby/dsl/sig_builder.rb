@@ -1,7 +1,7 @@
 require 'arby/ast/sig'
 require 'sdg_utils/dsl/class_builder'
 
-module Alloy
+module Arby
   module Dsl
 
     # ============================================================================
@@ -15,8 +15,8 @@ module Alloy
 
       def initialize(options={})
         super({
-          :superclass => Alloy::Ast::Sig,
-          :defer_body_eval => Alloy.conf.defer_body_eval
+          :superclass => Arby::Ast::Sig,
+          :defer_body_eval => Arby.conf.defer_body_eval
         }.merge!(options))
       end
 
@@ -24,7 +24,7 @@ module Alloy
         new.sig(*args, &block)
       end
 
-      # Creates a new class, subclass of either +Alloy::Ast::Sig+ or a
+      # Creates a new class, subclass of either +Arby::Ast::Sig+ or a
       # user supplied super class, and assigns a constant to it (named
       # +name+ in the current scope)
       #
@@ -52,7 +52,7 @@ module Alloy
       #    otherwise (given inside do ... end) it is evaluated using
       #    +class_eval+.
       def sig(*args, &block)
-        Alloy.meta.add_sig_builder(self)
+        Arby.meta.add_sig_builder(self)
         ans = build(*args, &block)
         return_result(:array).each do |sig|
           ModelBuilder.in_model_body?           and

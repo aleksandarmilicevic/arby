@@ -3,9 +3,9 @@ require 'my_test_helper.rb'
 require 'arby/alloy'
 require 'arby/dsl/alloy_dsl'
 
-include Alloy::Dsl
+include Arby::Dsl
 
-module AlloyTestUtils
+module ArbyTestUtils
   def sig_test_helper(sig_cls_str, supercls_str)
     sig_cls = nil
     supercls = nil
@@ -80,7 +80,7 @@ module AlloyTestUtils
   end
 
   def create_module(name)
-    mod = Alloy::Dsl::alloy_model(name)
+    mod = Arby::Dsl::alloy_model(name)
     assert_module_helper(mod, name)
   end
 end

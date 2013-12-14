@@ -2,21 +2,21 @@ require_relative 'relation.rb'
 
 class Object
   def as_tuple
-    Alloy::Relations::Tuple.new(1, [self])
+    Arby::Relations::Tuple.new(1, [self])
   end
 
   def as_rel
-    Alloy::Relations::Relation.new(1, [self.as_tuple])
+    Arby::Relations::Relation.new(1, [self.as_tuple])
   end
 end
 
 class NilClass
   def as_tuple
-    Alloy::Relations::Tuple.empty_tuple(1)
+    Arby::Relations::Tuple.empty_tuple(1)
   end
 
   def as_rel
-    Alloy::Relations::Relation::empty_rel(1)
+    Arby::Relations::Relation::empty_rel(1)
   end
 end
 
@@ -32,7 +32,7 @@ class Array
   def tuple_set_to_rel
     return nil.as_rel if empty?
     arity = first.arity
-    Alloy::Relations::Relation.new(arity, self)
+    Arby::Relations::Relation.new(arity, self)
   end
 end
 
@@ -64,12 +64,12 @@ module Enumerable
 end
 
 class Hash
-  def empty_as_tuple() Alloy::Relations::Tuple.empty_tuple(2) end
-  def empty_as_rel() Alloy::Relations::Relation.empty_rel(2) end
+  def empty_as_tuple() Arby::Relations::Tuple.empty_tuple(2) end
+  def empty_as_rel() Arby::Relations::Relation.empty_rel(2) end
 
   def as_tuple
     msg = "Hash with more than 1 entry cannot be converted to tuple"
-    raise Alloy::Relations::ArityError, msg if size > 1
+    raise Arby::Relations::ArityError, msg if size > 1
     super
   end
 end

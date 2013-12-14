@@ -1,9 +1,9 @@
 require 'arby/alloy_dsl'
 
-Alloy.conf.sym_exe.convert_missing_fields_to_joins = true
+Arby.conf.sym_exe.convert_missing_fields_to_joins = true
 
 module ArbyModels
-  extend Alloy::Dsl
+  extend Arby::Dsl
 
   alloy_model :SeqFiltering do
     sig A [
@@ -18,7 +18,7 @@ module ArbyModels
 
     pred filter[s: (seq A), ans: (seq A)] {
       filtered = s.elems.select{|a| a.x < 3}
-      
+
       s.size == 4 and
       ans.elems == filtered and
       all(a: filtered) { ans.a.size == s.a.size } and

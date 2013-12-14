@@ -3,7 +3,7 @@ require 'arby/helpers/test/dsl_helpers'
 require 'arby/helpers/test/test_event_listener'
 require 'arby/initializer.rb'
 
-include Alloy::Dsl
+include Arby::Dsl
 
 module AFAE
   alloy_model do
@@ -35,21 +35,21 @@ module AFAE
 end
 
 class AlloyFldAccessEventsTest < Test::Unit::TestCase
-  include Alloy::Helpers::Test::DslHelpers
+  include Arby::Helpers::Test::DslHelpers
   include SDGUtils::Testing::SmartSetup
   include SDGUtils::Testing::Assertions
 
   def setup_class
-    Alloy.reset
-    Alloy.meta.restrict_to(AFAE)
-    Alloy.initializer.init_all_no_freeze
+    Arby.reset
+    Arby.meta.restrict_to(AFAE)
+    Arby.initializer.init_all_no_freeze
   end
 
   def setup_test
-    if @listener; Alloy.boss.unregister_listener(@listener) end
-    @listener = Alloy::Helpers::Test::TestEventListener.new
-    Alloy.boss.register_listener(:field_read, @listener)
-    Alloy.boss.register_listener(:field_written, @listener)
+    if @listener; Arby.boss.unregister_listener(@listener) end
+    @listener = Arby::Helpers::Test::TestEventListener.new
+    Arby.boss.register_listener(:field_read, @listener)
+    Arby.boss.register_listener(:field_written, @listener)
   end
 
   def test1

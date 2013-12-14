@@ -2,7 +2,7 @@ require 'my_test_helper'
 require 'arby/helpers/test/dsl_helpers'
 require 'arby/initializer.rb'
 
-include Alloy::Dsl
+include Arby::Dsl
 
 alloy_model :A_M_MMT do
   sig A, {
@@ -35,9 +35,9 @@ class ModelMetaTest < Test::Unit::TestCase
   include A_M_MMT
 
   def setup_class
-    Alloy.reset
-    Alloy.meta.restrict_to(A_M_MMT)
-    Alloy.initializer.init_all_no_freeze
+    Arby.reset
+    Arby.meta.restrict_to(A_M_MMT)
+    Arby.initializer.init_all_no_freeze
   end
 
   def test

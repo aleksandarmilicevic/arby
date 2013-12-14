@@ -1,7 +1,7 @@
 require 'arby/bridge/imports'
 require 'arby/bridge/solution'
 
-module Alloy
+module Arby
   module Bridge
     class Compiler
       def self.compile(als_model)

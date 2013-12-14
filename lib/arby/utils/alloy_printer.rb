@@ -3,15 +3,15 @@ require 'sdg_utils/config'
 require 'sdg_utils/visitors/visitor'
 require 'sdg_utils/print_utils/code_printer'
 
-module Alloy
+module Arby
   module Utils
 
     class AlloyPrinter
-      include Alloy::Ast::Ops
+      include Arby::Ast::Ops
 
       def self.export_to_als(*what)
         ap = AlloyPrinter.new
-        what = Alloy.meta.models if what.empty?
+        what = Arby.meta.models if what.empty?
         what.map{|e| ap.send :to_als, e}.join("\n")
         ap.to_s
       end
@@ -48,19 +48,19 @@ module Alloy
       def to_als(alloy_obj)
         _fail = proc{fail "Unrecognized Alloy entity: #{alloy_obj}:#{alloy_obj.class}"}
         case alloy_obj
-        when Alloy::Ast::Model; model_to_als(alloy_obj)
+        when Arby::Ast::Model; model_to_als(alloy_obj)
         when Class
-          if alloy_obj < Alloy::Ast::ASig
+          if alloy_obj < Arby::Ast::ASig
             sig_to_als(alloy_obj)
           else
             _fail[]
           end
-        when Alloy::Ast::Fun;          fun_to_als(alloy_obj)
-        when Alloy::Ast::Command;      command_to_als(alloy_obj)
-        when Alloy::Ast::Field;        field_to_als(alloy_obj)
-        when Alloy::Ast::AType;        type_to_als(alloy_obj)
-        when Alloy::Ast::Arg;          arg_to_als(alloy_obj)
-        when Alloy::Ast::Expr::MExpr;  expr_to_als(alloy_obj)
+        when Arby::Ast::Fun;          fun_to_als(alloy_obj)
+        when Arby::Ast::Command;      command_to_als(alloy_obj)
+        when Arby::Ast::Field;        field_to_als(alloy_obj)
+        when Arby::Ast::AType;        type_to_als(alloy_obj)
+        when Arby::Ast::Arg;          arg_to_als(alloy_obj)
+        when Arby::Ast::Expr::MExpr;  expr_to_als(alloy_obj)
         when NilClass;                 ""
         else
           _fail[]
@@ -84,7 +84,7 @@ module Alloy
       def sig_to_als(sig)
         psig = sig.superclass
         abs_str = (mult=sig.meta.multiplicity) ? "#{mult} " : ""
-        psig_str = (psig != Alloy::Ast::Sig) ? "extends #{@conf.sig_namer[psig]}" : ""
+        psig_str = (psig != Arby::Ast::Sig) ? "extends #{@conf.sig_namer[psig]}" : ""
         sig_name = @conf.sig_namer[sig]
         @out.p "#{abs_str}sig #{sig_name} #{psig_str} {"
         unless sig.meta.fields.empty?
@@ -119,7 +119,7 @@ module Alloy
 
       def fun_to_als(fun)
         args = if Class === fun.owner && fun.owner.is_sig?
-                 selfarg = Alloy::Ast::Arg.new :name => "self", :type => fun.owner
+                 selfarg = Arby::Ast::Arg.new :name => "self", :type => fun.owner
                  [selfarg] + fun.args
                else
                  fun.args
@@ -164,22 +164,22 @@ module Alloy
 
       def type_to_als(type)
         case type
-        when Alloy::Ast::NoType
+        when Arby::Ast::NoType
           @out.p "univ"
-        when Alloy::Ast::UnaryType
+        when Arby::Ast::UnaryType
           cls = type.klass
-          if cls <= Alloy::Ast::ASig
+          if cls <= Arby::Ast::ASig
             @out.p @conf.sig_namer[cls]
           else
             @out.p type.cls.to_s.relative_name
           end
-        when Alloy::Ast::ProductType
+        when Arby::Ast::ProductType
           @out.pn [type.lhs]
           @out.p " -> "
           @out.p "(" if type.rhs.arity > 1
           @out.pn [type.rhs]
           @out.p ")" if type.rhs.arity > 1
-        when Alloy::Ast::ModType
+        when Arby::Ast::ModType
           @out.p "#{type.mult} "
           @out.p "(" if type.arity > 1
           @out.pn [type.type]
@@ -195,7 +195,7 @@ module Alloy
 
       def expr_visitor()
         @expr_visitor ||= SDGUtils::Visitors::TypeDelegatingVisitor.new(self,
-          :top_class => Alloy::Ast::Expr::MExpr,
+          :top_class => Arby::Ast::Expr::MExpr,
           :visit_meth_namer => proc{|cls, kind| "#{kind}_to_als"}
         )
       end
@@ -247,7 +247,7 @@ module Alloy
         end
         @out.pl
         @out.p "}"
-        unless Alloy::Ast::Expr::BoolConst === ite.else_expr
+        unless Arby::Ast::Expr::BoolConst === ite.else_expr
           @out.pl " else {"
           @out.in do
             @out.pn [ite.else_expr]
@@ -284,7 +284,7 @@ module Alloy
       def callexpr_to_als(ce)
         pre = (ce.has_target?) ? "#{export_to_als ce.target}." : ""
         fun = case f=ce.fun
-              when Alloy::Ast::Fun; f.name
+              when Arby::Ast::Fun; f.name
               else f
               end
         args = ce.args.map(&method(:export_to_als)).join(", ")

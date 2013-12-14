@@ -1,6 +1,6 @@
 require 'arby/ast/types'
 
-module Alloy
+module Arby
   module Dsl
 
     # ============================================================================
@@ -19,18 +19,18 @@ module Alloy
 
       #------------------------------------------------------------------------
       # Creates an Alloy type with a multiplicity modifier assigned
-      # +Alloy::Ast::ModType+ for a given multiplicity modifier and a given sig.
+      # +Arby::Ast::ModType+ for a given multiplicity modifier and a given sig.
       #------------------------------------------------------------------------
       def self.mult(mod_smbl, type=nil, &block)
         case type
         when ::NilClass
           new(mod_smbl)
-        when ::Alloy::Dsl::SigBuilder
+        when ::Arby::Dsl::SigBuilder
           type.apply_modifier(mod_smbl, nil, &block)
-        when ::Alloy::Ast::Expr::MExpr
-          ::Alloy::Ast::Expr::UnaryExpr.send mod_smbl, type
+        when ::Arby::Ast::Expr::MExpr
+          ::Arby::Ast::Expr::UnaryExpr.send mod_smbl, type
         else
-          atype = ::Alloy::Ast::AType.get(type)
+          atype = ::Arby::Ast::AType.get(type)
           atype.apply_multiplicity(mod_smbl)
         end
       end

@@ -1,7 +1,7 @@
 require 'arby/ast/arg'
 require 'sdg_utils/string_utils'
 
- module Alloy
+ module Arby
   module Ast
 
     # ----------------------------------------------------------------------
@@ -66,13 +66,13 @@ require 'sdg_utils/string_utils'
 
       def full_type()
         if @parent
-          Alloy::Ast::ProductType.new(@parent.to_atype, @type)
+          Arby::Ast::ProductType.new(@parent.to_atype, @type)
         else
           @type
         end
       end
 
-      # @param owner [Alloy::Ast::ASig]
+      # @param owner [Arby::Ast::ASig]
       # @param value [Object]
       def set(owner, value)
         owner.write_field(self, value)

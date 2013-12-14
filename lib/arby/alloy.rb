@@ -3,7 +3,7 @@ require 'arby/alloy_event_constants'
 require 'sdg_utils/test_and_set'
 require 'sdg_utils/meta_utils'
 
-module Alloy
+module Arby
   extend self
 
   include EventConstants
@@ -41,12 +41,12 @@ module Alloy
 
     def meta
       require 'arby/alloy_meta'
-      @meta ||= Alloy::Model::MetaModel.new
+      @meta ||= Arby::Model::MetaModel.new
     end
 
     def boss
       require 'arby/alloy_boss'
-      @boss ||= Alloy::BigBoss.new
+      @boss ||= Arby::BigBoss.new
     end
 
     def conf
@@ -56,7 +56,7 @@ module Alloy
 
     def initializer
       require 'arby/initializer'
-      @initializer ||= Alloy::CInitializer.new
+      @initializer ||= Arby::CInitializer.new
     end
 
     def set_default(hash)
@@ -75,11 +75,11 @@ module Alloy
     private
 
     def def_conf
-      @def_conf ||= Alloy::default_conf
+      @def_conf ||= Arby::default_conf
     end
   end
 
-  def alloy; @@alloy ||= Alloy::CMain.new end
+  def alloy; @@alloy ||= Arby::CMain.new end
   alias_method :main, :alloy
 
 

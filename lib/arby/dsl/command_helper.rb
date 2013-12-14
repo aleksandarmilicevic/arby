@@ -1,7 +1,7 @@
 require 'arby/ast/command'
 require 'arby/ast/fun'
 
-module Alloy
+module Arby
   module Dsl
 
     # REQUIREMENTS
@@ -39,7 +39,7 @@ module Alloy
           pred = _create_fn(:pred, name, {}, nil, &body)
           _define_method_for_fun(pred)
         end
-        cmd = Alloy::Ast::Command.new(kind, given_name, scope, pred)
+        cmd = Arby::Ast::Command.new(kind, given_name, scope, pred)
         meta.add_command cmd
         cmd
       end

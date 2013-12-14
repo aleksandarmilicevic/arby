@@ -14,7 +14,7 @@ require 'sdg_utils/random'
 require 'arby/dsl/helpers'
 require 'arby/dsl/sig_api'
 
-module Alloy
+module Arby
   module Ast
 
     #=========================================================================
@@ -32,7 +32,7 @@ module Alloy
         def new(*a, &b)
           sig_inst = super
           meta().register_atom(sig_inst)
-          if Alloy.symbolic_mode?
+          if Arby.symbolic_mode?
             sig_inst.make_me_sym_expr
           end
           sig_inst
@@ -65,7 +65,7 @@ module Alloy
         end
 
         def get_cls_field(fld)
-          if Alloy.symbolic_mode?
+          if Arby.symbolic_mode?
             to_alloy_expr.send fld.name.to_sym
           else
             fld
@@ -123,7 +123,7 @@ module Alloy
         # the Alloy syntax
         #------------------------------------------------------------------------
         def to_alloy
-          Alloy::Utils::AlloyPrinter.export_to_als(self)
+          Arby::Utils::AlloyPrinter.export_to_als(self)
         end
 
         #------------------------------------------------------------------------
@@ -131,7 +131,7 @@ module Alloy
         # about this sig's fields
         #------------------------------------------------------------------------
         def _define_meta()
-          meta = Alloy::Ast::SigMeta.new(self)
+          meta = Arby::Ast::SigMeta.new(self)
           define_singleton_method(:meta, lambda {meta})
           meta
         end
@@ -150,7 +150,7 @@ module Alloy
           varname, type = hash.first
           msg = "`#{varname}' is not a proper identifier"
           raise ArgumentError, msg unless SDGUtils::MetaUtils.check_identifier(varname)
-          Alloy::Ast::TypeChecker.check_subtype(expected_type, type)
+          Arby::Ast::TypeChecker.check_subtype(expected_type, type)
         end
 
         def __parent() nil end
@@ -168,10 +168,10 @@ module Alloy
       def to_s() @label end
 
       def self.included(base)
-        base.extend(Alloy::Dsl::StaticHelpers)
+        base.extend(Arby::Dsl::StaticHelpers)
         base.extend(Static)
-        base.extend Alloy::Dsl::SigDslApi
-        base.send :include, Alloy::Dsl::InstanceHelpers
+        base.extend Arby::Dsl::SigDslApi
+        base.send :include, Arby::Dsl::InstanceHelpers
         base.send :__created
       end
 
@@ -186,15 +186,15 @@ module Alloy
       def registered?()    @registered end
       def set_registered() @registered = true end
 
-      def read_field(fld)       send Alloy::Ast::Field.getter_sym(fld) end
-      def write_field(fld, val) send Alloy::Ast::Field.setter_sym(fld), val end
+      def read_field(fld)       send Arby::Ast::Field.getter_sym(fld) end
+      def write_field(fld, val) send Arby::Ast::Field.setter_sym(fld), val end
 
       def make_me_sym_expr(name="self")
         p = __parent()
         if ASig === p
           p.make_me_sym_expr("#{name}_parent")
         end
-        Alloy::Ast::Expr.as_atom(self, name)
+        Arby::Ast::Expr.as_atom(self, name)
         self
       end
 
@@ -202,39 +202,39 @@ module Alloy
 
       protected
 
-      include Alloy::EventConstants
+      include Arby::EventConstants
 
       def intercept_read(fld)
         _fld_pre_read(fld)
         value = yield
-        value = TupleSet.wrap(value, fld.type) if Alloy.conf.wrap_field_values
+        value = TupleSet.wrap(value, fld.type) if Arby.conf.wrap_field_values
         _fld_post_read(fld, value)
       end
 
       def intercept_write(fld, value)
-        value = TupleSet.unwrap(value) if Alloy.conf.wrap_field_values
+        value = TupleSet.unwrap(value) if Arby.conf.wrap_field_values
         _fld_pre_write(fld, value)
         yield
         _fld_post_write(fld, value)
       end
 
       def _fld_pre_read(fld)
-        # Alloy.boss.fire E_FIELD_TRY_READ, object: self, field: fld
+        # Arby.boss.fire E_FIELD_TRY_READ, object: self, field: fld
         true
       end
 
       def _fld_pre_write(fld, val)
-        # Alloy.boss.fire E_FIELD_TRY_WRITE, object: self, field: fld, value: val
+        # Arby.boss.fire E_FIELD_TRY_WRITE, object: self, field: fld, value: val
         true
       end
 
       def _fld_post_read(fld, val)
-        Alloy.boss.fire E_FIELD_READ, object: self, field: fld, :return => val
+        Arby.boss.fire E_FIELD_READ, object: self, field: fld, :return => val
         val
       end
 
       def _fld_post_write(fld, val)
-        Alloy.boss.fire E_FIELD_WRITTEN, object: self, field: fld, value: val
+        Arby.boss.fire E_FIELD_WRITTEN, object: self, field: fld, value: val
         val
       end
 
@@ -256,8 +256,8 @@ module Alloy
       meta.set_placeholder
     end
 
-    def self.create_sig(name, super_cls=Alloy::Ast::Sig)
-      sb = Alloy::Dsl::SigBuilder.new({
+    def self.create_sig(name, super_cls=Arby::Ast::Sig)
+      sb = Arby::Dsl::SigBuilder.new({
              :superclass => super_cls,
              :return     => :as_is
       }).sig(name)

@@ -3,7 +3,7 @@ require 'arby/ast/types'
 require 'arby/ast/type_checker'
 require 'arby/ast/utils'
 
-module Alloy
+module Arby
   module Ast
 
     # ============================================================================
@@ -61,7 +61,7 @@ module Alloy
         # @param cls [Class, Module]
         def dummy_instance(cls)
           if Class === cls
-            Alloy::Ast::TypeChecker.check_sig_class(cls)
+            Arby::Ast::TypeChecker.check_sig_class(cls)
             if cls < SDGUtils::MNested
               parent = dummy_instance(cls.__parent())
               parent.allocate(cls)
@@ -69,11 +69,11 @@ module Alloy
               cls.send :allocate
             end
           else # it must be a Module
-            Alloy::Ast::TypeChecker.check_alloy_module(cls)
+            Arby::Ast::TypeChecker.check_alloy_module(cls)
             obj = Object.new
             obj.singleton_class.send :include, cls
             obj.define_singleton_method :make_me_sym_expr do |name="self"|
-              Alloy::Ast::Expr.as_atom(self, name, cls, Expr::MImplicitInst)
+              Arby::Ast::Expr.as_atom(self, name, cls, Expr::MImplicitInst)
             end
             obj
           end
@@ -88,8 +88,8 @@ module Alloy
         def proc_args(proc)
           return [] unless proc
           proc.parameters.map{ |mod, sym|
-            Alloy::Ast::Arg.new :name => sym,
-                                :type => Alloy::Ast::NoType.new
+            Arby::Ast::Arg.new :name => sym,
+                                :type => Arby::Ast::NoType.new
           }
         end
 
@@ -97,8 +97,8 @@ module Alloy
 
         def ensure_bool_ret(hash)
           rt = hash[:ret_type]
-          unless rt.nil? || Alloy::Ast::NoType === rt
-            at = Alloy::Ast::AType.get(rt)
+          unless rt.nil? || Arby::Ast::NoType === rt
+            at = Arby::Ast::AType.get(rt)
             msg = "expected bool return type, got #{at}"
             raise ArgumentError, msg unless (at.isBool? rescue false)
           end
@@ -123,7 +123,7 @@ module Alloy
         @name              = check_iden hash[:name].to_s.to_sym, "function name"
         @alloy_method_name = "#{@name}_alloy"
         @args              = hash[:args] || []
-        @ret_type          = Alloy::Ast::AType.get(hash[:ret_type])
+        @ret_type          = Arby::Ast::AType.get(hash[:ret_type])
         @body              = hash[:body]
       end
 
@@ -161,12 +161,12 @@ module Alloy
       protected
 
       def __sym_exe(target)
-        mode = Alloy.exe_mode
-        Alloy.set_symbolic_mode
-        vars = args.map{|a| Alloy::Ast::Expr::Var.new(a.name, a.type)}
+        mode = Arby.exe_mode
+        Arby.set_symbolic_mode
+        vars = args.map{|a| Arby::Ast::Expr::Var.new(a.name, a.type)}
         target.send alloy_method_name.to_sym, *vars
       ensure
-        Alloy.restore_exe_mode(mode)
+        Arby.restore_exe_mode(mode)
       end
     end
 

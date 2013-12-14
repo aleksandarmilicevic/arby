@@ -1,9 +1,9 @@
 require 'my_test_helper.rb'
 require 'arby/relations/relation_ext'
 
-include Alloy::Relations
+include Arby::Relations
 
-module AlloyRelationTestHelper
+module ArbyRelationTestHelper
 
   def assert_tuple(arr, t)
     assert_instance_of Tuple, t

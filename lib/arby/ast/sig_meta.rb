@@ -3,7 +3,7 @@ require 'arby/ast/fun'
 require 'sdg_utils/caching/searchable_attr'
 require 'weakref'
 
-module Alloy
+module Arby
   module Ast
 
     # ----------------------------------------------------------------------
@@ -145,7 +145,7 @@ module Alloy
           raise ArgumentError, "Field #{f} doesn't seem to belong in class #{@sig_cls}"
         end
         inv_fld = Field.new :parent => @sig_cls,
-                            :name   => Alloy.conf.inv_field_namer.call(f),
+                            :name   => Arby.conf.inv_field_namer.call(f),
                             :type   => full_inv_type.full_range,
                             :inv    => f,
                             :synth  => true

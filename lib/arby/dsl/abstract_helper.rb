@@ -1,6 +1,6 @@
 require 'sdg_utils/dsl/missing_builder'
 
-module Alloy
+module Arby
   module Dsl
 
     module AbstractHelper

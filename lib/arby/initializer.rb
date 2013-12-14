@@ -2,7 +2,7 @@ require 'arby/alloy_meta'
 require 'arby/alloy_conf'
 require 'arby/resolver.rb'
 
-module Alloy
+module Arby
 
   # =================================================================
   # Class +CInitializer+
@@ -10,9 +10,9 @@ module Alloy
   # Performs various initialization tasks.
   #
   # Options:
-  #   :resolver  - resolver to use, defaults to +Alloy::Resolver+
+  #   :resolver  - resolver to use, defaults to +Arby::Resolver+
   #   :baseklass - base class for types for which to add inverse
-  #                fields, defaults to +Alloy::Ast::Sig+.
+  #                fields, defaults to +Arby::Ast::Sig+.
   # =================================================================
   class CInitializer
     RESOLVER_OPT = :resolver
@@ -25,8 +25,8 @@ module Alloy
 
     def initialize(hash={})
       opt = hash.clone
-      opt[RESOLVER_OPT] ||= Alloy::Resolver
-      opt[BASEKLASS_OPT] ||= Alloy::Ast::Sig
+      opt[RESOLVER_OPT] ||= Arby::Resolver
+      opt[BASEKLASS_OPT] ||= Arby::Ast::Sig
       @options = opt
     end
 
@@ -53,17 +53,17 @@ module Alloy
     # information.
     # ----------------------------------------------------------------
     def resolve_fields(force=false)
-      return unless force || Alloy.test_and_set(:fields_resolved)
+      return unless force || Arby.test_and_set(:fields_resolved)
 
-      logger = Alloy.conf.logger
-      flds = Alloy.meta.sigs.map{|s| s.meta.fields}.flatten
-      funs = Alloy.meta.sigs.map{|s| s.meta.funs + s.meta.preds}.flatten
+      logger = Arby.conf.logger
+      flds = Arby.meta.sigs.map{|s| s.meta.fields}.flatten
+      funs = Arby.meta.sigs.map{|s| s.meta.funs + s.meta.preds}.flatten
       types = flds.map(&:type) + funs.map(&:full_type)
       types.each do |type|
         # logger.debug "[resolve_fields] checking field #{f}"
         type.each do |utype|
           col_type = utype.cls
-          if col_type.instance_of? Alloy::Ast::UnaryType::ColType::UnresolvedRefColType
+          if col_type.instance_of? Arby::Ast::UnaryType::ColType::UnresolvedRefColType
             logger.debug "[resolve_fields]   trying to resolve #{col_type}..."
             cls = @options[RESOLVER_OPT].resolve_type!(col_type)
             logger.debug "[resolve_fields]     resolved to #{cls}"
@@ -77,10 +77,10 @@ module Alloy
     # Creates inverse fields for the user-defined fields.
     # ----------------------------------------------------------------
     def init_inv_fields(force=false)
-      return unless force || Alloy.test_and_set(:inv_fields_added)
+      return unless force || Arby.test_and_set(:inv_fields_added)
 
-      logger = Alloy.conf.logger
-      Alloy.meta.sigs.each do |r|
+      logger = Arby.conf.logger
+      Arby.meta.sigs.each do |r|
         r.meta.pfields.each do |f|
           unless f.inv
             logger.debug "[init_inv_fields] checking field #{f}"
@@ -100,22 +100,22 @@ module Alloy
     # resolves them and updates the field information.
     # ----------------------------------------------------------------
     def eval_sig_bodies(force=false)
-      return unless Alloy.conf.defer_body_eval
-      return unless force || Alloy.test_and_set(:sig_bodies_evaluated)
-      logger = Alloy.conf.logger
-      Alloy.meta.sig_builders.each(&:eval_body_now!)
+      return unless Arby.conf.defer_body_eval
+      return unless force || Arby.test_and_set(:sig_bodies_evaluated)
+      logger = Arby.conf.logger
+      Arby.meta.sig_builders.each(&:eval_body_now!)
     end
 
     # ----------------------------------------------------------------
     # Freezes most of the meta stuff.
     # ----------------------------------------------------------------
     def deep_freeze
-      sig_metas = Alloy.meta.sigs.map &:meta
+      sig_metas = Arby.meta.sigs.map &:meta
       funs = sig_metas.map{|s| s.funs + s.preds}.flatten
       flds = sig_metas.map{|s| s.fields + s.inv_fields}.flatten
       args = funs.map(&:args).flatten
-      # [Alloy.conf, Alloy.meta, *sig_metas, *flds, *args].each(&:freeze)
-      [Alloy.conf, Alloy.meta, *flds, *args].each(&:freeze)
+      # [Arby.conf, Arby.meta, *sig_metas, *flds, *args].each(&:freeze)
+      [Arby.conf, Arby.meta, *flds, *args].each(&:freeze)
     end
   end
 

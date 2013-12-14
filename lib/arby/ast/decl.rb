@@ -1,7 +1,7 @@
 require 'arby/ast/types'
 require 'arby/ast/utils'
 
-module Alloy
+module Arby
   module Ast
 
     # ----------------------------------------------------------------------

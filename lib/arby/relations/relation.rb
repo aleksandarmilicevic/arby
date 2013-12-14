@@ -1,6 +1,6 @@
 require 'set'
 
-module Alloy
+module Arby
   module Relations
 
     class ArityError < StandardError

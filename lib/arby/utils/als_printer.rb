@@ -1,4 +1,4 @@
-module Alloy
+module Arby
   module Utils
 
     class AlloyPrinter

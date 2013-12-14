@@ -1,4 +1,4 @@
-module Alloy
+module Arby
   module EventConstants
     E_FIELD_TRY_READ = :field_try_read
     E_FIELD_READ = :field_read

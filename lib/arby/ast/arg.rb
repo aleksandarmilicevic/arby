@@ -1,7 +1,7 @@
 require 'arby/ast/types'
 require 'arby/ast/utils'
 
-module Alloy
+module Arby
   module Ast
 
     # ----------------------------------------------------------------------
@@ -19,7 +19,7 @@ module Alloy
       class << self
         def getter_sym(fld)
           case fld
-          when Alloy::Ast::Arg
+          when Arby::Ast::Arg
             fld.name.to_sym
           when String
             fld.to_sym
@@ -57,11 +57,11 @@ module Alloy
         else
           raise ArgumentError, "expected either a hash or a name/type pair; got `#{args}'"
         end
-        @type = Alloy::Ast::AType.get(@expr)
+        @type = Arby::Ast::AType.get(@expr)
       end
 
       def expr()
-        @resolved_expr ||= Alloy::Ast::Expr.resolve_expr(@expr, self, "expression")
+        @resolved_expr ||= Arby::Ast::Expr.resolve_expr(@expr, self, "expression")
       end
 
       def scalar?()    @type.scalar? end

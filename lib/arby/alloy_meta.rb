@@ -4,7 +4,7 @@ require 'sdg_utils/event/events'
 require 'sdg_utils/meta_utils'
 require 'sdg_utils/random'
 
-module Alloy
+module Arby
   extend self
 
   module Model
@@ -62,7 +62,7 @@ module Alloy
           case mod
           when String, Symbol
             model!(mod.to_s)
-          when Alloy::Ast::Model
+          when Arby::Ast::Model
             mod
           else
             raise ArgumentError, "#{mod}:#{mod.class} is neither String nor Model"
@@ -80,7 +80,7 @@ module Alloy
       end
 
       def to_als
-        Alloy::Utils::AlloyPrinter.export_to_als
+        Arby::Utils::AlloyPrinter.export_to_als
       end
 
       def solve_model
@@ -89,7 +89,7 @@ module Alloy
         als_model = "#{to_als}\n\n#{run_cmd}"
 
         require 'arby/bridge/compiler'
-        comp = Alloy::Bridge::Compiler.compile(als_model)
+        comp = Arby::Bridge::Compiler.compile(als_model)
         sol = comp.execute_command(run_cmd_name)
         if sol.satisfiable?
           sol.arby_instance

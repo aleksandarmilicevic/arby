@@ -1,7 +1,7 @@
 require 'my_test_helper'
 require 'arby/helpers/test/dsl_helpers'
 
-include Alloy::Dsl
+include Arby::Dsl
 
 module X
   alloy_model "Y" do
@@ -10,7 +10,7 @@ module X
 end
 
 class TestAlloyUserModel < Test::Unit::TestCase
-  include Alloy::Helpers::Test::DslHelpers
+  include Arby::Helpers::Test::DslHelpers
   include SDGUtils::Testing::Assertions
 
   def test1() create_module "MyModel1" end
@@ -27,7 +27,7 @@ class TestAlloyUserModel < Test::Unit::TestCase
   end
 
   def test_already_defined
-    blder = Alloy::Dsl::alloy_model("MyModel1")
+    blder = Arby::Dsl::alloy_model("MyModel1")
     assert_seq_equal [MyModel1], blder.return_result(:array)
   end
 

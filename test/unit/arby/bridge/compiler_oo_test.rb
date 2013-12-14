@@ -1,7 +1,7 @@
 require 'my_test_helper'
 require_relative 'compiler_test'
 
-module Alloy
+module Arby
   module Bridge
 
     class CompilerOOTest < CompilerTest

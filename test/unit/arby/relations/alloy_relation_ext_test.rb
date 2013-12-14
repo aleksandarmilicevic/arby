@@ -4,7 +4,7 @@ require_relative 'alloy_rel_test_helper.rb'
 # == Class TestRelationExt
 #------------------------------------------
 class TestAlloyRelationExt < Test::Unit::TestCase
-  include AlloyRelationTestHelper
+  include ArbyRelationTestHelper
 
   def testArrayExt
     ary = [1, 3, 4]

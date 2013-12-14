@@ -4,7 +4,7 @@ require 'arby/dsl/fun_helper'
 require 'arby/dsl/mult_helper'
 require 'arby/dsl/quant_helper'
 
-module Alloy
+module Arby
   module Dsl
 
     module StaticHelpers

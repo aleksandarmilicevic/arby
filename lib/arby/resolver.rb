@@ -1,6 +1,6 @@
 require 'arby/alloy_ast'
 
-module Alloy
+module Arby
   extend self
 
   # =================================================================
@@ -27,9 +27,9 @@ module Alloy
     # ----------------------------------------------------------------
     def resolve_type(type)
       case type
-      when Alloy::Ast::UnaryType
+      when Arby::Ast::UnaryType
         resolve_col_type(type.cls)
-      when Alloy::Ast::UnaryType::ColType
+      when Arby::Ast::UnaryType::ColType
         resolve_col_type(type)
       when String, Symbol
         resolve_type(get_col_type(type))
@@ -50,8 +50,8 @@ module Alloy
     def resolve_type!(type)
       baseklass = @options[BASEKLASS_OPT]
       cls = resolve_type(type)
-      raise Alloy::Ast::ResolveError, "unresolved type: #{type}: #{type.class}" unless cls
-      raise Alloy::Ast::TypeError, "type `#{cls}' is not a primitive type nor a #{baseklass.name}" unless baseklass.nil? || cls < baseklass || get_col_type(cls).primitive?
+      raise Arby::Ast::ResolveError, "unresolved type: #{type}: #{type.class}" unless cls
+      raise Arby::Ast::TypeError, "type `#{cls}' is not a primitive type nor a #{baseklass.name}" unless baseklass.nil? || cls < baseklass || get_col_type(cls).primitive?
       cls
     end
 
@@ -63,15 +63,15 @@ module Alloy
     # ----------------------------------------------------------------
     def resolve_col_type(col_type)
       case col_type
-      when Alloy::Ast::UnaryType::ColType::PrimitiveColType
+      when Arby::Ast::UnaryType::ColType::PrimitiveColType
         col_type.class.klass
-      when Alloy::Ast::UnaryType::ColType::RefColType
+      when Arby::Ast::UnaryType::ColType::RefColType
         col_type.src
-      when Alloy::Ast::UnaryType::ColType::UnresolvedRefColType
+      when Arby::Ast::UnaryType::ColType::UnresolvedRefColType
         src = col_type.src
         col_type.mod.send(:const_get, src.to_sym, false) rescue nil ||
-          Alloy.meta.sig(src.to_s) ||
-          Alloy.meta.find_sig(src.to_s) ||
+          Arby.meta.sig(src.to_s) ||
+          Arby.meta.find_sig(src.to_s) ||
           SDGUtils::MetaUtils.str_to_class(src.to_s)
       else
         nil
@@ -81,13 +81,13 @@ module Alloy
     protected
 
     def get_col_type(type)
-      Alloy::Ast::UnaryType::ColType.get(type)
+      Arby::Ast::UnaryType::ColType.get(type)
     end
   end
 
-  Resolver = Alloy::CResolver.new :baseklass => Alloy::Ast::Sig
+  Resolver = Arby::CResolver.new :baseklass => Arby::Ast::Sig
   def resolver
-    Alloy::Resolver
+    Arby::Resolver
   end
 
 end

@@ -2,7 +2,7 @@ require 'arby/alloy_conf'
 require 'arby/ast/types'
 require 'sdg_utils/errors'
 
-module Alloy
+module Arby
   module Ast
 
     #-----------------------------------------------------
@@ -44,10 +44,10 @@ module Alloy
         raise TypeError, "no type given: #{type}" unless AType === type && type.arity > 0
       end
 
-      def typecheck(type, tuple) Alloy.conf.typecheck and typecheck!(type, tuple) end
-      def assert_type(type)      Alloy.conf.typecheck and assert_type!(type) end
+      def typecheck(type, tuple) Arby.conf.typecheck and typecheck!(type, tuple) end
+      def assert_type(type)      Arby.conf.typecheck and assert_type!(type) end
 
-      def check_sig_class(cls, supercls=Alloy::Ast::ASig, msg="")
+      def check_sig_class(cls, supercls=Arby::Ast::ASig, msg="")
         msg = "#{msg}\n" unless msg.to_s.empty?
         raise_not_sig = proc {
           raise TypeError, "#{msg}#{cls} is not a #{supercls} class"
@@ -63,7 +63,7 @@ module Alloy
         }
         raise_not_mod[] unless Module === mod
         raise_not_mod[] unless mod.respond_to? :meta
-        raise_not_mod[] unless Alloy::Ast::Model === mod.meta
+        raise_not_mod[] unless Arby::Ast::Model === mod.meta
         mod.meta
       end
     end

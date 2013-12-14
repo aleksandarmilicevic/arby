@@ -1,4 +1,4 @@
-module Alloy
+module Arby
   module Dsl
 
     module FieldsHelper

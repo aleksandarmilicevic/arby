@@ -1,7 +1,7 @@
 require 'arby/dsl/model_builder'
 require 'arby/ast/types'
 
-module Alloy
+module Arby
 
   # ================================================================
   # == Module +Dsl+

@@ -6,25 +6,25 @@ require 'arby/bridge/compiler'
 require 'arby/bridge/solution'
 
 class FileSystemTest < Test::Unit::TestCase
-  include Alloy::Helpers::Test::DslHelpers
+  include Arby::Helpers::Test::DslHelpers
   include SDGUtils::Testing::SmartSetup
   include SDGUtils::Testing::Assertions
-  include Alloy::Bridge
+  include Arby::Bridge
 
   include ArbyModels::FileSystem
 
   def setup_class
-    Alloy.reset
-    Alloy.meta.restrict_to(ArbyModels::FileSystem)
-    Alloy.initializer.init_all_no_freeze
+    Arby.reset
+    Arby.meta.restrict_to(ArbyModels::FileSystem)
+    Arby.initializer.init_all_no_freeze
 
-    @@als_model = Alloy.meta.to_als
+    @@als_model = Arby.meta.to_als
     @@compiler  = Compiler.compile(@@als_model)
     @@sol       = @@compiler.execute_command(0)
   end
 
   def test
-    ans = Alloy.meta.to_als
+    ans = Arby.meta.to_als
     assert_equal_ignore_whitespace ArbyModels::FileSystem::Expected_alloy, ans
   end
 

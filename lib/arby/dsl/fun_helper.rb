@@ -8,7 +8,7 @@ require 'arby/utils/codegen_repo'
 require 'sdg_utils/dsl/base_builder'
 require 'sdg_utils/dsl/missing_builder'
 
-module Alloy
+module Arby
   module Dsl
 
     module FunHelper
@@ -51,7 +51,7 @@ module Alloy
       #          - for body:        +args[0].body || block+ is used
       #
       # @param block [Proc] --- defaults to +proc{}+
-      # @return [Alloy::Ast::Fun]
+      # @return [Arby::Ast::Fun]
       # ---------------------------------------------------------
 
       def fun(*args, &block)
@@ -74,12 +74,12 @@ module Alloy
       end
 
       def method_missing(sym, *args, &block)
-        return super if Alloy.is_caller_from_alloy?(caller[0])
+        return super if Arby.is_caller_from_alloy?(caller[0])
         begin
           super
         rescue => ex
           # use this as the last resort
-          raise ex unless Alloy.conf.allow_undef_vars
+          raise ex unless Arby.conf.allow_undef_vars
           raise ex unless SDGUtils::DSL::BaseBuilder.in_body?
           case
           when args.empty? || (args.size == 1 && Array === args.first)
@@ -100,10 +100,10 @@ module Alloy
       end
 
       def method_added(name)
-        return if Alloy.is_caller_from_alloy?(caller[0])
-        return unless Alloy.conf.turn_methods_into_funs
+        return if Arby.is_caller_from_alloy?(caller[0])
+        return unless Arby.conf.turn_methods_into_funs
         return unless SDGUtils::DSL::BaseBuilder.in_body?
-        fun = Alloy::Ast::Fun.for_method(self, name)
+        fun = Arby::Ast::Fun.for_method(self, name)
         meta.add_fun fun
         after_fun_from_method_added(fun)
       end
@@ -117,7 +117,7 @@ module Alloy
       def _create_and_add_fn(kind, *args, &block)
         _catch_syntax_errors do
           fun_opts = _to_fun_opts(*args, &block)
-          fn = Alloy::Ast::Fun.send kind, fun_opts
+          fn = Arby::Ast::Fun.send kind, fun_opts
           meta.send "add_#{kind}".to_sym, fn
           _define_method_for_fun(fn)
           fn
@@ -127,17 +127,17 @@ module Alloy
       def _create_fn(kind, *args, &block)
         _catch_syntax_errors do
           fun_opts = _to_fun_opts(*args, &block)
-          Alloy::Ast::Fun.send kind, fun_opts
+          Arby::Ast::Fun.send kind, fun_opts
         end
       end
 
       def _catch_syntax_errors
         begin
           yield
-        rescue Alloy::Dsl::SyntaxError => ex
+        rescue Arby::Dsl::SyntaxError => ex
           raise
         rescue Exception => ex
-          raise Alloy::Dsl::SyntaxError.new(ex)
+          raise Arby::Dsl::SyntaxError.new(ex)
         end
       end
 
@@ -146,14 +146,14 @@ module Alloy
       # else
       #   args should match the +CodegenRepo#eval_code+ formal parameters
       def _define_method(*args, &block)
-        old = Alloy.conf.turn_methods_into_funs
-        Alloy.conf.turn_methods_into_funs = false
+        old = Arby.conf.turn_methods_into_funs
+        Arby.conf.turn_methods_into_funs = false
         name, file, line = *args
         _catch_syntax_errors do
           begin
             if block.nil?
               desc = {:kind => :user_block}
-              Alloy::Utils::CodegenRepo.eval_code self, name, file, line, desc
+              Arby::Utils::CodegenRepo.eval_code self, name, file, line, desc
             else
               define_method name, &block
             end
@@ -164,7 +164,7 @@ module Alloy
           end
         end
       ensure
-        Alloy.conf.turn_methods_into_funs = old
+        Arby.conf.turn_methods_into_funs = old
       end
 
       # TODO: cleanup, decompose, break into methods
@@ -226,7 +226,7 @@ RUBY
       def _to_args(hash)
         ans = []
         _traverse_fields_hash hash, lambda {|arg_name, type|
-          arg = Alloy::Ast::Arg.new :name => arg_name, :type => type
+          arg = Arby::Ast::Arg.new :name => arg_name, :type => type
           ans << arg
         }
         ans
@@ -241,7 +241,7 @@ RUBY
               hash = a
               fa = _to_args(hash[:args])
               hash.merge :args => fa
-            when Alloy::Ast::Fun
+            when Arby::Ast::Fun
               a
             when SDGUtils::DSL::MissingBuilder
               a.consume
@@ -252,7 +252,7 @@ RUBY
                 :body     => fb.body }
             when String, Symbol
               { :name     => a.to_s,
-                :args     => Alloy::Ast::Fun.proc_args(block),
+                :args     => Arby::Ast::Fun.proc_args(block),
                 :ret_type => nil }
             else
               _raise_invalid_format("invalid single arg type: #{a.class}")

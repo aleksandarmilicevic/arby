@@ -1,7 +1,7 @@
 require 'sdg_utils/errors'
 require 'sdg_utils/dsl/syntax_error'
 
-module Alloy
+module Arby
   module Dsl
 
     class SyntaxError < SDGUtils::Errors::ErrorWithCause
@@ -14,7 +14,7 @@ module SDGUtils
   module DSL
     class SyntaxError
       def class
-        Alloy::Dsl::SyntaxError
+        Arby::Dsl::SyntaxError
       end
     end
   end

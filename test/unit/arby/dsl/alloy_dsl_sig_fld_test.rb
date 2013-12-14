@@ -2,7 +2,7 @@ require 'my_test_helper'
 require 'arby/helpers/test/dsl_helpers'
 require 'arby/initializer.rb'
 
-include Alloy::Dsl
+include Arby::Dsl
 
 module DSLFLDTEST
   alloy_model do
@@ -41,18 +41,18 @@ end
 # puts Users::SigB.to_alloy
 
 class AlloyDslTest < Test::Unit::TestCase
-  include Alloy::Helpers::Test::DslHelpers
+  include Arby::Helpers::Test::DslHelpers
   include SDGUtils::Testing::SmartSetup
   include SDGUtils::Testing::Assertions
 
   def setup_class
-    Alloy.reset
-    Alloy.meta.restrict_to(DSLFLDTEST)
-    Alloy.initializer.init_all_no_freeze
+    Arby.reset
+    Arby.meta.restrict_to(DSLFLDTEST)
+    Arby.initializer.init_all_no_freeze
   end
 
   def test_sigs_defined
-    sig_test_helper('DSLFLDTEST::Users::SBase', Alloy::Ast::Sig)
+    sig_test_helper('DSLFLDTEST::Users::SBase', Arby::Ast::Sig)
     sig_test_helper('DSLFLDTEST::Users::SigA', DSLFLDTEST::Users::SBase)
     sig_test_helper('DSLFLDTEST::Users::SigB', DSLFLDTEST::Users::SigA)
   end

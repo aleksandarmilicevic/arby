@@ -2,7 +2,7 @@ require 'my_test_helper'
 require 'arby/bridge/compiler'
 require 'arby/bridge/solution'
 
-module Alloy
+module Arby
   module Bridge
 
     class CompilerTest < Test::Unit::TestCase

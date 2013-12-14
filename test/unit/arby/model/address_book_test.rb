@@ -6,19 +6,19 @@ require 'arby/bridge/compiler'
 
 
 class AddressBookTest < Test::Unit::TestCase
-  include Alloy::Helpers::Test::DslHelpers
+  include Arby::Helpers::Test::DslHelpers
   include SDGUtils::Testing::SmartSetup
   include SDGUtils::Testing::Assertions
 
   include ArbyModels::AddressBook
 
   def setup_class
-    Alloy.reset
-    Alloy.meta.restrict_to(ArbyModels::AddressBook)
-    Alloy.initializer.init_all_no_freeze
+    Arby.reset
+    Arby.meta.restrict_to(ArbyModels::AddressBook)
+    Arby.initializer.init_all_no_freeze
 
-    @@als_model = Alloy.meta.to_als
-    @@compiler  = Alloy::Bridge::Compiler.compile(@@als_model)
+    @@als_model = Arby.meta.to_als
+    @@compiler  = Arby::Bridge::Compiler.compile(@@als_model)
   end
 
   def test
@@ -27,7 +27,7 @@ class AddressBookTest < Test::Unit::TestCase
     # puts "-----------"
     # ans = ArbyModels::AddressBook.delUndoesAdd_alloy
     # puts "#{ans}"
-    ans = Alloy.meta.to_als
+    ans = Arby.meta.to_als
     assert_equal_ignore_whitespace ArbyModels::AddressBook::Expected_alloy, ans
   end
 
@@ -42,6 +42,6 @@ class AddressBookTest < Test::Unit::TestCase
   end
 
   def test_find_model
-    inst = Alloy.meta.solve_model
+    inst = Arby.meta.solve_model
   end
 end

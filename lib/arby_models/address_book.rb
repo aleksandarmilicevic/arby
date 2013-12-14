@@ -1,7 +1,7 @@
 require 'arby/alloy_dsl'
 
 module ArbyModels
-  extend Alloy::Dsl
+  extend Arby::Dsl
 
   alloy :AddressBook do
     sig Name, Addr

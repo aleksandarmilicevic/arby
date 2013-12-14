@@ -3,7 +3,7 @@ require 'sdg_utils/dsl/missing_builder'
 require 'sdg_utils/lambda/proc'
 require 'sdg_utils/meta_utils'
 
-module Alloy
+module Arby
   module Ast
 
     #------------------------------------------
@@ -24,7 +24,7 @@ module Alloy
         when NilClass then allow_nil ? NoType.new : nil
         when Proc     then DependentType.new(obj)
         when AType    then  obj
-        when Alloy::Ast::Expr::MExpr
+        when Arby::Ast::Expr::MExpr
           obj.__type
         when Array
           if obj.empty?
@@ -216,7 +216,7 @@ module Alloy
       end
 
       def to_alloy
-        Alloy::Utils::AlloyPrinter.export_to_als(self)
+        Arby::Utils::AlloyPrinter.export_to_als(self)
       end
     end
 
@@ -358,7 +358,7 @@ module Alloy
           when String, Symbol
             sym = sym.to_sym
             builtin = @@built_in_types[sym]
-            mgr = Alloy::Dsl::ModelBuilder.get
+            mgr = Arby::Dsl::ModelBuilder.get
             builtin || UnresolvedRefColType.new(sym, mgr && mgr.scope_module)
           else
             raise TypeError, "`#{sym}' must be Module or Symbol or String, instead it is #{sym.class}"
