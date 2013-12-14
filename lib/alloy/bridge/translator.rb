@@ -20,13 +20,13 @@ module Alloy
       # @param inst [Alloy::Ast::Instance<Alloy::Bridge::Atom, Alloy::Bridge::TupleSet>]
       # @return [Alloy::Ast::Instance<Alloy::Ast::Sig, Alloy::Ast::TupleSet>]
       def to_arby_instance(inst)
-        atoms      = inst.atoms.map{|a| _create_atom(a)}
-        tmpi       = Alloy::Ast::Instance.new atoms
-        fld_map    = inst.fields.map{|name| [name, _to_tuple_set(tmpi, inst.field(name))]}
-        skolem_map = inst.skolems.map{|name| [name, _to_tuple_set(tmpi, inst.skolem(name))]}
+        atoms   = inst.atoms.map{|a| _create_atom(a)}
+        tmpi    = Alloy::Ast::Instance.new atoms
+        flds    = inst.fields.map{|name| [name, _to_tuple_set(tmpi, inst.field(name))]}
+        skolems = inst.skolems.map{|name| [name, _to_tuple_set(tmpi, inst.skolem(name))]}
 
-        fld_map    = Hash[fld_map]
-        skolem_map = Hash[skolem_map]
+        fld_map    = Hash[flds]
+        skolem_map = Hash[skolems]
 
         # restore field values
         atoms.each do |atom|
