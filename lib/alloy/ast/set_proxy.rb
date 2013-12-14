@@ -23,7 +23,7 @@ module Alloy
       end
     end
 
-    class TupleProxy < SDGUtils::Proxy
+    class Tuple < SDGUtils::Proxy
       include Alloy::Relations::MTuple
       include TypeMethodsHelper
 
@@ -44,9 +44,9 @@ module Alloy
 
       def self.wrap(t, type=nil)
         case t
-        when TupleProxy then t
+        when Tuple then t
         else
-          TupleProxy.new(type, t)
+          Tuple.new(type, t)
         end
       end
 
@@ -61,7 +61,7 @@ module Alloy
         fname = fld.getter_sym.to_s
         rhs = self.atoms.last
         ans = rhs ? (atoms[0...-1] + [rhs.send(fname)]) : nil
-        TupleProxy.new(@type.join(fld.full_type()), ans)
+        Tuple.new(@type.join(fld.full_type()), ans)
       end
 
       def to_s()    "<" + @atoms.map(&:to_s).join(", ") + ">" end
@@ -78,7 +78,7 @@ module Alloy
 
       def initialize(type, tuples)
         tuples = Array(tuples)
-        @tuples = Set.new(tuples.map{|t| TupleProxy.wrap(t, type)}.reject(&:empty?))
+        @tuples = Set.new(tuples.map{|t| Tuple.wrap(t, type)}.reject(&:empty?))
         @type = type || AType.interpolate(@tuples.map(&:_type))
         TypeChecker.assert_type(@type)
         super(@tuples)
@@ -99,7 +99,7 @@ module Alloy
       def self.unwrap(t)
         case t
         when TupleSet   then self.unwrap(t._target)
-        when TupleProxy then self.unwrap(t._target)
+        when Tuple then self.unwrap(t._target)
         when Array      then t.map{|e| self.unwrap(e)}
         when Set        then Set.new(t.map{|e| self.unwrap(e)})
         else

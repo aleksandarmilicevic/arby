@@ -80,7 +80,7 @@ module Alloy
         tuples = ts.tuples.map do |tuple|
           atoms = tuple.map{|a| inst.atom!(a.label)}
           # type = tuple.map{|a| _a4type_to_atype!(a.a4type)}
-          # TupleProxy.wrap(value, Alloy::Ast::AType.get(type))
+          # Tuple.wrap(value, Alloy::Ast::AType.get(type))
         end
         type = _type_to_atype!(ts.type)
         Alloy::Ast::TupleSet.wrap(tuples, type)
