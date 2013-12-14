@@ -1,4 +1,4 @@
-require 'unit/alloy/alloy_test_helper.rb'
+require 'unit/alloy/arby_test_helper.rb'
 
 alloy_module "Users" do
   sig SigB do

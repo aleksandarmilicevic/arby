@@ -34,7 +34,7 @@ module AFAE
   end
 end
 
-class AlloyFldAccessEventsTest < Test::Unit::TestCase
+class FldAccessEventsTest < Test::Unit::TestCase
   include Arby::Helpers::Test::DslHelpers
   include SDGUtils::Testing::SmartSetup
   include SDGUtils::Testing::Assertions
