@@ -22,6 +22,8 @@ module Arby
       def self.get(obj, allow_nil=true)
         case obj
         when NilClass then allow_nil ? NoType.new : nil
+        when Integer  then TypeConsts::Int
+        when Range    then TypeConsts::Int.set_of
         when Proc     then DependentType.new(obj)
         when AType    then  obj
         when Arby::Ast::Expr::MExpr
@@ -610,6 +612,8 @@ module Arby
     end
 
     module TypeConsts
+      extend self
+
       Univ1 = UnaryType.new(Object)
       Int   = UnaryType.new(Integer)
       Seq   = ProductType.new(Int, Univ1)

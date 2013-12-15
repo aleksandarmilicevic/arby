@@ -385,7 +385,7 @@ module Arby
       # ============================================================================
       class TypeExpr < Var
         def initialize(type)
-          super(type.to_alloy, type)
+          super(type.to_s, type)
         end
         def exe_concrete() __type end
       end
@@ -642,6 +642,7 @@ module Arby
           else
             wrapped_body = (Proc === body) ? wrap(body) : body
             b = Expr.resolve_expr(wrapped_body, self, "body", BoolConst::TRUE)
+            decl.each(&:expr) #resolve decl expressions
             QuantExpr.new(op, decl, b)
           end
         end

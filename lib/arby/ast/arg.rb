@@ -57,12 +57,11 @@ module Arby
         else
           raise ArgumentError, "expected either a hash or a name/type pair; got `#{args}'"
         end
-        @type = Arby::Ast::AType.get(@expr)
+        @type = AType.get(@expr) rescue nil
       end
 
-      def expr()
-        @resolved_expr ||= Arby::Ast::Expr.resolve_expr(@expr, self, "expression")
-      end
+      def expr() @resolved_expr ||= Expr.resolve_expr(@expr, self, "expression") end
+      def type() @type ||= AType.get(expr) end
 
       def scalar?()    @type.scalar? end
       def primitive?() scalar? && @type.range.primitive? end

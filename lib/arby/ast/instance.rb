@@ -40,11 +40,18 @@ module Arby
       def field(name)  @fld2tuples[name] end
       def skolem(name) @skolem2tuples[name] end
 
-      def atom!(label)  atom(label) or fail("atom `#{label}' not found") end
-      def field!(name)  field(name) or fail("field `#{name}' not found") end
+      def atom!(label)  atom(label)  or fail("atom `#{label}' not found") end
+      def field!(name)  field(name)  or fail("field `#{name}' not found") end
       def skolem!(name) skolem(name) or fail("skolem `#{name}' not found") end
 
       alias_method :[], :atom
+
+      def to_s
+        atoms_str = atoms.map(&:label).join(', ')
+        "atoms:\n  #{atoms_str}\n" +
+          "fields:\n  #{@fld2tuples}\n" +
+          "skolems:\n  #{@skolem2tuples}"
+      end
     end
 
   end
