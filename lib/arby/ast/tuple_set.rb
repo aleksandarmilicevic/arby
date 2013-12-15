@@ -2,7 +2,7 @@ require 'arby/ast/sig'
 require 'arby/ast/types'
 require 'arby/ast/type_checker'
 require 'arby/relations/relation'
-require 'sdg_utils/proxy'
+require 'sdg_utils/delegator'
 
 module Arby
   module Ast
@@ -23,8 +23,9 @@ module Arby
       end
     end
 
-    class Tuple < SDGUtils::Proxy
+    class Tuple
       include Arby::Relations::MTuple
+      include SDGUtils::MDelegator
       include TypeMethodsHelper
 
       private
@@ -33,10 +34,10 @@ module Arby
         atoms = Array(atoms) #TODO: fail if there are nils .reject(&:nil?)
         type ||= AType.get(atoms.map(&:class))
         TypeChecker.typecheck(type, atoms)
-        super(atoms)
         # type.arity == 1 ? super(atoms.first) : super(atoms)
         @type = type
         @atoms = atoms
+        @target = @atoms # for MDelegator
         add_methods_for_type
       end
 
@@ -50,9 +51,12 @@ module Arby
         end
       end
 
+      def wrap(*a)  self.class.wrap(*a) end
+
       def unwrap()  TupleSet.unwrap(self) end
       def atoms()   @atoms.dup() end
       def atom(idx) @atoms[idx] end
+      def size()    arity end
 
       def _target() @target end
       def _type()   @type end
@@ -70,9 +74,10 @@ module Arby
 
     ###############################################
 
-    class TupleSet < SDGUtils::Proxy
+    class TupleSet
       include Arby::Relations::MRelation
       include TypeMethodsHelper
+      include SDGUtils::MDelegator
 
       private
 
@@ -81,7 +86,7 @@ module Arby
         @tuples = Set.new(tuples.map{|t| Tuple.wrap(t, type)}.reject(&:empty?))
         @type = type || AType.interpolate(@tuples.map(&:_type))
         TypeChecker.assert_type(@type)
-        super(@tuples)
+        @target = @tuples # for MDelegator
         # (type.scalar?) ? super(@tuples.first) : super(@tuples)
         add_methods_for_type
       end
@@ -98,14 +103,22 @@ module Arby
 
       def self.unwrap(t)
         case t
-        when TupleSet   then self.unwrap(t._target)
-        when Tuple then self.unwrap(t._target)
-        when Array      then t.map{|e| self.unwrap(e)}
-        when Set        then Set.new(t.map{|e| self.unwrap(e)})
+        when TupleSet then self.unwrap(t._target)
+        when Tuple    then self.unwrap(t._target)
+        when Array, Set
+          if t.empty?       then nil
+          elsif t.size == 1 then self.unwrap(t.first)
+          else
+            ans = t.map{|e| self.unwrap(e)}
+            ans = Set.new(ans)if Set === t
+            ans
+          end
         else
           t
         end
       end
+
+      def wrap(*a)     self.class.wrap(*a) end
 
       def _target()    @target end
       def _type()      @type end
@@ -115,24 +128,49 @@ module Arby
       def unwrap()     TupleSet.unwrap(self) end
       def size()       tuples.size end
       def empty?()     tuples.empty? end
-      def join(*a, &b) tuples.join(*a, &b) end
       def contains?(a) a.all?{|e| tuples.member?(e)} end
+      def ljoin(ts)    wrap(ts).join(self) end
 
       def <(other)     int_cmp(:<, other) end
       def >(other)     int_cmp(:>, other) end
       def <=(other)    int_cmp(:<=, other) end
       def >=(other)    int_cmp(:>=, other) end
 
+      def [](other)    ljoin(other) end
+
       def sum
         assert_int_set!
         @tuples.reduce(0){|sum, t| sum + t[0]}
       end
 
+      def join(other)
+        other = wrap(other)
+        fail("arity must not be 0") unless arity > 0 && other.arity > 0
+
+        newArity = arity + other.arity - 2
+        fail("sum of the two arities must be greater than 0") unless newArity > 0
+
+        tuple_set = []
+        tuples.each do |t1|
+          other.tuples.each do |t2|
+            if t1.atom(-1) == t2.atom(0)
+              tt1 = t1.length > 1 ? t1.atoms[0..-2] : []
+              tt2 = t2.length > 1 ? t2.atoms[1..-1] : []
+              tuple_set << tt1 + tt2
+            end
+          end
+        end
+
+        type = (_type && other._type) ? _type.join(other._type) : nil
+
+        wrap(tuple_set, type)
+      end
+
       def hash()    TupleSet.unwrap(self).hash end
       def ==(other) TupleSet.unwrap(self) == TupleSet.unwrap(other) end
 
-      def to_s()    "{" + @tuples.map(&:to_s).join(",\n  ") + "}" end
-      def inspect() to_s end
+      def inspect() "{" + @tuples.map(&:to_s).join(",\n  ") + "}" end
+      def to_s()    TupleSet.unwrap(self).to_s end
 
       def assert_int_set!
         unless @type && @type.isInt?
@@ -144,11 +182,7 @@ module Arby
       private
 
       def int_cmp(op, other)
-        self.sum.send(op, TupleSet.wrap(other).sum)
-      end
-
-      def _wrap(result)
-        TupleSet.new(@type, result)
+        self.sum.send(op, wrap(other).sum)
       end
 
       def _join_fld(fld)

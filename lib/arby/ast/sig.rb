@@ -178,7 +178,8 @@ module Arby
       def to_s()  @label end
 
       def initialize(*args)
-        super
+        super()
+        init_fld_values(*args)
         init_default_transient_values
         meta().register_atom(self)
       end
@@ -243,6 +244,15 @@ module Arby
           if tf.type.unary? && tf.type.range.cls.primitive?
             val = tf.type.range.cls.default_value
             self.write_field(tf, val)
+          end
+        end
+      end
+
+      def init_fld_values(*args)
+        case
+        when args.size == 1 && Hash === args.first
+          args.first.each do |name, value|
+            self.write_field(name, value)
           end
         end
       end

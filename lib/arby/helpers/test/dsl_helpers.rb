@@ -1,5 +1,6 @@
 require 'arby/arby'
 require 'arby/arby_dsl'
+require 'arby/ast/tuple_set'
 
 include Arby::Dsl
 
@@ -53,7 +54,7 @@ module Arby
           val = (0...arity).map{|_| 42}
           Arby.conf.do_with(:typecheck => false) do
             setter.call([val])
-            assert_equal Set.new([val]), getter.call.unwrap
+            assert_equal Arby::Ast::TupleSet.wrap([val]), getter.call
           end
         end
 

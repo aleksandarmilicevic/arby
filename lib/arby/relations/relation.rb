@@ -36,12 +36,11 @@ module Arby
         tuples.each { |t| yield t }
       end
 
-      def as_rel
-        self
-      end
+      def as_rel() self end
+      def wrap(other) other.as_rel end
 
       def join(other)
-        other = other.as_rel
+        other = self.wrap(other)
         raise ArityError unless arity > 0
         raise ArityError unless other.arity > 0
 
@@ -63,7 +62,7 @@ module Arby
       end
 
       def product(other)
-        other = other.as_rel
+        other = self.wrap(other)
         raise ArityError, "0-arity not allowed" if arity == 0 || other.arity == 0
         newArity = arity + other.arity
         newTuples = []
@@ -76,14 +75,14 @@ module Arby
       end
 
       def union(other)
-        other = other.as_rel
+        other = self.wrap(other)
         raise ArityError, "arity mismatch: self.arity = #{arity} != other.arity = #{other.arity}" if arity != other.arity
         tuple_set = Set.new.merge(tuples).merge(other.tuples)
         Relation.new(arity, tuple_set.to_a)
       end
 
       def intersect(other)
-        other = other.as_rel
+        other = self.wrap(other)
         raise ArityError, "arity mismatch: self.arity = #{arity} != other.arity = #{other.arity}" if arity != other.arity
         ts1 = Set.new.merge(tuples)
         ts2 = Set.new.merge(other.tuples)

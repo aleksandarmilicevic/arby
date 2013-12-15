@@ -4,6 +4,7 @@ require 'arby/helpers/test/dsl_helpers'
 require 'arby/initializer.rb'
 require 'arby/bridge/compiler'
 require 'arby/bridge/solution'
+require 'arby/ast/tuple_set'
 
 class FileSystemTest < Test::Unit::TestCase
   include Arby::Helpers::Test::DslHelpers
@@ -21,6 +22,10 @@ class FileSystemTest < Test::Unit::TestCase
     @@als_model = Arby.meta.to_als
     @@compiler  = Compiler.compile(@@als_model)
     @@sol       = @@compiler.execute_command(0)
+  end
+
+  def assert_ts_equal(ts1, *tuples)
+    assert_equal Arby::Ast::TupleSet.wrap(ts1), Arby::Ast::TupleSet.wrap(tuples)
   end
 
   def test
@@ -64,14 +69,14 @@ class FileSystemTest < Test::Unit::TestCase
     root0 = inst["Root$0"]
     entry1 = inst["Entry$1"]
     assert_set_equal [], inst["Root$0"].parent
-    assert_set_equal [[inst["Entry$0"]], [inst["Entry$1"]]], inst["Root$0"].entries.unwrap
-    assert_equal inst["Entry$0"].name, Set.new([[inst["Name$0"]]])
-    assert_equal inst["Entry$1"].name, Set.new([[inst["Name$1"]]])
-    assert_equal inst["Entry$2"].name, Set.new([[inst["Name$1"]]])
-    assert_equal inst["Entry$0"].contents, Set.new([[inst["Folder$0"]]])
-    assert_equal inst["Entry$1"].contents, Set.new([[inst["Folder$0"]]])
-    assert_equal inst["Entry$2"].contents, Set.new([[inst["File$0"]]])
-    assert_set_equal [[inst["Entry$2"]]], inst["Folder$0"].entries.unwrap
+    assert_ts_equal inst["Root$0"].entries, inst["Entry$0"], inst["Entry$1"]
+    assert_ts_equal inst["Entry$0"].name, inst["Name$0"]
+    assert_ts_equal inst["Entry$1"].name, inst["Name$1"]
+    assert_ts_equal inst["Entry$2"].name, inst["Name$1"]
+    assert_ts_equal inst["Entry$0"].contents, inst["Folder$0"]
+    assert_ts_equal inst["Entry$1"].contents, inst["Folder$0"]
+    assert_ts_equal inst["Entry$2"].contents, inst["File$0"]
+    assert_ts_equal inst["Folder$0"].entries, inst["Entry$2"] 
   end
 
   def test_correct_check
