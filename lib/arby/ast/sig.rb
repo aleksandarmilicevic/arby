@@ -44,8 +44,8 @@ module Arby
           obj
         end
 
-        def to_alloy_expr() Expr::SigExpr.new(self) end
-        def e()             to_alloy_expr() end
+        def to_arby_expr() Expr::SigExpr.new(self) end
+        def e()             to_arby_expr() end
         def f(fname)
           meta().field(fname)
         end
@@ -66,7 +66,7 @@ module Arby
 
         def get_cls_field(fld)
           if Arby.symbolic_mode?
-            to_alloy_expr.send fld.name.to_sym
+            to_arby_expr.send fld.name.to_sym
           else
             fld
           end
@@ -77,12 +77,12 @@ module Arby
         end
 
         def method_missing(sym, *args, &block)
-          to_alloy_expr().send sym, *args, &block
+          to_arby_expr().send sym, *args, &block
           # # TODO: remove these functinos as well, and instead generate
           # #       methods for alloy funs
           # if block.nil? && fun=meta.any_fun(sym)
-          #   # use the instance method bound to self.to_alloy_expr
-          #   to_alloy_expr().apply_call(fun, *args)
+          #   # use the instance method bound to self.to_arby_expr
+          #   to_arby_expr().apply_call(fun, *args)
           # else
           #   return super
           # end

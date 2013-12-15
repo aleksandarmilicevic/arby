@@ -52,8 +52,8 @@ module Arby
       end
 
       def test_product
-        lhs = SigA.to_alloy_expr
-        rhs = SigB.to_alloy_expr
+        lhs = SigA.to_arby_expr
+        rhs = SigB.to_arby_expr
         ans = apply(PRODUCT, lhs, rhs)
         assert Expr::BinaryExpr === ans
         assert_equal PRODUCT, ans.op
@@ -63,7 +63,7 @@ module Arby
       end
 
       def test_cardinality
-        sub = SigA.to_alloy_expr
+        sub = SigA.to_arby_expr
         ans = apply(CARDINALITY, sub )
         assert Expr::UnaryExpr === ans
         assert_equal CARDINALITY, ans.op
@@ -106,7 +106,7 @@ module Arby
       def test_minus_6() assert_type [SigA], apply(MINUS, SigA, SubB) end
 
       def test_transpose
-        sub = SigA.to_alloy_expr
+        sub = SigA.to_arby_expr
         ans = apply(TRANSPOSE, sub)
         assert Expr::UnaryExpr === ans
         assert_equal TRANSPOSE, ans.op
@@ -128,7 +128,7 @@ module Arby
       def test_in_not_in_ops
         ops = [IN, NOT_IN]
         ops.each do |op|
-          lhs, rhs = SigA.to_alloy_expr, 1
+          lhs, rhs = SigA.to_arby_expr, 1
           ans = apply(op,lhs,rhs)
           assert Expr::BinaryExpr === ans
           assert_equal op, ans.op

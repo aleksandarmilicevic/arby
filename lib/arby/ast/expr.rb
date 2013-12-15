@@ -59,10 +59,10 @@ module Arby
                     fld.getter_sym.to_s
                   end
           target_cls.send :define_method, "#{fname}" do
-            self.apply_join fld.to_alloy_expr
+            self.apply_join fld.to_arby_expr
           end
           target_cls.send :define_method, "#{fname}=" do |val|
-            ans = ExprBuilder.apply(Ops::ASSIGN, self.apply_join(fld.to_alloy_expr), val)
+            ans = ExprBuilder.apply(Ops::ASSIGN, self.apply_join(fld.to_arby_expr), val)
             Arby.boss.add_side_effect(ans)
           end
         end
@@ -107,8 +107,8 @@ module Arby
         when Range;      ExprBuilder.union(*e.map{|i| IntExpr.new(i)})
         when Proc; resolve_expr(e.call, parent, kind_in_parent, default_val, &else_cb)
         else
-          if e.respond_to? :to_alloy_expr
-            al_expr = e.send :to_alloy_expr
+          if e.respond_to? :to_arby_expr
+            al_expr = e.send :to_arby_expr
             resolve_expr(al_expr, parent, kind_in_parent, default_val, &else_cb)
           else
             else_cb.call

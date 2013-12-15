@@ -94,7 +94,7 @@ require 'sdg_utils/string_utils'
         SDGUtils::StringUtils.to_iden(full_name)
       end
 
-      def to_alloy_expr()
+      def to_arby_expr()
         if is_inv?
           e = Expr::UnaryExpr.transpose Expr::FieldExpr.new(self.inv)
           Expr.add_methods_for_type(e, self.inv.full_type.transpose)
