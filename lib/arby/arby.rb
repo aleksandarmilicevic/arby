@@ -31,12 +31,12 @@ module Arby
     def set_symbolic_mode()    @exe_mode = :symbolic end
     def set_concrete_mode()    @exe_mode = :concrete end
 
-    def is_alloy_file?(filename)
+    def is_arby_file?(filename)
       @alloy_files.member?(filename)
     end
 
     def is_caller_from_arby?(caller_str)
-      m = caller_str.match(/([^:]*):/) and is_alloy_file?(m.captures[0])
+      m = caller_str.match(/([^:]*):/) and is_arby_file?(m.captures[0])
     end
 
     def meta
@@ -86,7 +86,7 @@ module Arby
   extend SDGUtils::Delegate
   delegate :meta, :boss, :conf, :set_default, :initializer, :reset,
            :fields_resolved?, :inv_fields_added?, :test_and_set,
-           :is_alloy_file?, :is_caller_from_arby?,
+           :is_arby_file?, :is_caller_from_arby?,
            :exe_mode, :symbolic_mode?, :concrete_mode?,
            :restore_exe_mode, :set_symbolic_mode, :set_concrete_mode,
            :to => lambda{alloy}, :proc => true
