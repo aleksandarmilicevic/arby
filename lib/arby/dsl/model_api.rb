@@ -3,6 +3,8 @@ require 'arby/dsl/command_helper'
 require 'arby/dsl/sig_builder'
 require 'arby/ast/model'
 require 'arby/ast/expr_builder'
+
+require 'sdg_utils/delegator'
 require 'sdg_utils/lambda/sourcerer'
 
 module Arby
@@ -61,6 +63,9 @@ module Arby
           end
         ensure
           Arby.meta.close_model(mod)
+          # delegate all method_missing to its meta
+          mod.ruby_module.instance_variable_set "@target", mod
+          mod.ruby_module.send :extend, SDGUtils::MDelegator
         end
       end
 
