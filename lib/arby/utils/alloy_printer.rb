@@ -45,23 +45,23 @@ module Arby
                                               :visit_method => :export_to_als
       end
 
-      def to_als(alloy_obj)
-        _fail = proc{fail "Unrecognized Alloy entity: #{alloy_obj}:#{alloy_obj.class}"}
-        case alloy_obj
-        when Arby::Ast::Model; model_to_als(alloy_obj)
+      def to_als(arby_obj)
+        _fail = proc{fail "Unrecognized Arby entity: #{alloy_obj}:#{alloy_obj.class}"}
+        case arby_obj
+        when Arby::Ast::Model; model_to_als(arby_obj)
         when Class
-          if alloy_obj < Arby::Ast::ASig
-            sig_to_als(alloy_obj)
+          if arby_obj < Arby::Ast::ASig
+            sig_to_als(arby_obj)
           else
             _fail[]
           end
-        when Arby::Ast::Fun;          fun_to_als(alloy_obj)
-        when Arby::Ast::Command;      command_to_als(alloy_obj)
-        when Arby::Ast::Field;        field_to_als(alloy_obj)
-        when Arby::Ast::AType;        type_to_als(alloy_obj)
-        when Arby::Ast::Arg;          arg_to_als(alloy_obj)
-        when Arby::Ast::Expr::MExpr;  expr_to_als(alloy_obj)
-        when NilClass;                 ""
+        when Arby::Ast::Fun;          fun_to_als(arby_obj)
+        when Arby::Ast::Command;      command_to_als(arby_obj)
+        when Arby::Ast::Field;        field_to_als(arby_obj)
+        when Arby::Ast::AType;        type_to_als(arby_obj)
+        when Arby::Ast::Arg;          arg_to_als(arby_obj)
+        when Arby::Ast::Expr::MExpr;  expr_to_als(arby_obj)
+        when NilClass;                ""
         else
           _fail[]
         end
