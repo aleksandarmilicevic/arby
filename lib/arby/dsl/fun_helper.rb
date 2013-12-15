@@ -74,7 +74,7 @@ module Arby
       end
 
       def method_missing(sym, *args, &block)
-        return super if Arby.is_caller_from_alloy?(caller[0])
+        return super if Arby.is_caller_from_arby?(caller[0])
         begin
           super
         rescue => ex
@@ -100,7 +100,7 @@ module Arby
       end
 
       def method_added(name)
-        return if Arby.is_caller_from_alloy?(caller[0])
+        return if Arby.is_caller_from_arby?(caller[0])
         return unless Arby.conf.turn_methods_into_funs
         return unless SDGUtils::DSL::BaseBuilder.in_body?
         fun = Arby::Ast::Fun.for_method(self, name)

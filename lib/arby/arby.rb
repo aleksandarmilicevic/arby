@@ -35,7 +35,7 @@ module Arby
       @alloy_files.member?(filename)
     end
 
-    def is_caller_from_alloy?(caller_str)
+    def is_caller_from_arby?(caller_str)
       m = caller_str.match(/([^:]*):/) and is_alloy_file?(m.captures[0])
     end
 
@@ -86,7 +86,7 @@ module Arby
   extend SDGUtils::Delegate
   delegate :meta, :boss, :conf, :set_default, :initializer, :reset,
            :fields_resolved?, :inv_fields_added?, :test_and_set,
-           :is_alloy_file?, :is_caller_from_alloy?,
+           :is_alloy_file?, :is_caller_from_arby?,
            :exe_mode, :symbolic_mode?, :concrete_mode?,
            :restore_exe_mode, :set_symbolic_mode, :set_concrete_mode,
            :to => lambda{alloy}, :proc => true

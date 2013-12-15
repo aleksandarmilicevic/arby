@@ -234,7 +234,7 @@ module Arby
         end
 
         def method_missing(sym, *args, &block)
-          return super if Arby.is_caller_from_alloy?(caller[0])
+          return super if Arby.is_caller_from_arby?(caller[0])
           if args.empty?
             return super unless Arby.conf.sym_exe.convert_missing_fields_to_joins
             ExprBuilder.apply(JOIN, self, Var.new(sym))
