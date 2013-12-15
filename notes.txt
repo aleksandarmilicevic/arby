@@ -27,6 +27,9 @@ Staging examples:
 
 TODO: 
 
+  - have model specific config options
   - create some class corresponding to Alloy's CompModule
   - move all the initialization stuff from Arby.meta to CompModule
   - ensure initialization before solving
+  - unify the implementation of different kinds of relation (e.g., in
+    relation.rb, tuple_set.rb, types.rb, etc.)
