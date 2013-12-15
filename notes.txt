@@ -23,3 +23,10 @@ Staging examples:
   - traveling salesman problem
   - longest path
   - prim's algorithm
+
+
+TODO: 
+
+  - create some class corresponding to Alloy's CompModule
+  - move all the initialization stuff from Arby.meta to CompModule
+  - ensure initialization before solving
