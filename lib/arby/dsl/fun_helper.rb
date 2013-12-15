@@ -198,7 +198,7 @@ module Arby
 RUBY
               define_alloy and
                 _define_method <<-RUBY
-  def #{fun.alloy_method_name}(#{args_str})
+  def #{fun.arby_method_name}(#{args_str})
     #{instr_src}
   end
 RUBY

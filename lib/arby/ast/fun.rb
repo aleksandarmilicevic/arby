@@ -19,7 +19,7 @@ module Arby
     class Fun
       include Checks
 
-      attr_reader :kind, :owner, :name, :alloy_method_name, :args, :ret_type, :body
+      attr_reader :kind, :owner, :name, :arby_method_name, :args, :ret_type, :body
 
       class << self
 
@@ -121,7 +121,7 @@ module Arby
         @kind              = kind
         @owner             = hash[:owner]
         @name              = check_iden hash[:name].to_s.to_sym, "function name"
-        @alloy_method_name = "#{@name}_alloy"
+        @arby_method_name = "#{@name}_alloy"
         @args              = hash[:args] || []
         @ret_type          = Arby::Ast::AType.get(hash[:ret_type])
         @body              = hash[:body]
@@ -164,7 +164,7 @@ module Arby
         mode = Arby.exe_mode
         Arby.set_symbolic_mode
         vars = args.map{|a| Arby::Ast::Expr::Var.new(a.name, a.type)}
-        target.send alloy_method_name.to_sym, *vars
+        target.send arby_method_name.to_sym, *vars
       ensure
         Arby.restore_exe_mode(mode)
       end
