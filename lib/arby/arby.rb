@@ -19,7 +19,7 @@ module Arby
       @fields_resolved = false
       @inv_fields_added = false
       @conf = nil
-      @alloy_files = Set.new + Dir[File.join(File.dirname(__FILE__), "{**/*.rb}")]
+      @arby_files = Set.new + Dir[File.join(File.dirname(__FILE__), "{**/*.rb}")]
     end
 
     public
@@ -32,7 +32,7 @@ module Arby
     def set_concrete_mode()    @exe_mode = :concrete end
 
     def is_arby_file?(filename)
-      @alloy_files.member?(filename)
+      @arby_files.member?(filename)
     end
 
     def is_caller_from_arby?(caller_str)
