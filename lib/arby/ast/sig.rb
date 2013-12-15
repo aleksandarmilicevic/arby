@@ -165,8 +165,6 @@ module Arby
 
       attr_accessor :label
 
-      def to_s() @label end
-
       def self.included(base)
         base.extend(Arby::Dsl::StaticHelpers)
         base.extend(Static)
@@ -175,7 +173,9 @@ module Arby
         base.send :__created
       end
 
-      def meta() self.class.meta end
+      def meta()  self.class.meta end
+      def arity() 1 end
+      def to_s()  @label end
 
       def initialize(*args)
         super

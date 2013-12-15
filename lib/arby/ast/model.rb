@@ -1,9 +1,11 @@
+require 'arby/bridge/solver_helpers'
 require 'sdg_utils/caching/searchable_attr'
 
 module Arby
   module Ast
 
     class Model
+      include Arby::Bridge::SolverHelpers
       include SDGUtils::Caching::SearchableAttr
 
       attr_reader :scope_module, :ruby_module, :name, :relative_name

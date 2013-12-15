@@ -1,3 +1,4 @@
+require 'arby/bridge/solver_helpers'
 require 'arby/utils/alloy_printer'
 require 'sdg_utils/caching/searchable_attr'
 require 'sdg_utils/event/events'
@@ -39,6 +40,7 @@ module Arby
     class MetaModel
       include MMUtils
       include SDGUtils::Events::EventProvider
+      include Arby::Bridge::SolverHelpers
 
       def initialize
         reset
@@ -81,21 +83,6 @@ module Arby
 
       def to_als
         Arby::Utils::AlloyPrinter.export_to_als
-      end
-
-      def solve_model
-        run_cmd_name = "find_model_#{SDGUtils::Random.salted_timestamp}"
-        run_cmd = "run #{run_cmd_name} {}"
-        als_model = "#{to_als}\n\n#{run_cmd}"
-
-        require 'arby/bridge/compiler'
-        comp = Arby::Bridge::Compiler.compile(als_model)
-        sol = comp.execute_command(run_cmd_name)
-        if sol.satisfiable?
-          sol.arby_instance
-        else
-          nil
-        end
       end
 
     end

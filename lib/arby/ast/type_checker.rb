@@ -47,6 +47,14 @@ module Arby
       def typecheck(type, tuple) Arby.conf.typecheck and typecheck!(type, tuple) end
       def assert_type(type)      Arby.conf.typecheck and assert_type!(type) end
 
+      def assert_arity(lhs, rhs)
+        lhs.arity == rhs.arity
+      end
+
+      def assert_arity!(lhs, rhs)
+        raise TypeError, "arity missmatch #{lhs}, #{rhs}" unless assert_arity(lhs, rhs)
+      end
+
       def check_sig_class(cls, supercls=Arby::Ast::ASig, msg="")
         msg = "#{msg}\n" unless msg.to_s.empty?
         raise_not_sig = proc {

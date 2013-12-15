@@ -42,6 +42,6 @@ class AddressBookTest < Test::Unit::TestCase
   end
 
   def test_find_model
-    inst = Arby.meta.solve_model
+    inst = ArbyModels::AddressBook.find_instance
   end
 end
