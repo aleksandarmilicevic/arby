@@ -56,7 +56,7 @@ module Arby
         raise_not_sig[] unless cls < supercls
       end
 
-      def check_alloy_module(mod, msg="")
+      def check_arby_module(mod, msg="")
         msg = "#{msg}\n" unless msg.to_s.empty?
         raise_not_mod = proc {
           raise TypeError, "#{msg}#{mod} is not a ruby module used as Alloy model"
