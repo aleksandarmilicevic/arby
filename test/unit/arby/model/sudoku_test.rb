@@ -17,12 +17,31 @@ class SudokuTest < Test::Unit::TestCase
     Arby.reset
     Arby.meta.restrict_to(ArbyModels::SudokuModel)
     Arby.initializer.init_all_no_freeze
-
-    @@als_model = Arby.meta.to_als
   end
 
-  def test1
-    puts @@als_model
+  def test_als
+    puts Arby.meta.to_als
   end
 
+  def test_instance
+    inst = ArbyModels::SudokuModel.find_instance :solved, "for 1 but 5 Int"
+    puts inst.atoms.first
+  end
+
+  def test_pi
+    s = Sudoku.parse """
+......95.
+.8.7..6..
+4...68...
+3...5.7.2
+...9.4...
+2.6.1...5
+...18...9
+..2..3.6.
+.35......
+"""
+    # puts s.to_s
+    # inst = s.find_instance :solved, "for 1 but 5 Int"
+    # puts inst.skolem(inst.skolems.first)
+  end
 end
