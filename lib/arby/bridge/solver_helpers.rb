@@ -5,9 +5,9 @@ module Arby
   module Bridge
     module SolverHelpers
 
-      def find_instance
+      def find_instance(scope="")
         run_cmd_name = "find_model_#{SDGUtils::Random.salted_timestamp}"
-        run_cmd = "run #{run_cmd_name} {}"
+        run_cmd = "run #{run_cmd_name} {} #{scope}"
         als_model = "#{to_als}\n\n#{run_cmd}"
 
         comp = Arby::Bridge::Compiler.compile(als_model)
