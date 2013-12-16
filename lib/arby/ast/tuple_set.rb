@@ -44,6 +44,7 @@ module Arby
       public
 
       def self.wrap(t, type=nil)
+        type = AType.get(type) if type
         case t
         when Tuple then t
         else
@@ -94,6 +95,7 @@ module Arby
       public
 
       def self.wrap(t, type=nil)
+        type = AType.get(type) if type
         case t
         when TupleSet then t
         else
@@ -164,6 +166,20 @@ module Arby
         type = (_type && other._type) ? _type.join(other._type) : nil
 
         wrap(tuple_set, type)
+      end
+
+      def union!(other)
+        other = wrap(other)
+        fail("arity mismatch: #{arity}, #{other.arity}") unless arity == other.arity
+        @tuples += other.tuples
+        self
+      end
+
+      def union(other)
+        other = wrap(other)
+        fail("arity mismatch: #{arity}, #{other.arity}") unless arity == other.arity
+        type = (_type && other._type) ? _type.union(other._type) : (_type || other._type)
+        wrap(self.tuples + other.tuples, type)
       end
 
       def hash()    TupleSet.unwrap(self).hash end
