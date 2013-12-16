@@ -12,6 +12,7 @@ module Arby
 
       def instrument
         ast = parse_proc(@proc)
+        return ["", ""] unless ast
         orig_src = read_src(ast)
         instr_src = reprint(ast) do |node, parent, anno|
           new_src =
