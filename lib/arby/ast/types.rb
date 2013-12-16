@@ -571,7 +571,7 @@ module Arby
           if ModType === type
             mult = mult || type.mult
             mods = mods + type.mods
-            args = args.merge(type.args)
+            args = [args, type.args].flatten(1)
             type = type.type
           end
           obj = allocate
