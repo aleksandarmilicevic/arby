@@ -55,24 +55,26 @@ module Arby
         raise TypeError, "arity missmatch #{lhs}, #{rhs}" unless assert_arity(lhs, rhs)
       end
 
-      def check_sig_class(cls, supercls=Arby::Ast::ASig, msg="")
-        msg = "#{msg}\n" unless msg.to_s.empty?
-        raise_not_sig = proc {
-          raise TypeError, "#{msg}#{cls} is not a #{supercls} class"
-        }
-        raise_not_sig[] unless Class === cls
-        raise_not_sig[] unless cls < supercls
+      def check_sig_class(cls, supercls=Arby::Ast::ASig)
+        Class === cls && cls < supercls
       end
 
-      def check_arby_module(mod, msg="")
-        msg = "#{msg}\n" unless msg.to_s.empty?
-        raise_not_mod = proc {
+      def check_sig_class!(cls, supercls=Arby::Ast::ASig, msg="")
+        unless check_sig_class(cls, supercls)
+          raise TypeError, "#{msg}#{cls} is not a #{supercls} class"
+        end
+      end
+
+      def check_arby_module(mod, model_cls=Arby::Ast::Model)
+        Module === mod &&
+          mod.respond_to?(:meta) &&
+          model_cls === mod.meta
+      end
+
+      def check_arby_module!(mod, model_cls=Arby::Ast::Model, msg="")
+        unless check_arby_module(mod)
           raise TypeError, "#{msg}#{mod} is not a ruby module used as Alloy model"
-        }
-        raise_not_mod[] unless Module === mod
-        raise_not_mod[] unless mod.respond_to? :meta
-        raise_not_mod[] unless Arby::Ast::Model === mod.meta
-        mod.meta
+        end
       end
     end
 

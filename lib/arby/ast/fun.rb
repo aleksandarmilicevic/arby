@@ -61,7 +61,7 @@ module Arby
         # @param cls [Class, Module]
         def dummy_instance(cls)
           if Class === cls
-            Arby::Ast::TypeChecker.check_sig_class(cls)
+            Arby::Ast::TypeChecker.check_sig_class!(cls)
             if cls < SDGUtils::MNested
               parent = dummy_instance(cls.__parent())
               parent.allocate(cls)
@@ -69,7 +69,7 @@ module Arby
               cls.send :allocate
             end
           else # it must be a Module
-            Arby::Ast::TypeChecker.check_arby_module(cls)
+            Arby::Ast::TypeChecker.check_arby_module!(cls)
             obj = Object.new
             obj.singleton_class.send :include, cls
             obj.define_singleton_method :make_me_sym_expr do |name="self"|
