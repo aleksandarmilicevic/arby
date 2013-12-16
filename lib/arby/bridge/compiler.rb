@@ -80,7 +80,7 @@ module Arby
           commands = a4world.getAllCommands()
           cmd = commands.get(command_index)
           opt = A4Options_RJB.new
-          opt.solver = opt.solver.SAT4J
+          opt.solver = opt.solver.SAT4J #MiniSatJNI #SAT4J
           TranslateAlloyToKodkod_RJB.execute_command(@rep, a4world.getAllSigs, cmd, opt)
         end
 

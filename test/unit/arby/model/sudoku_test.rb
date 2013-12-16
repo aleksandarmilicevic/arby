@@ -25,6 +25,7 @@ class SudokuTest < Test::Unit::TestCase
 
   def test_instance
     inst = ArbyModels::SudokuModel.find_instance :solved, "for 1 but 5 Int"
+    assert inst, "instance not found"
     puts inst.atoms.first
   end
 

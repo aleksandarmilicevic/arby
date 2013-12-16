@@ -1,4 +1,5 @@
 require 'arby/arby_dsl'
+require 'arby/ast/bounds'
 
 Arby.conf.sym_exe.convert_missing_fields_to_joins = true
 
@@ -6,20 +7,22 @@ module ArbyModels
   extend Arby::Dsl
 
   alloy_model :SudokuModel do
-    N = 9
+    self::N = 9
 
     one sig Sudoku [
-      grid: Int[0..8] * Int[0..8] * Int[1..9]
+      grid: Int[0...N] * Int[0...N] * (lone Int[1..N])
     ] {
-      grid[Int][Int].in?(1..9) and
-      grid[Int].Int.in?(0..8) and
-      grid.Int.Int.in?(0..8) and
-      all(i: 0..8, j: 0..8) { one grid[i][j] }
+      # grid[Int][Int].in?(1..N) and
+      grid[Int].Int.in?(0...N) and
+      grid.Int.Int.in?(0...N) # and
+      # all(i: 0...N, j: 0...N) { one grid[i][j] }
     }
 
     pred solved[s: Sudoku] {
-      s.grid[0..8][Int] == (1..9) and
-      s.grid[Int][0..8] == (1..9) and
+      all(r: 0..8) { 
+        s.grid[r][Int] == (1..9) and
+        s.grid[Int][r] == (1..9) 
+      } and
       s.grid[0..2][0..2] == (1..9) and
       s.grid[0..2][3..5] == (1..9) and
       s.grid[0..2][6..8] == (1..9) and
@@ -32,12 +35,17 @@ module ArbyModels
     }
 
     pred solved2[s: Sudoku] {
-      sq = [(0..2), (3..5), (6..8)]
-      exprs = sq.product(sq).map{|r, c| s.grid[r][c] == (1..9)}
+      m = Integer(Math.sqrt(N))
+      sq = (0...m).map{|i| (m*i)..(m*(i+1)-1)}
+      sq_exprs = sq.product(sq).map{|r, c| 
+        s.grid[r][c] == (1..N)
+      }
+      rc_exprs = (0...N).map{|i| 
+        s.grid[i][Int] == (1..N) &&
+        s.grid[Int][i] == (1..N)
+      }
 
-      s.grid[0..8][Int] == (1..9) and
-      s.grid[Int][0..8] == (1..9) and
-      conj(*exprs)
+      conj(*rc_exprs, *sq_exprs)
     }
   end
 
@@ -52,10 +60,21 @@ module ArbyModels
         }.compact
       }.flatten(1)
     end
+    
+    def partial_instance
+      bounds = Arby::Ast::Bounds.new
+      (0...N).map do |i|
+        (0...N).map do |j| 
+          s = self.grid[i][j]
+          (s.empty?) ? "." : s.to_s
+        end
+      end
+      bounds
+    end
 
     def to_s
-      (0..8).map{ |i|
-        (0..8).map{|j| s = self.grid[i][j]; (s.empty?) ? "." : s.to_s}.join(" ")
+      (0...N).map{ |i|
+        (0...N).map{|j| s = self.grid[i][j]; (s.empty?) ? "." : s.to_s}.join(" ")
       }.join("\n")
     end
   end

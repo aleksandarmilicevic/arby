@@ -1,3 +1,5 @@
+require 'arby/ast/field'
+require 'arby/ast/sig'
 require 'arby/ast/tuple_set'
 require 'arby/ast/type_checker'
 
@@ -17,14 +19,36 @@ module Arby
       def bound(what, lower, upper)
         TypeChecker.check_arity(what, lower)
         TypeChecker.check_arity(what, upper)
+        check_field_or_sig(what)
         @lowers[what] = lower.dup
         @uppers[what] = upper.dup
+        self
       end
 
       def bound_exactly(what, tuple_set)
         bound(what, tuple_set, tuple_set)
       end
 
+      def add_lower(what, tuple_set)
+        check_field_or_sig(what)
+        lo = get_or_new(@lowers, what)
+        hi = get_or_new(@uppers, what)
+        lo.union!(tuple_set)
+        hi.union!(tuple_set)
+        self
+      end
+
+      private
+
+      def get_or_new(col, what)
+        col[what] ||= TupleSet.wrap([], what)
+      end
+
+      def check_field_or_sig(what)
+        unless what.is_a?(Field) || TypeChecker.check_sig_class(what)
+          raise TypeError, "only Field instances or Sig class can be bound; got #{what}"
+        end
+      end
     end
 
   end
