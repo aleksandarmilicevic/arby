@@ -53,9 +53,8 @@ module Arby
         mod = meta()
         Arby.meta.open_model(mod)
         begin
-          body_src = nil #SDGUtils::Lambda::Sourcerer.proc_to_src(block) rescue nil
+          body_src = nil # SDGUtils::Lambda::Sourcerer.proc_to_src(block) rescue nil
           if body_src
-            puts body_src
             Arby::Utils::CodegenRepo.module_eval_code mod.ruby_module, body_src,
                                                        *block.source_location
           else

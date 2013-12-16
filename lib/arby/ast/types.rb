@@ -23,7 +23,7 @@ module Arby
         case obj
         when NilClass then allow_nil ? NoType.new : nil
         when Integer  then TypeConsts::Int
-        when Range    then TypeConsts::Int.set_of
+        when Range    then TypeConsts::Int[obj].set_of
         when Proc     then DependentType.new(obj)
         when AType    then  obj
         when Arby::Ast::Expr::MExpr
