@@ -25,7 +25,8 @@ module Arby
         when Integer  then TypeConsts::Int
         when Range    then TypeConsts::Int[obj].set_of
         when Proc     then DependentType.new(obj)
-        when AType    then  obj
+        when Field    then obj.type
+        when AType    then obj
         when Arby::Ast::Expr::MExpr
           obj.__type
         when Array
