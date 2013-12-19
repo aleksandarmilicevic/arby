@@ -63,12 +63,7 @@ module ArbyModels
     
     def partial_instance
       bounds = Arby::Ast::Bounds.new
-      (0...N).map do |i|
-        (0...N).map do |j| 
-          s = self.grid[i][j]
-          (s.empty?) ? "." : s.to_s
-        end
-      end
+      
       bounds
     end
 
