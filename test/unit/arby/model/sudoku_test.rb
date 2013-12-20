@@ -16,7 +16,6 @@ class SudokuTest < Test::Unit::TestCase
   def setup_class
     Arby.reset
     Arby.meta.restrict_to(ArbyModels::SudokuModel)
-    Arby.initializer.init_all_no_freeze
   end
 
   def test_als

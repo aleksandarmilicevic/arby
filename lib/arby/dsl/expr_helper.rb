@@ -5,6 +5,7 @@ module Arby
 
     module ExprHelper
       def no(expr) Arby::Ast::Expr::UnaryExpr.no(expr) end
+      def some(expr) Arby::Ast::Expr::UnaryExpr.some(expr) end
     end
 
   end

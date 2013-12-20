@@ -102,7 +102,6 @@ module Arby
     def eval_sig_bodies(force=false)
       return unless Arby.conf.defer_body_eval
       return unless force || Arby.test_and_set(:sig_bodies_evaluated)
-      logger = Arby.conf.logger
       Arby.meta.sig_builders.each(&:eval_body_now!)
     end
 

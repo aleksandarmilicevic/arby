@@ -15,7 +15,6 @@ class AddressBookTest < Test::Unit::TestCase
   def setup_class
     Arby.reset
     Arby.meta.restrict_to(ArbyModels::AddressBook)
-    Arby.initializer.init_all_no_freeze
 
     @@als_model = Arby.meta.to_als
     @@compiler  = Arby::Bridge::Compiler.compile(@@als_model)

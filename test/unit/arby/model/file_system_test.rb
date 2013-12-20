@@ -17,7 +17,6 @@ class FileSystemTest < Test::Unit::TestCase
   def setup_class
     Arby.reset
     Arby.meta.restrict_to(ArbyModels::FileSystem)
-    Arby.initializer.init_all_no_freeze
 
     @@als_model = Arby.meta.to_als
     @@compiler  = Compiler.compile(@@als_model)
@@ -76,7 +75,7 @@ class FileSystemTest < Test::Unit::TestCase
     assert_ts_equal inst["Entry$0"].contents, inst["Folder$0"]
     assert_ts_equal inst["Entry$1"].contents, inst["Folder$0"]
     assert_ts_equal inst["Entry$2"].contents, inst["File$0"]
-    assert_ts_equal inst["Folder$0"].entries, inst["Entry$2"] 
+    assert_ts_equal inst["Folder$0"].entries, inst["Entry$2"]
   end
 
   def test_correct_check

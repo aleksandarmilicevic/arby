@@ -13,7 +13,6 @@ class SeqFilteringTest < Test::Unit::TestCase
   def setup_class
     Arby.reset
     Arby.meta.restrict_to(ArbyModels::SeqFiltering)
-    Arby.initializer.init_all_no_freeze
   end
 
   def test1

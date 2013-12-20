@@ -85,7 +85,7 @@ module Arby
     end
   end
 
-  Resolver = Arby::CResolver.new :baseklass => Arby::Ast::Sig
+  Resolver = Arby::CResolver.new :baseklass => Arby::Ast::ASig
   def resolver
     Arby::Resolver
   end

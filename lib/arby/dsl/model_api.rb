@@ -68,6 +68,10 @@ module Arby
         end
       end
 
+      def __finish
+        meta().send :resolve
+      end
+
       def __create_model(scope_module)
         Arby::Ast::Model.new(scope_module, self)
       end

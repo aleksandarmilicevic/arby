@@ -6,6 +6,7 @@ module Arby
 
     module QuantHelper
       include FieldsHelper
+      include ExprHelper
 
       def all(decl_hash, &block)
         decls = _to_decls(decl_hash)
@@ -17,9 +18,27 @@ module Arby
         Arby::Ast::Expr::QuantExpr.exist(decls, block)
       end
 
-      alias_method :some, :exist
+      def some(expr, &block)
+        if block
+          exist(expr, &block)
+        else
+          _call_from_expr(:some, expr)
+        end
+      end
+
+      def no(expr, &block)
+        if block
+          all(expr, &block).not
+        else
+          _call_from_expr(:no, expr)
+        end
+      end
 
       private
+
+      def _call_from_expr(meth, *args)
+        ExprHelper.instance_method(meth).bind(self).call(*args)
+      end
 
       def _to_decls(decl_hash)
         decls = []
