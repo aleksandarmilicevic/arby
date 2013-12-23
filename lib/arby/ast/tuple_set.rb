@@ -23,8 +23,17 @@ module Arby
       end
     end
 
+    module ArbyRelCommon
+      def _target() @target end
+      def _type()   @type end
+      def _type_op(op, other)
+        (self._type && other._type) ? _type.send(op, other._type) : nil
+      end
+    end
+
     class Tuple
-      include Arby::Relations::MTuple
+      # include Arby::Relations::MTuple
+      include ArbyRelCommon
       include SDGUtils::MDelegator
       include TypeMethodsHelper
 
@@ -59,8 +68,25 @@ module Arby
       def atom(idx) @atoms[idx] end
       def size()    arity end
 
-      def _target() @target end
-      def _type()   @type end
+      def join(other)
+        other = wrap(other)
+        if atom(-1) == other.atom(0)
+          lhs_atoms = length > 1 ? atoms[0..-2] : []
+          rhs_atoms = other.length > 1 ? other.atoms[1..-1] : []
+          ans_atoms = lhs_atoms + rhs_atoms
+          ans_type  = _type_op(:join, other)
+          wrap(ans_atoms, ans_type)
+        else
+          nil
+        end
+      end
+
+      def product(other)
+        other = wrap(other)
+        ans_atoms = atoms + other.atoms
+        ans_type  = _type_op(:product, other)
+        wrap(ans_atoms, ans_type)
+      end
 
       def _join_fld(fld)
         fname = fld.getter_sym.to_s
@@ -76,7 +102,8 @@ module Arby
     ###############################################
 
     class TupleSet
-      include Arby::Relations::MRelation
+      # include Arby::Relations::MRelation
+      include ArbyRelCommon
       include TypeMethodsHelper
       include SDGUtils::MDelegator
 
@@ -112,7 +139,7 @@ module Arby
           elsif t.size == 1 then self.unwrap(t.first)
           else
             ans = t.map{|e| self.unwrap(e)}
-            ans = Set.new(ans)if Set === t
+            ans = Set.new(ans) if Set === t
             ans
           end
         else
@@ -122,11 +149,8 @@ module Arby
 
       def wrap(*a)     self.class.wrap(*a) end
 
-      def _target()    @target end
-      def _type()      @type end
-
       def arity()      @type.arity end
-      def tuples()     @tuples.dup end
+      def tuples()     @tuples.to_a end
       def unwrap()     TupleSet.unwrap(self) end
       def size()       tuples.size end
       def empty?()     tuples.empty? end
@@ -152,20 +176,16 @@ module Arby
         newArity = arity + other.arity - 2
         fail("sum of the two arities must be greater than 0") unless newArity > 0
 
-        tuple_set = []
-        tuples.each do |t1|
-          other.tuples.each do |t2|
-            if t1.atom(-1) == t2.atom(0)
-              tt1 = t1.length > 1 ? t1.atoms[0..-2] : []
-              tt2 = t2.length > 1 ? t2.atoms[1..-1] : []
-              tuple_set << tt1 + tt2
-            end
-          end
-        end
+        ans_tuples = tuples.product(other.tuples).map{|l, r| l.join(r)}.compact
+        ans_type   = _type_op(:join, other)
+        wrap(ans_tuples, ans_type)
+      end
 
-        type = (_type && other._type) ? _type.join(other._type) : nil
-
-        wrap(tuple_set, type)
+      def product(other)
+        other = wrap(other)
+        ans_tuples = tuples.product(other.tuples).map{|l, r| l.product(r)}
+        ans_type   = _type_op(:product, other)
+        wrap(ans_tuples, ans_type)
       end
 
       def union!(other)
@@ -178,7 +198,7 @@ module Arby
       def union(other)
         other = wrap(other)
         fail("arity mismatch: #{arity}, #{other.arity}") unless arity == other.arity
-        type = (_type && other._type) ? _type.union(other._type) : (_type || other._type)
+        type = _type_op(:union, other) || _type || other._type
         wrap(self.tuples + other.tuples, type)
       end
 

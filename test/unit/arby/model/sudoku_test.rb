@@ -41,7 +41,7 @@ class SudokuTest < Test::Unit::TestCase
 ..2..3.6.
 .35......
 """
-    # puts s.to_s
+    puts s.to_s
     # inst = s.find_instance :solved, "for 1 but 5 Int"
     # puts inst.skolem(inst.skolems.first)
   end

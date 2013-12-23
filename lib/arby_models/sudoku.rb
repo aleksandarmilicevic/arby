@@ -19,9 +19,9 @@ module ArbyModels
     }
 
     pred solved[s: Sudoku] {
-      all(r: 0..8) { 
+      all(r: 0..8) {
         s.grid[r][Int] == (1..9) and
-        s.grid[Int][r] == (1..9) 
+        s.grid[Int][r] == (1..9)
       } and
       s.grid[0..2][0..2] == (1..9) and
       s.grid[0..2][3..5] == (1..9) and
@@ -37,10 +37,10 @@ module ArbyModels
     pred solved2[s: Sudoku] {
       m = Integer(Math.sqrt(N))
       sq = (0...m).map{|i| (m*i)..(m*(i+1)-1)}
-      sq_exprs = sq.product(sq).map{|r, c| 
+      sq_exprs = sq.product(sq).map{|r, c|
         s.grid[r][c] == (1..N)
       }
-      rc_exprs = (0...N).map{|i| 
+      rc_exprs = (0...N).map{|i|
         s.grid[i][Int] == (1..N) &&
         s.grid[Int][i] == (1..N)
       }
@@ -60,16 +60,19 @@ module ArbyModels
         }.compact
       }.flatten(1)
     end
-    
+
     def partial_instance
       bounds = Arby::Ast::Bounds.new
-      
+
       bounds
     end
 
     def to_s
-      (0...N).map{ |i|
-        (0...N).map{|j| s = self.grid[i][j]; (s.empty?) ? "." : s.to_s}.join(" ")
+      (0..8).map{|i|
+        (0..8).map{|j|
+          s = self.grid[i][j]
+          s.empty?() ? "." : s.to_s
+        }.join(" ")
       }.join("\n")
     end
   end
