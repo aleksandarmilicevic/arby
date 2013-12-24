@@ -60,9 +60,10 @@ module Arby
         end
       end
 
-      def self.product(lhs, rhs) ProductType.new(lhs, rhs) end
+      def self.product(lhs, rhs) ProductType.new(AType.get(lhs), AType.get(rhs)) end
       def self.transpose(t)      AType.get(t.to_ary.reverse) end
       def self.join(lhs, rhs)
+        lhs, rhs = AType.get(lhs), AType.get(rhs)
         lhs_range = lhs.range
         rhs_domain = rhs.domain
         if not disjoint?(lhs_range, rhs_domain)
@@ -80,6 +81,12 @@ module Arby
         return NoType.new unless atypes.all?{|t| t.arity == arity }
 
         atypes.first #TODO: WRONG!!!!!!!!
+      end
+
+      def self.project(type, *indexes)
+        indexes = indexes.map{|i| Array(i)}.flatten
+        cols = type.to_ary
+        AType.get(indexes.map{|i| cols[i]})
       end
 
       def self.union(lhs, rhs)
@@ -202,11 +209,14 @@ module Arby
       def columns() map{|e| e} end
       alias_method :to_ary, :columns
 
-      def product(rhs) AType.product(self, rhs) end
-      def *(rhs)       self.product(AType.get(rhs)) end
-      def **(rhs)      self * rhs end
-      def join(rhs)    AType.join(self, rhs) end
-      def transpose()  AType.transpose(self) end
+      def product(rhs)      AType.product(self, rhs) end
+      def *(rhs)            AType.product(self, rhs) end
+      def **(rhs)           AType.product(self, rhs) end
+      def union(rhs)        AType.union(self, rhs) end
+      def difference(rhs)   AType.difference(self, rhs) end
+      def join(rhs)         AType.join(self, rhs) end
+      def transpose()       AType.transpose(self) end
+      def project(*indexes) AType.project(self, *indexes) end
 
       def ===(obj)
         tuple = Array(obj)
