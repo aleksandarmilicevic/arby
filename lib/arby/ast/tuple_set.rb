@@ -23,8 +23,17 @@ module Arby
       end
     end
 
+    module ArbyRelCommon
+      def _target() @target end
+      def _type()   @type end
+      def _type_op(op, other)
+        (self._type && other._type) ? _type.send(op, other._type) : nil
+      end
+    end
+
     class Tuple
-      include Arby::Relations::MTuple
+      # include Arby::Relations::MTuple
+      include ArbyRelCommon
       include SDGUtils::MDelegator
       include TypeMethodsHelper
 
@@ -44,6 +53,7 @@ module Arby
       public
 
       def self.wrap(t, type=nil)
+        type = AType.get(type) if type
         case t
         when Tuple then t
         else
@@ -56,10 +66,36 @@ module Arby
       def unwrap()  TupleSet.unwrap(self) end
       def atoms()   @atoms.dup() end
       def atom(idx) @atoms[idx] end
-      def size()    arity end
+      def size()    @atoms.size end
+      def empty?()  @atoms.empty? end
+      def arity()   @type ? @type.arity : @atoms.size end
 
-      def _target() @target end
-      def _type()   @type end
+      def join(other)
+        other = wrap(other)
+        if atom(-1) == other.atom(0)
+          lhs_atoms = length > 1 ? atoms[0..-2] : []
+          rhs_atoms = other.length > 1 ? other.atoms[1..-1] : []
+          ans_atoms = lhs_atoms + rhs_atoms
+          ans_type  = _type_op(:join, other)
+          wrap(ans_atoms, ans_type)
+        else
+          nil
+        end
+      end
+
+      def product(other)
+        other = wrap(other)
+        ans_atoms = atoms + other.atoms
+        ans_type  = _type_op(:product, other)
+        wrap(ans_atoms, ans_type)
+      end
+
+      def project(*indexes)
+        indexes = indexes.map{|i| Array(i)}.flatten
+        ans_atoms = indexes.map{|i| atom(i)}
+        ans_type  = _type && _type.project(*indexes)
+        wrap(ans_atoms, ans_type)
+      end
 
       def _join_fld(fld)
         fname = fld.getter_sym.to_s
@@ -68,6 +104,10 @@ module Arby
         Tuple.new(@type.join(fld.full_type()), ans)
       end
 
+      def hash()    TupleSet.unwrap(self).hash end
+      def ==(other) TupleSet.unwrap(self) == TupleSet.unwrap(other) end
+      alias_method  :eql?, :==
+
       def to_s()    "<" + @atoms.map(&:to_s).join(", ") + ">" end
       def inspect() to_s end
     end
@@ -75,7 +115,8 @@ module Arby
     ###############################################
 
     class TupleSet
-      include Arby::Relations::MRelation
+      # include Arby::Relations::MRelation
+      include ArbyRelCommon
       include TypeMethodsHelper
       include SDGUtils::MDelegator
 
@@ -94,6 +135,7 @@ module Arby
       public
 
       def self.wrap(t, type=nil)
+        type = AType.get(type) if type
         case t
         when TupleSet then t
         else
@@ -110,7 +152,7 @@ module Arby
           elsif t.size == 1 then self.unwrap(t.first)
           else
             ans = t.map{|e| self.unwrap(e)}
-            ans = Set.new(ans)if Set === t
+            ans = Set.new(ans) if Set === t
             ans
           end
         else
@@ -120,11 +162,8 @@ module Arby
 
       def wrap(*a)     self.class.wrap(*a) end
 
-      def _target()    @target end
-      def _type()      @type end
-
       def arity()      @type.arity end
-      def tuples()     @tuples.dup end
+      def tuples()     @tuples.to_a end
       def unwrap()     TupleSet.unwrap(self) end
       def size()       tuples.size end
       def empty?()     tuples.empty? end
@@ -135,8 +174,6 @@ module Arby
       def >(other)     int_cmp(:>, other) end
       def <=(other)    int_cmp(:<=, other) end
       def >=(other)    int_cmp(:>=, other) end
-
-      def [](other)    ljoin(other) end
 
       def sum
         assert_int_set!
@@ -150,24 +187,61 @@ module Arby
         newArity = arity + other.arity - 2
         fail("sum of the two arities must be greater than 0") unless newArity > 0
 
-        tuple_set = []
-        tuples.each do |t1|
-          other.tuples.each do |t2|
-            if t1.atom(-1) == t2.atom(0)
-              tt1 = t1.length > 1 ? t1.atoms[0..-2] : []
-              tt2 = t2.length > 1 ? t2.atoms[1..-1] : []
-              tuple_set << tt1 + tt2
-            end
-          end
-        end
-
-        type = (_type && other._type) ? _type.join(other._type) : nil
-
-        wrap(tuple_set, type)
+        ans_tuples = tuples.product(other.tuples).map{|l, r| l.join(r)}.compact
+        ans_type   = _type_op(:join, other)
+        wrap(ans_tuples, ans_type)
       end
+
+      def product(other)
+        other = wrap(other)
+        ans_tuples = tuples.product(other.tuples).map{|l, r| l.product(r)}
+        ans_type   = _type_op(:product, other)
+        wrap(ans_tuples, ans_type)
+      end
+
+      def union!(other)
+        other = wrap(other)
+        check_same_arity(other)
+        @tuples += other.tuples
+        self
+      end
+
+      def union(other)
+        other = wrap(other)
+        check_same_arity(other)
+        ans_type = _type_op(:union, other) || _type || other._type
+        wrap(self.tuples + other.tuples, ans_type)
+      end
+
+      def difference!(other)
+        other = wrap(other)
+        check_same_arity(other)
+        @tuples -= other.tuples
+        self
+      end
+
+      def difference(other)
+        other = wrap(other)
+        check_same_arity(other)
+        ans_type = _type_op(:difference, other) || _type || other._type
+        wrap(self.tuples - other.tuples, ans_type)
+      end
+
+      def project(*args)
+        ans_type = _type && _type.project(*args)
+        wrap(@tuples.map{|t| t.project(*args)}, ans_type)
+      end
+
+      def [](other)    ljoin(other) end
+      alias_method :*, :product
+      alias_method :**, :product
+      alias_method :-, :difference
+      alias_method :"-=", :difference!
+      alias_method :"+=", :union!
 
       def hash()    TupleSet.unwrap(self).hash end
       def ==(other) TupleSet.unwrap(self) == TupleSet.unwrap(other) end
+      alias_method  :eql?, :==
 
       def inspect() "{" + @tuples.map(&:to_s).join(",\n  ") + "}" end
       def to_s()    TupleSet.unwrap(self).to_s end
@@ -180,6 +254,10 @@ module Arby
       end
 
       private
+
+      def check_same_arity(other)
+        fail("arity mismatch: #{arity}, #{other.arity}") unless arity == other.arity
+      end
 
       def int_cmp(op, other)
         self.sum.send(op, wrap(other).sum)

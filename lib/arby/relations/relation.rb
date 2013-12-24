@@ -47,16 +47,24 @@ module Arby
         newArity = arity + other.arity - 2
         raise ArityError unless newArity > 0
 
-        tuple_set = Set.new
-        tuples.each do |t1|
-          other.tuples.each do |t2|
-            if t1.atom(-1) == t2.atom(0)
-              tt1 = t1.length > 1 ? t1.atoms[0..-2] : []
-              tt2 = t2.length > 1 ? t2.atoms[1..-1] : []
-              tuple_set.add(Tuple.new(newArity, tt1 + tt2))
-            end
-          end
-        end
+        tuple_set = Set.new(tuples.product(other.tuples).map{|t1, t2|
+                              if t1.atom(-1) == t2.atom(0)
+                                tt1 = t1.length > 1 ? t1.atoms[0..-2] : []
+                                tt2 = t2.length > 1 ? t2.atoms[1..-1] : []
+                                Tuple.new(newArity, tt1 + tt2)
+                              end
+                            }.compact)
+
+        # tuple_set = Set.new
+        # tuples.each do |t1|
+        #   other.tuples.each do |t2|
+        #     if t1.atom(-1) == t2.atom(0)
+        #       tt1 = t1.length > 1 ? t1.atoms[0..-2] : []
+        #       tt2 = t2.length > 1 ? t2.atoms[1..-1] : []
+        #       tuple_set.add(Tuple.new(newArity, tt1 + tt2))
+        #     end
+        #   end
+        # end
 
         Relation.new(newArity, tuple_set.to_a)
       end

@@ -89,5 +89,5 @@ module Arby
            :is_arby_file?, :is_caller_from_arby?,
            :exe_mode, :symbolic_mode?, :concrete_mode?,
            :restore_exe_mode, :set_symbolic_mode, :set_concrete_mode,
-           :to => lambda{alloy}, :proc => true
+           :to => proc{alloy}, :proc => true
 end

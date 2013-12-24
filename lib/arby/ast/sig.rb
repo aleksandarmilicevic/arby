@@ -45,7 +45,7 @@ module Arby
         end
 
         def to_arby_expr() Expr::SigExpr.new(self) end
-        def e()             to_arby_expr() end
+        def e()            to_arby_expr() end
         def f(fname)
           meta().field(fname)
         end
