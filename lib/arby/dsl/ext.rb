@@ -50,3 +50,21 @@ end
 class Object
   def to_atype() Arby::Ast::AType.get(self) end
 end
+
+class Range
+  def to_tuple_set
+    require 'arby/ast/tuple_set'
+    Arby::Ast::TupleSet.wrap(self)
+  end
+
+
+  def self.delegate_to_ts(*syms)
+    syms.each do |sym|
+      self.send :define_method, sym do |*a, &b|
+        to_tuple_set.send sym, *a, &b
+      end
+    end
+  end
+
+  delegate_to_ts :*, :**, :product, :union, :join
+end
