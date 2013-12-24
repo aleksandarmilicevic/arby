@@ -66,7 +66,9 @@ module Arby
       def unwrap()  TupleSet.unwrap(self) end
       def atoms()   @atoms.dup() end
       def atom(idx) @atoms[idx] end
-      def size()    arity end
+      def size()    @atoms.size end
+      def empty?()  @atoms.empty? end
+      def arity()   @type ? @type.arity : @atoms.size end
 
       def join(other)
         other = wrap(other)
@@ -88,12 +90,23 @@ module Arby
         wrap(ans_atoms, ans_type)
       end
 
+      def project(*indexes)
+        indexes = indexes.map{|i| Array(i)}.flatten
+        ans_atoms = indexes.map{|i| atom(i)}
+        ans_type  = _type && _type.project(*indexes)
+        wrap(ans_atoms, ans_type)
+      end
+
       def _join_fld(fld)
         fname = fld.getter_sym.to_s
         rhs = self.atoms.last
         ans = rhs ? (atoms[0...-1] + [rhs.send(fname)]) : nil
         Tuple.new(@type.join(fld.full_type()), ans)
       end
+
+      def hash()    TupleSet.unwrap(self).hash end
+      def ==(other) TupleSet.unwrap(self) == TupleSet.unwrap(other) end
+      alias_method  :eql?, :==
 
       def to_s()    "<" + @atoms.map(&:to_s).join(", ") + ">" end
       def inspect() to_s end
@@ -162,8 +175,6 @@ module Arby
       def <=(other)    int_cmp(:<=, other) end
       def >=(other)    int_cmp(:>=, other) end
 
-      def [](other)    ljoin(other) end
-
       def sum
         assert_int_set!
         @tuples.reduce(0){|sum, t| sum + t[0]}
@@ -190,20 +201,47 @@ module Arby
 
       def union!(other)
         other = wrap(other)
-        fail("arity mismatch: #{arity}, #{other.arity}") unless arity == other.arity
+        check_same_arity(other)
         @tuples += other.tuples
         self
       end
 
       def union(other)
         other = wrap(other)
-        fail("arity mismatch: #{arity}, #{other.arity}") unless arity == other.arity
-        type = _type_op(:union, other) || _type || other._type
-        wrap(self.tuples + other.tuples, type)
+        check_same_arity(other)
+        ans_type = _type_op(:union, other) || _type || other._type
+        wrap(self.tuples + other.tuples, ans_type)
       end
+
+      def difference!(other)
+        other = wrap(other)
+        check_same_arity(other)
+        @tuples -= other.tuples
+        self
+      end
+
+      def difference(other)
+        other = wrap(other)
+        check_same_arity(other)
+        ans_type = _type_op(:difference, other) || _type || other._type
+        wrap(self.tuples - other.tuples, ans_type)
+      end
+
+      def project(*args)
+        ans_type = _type && _type.project(*args)
+        wrap(@tuples.map{|t| t.project(*args)}, ans_type)
+      end
+
+      def [](other)    ljoin(other) end
+      alias_method :*, :product
+      alias_method :**, :product
+      alias_method :-, :difference
+      alias_method :"-=", :difference!
+      alias_method :"+=", :union!
 
       def hash()    TupleSet.unwrap(self).hash end
       def ==(other) TupleSet.unwrap(self) == TupleSet.unwrap(other) end
+      alias_method  :eql?, :==
 
       def inspect() "{" + @tuples.map(&:to_s).join(",\n  ") + "}" end
       def to_s()    TupleSet.unwrap(self).to_s end
@@ -216,6 +254,10 @@ module Arby
       end
 
       private
+
+      def check_same_arity(other)
+        fail("arity mismatch: #{arity}, #{other.arity}") unless arity == other.arity
+      end
 
       def int_cmp(op, other)
         self.sum.send(op, wrap(other).sum)
