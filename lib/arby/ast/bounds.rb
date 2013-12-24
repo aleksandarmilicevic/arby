@@ -13,7 +13,8 @@ module Arby
     class Bounds
 
       def initialize
-        @lowers, @uppers = {}
+        @lowers = {}
+        @uppers = {}
       end
 
       def bound(what, lower, upper)
@@ -30,15 +31,25 @@ module Arby
       end
 
       def add_lower(what, tuple_set)
-        check_field_or_sig(what)
-        lo = get_or_new(@lowers, what)
-        hi = get_or_new(@uppers, what)
-        lo.union!(tuple_set)
-        hi.union!(tuple_set)
-        self
+        add_bound(@lowers, what, tuple_set)
+        add_bound(@uppers, what, tuple_set)
       end
 
+      def add_upper(what, tuple_set)
+        add_bound(@uppers, what, tuple_set)
+      end
+
+      def get_lower(what) @lowers[what] end #dup ???
+      def get_upper(what) @uppers[what] end #dup ???
+
       private
+
+      def add_bound(where, what, tuple_set)
+        check_field_or_sig(what)
+        bnd = get_or_new(where, what)
+        bnd.union!(tuple_set)
+        self
+      end
 
       def get_or_new(col, what)
         col[what] ||= TupleSet.wrap([], what)
