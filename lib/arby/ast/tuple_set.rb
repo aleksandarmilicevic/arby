@@ -29,6 +29,13 @@ module Arby
       def _type_op(op, other)
         (self._type && other._type) ? _type.send(op, other._type) : nil
       end
+
+      def wrap(*a)  self.class.wrap(*a) end
+      def unwrap()  TupleSet.unwrap(self) end
+
+      def hash()    TupleSet.unwrap(self).hash end
+      def ==(other) TupleSet.unwrap(self) == TupleSet.unwrap(other) end
+      alias_method  :eql?, :==
     end
 
     class Tuple
@@ -61,9 +68,6 @@ module Arby
         end
       end
 
-      def wrap(*a)  self.class.wrap(*a) end
-
-      def unwrap()  TupleSet.unwrap(self) end
       def atoms()   @atoms.dup() end
       def atom(idx) @atoms[idx] end
       def size()    @atoms.size end
@@ -103,10 +107,6 @@ module Arby
         ans = rhs ? (atoms[0...-1] + [rhs.send(fname)]) : nil
         Tuple.new(@type.join(fld.full_type()), ans)
       end
-
-      def hash()    TupleSet.unwrap(self).hash end
-      def ==(other) TupleSet.unwrap(self) == TupleSet.unwrap(other) end
-      alias_method  :eql?, :==
 
       def to_s()    "<" + @atoms.map(&:to_s).join(", ") + ">" end
       def inspect() to_s end
@@ -160,13 +160,10 @@ module Arby
         end
       end
 
-      def wrap(*a)     self.class.wrap(*a) end
-
       def arity()      @type.arity end
       def tuples()     @tuples.to_a end
-      def unwrap()     TupleSet.unwrap(self) end
-      def size()       tuples.size end
-      def empty?()     tuples.empty? end
+      def size()       @tuples.size end
+      def empty?()     @tuples.empty? end
       def contains?(a) a.all?{|e| tuples.member?(e)} end
       def ljoin(ts)    wrap(ts).join(self) end
 
@@ -238,10 +235,6 @@ module Arby
       alias_method :-, :difference
       alias_method :"-=", :difference!
       alias_method :"+=", :union!
-
-      def hash()    TupleSet.unwrap(self).hash end
-      def ==(other) TupleSet.unwrap(self) == TupleSet.unwrap(other) end
-      alias_method  :eql?, :==
 
       def inspect() "{" + @tuples.map(&:to_s).join(",\n  ") + "}" end
       def to_s()    TupleSet.unwrap(self).to_s end
