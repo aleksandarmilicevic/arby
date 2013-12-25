@@ -371,11 +371,29 @@ module Arby
       class SigExpr < Var
         attr_reader :__sig
         def initialize(sig)
-          super(sig.relative_name, Arby::Ast::AType.get!(sig))
+          TypeChecker.check_sig_class(sig)
+          super(sig.relative_name, sig.to_atype)
           @__sig = sig
         end
         def to_s()         @__sig ? @__sig.relative_name : "" end
-        def exe_concrete() __sig end
+        def exe_concrete() @__sig end
+      end
+
+      # ============================================================================
+      # == Class +AtomExpr+
+      #
+      # TODO
+      # ============================================================================
+      class AtomExpr < Var
+        attr_reader :__atom
+        def initialize(atom)
+          sig = atom.class
+          TypeChecker.check_sig_class(sig)
+          super(sig.relative_name, sig.to_atype)
+          @__atom = atom
+        end
+        def to_s()         @__atom.label end
+        def exe_concrete() @__atom end
       end
 
       # ============================================================================
@@ -428,7 +446,7 @@ module Arby
       end
 
       # ============================================================================
-      # == Module +MAtomExpr+
+      # == Module +MImplicitInst+
       #
       # TODO
       # ============================================================================
