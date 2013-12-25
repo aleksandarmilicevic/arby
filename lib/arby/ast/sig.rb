@@ -44,11 +44,11 @@ module Arby
           obj
         end
 
-        def to_arby_expr() Expr::SigExpr.new(self) end
-        def e()            to_arby_expr() end
-        def f(fname)
-          meta().field(fname)
-        end
+        def to_atype() UnaryType.get!(self) end
+        def to_expr()  Expr::SigExpr.new(self) end
+        def e()        to_expr() end
+        def f(fname)   meta().field(fname) end
+        alias_method   :to_arby_expr, :to_expr
 
         def add_method_for_field(fld)
           unless respond_to?(fld.name.to_sym)
@@ -73,7 +73,7 @@ module Arby
         end
 
         def |(*args)
-          AType.get!(self).send :|, *args
+          to_atype.send :|, *args
         end
 
         def method_missing(sym, *args, &block)
@@ -173,9 +173,12 @@ module Arby
         base.send :__created
       end
 
-      def meta()  self.class.meta end
-      def arity() 1 end
-      def to_s()  @label end
+      def meta()     self.class.meta end
+      def arity()    1 end
+      def to_s()     @label end
+      def to_atype() UnaryType.get!(self.class) end
+      def to_expr()  Expr::AtomExpr.new(self) end
+      def to_ts()    TupleSet.wrap(self, to_atype) end
 
       def initialize(*args)
         super()
