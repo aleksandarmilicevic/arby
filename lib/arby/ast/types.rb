@@ -646,11 +646,12 @@ module Arby
       def args()              @args end
 
       def to_s
-        if @type.arity > 1
-          "#{@mult} (#{@type.to_s})"
-        else
-          "#{@mult} #{@type.to_s}"
-        end
+        ts = @type.arity > 1 ? "(#{@type.to_s})" : "#{@type.to_s}"
+        mm = (Array(@mods) + Array(@mult)).join(" ")
+        mm = mm + " " unless mm.empty?
+        as = Array(@args).reject{|x| x.respond_to?(:empty?) && x.empty?}.join(", ")
+        as = "[#{as}]" unless as.empty?
+        "#{mm}#{ts}#{as}"
       end
     end
 
