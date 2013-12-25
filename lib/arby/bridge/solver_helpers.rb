@@ -2,7 +2,7 @@ module Arby
   module Bridge
     module SolverHelpers
 
-      def find_instance(pred=nil, scope="")
+      def solve(pred=nil, scope="")
         require 'arby/bridge/compiler'
         require 'arby/bridge/solution'
 
@@ -19,7 +19,11 @@ module Arby
         # puts als_model
         # puts "---"
         comp = Arby::Bridge::Compiler.compile(als_model)
-        sol = comp.execute_command(cmd_name)
+        comp.execute_command(cmd_name)
+      end
+
+      def find_instance(pred=nil, scope="")
+        sol = solve(pred, scope)
         if sol.satisfiable?
           sol.arby_instance
         else

@@ -1,5 +1,6 @@
 require 'arby/bridge/imports'
 require 'arby/bridge/solution'
+require 'sdg_utils/timing/timer'
 
 module Arby
   module Bridge
@@ -31,8 +32,10 @@ module Arby
       # @see Compiler.execute_command
       def execute_command(cmd_idx_or_name)
         fail_if_not_parsed
-        a4sol = self.class.execute_command(@a4world, cmd_idx_or_name)
-        Solution.new(a4sol, self)
+        a4sol = @timer.time_it("execute_command") {
+          self.class.execute_command(@a4world, cmd_idx_or_name)
+        }
+        Solution.new(a4sol, self, @timer.last_time)
       end
 
       private
@@ -44,6 +47,7 @@ module Arby
       def initialize(als_model)
         @rep       = nil # we don't care to listen to reports
         @als_model = als_model
+        @timer     = SDGUtils::Timing::Timer.new
       end
 
       # =================================================================

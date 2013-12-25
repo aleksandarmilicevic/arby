@@ -144,10 +144,11 @@ module Arby
     end
 
     class Solution
-      def initialize(a4sol, compiler=nil)
+      def initialize(a4sol, compiler=nil, solving_time=nil)
         @a4sol = a4sol
         @compiler = compiler
         @instance = nil
+        @solving_time = solving_time
       end
 
       def _a4sol()   @a4sol end
@@ -159,6 +160,8 @@ module Arby
         fail_if_no_solution
         @a4sol.satisfiable
       end
+
+      def solving_time() @solving_time end
 
       # Translates the underlying solution from Alloy to aRby:
       #
