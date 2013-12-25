@@ -24,10 +24,12 @@ class SudokuTest < Test::Unit::TestCase
 
   def test_instance
     puts "solving sudoku..."
-    inst = ArbyModels::SudokuModel.find_instance :solved, "for 1 but 5 Int"
-    assert inst, "instance not found"
+    sol = ArbyModels::SudokuModel.solve :solved, "for 1 but 5 Int"
+    puts "solving time: #{sol.solving_time}s"
+
+    assert sol.satisfiable?, "instance not found"
     puts
-    puts inst.atoms.first
+    puts sol.arby_instance.atoms.first.print
   end
 
   def test_pi
@@ -44,10 +46,14 @@ class SudokuTest < Test::Unit::TestCase
 """
     num_given = 26
     puts
-    puts s.to_s
+    puts s.print
     bounds = s.partial_instance
     assert_equal num_given, bounds.get_lower(Sudoku.grid).size
     assert_equal (81-num_given)*9 + num_given, bounds.get_upper(Sudoku.grid).size
+    assert_equal 1, bounds.get_lower(Sudoku).size
+    assert_equal 1, bounds.get_upper(Sudoku).size
+    assert_equal 10, bounds.get_lower(Int).size
+    assert_equal 10, bounds.get_upper(Int).size
 
     # inst = s.find_instance :solved, "for 1 but 5 Int"
     # puts inst.skolem(inst.skolems.first)
