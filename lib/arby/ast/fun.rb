@@ -98,7 +98,7 @@ module Arby
         def ensure_bool_ret(hash)
           rt = hash[:ret_type]
           unless rt.nil? || Arby::Ast::NoType === rt
-            at = Arby::Ast::AType.get(rt)
+            at = Arby::Ast::AType.get!(rt)
             msg = "expected bool return type, got #{at}"
             raise ArgumentError, msg unless (at.isBool? rescue false)
           end
@@ -123,7 +123,7 @@ module Arby
         @name              = check_iden hash[:name].to_s.to_sym, "function name"
         @arby_method_name = "#{@name}_alloy"
         @args              = hash[:args] || []
-        @ret_type          = Arby::Ast::AType.get(hash[:ret_type])
+        @ret_type          = Arby::Ast::AType.get!(hash[:ret_type])
         @body              = hash[:body]
       end
 

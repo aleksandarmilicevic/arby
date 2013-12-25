@@ -12,8 +12,9 @@ module Arby
     # to extend a sig from the +String+ class).
     #-----------------------------------------------------
     class TypeError < StandardError
-      def self.raise_coercion_error(sym, cls)
-        msg = "`#{sym}:#{sym.class}' cannot be converted to type (i.e., #{cls})"
+      def self.raise_coercion_error(sym, cls=nil)
+        msg = "`#{sym}:#{sym.class}' cannot be converted to type"
+        msg += "(i.e., #{cls})" if cls
         raise TypeError, msg
       end
     end
@@ -40,10 +41,10 @@ module Arby
           lhs <= rhs
       end
 
-      # @param type - anything that can be converted to +AType+ via +AType.get+
+      # @param type - anything that can be converted to +AType+ via +AType.get!+
       # @param tuple [Array]
       def typecheck!(type, tuple)
-        atype = AType.get(type)
+        atype = AType.get!(type)
         tuple = Array(tuple)
         msg = "tuple #{tuple} doesn't typecheck against #{atype}"
         raise TypeError, "arities differ: #{msg}" unless atype.arity == tuple.size

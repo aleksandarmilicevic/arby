@@ -79,7 +79,7 @@ class DslPredTest < Test::Unit::TestCase
   def notype() Arby::Ast::NoType.new end
 
   def atype
-    lambda {|cls| Arby::Ast::AType.get(cls)}
+    lambda {|cls| Arby::Ast::AType.get!(cls)}
   end
 
   def get_funs(sig)

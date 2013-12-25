@@ -30,7 +30,7 @@ module Arby
         when ::Arby::Ast::Expr::MExpr
           ::Arby::Ast::Expr::UnaryExpr.send mod_smbl, type
         else
-          atype = ::Arby::Ast::AType.get(type)
+          atype = ::Arby::Ast::AType.get!(type)
           atype.apply_multiplicity(mod_smbl)
         end
       end

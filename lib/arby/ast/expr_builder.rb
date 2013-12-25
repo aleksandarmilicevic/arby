@@ -149,35 +149,34 @@ module Arby
 
         when Ops::NO, Ops::SOME, Ops::LONE, Ops::ONE,
           # TODO type check: all operand types are relations
-          Arby::Ast::AType.get(:Bool)
+          Arby::Ast::TypeConsts::Bool
 
         when Ops::EQUALS, Ops::NOT_EQUALS,Ops::IN, Ops::NOT_IN
-          Arby::Ast::AType.get(:Bool)
+          Arby::Ast::TypeConsts::Bool
 
         when Ops::IPLUS, Ops::IMINUS, Ops::REM, Ops::DIV, Ops::MUL, Ops::PLUSPLUS,
              Ops::SHL, Ops::SHA, Ops::SHR
           #TODO type check: all operand types are integer
-          Arby::Ast::AType.get(:Integer)
+          Arby::Ast::TypeConsts::Int
 
         when Ops::LT, Ops::LTE, Ops::GT, Ops::GTE, Ops::NOT_LT,
              Ops::NOT_LTE, Ops::NOT_GT, Ops::NOT_GTE
           #TODO type check: all operand types are integer
-          Arby::Ast::AType.get(:Bool)
+          Arby::Ast::TypeConsts::Bool
 
         when Ops::AND, Ops::OR, Ops::IFF, Ops::IMPLIES, Ops::NOT
           #TODO type check: all operand types are boolean
-          Arby::Ast::AType.get(:Bool)
+          Arby::Ast::TypeConsts::Bool
 
         when Ops::CARDINALITY
           # type check: all operand types are relations
-          Arby::Ast::AType.get(:Integer)
+          Arby::Ast::TypeConsts::Int
 
         when Ops::ALLOF, Ops::SOMEOF, Ops::NONEOF,Ops::ONEOF, Ops::LONEOF
-          Arby::Ast::AType.get(:Bool)
+          Arby::Ast::TypeConsts::Bool
 
         when Ops::SUM
-          Arby::Ast::AType.get(:Integer)
-
+          Arby::Ast::TypeConsts::Int
         end
       end
     end

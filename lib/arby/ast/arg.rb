@@ -57,7 +57,7 @@ module Arby
         else
           raise ArgumentError, "expected either a hash or a name/type pair; got `#{args}'"
         end
-        @type = AType.get(@expr) rescue nil
+        @type = AType.get(@expr) # nil is ok at this point
       end
 
       def expr() @resolved_expr ||= Expr.resolve_expr(@expr, self, "expression") end

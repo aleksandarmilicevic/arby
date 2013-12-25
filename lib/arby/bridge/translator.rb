@@ -79,8 +79,6 @@ module Arby
       def _to_tuple_set(inst, ts)
         tuples = ts.tuples.map do |tuple|
           atoms = tuple.map{|a| inst.atom!(a.label)}
-          # type = tuple.map{|a| _a4type_to_atype!(a.a4type)}
-          # Tuple.wrap(value, Arby::Ast::AType.get(type))
         end
         type = _type_to_atype!(ts.type)
         Arby::Ast::TupleSet.wrap(tuples, type)

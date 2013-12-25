@@ -73,7 +73,7 @@ module Arby
         end
 
         def |(*args)
-          AType.get(self).send :|, *args
+          AType.get!(self).send :|, *args
         end
 
         def method_missing(sym, *args, &block)

@@ -21,8 +21,8 @@ module SDGUtils
       # @see Arby::Ast::UnaryType
       # @see Arby::Ast::ProductType
       #--------------------------------------------------------
-      def *(rhs) ::Arby::Ast::AType.get(self) * rhs end
-      def **(rhs) ::Arby::Ast::AType.get(self) ** rhs end
+      def *(rhs) ::Arby::Ast::AType.get!(self) * rhs end
+      def **(rhs) ::Arby::Ast::AType.get!(self) ** rhs end
     end
   end
 end
@@ -44,7 +44,7 @@ class Class
 
   def set_of()   Arby::Dsl::MultHelper.set(self) end
   def is_sig?()  ancestors.member? Arby::Ast::ASig end
-  def to_atype() Arby::Ast::AType.get(self) end
+  def to_atype() Arby::Ast::AType.get!(self) end
 end
 
 class Object

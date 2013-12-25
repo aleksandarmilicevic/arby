@@ -15,9 +15,9 @@ module Arby
         cls.send :include, expr_mod
         cls.class_eval <<-RUBY, __FILE__, __LINE__+1
           def __name() #{name.inspect} end
-          def __type() @__atype ||= Arby::Ast::AType.get(#{type.inspect}) end
+          def __type() @__atype ||= Arby::Ast::AType.get!(#{type.inspect}) end
         RUBY
-        Expr.add_methods_for_type(sig_inst, AType.get(type), false)
+        Expr.add_methods_for_type(sig_inst, AType.get!(type), false)
       end
 
       def self.add_methods_for_type(target_inst, type, define_type_method=true)
@@ -154,7 +154,7 @@ module Arby
         end
 
         def set_type(type=nil)
-          @__type = Arby::Ast::AType.get(type) if type
+          @__type = Arby::Ast::AType.get!(type) if type
           Expr.add_methods_for_type(self, @__type, false) if @__type && !@__type.empty?
         end
 
@@ -371,7 +371,7 @@ module Arby
       class SigExpr < Var
         attr_reader :__sig
         def initialize(sig)
-          super(sig.relative_name, Arby::Ast::AType.get(sig))
+          super(sig.relative_name, Arby::Ast::AType.get!(sig))
           @__sig = sig
         end
         def to_s()         @__sig ? @__sig.relative_name : "" end
@@ -400,7 +400,7 @@ module Arby
         attr_reader :__value
         def initialize(value)
           #TODO: define some constants in AType for built-in types
-          super(Arby::Ast::AType.get(Integer))
+          super(Arby::Ast::TypeConsts::Int)
           @__value = value
           @__op = Ops::NOOP
         end

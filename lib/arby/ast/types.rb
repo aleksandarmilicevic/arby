@@ -33,8 +33,13 @@ module Arby
           if obj.empty?
             NoType.new
           else
-            dom = AType.get(obj.first)
-            obj[1..-1].reduce(dom){|acc, o| ProductType.new(acc, AType.get(o))}
+            col_types = obj.map{|o| AType.get(o)}
+            if col_types.none?(&:nil?)
+              dom = col_types.first
+              col_types[1..-1].reduce(dom){|acc, t| ProductType.new(acc, t)}
+            else
+              nil
+            end
           end
         when SDGUtils::DSL::MissingBuilder
           ans = UnaryType.new(obj)
@@ -68,14 +73,14 @@ module Arby
         end
       end
 
-      def self.product(lhs, rhs) ProductType.new(AType.get(lhs), AType.get(rhs)) end
-      def self.transpose(t)      AType.get(t.to_ary.reverse) end
+      def self.product(lhs, rhs) ProductType.new(AType.get!(lhs), AType.get!(rhs)) end
+      def self.transpose(t)      AType.get!(t.to_ary.reverse) end
       def self.join(lhs, rhs)
-        lhs, rhs = AType.get(lhs), AType.get(rhs)
+        lhs, rhs = AType.get!(lhs), AType.get!(rhs)
         lhs_range = lhs.range
         rhs_domain = rhs.domain
         if not disjoint?(lhs_range, rhs_domain)
-          AType.get(lhs.to_ary[0...-1] + rhs.to_ary[1..-1])
+          AType.get!(lhs.to_ary[0...-1] + rhs.to_ary[1..-1])
         else
           NoType.new
         end
@@ -94,7 +99,7 @@ module Arby
       def self.project(type, *indexes)
         indexes = indexes.map{|i| Array(i)}.flatten
         cols = type.to_ary
-        AType.get(indexes.map{|i| cols[i]})
+        AType.get!(indexes.map{|i| cols[i]})
       end
 
       def self.union(lhs, rhs)
@@ -114,7 +119,7 @@ module Arby
       end
 
       def to_ruby_type
-        map{|u| (u.klass rescue nil) or u}
+        map{|u| (u.klass rescue nil) || u.class}
       end
 
       def ==(other) other.is_a?(AType) && to_ruby_type == other.to_ruby_type end
@@ -387,9 +392,12 @@ module Arby
             self.get(sym.name)
           when String, Symbol
             sym = sym.to_sym
-            builtin = @@built_in_types[sym]
-            mgr = Arby::Dsl::ModelBuilder.get
-            builtin || UnresolvedRefColType.new(sym, mgr && mgr.scope_module)
+            @@built_in_types[sym] or 
+              begin
+                require 'arby/dsl/model_builder'
+                mgr = Arby::Dsl::ModelBuilder.get
+                UnresolvedRefColType.new(sym, mgr && mgr.scope_module)
+              end
           else
             nil
           end
@@ -651,6 +659,7 @@ module Arby
 
       Univ1 = UnaryType.new(Object)
       Int   = UnaryType.new(Integer)
+      Bool  = UnaryType.new(:Bool)
       Seq   = ProductType.new(Int, Univ1)
 
       def Int() TypeConsts::Int end
@@ -663,6 +672,8 @@ module Arby
           nil
         end
       end
+
+      def self.get!(sym) self.get(sym) or TypeError.raise_type_coercion_error(sym) end
     end
 
   end

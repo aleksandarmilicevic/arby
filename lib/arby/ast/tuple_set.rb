@@ -48,7 +48,7 @@ module Arby
 
       def initialize(type, atoms)
         atoms = Array(atoms) #TODO: fail if there are nils .reject(&:nil?)
-        type ||= AType.get(atoms.map(&:class))
+        type ||= AType.get!(atoms.map(&:class))
         TypeChecker.typecheck(type, atoms)
         # type.arity == 1 ? super(atoms.first) : super(atoms)
         @type = type
@@ -60,7 +60,7 @@ module Arby
       public
 
       def self.wrap(t, type=nil)
-        type = AType.get(type) if type
+        type = AType.get!(type) if type
         case t
         when Tuple then t
         else
@@ -135,7 +135,7 @@ module Arby
       public
 
       def self.wrap(t, type=nil)
-        type = AType.get(type) if type
+        type = AType.get!(type) if type
         case t
         when TupleSet then t
         else
@@ -164,6 +164,8 @@ module Arby
       def tuples()     @tuples.to_a end
       def size()       @tuples.size end
       def empty?()     @tuples.empty? end
+      def clear!()     @tuples.clear end
+
       def contains?(a) a.all?{|e| tuples.member?(e)} end
       def ljoin(ts)    wrap(ts).join(self) end
 
