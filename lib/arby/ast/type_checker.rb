@@ -12,6 +12,10 @@ module Arby
     # to extend a sig from the +String+ class).
     #-----------------------------------------------------
     class TypeError < StandardError
+      def self.raise_coercion_error(sym, cls)
+        msg = "`#{sym}:#{sym.class}' cannot be converted to type (i.e., #{cls})"
+        raise TypeError, msg
+      end
     end
 
     class ResolveError < StandardError
@@ -24,10 +28,16 @@ module Arby
     module TypeChecker
       extend self
 
+      # def check_subtype(expected, actual)
+      #   Class === expected &&
+      #     Class === actual &&
+      #     actual <= expected #TODO: incomplete
+      # end
+
       def check_subtype(expected, actual)
-        Class === expected &&
-          Class === actual &&
-          actual <= expected #TODO: incomplete
+        lhs = AType.get(actual) and
+          rhs = AType.get(expected) and
+          lhs <= rhs
       end
 
       # @param type - anything that can be converted to +AType+ via +AType.get+
@@ -40,15 +50,12 @@ module Arby
         raise TypeError, msg unless atype === tuple
       end
 
-      def assert_type!(type)
-        raise TypeError, "no type given: #{type}" unless AType === type && type.arity > 0
-      end
-
       def typecheck(type, tuple) Arby.conf.typecheck and typecheck!(type, tuple) end
       def assert_type(type)      Arby.conf.typecheck and assert_type!(type) end
+      def assert_arity(lhs, rhs) lhs.arity == rhs.arity end
 
-      def assert_arity(lhs, rhs)
-        lhs.arity == rhs.arity
+      def assert_type!(type)
+        raise TypeError, "no type given: #{type}" unless AType === type && type.arity > 0
       end
 
       def assert_arity!(lhs, rhs)

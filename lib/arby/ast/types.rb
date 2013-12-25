@@ -40,7 +40,15 @@ module Arby
           ans = UnaryType.new(obj)
           ans.apply_args(obj.args)
         else
-          UnaryType.new(obj)
+          UnaryType.get(obj)
+        end
+      end
+
+      def self.get!(obj, allow_nil=true)
+        if obj.nil? && allow_nil
+          nil
+        else
+          self.get(obj, allow_nil) or TypeError.raise_coercion_error(obj, self)
         end
       end
 
@@ -106,17 +114,12 @@ module Arby
       end
 
       def to_ruby_type
-        map(&:klass)
+        map{|u| (u.klass rescue nil) or u}
       end
 
-      def ==(other)
-        return false unless AType === other
-        to_ruby_type == other.to_ruby_type
-      end
-
-      def hash
-        to_ruby_type.hash
-      end
+      def ==(other) other.is_a?(AType) && to_ruby_type == other.to_ruby_type end
+      def hash()    to_ruby_type.hash end
+      alias_method  :eql?, :==
 
       def instantiated?() true end
 
@@ -228,9 +231,25 @@ module Arby
         true
       end
 
+      def <(other)  _subtype_cmp(:<, other) end
+      def <=(other) _subtype_cmp(:<=, other) end
+      def >(other)  _subtype_cmp(:>, other) end
+      def >=(other) _subtype_cmp(:>=, other) end
+
       def to_alloy
         Arby::Utils::AlloyPrinter.export_to_als(self)
       end
+
+      private
+
+      def _subtype_cmp(cmp_op, other)
+        return false unless other.is_a?(AType)
+        return false unless self.arity == other.arity
+        rlhs = self.to_ruby_type
+        rrhs = other.to_ruby_type
+        (0...self.arity).to_a.all?{|idx| rlhs[idx].send(cmp_op, rrhs[idx])}
+      end
+
     end
 
     class DependentType
@@ -347,8 +366,6 @@ module Arby
 
         def self.get(sym)
           case sym
-          when NilClass
-            raise TypeError, "nil is not a valid type"
           when ColType
             sym
           when Module
@@ -374,8 +391,12 @@ module Arby
             mgr = Arby::Dsl::ModelBuilder.get
             builtin || UnresolvedRefColType.new(sym, mgr && mgr.scope_module)
           else
-            raise TypeError, "`#{sym}' must be Module or Symbol or String, instead it is #{sym.class}"
+            nil
           end
+        end
+
+        def self.get!(sym)
+          self.get(sym) or TypeError.raise_type_coercion_error(sym, self)
         end
 
         def primitive?
@@ -445,8 +466,11 @@ module Arby
         end
       end
 
+      def self.get(c)  cls = ColType.get(c) and UnaryType.new(cls) end
+      def self.get!(c) UnaryType.new(c) end
+
       def initialize(cls)
-        @cls = ColType.get(cls)
+        @cls = ColType.get!(cls)
         freeze unless @cls.instance_of?(ColType::UnresolvedRefColType)
       end
 
@@ -466,7 +490,7 @@ module Arby
       # Allowed to call this method only once, only to
       # update an unresolved type
       def update_cls(cls)
-        @cls = ColType.get(cls)
+        @cls = ColType.get!(cls)
         freeze
       end
 
