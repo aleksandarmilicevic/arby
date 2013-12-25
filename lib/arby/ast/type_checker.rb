@@ -14,8 +14,12 @@ module Arby
     class TypeError < StandardError
       def self.raise_coercion_error(sym, cls=nil)
         msg = "`#{sym}:#{sym.class}' cannot be converted to type"
-        msg += "(i.e., #{cls})" if cls
+        msg += " (i.e., #{cls})" if cls
         raise TypeError, msg
+      end
+
+      def self.raise_not_subtype(expected, actual)
+        raise TypeError, "`#{actual}' is not subtype of `#{expected}'"
       end
     end
 
@@ -29,16 +33,17 @@ module Arby
     module TypeChecker
       extend self
 
-      # def check_subtype(expected, actual)
-      #   Class === expected &&
-      #     Class === actual &&
-      #     actual <= expected #TODO: incomplete
-      # end
-
+      # Coerces both arguments (+expected+ and +actual+) to +AType+,
+      # and then calls +actual <= expected+.  If either type coercion
+      # fails returns nil.
       def check_subtype(expected, actual)
         lhs = AType.get(actual) and
           rhs = AType.get(expected) and
           lhs <= rhs
+      end
+
+      def check_subtype!(expected, actual)
+        check_subtype(expected, actual) or TypeError.raise_not_subtype(expected, actual)
       end
 
       # @param type - anything that can be converted to +AType+ via +AType.get!+

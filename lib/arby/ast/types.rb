@@ -392,7 +392,7 @@ module Arby
             self.get(sym.name)
           when String, Symbol
             sym = sym.to_sym
-            @@built_in_types[sym] or 
+            @@built_in_types[sym] or
               begin
                 require 'arby/dsl/model_builder'
                 mgr = Arby::Dsl::ModelBuilder.get
@@ -404,7 +404,7 @@ module Arby
         end
 
         def self.get!(sym)
-          self.get(sym) or TypeError.raise_type_coercion_error(sym, self)
+          self.get(sym) or TypeError.raise_coercion_error(sym, self)
         end
 
         def primitive?
