@@ -30,7 +30,7 @@ module Arby
       end
 
       # @see Compiler.execute_command
-      def execute_command(cmd_idx_or_name)
+      def execute_command(cmd_idx_or_name, bounds=nil)
         fail_if_not_parsed
         a4sol = @timer.time_it("execute_command") {
           self.class.execute_command(@a4world, cmd_idx_or_name)

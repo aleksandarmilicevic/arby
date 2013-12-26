@@ -69,6 +69,7 @@ module Arby
       end
 
       def atoms()   @atoms.dup() end
+      def atoms!()  @atoms end
       def atom(idx) @atoms[idx] end
       def size()    @atoms.size end
       def empty?()  @atoms.empty? end
@@ -162,6 +163,7 @@ module Arby
 
       def arity()      @type.arity end
       def tuples()     @tuples.to_a end
+      def tuples!()    @tuples end
       def size()       @tuples.size end
       def empty?()     @tuples.empty? end
       def clear!()     @tuples.clear end
@@ -238,8 +240,8 @@ module Arby
       alias_method :"-=", :difference!
       alias_method :"+=", :union!
 
-      def inspect() "{" + @tuples.map(&:to_s).join(",\n  ") + "}" end
-      def to_s()    TupleSet.unwrap(self).to_s end
+      def inspect(sep=",\n") "{" + @tuples.map(&:to_s).join(sep) + "}" end
+      def to_s()             TupleSet.unwrap(self).to_s end
 
       def assert_int_set!
         unless @type && @type.isInt?

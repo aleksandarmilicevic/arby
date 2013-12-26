@@ -163,7 +163,7 @@ module Arby
     module ASig
       include SDGUtils::ShadowMethods
 
-      attr_accessor :label
+      attr_accessor :label, :sig_id
 
       def self.included(base)
         base.extend(Arby::Dsl::StaticHelpers)
@@ -182,6 +182,13 @@ module Arby
 
       def initialize(*args)
         super()
+
+        cls = self.class
+        id_cnt = cls.instance_variable_get("@sig_id_cnt") || 0
+        @sid_id = id_cnt
+        @label = "#{cls.relative_name}$#{id_cnt}"
+        cls.instance_variable_set("@sig_id_cnt", id_cnt + 1)
+
         init_fld_values(*args)
         init_default_transient_values
         meta().register_atom(self)

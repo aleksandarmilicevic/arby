@@ -56,21 +56,15 @@ require 'sdg_utils/string_utils'
       def impl()               Proc === @impl ? @impl.call : @impl end
       def belongs_to_parent?() !!@belongs_to_parent end
 
-      def full_name()
-        if @parent
-          "#{@parent.name}.#{name}"
-        else
-          name
-        end
+      def full_name(relative=false)
+        @parent ? "#{relative ? @parent.relative_name : @parent.name}.#{name}" : name
       end
 
       def full_type()
-        if @parent
-          Arby::Ast::ProductType.new(@parent.to_atype, @type)
-        else
-          @type
-        end
+        @parent ? Arby::Ast::ProductType.new(@parent.to_atype, @type) : @type
       end
+
+      def full_relative_name() full_name(true) end
 
       # @param owner [Arby::Ast::ASig]
       # @param value [Object]

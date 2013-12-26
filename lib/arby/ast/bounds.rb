@@ -41,7 +41,47 @@ module Arby
       def get_lower(what) @lowers[what] end #dup ???
       def get_upper(what) @uppers[what] end #dup ???
 
+      # @return [Array] - list of all atoms appearing in all the bounds
+      def extract_universe
+        univ = Set.new
+        entries do |_, what, ts|
+          t = type_for_boundable(what)
+          unless t.all?(&:primitive?)
+            univ += ts.tuples!.map(&:atoms!).flatten
+          end
+        end
+        univ.to_a
+      end
+
+      def serialize
+        univ_str = Tuple.wrap(extract_universe).inspect
+        bounds_to_str = proc{|prefix, var|
+          var.map{ |what, ts|
+            if what == Arby::Ast::TypeConsts::Int
+              nil
+            else
+              what_name = case what
+                          when Class then what.relative_name
+                          when Field then what.full_relative_name
+                          else what.to_s
+                          end
+              "#{prefix}: #{what_name} #{ts.inspect('')}"
+            end
+          }.compact.join("\n")
+        }
+        """
+universe: #{univ_str}
+#{bounds_to_str.call(:lower, @lowers)}
+#{bounds_to_str.call(:upper, @uppers)}
+"""
+      end
+
       private
+
+      def entries
+        @lowers.each{|what, ts| yield(:lowers, what, ts)}
+        @uppers.each{|what, ts| yield(:uppers, what, ts)}
+      end
 
       def set_bound(where, what, tuple_set)
         tuple_set = TupleSet.wrap(tuple_set)
@@ -70,14 +110,20 @@ module Arby
         col[what] ||= TupleSet.wrap([], type)
       end
 
-      def check_boundable(what)
+      def type_for_boundable(what)
         case
         when Field === what                    then what.full_type
         when TypeChecker.check_sig_class(what) then what.to_atype
         when TypeConsts::Int == what           then TypeConsts::Int
         else
-          raise TypeError, "only Field instances or Sig class can be bound; got #{what}"
+          nil
         end
+      end
+
+      def check_boundable(what)
+        type_for_boundable(what) or (
+          msg = "`#{what}' not boundable (expected Field, Class<Sig>, or AType<Int>)" and
+          raise(TypeError, msg))
       end
     end
 
