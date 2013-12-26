@@ -51,7 +51,7 @@ module Arby
 
       def self.get!(obj, allow_nil=true)
         if obj.nil? && allow_nil
-          nil
+          NoType.new
         else
           self.get(obj, allow_nil) or TypeError.raise_coercion_error(obj, self)
         end
