@@ -2,6 +2,7 @@ require 'date'
 require 'sdg_utils/dsl/missing_builder'
 require 'sdg_utils/lambda/proc'
 require 'sdg_utils/meta_utils'
+require 'sdg_utils/proxy'
 
 module Arby
   module Ast
@@ -147,29 +148,29 @@ module Arby
       def isBlob?()    false end
       def isFile?()    false end
 
-      def |(args)                 self.apply_args(args) end
-      def [](*args)               self.apply_args(args) end
+      def |(args)             self.apply_args(args) end
+      def [](*args)           self.apply_args(args) end
 
-      def has_modifier?(mod)      modifiers.member?(mod.to_sym) end
-      def has_multiplicity?()     false end
+      def has_modifier?(mod)  modifiers.member?(mod.to_sym) end
+      def has_multiplicity?() false end
 
       # @return [Symbol]
-      def multiplicity()          (self.unary?) ? @@DEF_UNARY_MULT : @@DEF_HIGHER_MULT end
-      def has_multiplicity?()     false end
-      def modifiers()             [] end
-      def args()                  {} end
+      def multiplicity()      (self.unary?) ? @@DEF_UNARY_MULT : @@DEF_HIGHER_MULT end
+      def has_multiplicity?() false end
+      def modifiers()         [] end
+      def args()              {} end
 
       def set_of()  self.apply_multiplicity(:set) end
       def seq_of()  self.apply_multiplicity(:seq) end
       def one_of()  self.apply_multiplicity(:one) end
       def lone_of() self.apply_multiplicity(:lone) end
 
-      def apply_multiplicity(mult) ModType.new(self, mult.to_sym, [], {}) end
-      def apply_modifier(mod)      ModType.new(self, nil, [mod.to_sym], {}) end
+      def apply_multiplicity(mult) ModType.wrap(self, mult.to_sym, [], {}) end
+      def apply_modifier(mod)      ModType.wrap(self, nil, [mod.to_sym], {}) end
       # @param args [Array]
-      def apply_args(args)         ModType.new(self, nil, [], Array(args)) end
+      def apply_args(args)         ModType.wrap(self, nil, [], Array(args)) end
 
-      def remove_multiplicity()    ModType.new(@type, nil, modifiers, args) end
+      def remove_multiplicity()    ModType.wrap(@type, nil, modifiers, args) end
 
       def scalar?
         case multiplicity
@@ -599,12 +600,14 @@ module Arby
     #
     # Wraps another type and adds a multiplicity modifier
     # ======================================================
-    class ModType
+    class ModType < SDGUtils::Proxy
       include AType
+
+      AType.instance_methods(false).each{|m| undef_method m}
 
       attr_reader :mult, :mods, :type, :args
 
-      def self.new(type, mult, mods, args)
+      def self.wrap(type, mult, mods, args)
         msg = "Cannot set multiplicity to `#{mult}': " +
                "type `#{type}' already has multiplicity set to `#{type.multiplicity}'"
         raise ArgumentError, msg if type.has_multiplicity? && mult
@@ -623,9 +626,15 @@ module Arby
         end
       end
 
+      private
+
+      def self.new(*a) fail("don't call ModType.new directly; call +wrap+ instead") end
+
       # @param type [AType]
       # @param mult [Symbol]
       def initialize(type, mult, mods, args)
+        fail "type must not be nil" unless type
+        super(type)
         @type = type
         @mult = mult
         @mods = mods
@@ -633,12 +642,14 @@ module Arby
         freeze
       end
 
-      def arity()             @type.arity end
+      public
+
+      # don't forward +freeze+ to @type
+      def freeze
+        Object.instance_method(:freeze).bind(self).call
+      end
+
       def column!(idx)        (self.unary?) ? self : @type.column!(idx) end
-      def klass()             @type.klass end
-      def cls()               @type.cls end
-      def update_cls(*a)      @type.update_cls(*a) end
-      def type_of?(obj)       @type.type_of?(obj) end
 
       def has_multiplicity?() !!@mult end
       def multiplicity()      (has_multiplicity?) ? @mult : super end
