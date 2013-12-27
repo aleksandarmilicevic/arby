@@ -35,36 +35,35 @@ class SudokuTest < Test::Unit::TestCase
     puts Arby.meta.to_als
   end
 
-  def _test_instance
+  def test_instance
     puts "solving sudoku..."
     sol = ArbyModels::SudokuModel.solve :solved, "for 1 but 5 Int"
     puts "solving time: #{sol.solving_time}s"
 
     assert sol.satisfiable?, "instance not found"
-    puts
-    puts sol.arby_instance.atoms.first.print
+    # puts
+    # puts sol.arby_instance.atoms.first.print
   end
 
   def test_pi
     # puts
     # puts @@s.print
     bounds = @@s.partial_instance
-    puts bounds.serialize
+    # puts bounds.serialize
     assert_equal @@num_given, bounds.get_lower(Sudoku.grid).size
     assert_equal (81-@@num_given)*9 + @@num_given, bounds.get_upper(Sudoku.grid).size
     assert_equal 1, bounds.get_lower(Sudoku).size
     assert_equal 1, bounds.get_upper(Sudoku).size
-    assert_equal 10, bounds.get_lower(Int).size
-    assert_equal 10, bounds.get_upper(Int).size
+    assert_equal 10, bounds.get_ints.size
   end
 
-  def _test_instance_pi
+  def test_instance_pi
     puts "solving sudoku with partial instance..."
     sol = ArbyModels::SudokuModel.solve :solved, "for 1 but 5 Int", @@s.partial_instance
     puts "solving time: #{sol.solving_time}s"
 
     assert sol.satisfiable?, "instance not found"
-    puts
-    puts sol.arby_instance.atoms.first.print
+    # puts
+    # puts sol.arby_instance.atoms.first.print
   end
 end
