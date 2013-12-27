@@ -6,7 +6,7 @@ require 'arby/ast/type_checker'
 module Arby
   module Ast
 
-    # Rel: [Class(Arby::Ast::Sig), Arby::Ast::Field, Arby::Ast::TypeConsts::Int]
+    # Rel: [Class(Arby::Ast::Sig), Arby::Ast::Field]
     #
     # @attr sig_lowers, sig_uppers [Hash(Rel, Arby::Ast::TupleSet)]
     # @attr fld_lowers, fld_uppers [Hash(Rel, Arby::Ast::TupleSet)]
@@ -24,7 +24,9 @@ module Arby
       end
 
       def bound_exactly(what, tuple_set) bound(what, tuple_set, nil) end
-      def bound_int(lower)               bound_exactly(TypeConsts::Int, lower) end
+      def bound_int(*ints)
+        @ints = ints.map{|i| Array(i)}.flatten
+      end
 
       def add_lower(what, tuple_set)
         add_bound(@lowers, what, tuple_set)
@@ -40,6 +42,8 @@ module Arby
 
       def get_lower(what) @lowers[what] end #dup ???
       def get_upper(what) @uppers[what] end #dup ???
+
+      def get_ints()      @ints end
 
       # @return [Array] - list of all atoms appearing in all the bounds
       def extract_universe
@@ -60,8 +64,11 @@ module Arby
         # label atoms to make sure all of them have labels
         # in the format of '<sig_name>$<index>'
         @universe.group_by(&:class).each do |cls, atoms|
-          cls_name = cls <= Integer ? "Int" : cls.relative_name
-          atoms.each_with_index{|a, idx| @atom2label[a] = "#{cls_name}$#{idx}"}
+          if cls <= Integer
+            atoms.each{|i| @atom2label[i] = "#{i}"}
+          else
+            atoms.each_with_index{|a, x| @atom2label[a] = "#{cls.relative_name}$#{x}"}
+          end
         end
 
         t_to_s =  proc{|t|  "<" + t.map{|a| @atom2label[a]}.join(', ') + ">"}
@@ -69,23 +76,21 @@ module Arby
 
         bounds_to_str = proc{|prefix, var|
           var.map{ |what, ts|
-            if what == Arby::Ast::TypeConsts::Int
-              nil
-            else
-              what_name = case what
-                          when Class then what.relative_name
-                          when Field then what.full_relative_name
-                          else what.to_s
-                          end
-              "#{prefix}[#{what_name}] = #{ts_to_s[ts]}"
-            end
+            what_name = case what
+                        when Class then what.relative_name
+                        when Field then what.full_relative_name
+                        else what.to_s
+                        end
+            "#{prefix}[#{what_name}] = #{ts_to_s[ts]}"
           }.compact.join("\n")
         }
-        """
+        ser = """
 universe = #{t_to_s[@universe]}
 #{bounds_to_str[:lowers, @lowers]}
 #{bounds_to_str[:uppers, @uppers]}
 """
+        ser = "#{ser}ints = <#{@ints.join(', ')}>" if @ints
+        ser
       end
 
       private
@@ -126,7 +131,6 @@ universe = #{t_to_s[@universe]}
         case
         when Field === what                    then what.full_type
         when TypeChecker.check_sig_class(what) then what.to_atype
-        when TypeConsts::Int == what           then TypeConsts::Int
         else
           nil
         end
