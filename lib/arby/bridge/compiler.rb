@@ -33,7 +33,7 @@ module Arby
       def execute_command(cmd_idx_or_name, bounds=nil)
         fail_if_not_parsed
         a4sol = @timer.time_it("execute_command") {
-          self.class.execute_command(@a4world, cmd_idx_or_name)
+          self.class.execute_command(@a4world, cmd_idx_or_name, bounds)
         }
         Solution.new(a4sol, self, @timer.last_time)
       end
@@ -72,7 +72,7 @@ module Arby
         # @param a4world [Rjb::Proxy ~> CompModule]
         # @param cmd_idx_or_name [Int, String] - index or name of the command to execute
         # @return [Rjb::Proxy ~> A4Solution]
-        def execute_command(a4world, cmd_idx_or_name=0)
+        def execute_command(a4world, cmd_idx_or_name=0, bounds=nil)
           command_index = case cmd_idx_or_name
                           when Integer
                             cmd_idx_or_name
@@ -85,6 +85,7 @@ module Arby
           cmd = commands.get(command_index)
           opt = A4Options_RJB.new
           opt.solver = opt.solver.SAT4J #MiniSatJNI #SAT4J
+          opt.partialInstance = bounds
           TranslateAlloyToKodkod_RJB.execute_command(@rep, a4world.getAllSigs, cmd, opt)
         end
 
