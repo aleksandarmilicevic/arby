@@ -85,7 +85,7 @@ module Arby
           cmd = commands.get(command_index)
           opt = A4Options_RJB.new
           opt.solver = opt.solver.SAT4J #MiniSatJNI #SAT4J
-          opt.partialInstance = bounds
+          opt.partialInstance = bounds && bounds.serialize
           TranslateAlloyToKodkod_RJB.execute_command(@rep, a4world.getAllSigs, cmd, opt)
         end
 
