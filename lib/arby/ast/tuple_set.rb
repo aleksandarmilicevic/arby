@@ -43,6 +43,7 @@ module Arby
       include ArbyRelCommon
       include SDGUtils::MDelegator
       include TypeMethodsHelper
+      include Enumerable
 
       private
 
@@ -67,6 +68,8 @@ module Arby
           Tuple.new(type, t)
         end
       end
+
+      def each() atoms.each {|a| yield a } end
 
       def atoms()   @atoms.dup() end
       def atoms!()  @atoms end
@@ -120,6 +123,7 @@ module Arby
       include ArbyRelCommon
       include TypeMethodsHelper
       include SDGUtils::MDelegator
+      include Enumerable
 
       private
 
@@ -160,6 +164,8 @@ module Arby
           t
         end
       end
+
+      def each()       tuples.each {|t| yield t } end
 
       def arity()      @type.arity end
       def tuples()     @tuples.to_a end

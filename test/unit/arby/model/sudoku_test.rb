@@ -49,7 +49,6 @@ class SudokuTest < Test::Unit::TestCase
     # puts
     # puts @@s.print
     bounds = @@s.partial_instance
-    puts bounds.extract_universe
     puts bounds.serialize
     assert_equal @@num_given, bounds.get_lower(Sudoku.grid).size
     assert_equal (81-@@num_given)*9 + @@num_given, bounds.get_upper(Sudoku.grid).size

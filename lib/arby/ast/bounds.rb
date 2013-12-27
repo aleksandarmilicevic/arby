@@ -54,7 +54,19 @@ module Arby
       end
 
       def serialize
-        univ_str = Tuple.wrap(extract_universe).inspect
+        @universe = extract_universe
+        @atom2label = {}
+
+        # label atoms to make sure all of them have labels
+        # in the format of '<sig_name>$<index>'
+        @universe.group_by(&:class).each do |cls, atoms|
+          cls_name = cls <= Integer ? "Int" : cls.relative_name
+          atoms.each_with_index{|a, idx| @atom2label[a] = "#{cls_name}$#{idx}"}
+        end
+
+        t_to_s =  proc{|t|  "<" + t.map{|a| @atom2label[a]}.join(', ') + ">"}
+        ts_to_s = proc{|ts| "{" + ts.map{|t| t_to_s[t]}.join('') + "}"}
+
         bounds_to_str = proc{|prefix, var|
           var.map{ |what, ts|
             if what == Arby::Ast::TypeConsts::Int
@@ -65,14 +77,14 @@ module Arby
                           when Field then what.full_relative_name
                           else what.to_s
                           end
-              "#{prefix}: #{what_name} #{ts.inspect('')}"
+              "#{prefix}[#{what_name}] = #{ts_to_s[ts]}"
             end
           }.compact.join("\n")
         }
         """
-universe: #{univ_str}
-#{bounds_to_str.call(:lower, @lowers)}
-#{bounds_to_str.call(:upper, @uppers)}
+universe = #{t_to_s[@universe]}
+#{bounds_to_str[:lowers, @lowers]}
+#{bounds_to_str[:uppers, @uppers]}
 """
       end
 

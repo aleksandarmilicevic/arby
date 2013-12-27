@@ -163,7 +163,8 @@ module Arby
     module ASig
       include SDGUtils::ShadowMethods
 
-      attr_accessor :label, :sig_id
+      attr_accessor :label, :__label
+      attr_reader   :__atom_id
 
       def self.included(base)
         base.extend(Arby::Dsl::StaticHelpers)
@@ -175,7 +176,7 @@ module Arby
 
       def meta()     self.class.meta end
       def arity()    1 end
-      def to_s()     @label end
+      def to_s()     @label || @__label end
       def to_atype() UnaryType.get!(self.class) end
       def to_expr()  Expr::AtomExpr.new(self) end
       def to_ts()    TupleSet.wrap(self, to_atype) end
@@ -185,8 +186,8 @@ module Arby
 
         cls = self.class
         id_cnt = cls.instance_variable_get("@sig_id_cnt") || 0
-        @sid_id = id_cnt
-        @label = "#{cls.relative_name}$#{id_cnt}"
+        @__atom_id = id_cnt
+        @__label = "#{cls.relative_name}$#{id_cnt}"
         cls.instance_variable_set("@sig_id_cnt", id_cnt + 1)
 
         init_fld_values(*args)
