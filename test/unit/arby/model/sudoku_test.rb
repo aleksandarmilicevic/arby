@@ -4,6 +4,7 @@ require 'arby/helpers/test/dsl_helpers'
 require 'arby/initializer.rb'
 require 'arby/bridge/compiler'
 require 'arby/bridge/solution'
+require 'sdg_utils/timing/timer'
 
 class SudokuTest < Test::Unit::TestCase
   include Arby::Helpers::Test::DslHelpers
@@ -46,8 +47,6 @@ class SudokuTest < Test::Unit::TestCase
   end
 
   def test_pi
-    # puts
-    # puts @@s.print
     bounds = @@s.partial_instance
     # puts bounds.serialize
     assert_equal @@num_given, bounds.get_lower(Sudoku.grid).size
@@ -58,12 +57,18 @@ class SudokuTest < Test::Unit::TestCase
   end
 
   def test_instance_pi
+    timer = SDGUtils::Timing::Timer.new
+    puts
+    timer.time_it { puts @@s.print }
+    puts "print time: #{timer.last_time}"
+
     puts "solving sudoku with partial instance..."
     sol = ArbyModels::SudokuModel.solve :solved, "for 1 but 5 Int", @@s.partial_instance
     puts "solving time: #{sol.solving_time}s"
 
     assert sol.satisfiable?, "instance not found"
-    # puts
-    # puts sol.arby_instance.atoms.first.print
+    puts
+    timer.time_it { puts sol.arby_instance.atoms.first.print }
+    puts "print time: #{timer.last_time}"
   end
 end
