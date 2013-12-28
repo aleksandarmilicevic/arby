@@ -600,10 +600,8 @@ module Arby
     #
     # Wraps another type and adds a multiplicity modifier
     # ======================================================
-    class ModType < SDGUtils::Proxy
+    class ModType
       include AType
-
-      AType.instance_methods(false).each{|m| undef_method m}
 
       attr_reader :mult, :mods, :type, :args
 
@@ -634,11 +632,18 @@ module Arby
       # @param mult [Symbol]
       def initialize(type, mult, mods, args)
         fail "type must not be nil" unless type
-        super(type)
         @type = type
         @mult = mult
         @mods = mods
         @args = args
+
+        # forward all methods defined in @type.class to @type
+        type.class.instance_methods(false).each{ |m|
+          self.singleton_class.class_eval <<-RUBY, __FILE__, __LINE__+1
+            def #{m}(*a, &b) @type.send #{m.inspect}, *a, &b end
+          RUBY
+        }
+
         freeze
       end
 
@@ -650,7 +655,6 @@ module Arby
       end
 
       def column!(idx)        (self.unary?) ? self : @type.column!(idx) end
-
       def has_multiplicity?() !!@mult end
       def multiplicity()      (has_multiplicity?) ? @mult : super end
       def modifiers()         @mods end
