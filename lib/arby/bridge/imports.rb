@@ -45,10 +45,9 @@ module Arby
       def catch_alloy_errors
         begin
           yield
-        rescue Exception => e
-          ex = e.cause || e
+        rescue Exception => ex
           java_stack_trace = ex.getStackTrace.map(&:toString)
-          raise AlloyError.new(e, ex._classname, ex.getMessage,
+          raise AlloyError.new(ex, ex._classname, ex.getMessage,
                                java_stack_trace), "An error occured while running Alloy"
         end
       end
