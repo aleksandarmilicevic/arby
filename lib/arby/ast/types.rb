@@ -639,9 +639,11 @@ module Arby
 
         # forward all methods defined in @type.class to @type
         type.class.instance_methods(false).each{ |m|
-          self.singleton_class.class_eval <<-RUBY, __FILE__, __LINE__+1
-            def #{m}(*a, &b) @type.send #{m.inspect}, *a, &b end
-          RUBY
+          unless ModType.instance_methods(false).member?(m)
+            self.singleton_class.class_eval <<-RUBY, __FILE__, __LINE__+1
+              def #{m}(*a, &b) @type.send #{m.inspect}, *a, &b end
+            RUBY
+          end
         }
 
         freeze
