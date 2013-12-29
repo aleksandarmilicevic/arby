@@ -9,7 +9,7 @@ module ArbyModels
   alloy_model :SudokuModel do
     self::N = 9
 
-    one sig Sudoku [
+    sig Sudoku [
       grid: Int[0...N] * Int[0...N] * (lone Int[1..N])
     ] {
       # grid[Int][Int].in?(1..N) and

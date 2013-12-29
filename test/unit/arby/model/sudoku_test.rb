@@ -68,12 +68,22 @@ class SudokuTest < Test::Unit::TestCase
     old_grid = s.grid
 
     puts "solving sudoku with partial instance..."
-    sol = ArbyModels::SudokuModel.solve :solved, "for 1 but 5 Int", s.partial_instance
+    sol = ArbyModels::SudokuModel.solve :solved, "", s.partial_instance
     puts "solving time: #{sol.solving_time}s"
 
     assert sol.satisfiable?, "instance not found"
     assert_equal 81, s.grid.size
     assert old_grid.in?(s.grid)
+
+    a4bounds = sol._a4sol.getBoundsSer
+    a4sudoku_bounds = a4bounds.get("this/Sudoku")
+    a4grid_bounds = a4bounds.get("this/Sudoku.grid")
+
+    assert_equal 1, a4sudoku_bounds.a.size()
+    assert_equal 1, a4sudoku_bounds.b.size()
+
+    assert_equal 26, a4grid_bounds.a.size()
+    assert_equal 521, a4grid_bounds.b.size()
 
     puts
     @@timer.time_it { puts s.print }
