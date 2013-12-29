@@ -1,3 +1,4 @@
+require 'arby/ast/bounds'
 require 'arby/ast/instance'
 require 'arby/bridge/imports'
 require 'arby/bridge/helpers'
@@ -16,15 +17,15 @@ module Arby
     class Type
       include Helpers
 
-      # @param a4type [ Rjb::Proxy ~> edu.mit.csail.sdg.alloy4compiler.ast.Type,
-      #                 Array(Rjb::Proxy ~> edu.mit.csail.sdg.alloy4compiler.ast.PrimSig) ]
+      # @param a4type[Rjb::Proxy ~> edu.mit.csail.sdg.alloy4compiler.ast.Type,
+      #               Array(Rjb::Proxy ~> edu.mit.csail.sdg.alloy4compiler.ast.PrimSig)]
       def initialize(a4type)
         if Array === a4type
           @prim_sigs = a4type
         else
           @a4type = a4type
           union_types = a4type.fold
-          fail "Union types not supported: #{a4type.toString}" unless union_types.size == 1
+          fail "Union types not supported: #{a4type.toString}" unless union_types.size==1
           @prim_sigs = java_to_ruby_array(union_types.get(0))
         end
         @signature = @prim_sigs.map(&:toString).join(" -> ")
@@ -140,28 +141,41 @@ module Arby
           (0...t.arity).map{|col| Atom.new(nil, t.atom(col), [t.sig(col)]) }
         end
       end
-
     end
 
+    # -------------------------------------------------------------------
+    # Class +Solution+
+    #
+    # Wraps Alloy's +A4Solution+.  Represents a solution of a
+    # previously executed (model-finding) command.
+    # -------------------------------------------------------------------
     class Solution
-      def initialize(a4sol, compiler=nil, solving_time=nil)
+      def initialize(a4sol, compiler=nil, univ=nil, bounds=nil, solving_time=nil)
+        fail "no A4Solution given" unless a4sol
         @a4sol = a4sol
         @compiler = compiler
+        @univ = univ
+        @bounds = bounds
         @instance = nil
         @solving_time = solving_time
       end
 
       def _a4sol()   @a4sol end
       def compiler() @compiler end
-      def instance() @instance ||= SolutionConv.to_instance(@compiler._a4world, @a4sol) end
-      def next()     Solution.new(@a4sol.next(), @compiler) end
+      def univ()     @univ end
+      def bounds()   @bounds end
 
-      def satisfiable?
-        fail_if_no_solution
-        @a4sol.satisfiable
-      end
-
+      def satisfiable?() @a4sol.satisfiable end
       def solving_time() @solving_time end
+      def next()         Solution.new(@a4sol.next(), @compiler) end
+
+      # Converts the wrapped +A4Solution+ into +Arby::Ast::Instance+
+      #
+      # @see SolutionConv#to_instance
+      # @return [Arby::Ast::Instance]
+      def instance()
+        @instance ||= SolutionConv.to_instance(@compiler._a4world, @a4sol)
+      end
 
       # Translates the underlying solution from Alloy to aRby:
       #
@@ -176,17 +190,12 @@ module Arby
       # @return [Hash(String, Sig)] - a map of atom labels to aRby atoms
       def arby_instance()
         return Arby::Ast::Instance.new unless satisfiable?
-        @arby_instance ||= Translator.to_arby_instance(instance())
+        @arby_instance ||= Translator.to_arby_instance(instance(), univ)
       end
 
       private
 
-      def fail_if_no_solution
-        fail "no A4Solution given" unless @a4sol
-      end
-
       def fail_if_unsat
-        fail_if_no_solution
         fail "No instance found (the problem is unsatisfiable)" unless satisfiable?
       end
 

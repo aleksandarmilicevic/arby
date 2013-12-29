@@ -175,6 +175,7 @@ module Arby
       def clear!()     @tuples.clear end
 
       def contains?(a) a.all?{|e| tuples.member?(e)} end
+      def in?(a)       wrap(a).contains?(self) end
       def ljoin(ts)    wrap(ts).join(self) end
 
       def <(other)     int_cmp(:<, other) end

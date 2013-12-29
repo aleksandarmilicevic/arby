@@ -32,10 +32,14 @@ module Arby
       # @see Compiler.execute_command
       def execute_command(cmd_idx_or_name, bounds=nil)
         fail_if_not_parsed
+        univ = bounds && bounds.extract_universe
+        pi = bounds && bounds.serialize(univ)
         a4sol = @timer.time_it("execute_command") {
-          self.class.execute_command(@a4world, cmd_idx_or_name, bounds)
+          self.class.execute_command(@a4world, cmd_idx_or_name, pi)
         }
-        Solution.new(a4sol, self, @timer.last_time)
+        sol = Solution.new(a4sol, self, univ, bounds, @timer.last_time)
+        sol.arby_instance if univ && !univ.sig_atoms.empty?
+        sol
       end
 
       private
@@ -71,8 +75,9 @@ module Arby
         #
         # @param a4world [Rjb::Proxy ~> CompModule]
         # @param cmd_idx_or_name [Int, String] - index or name of the command to execute
+        # @param partialInstanceStr [String] - partial instance in a serialized format
         # @return [Rjb::Proxy ~> A4Solution]
-        def execute_command(a4world, cmd_idx_or_name=0, bounds=nil)
+        def execute_command(a4world, cmd_idx_or_name=0, partialInstanceStr=nil)
           command_index = case cmd_idx_or_name
                           when Integer
                             cmd_idx_or_name
@@ -84,8 +89,8 @@ module Arby
           commands = a4world.getAllCommands()
           cmd = commands.get(command_index)
           opt = A4Options_RJB.new
-          opt.solver = opt.solver.SAT4J #MiniSatJNI #SAT4J
-          opt.partialInstance = bounds && bounds.serialize
+          opt.solver = opt.solver.SAT4J #MiniSatJNI
+          opt.partialInstance = partialInstanceStr
           catch_alloy_errors {
             TranslateAlloyToKodkod_RJB.execute_command @rep, a4world.getAllSigs, cmd, opt
           }
@@ -122,7 +127,7 @@ module Arby
           for i in 0...num_commands
             return i if cmd_str = commands.get(i).label == cmd_name.to_s
           end
-          return -1
+          -1
         end
 
         def find_cmd_idx_by_name!(a4world, cmd_name)

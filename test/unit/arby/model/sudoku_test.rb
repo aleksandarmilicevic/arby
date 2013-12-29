@@ -18,7 +18,7 @@ class SudokuTest < Test::Unit::TestCase
     Arby.reset
     Arby.meta.restrict_to(ArbyModels::SudokuModel)
 
-    @@s = Sudoku.parse """
+    @@puzle = """
 ......95.
 .8.7..6..
 4...68...
@@ -49,7 +49,8 @@ class SudokuTest < Test::Unit::TestCase
   end
 
   def test_pi
-    bounds = @@s.partial_instance
+    s = Sudoku.parse @@puzle
+    bounds = s.partial_instance
     assert_equal @@num_given, bounds.get_lower(Sudoku.grid).size
     assert_equal (81-@@num_given)*9 + @@num_given, bounds.get_upper(Sudoku.grid).size
     assert_equal 1, bounds.get_lower(Sudoku).size
@@ -58,17 +59,24 @@ class SudokuTest < Test::Unit::TestCase
   end
 
   def test_instance_pi
+    s = Sudoku.parse @@puzle
+
     puts
-    @@timer.time_it { puts @@s.print }
+    @@timer.time_it { puts s.print }
     puts "print time: #{@@timer.last_time}"
 
+    old_grid = s.grid
+
     puts "solving sudoku with partial instance..."
-    sol = ArbyModels::SudokuModel.solve :solved, "for 1 but 5 Int", @@s.partial_instance
+    sol = ArbyModels::SudokuModel.solve :solved, "for 1 but 5 Int", s.partial_instance
     puts "solving time: #{sol.solving_time}s"
 
     assert sol.satisfiable?, "instance not found"
+    assert_equal 81, s.grid.size
+    assert old_grid.in?(s.grid)
+
     puts
-    @@timer.time_it { puts sol.arby_instance.atoms.first.print }
+    @@timer.time_it { puts s.print }
     puts "print time: #{@@timer.last_time}"
   end
 end

@@ -6,10 +6,50 @@ require 'arby/ast/type_checker'
 module Arby
   module Ast
 
+    # ----------------------------------------------------------------
+    # Class +Universe+
+    #
+    # @attr universe [Array] - list all all atoms (including ints)
+    # @attr atom2label [Hash<Object, String] - maps atoms from
+    #                                          +universe+ to unique
+    #                                          labels
+    # @attr label2atom [Hash<String, Object] - inverse of +atom2label+
+    # ----------------------------------------------------------------
+    class Universe
+
+      # Labels all atoms in +universe+ to make sure all of them have
+      # unique labels in the format of '<sig_name>$<index>'
+      #
+      # @param [Array] - list of all atoms
+      def initialize(universe)
+        @universe = universe.dup
+        @atom2label = {}
+        @universe.group_by(&:class).each do |cls, atoms|
+          if cls <= Integer
+            atoms.each{|i| @atom2label[i] = "#{i}"}
+          else
+            atoms.each_with_index{|a, x| @atom2label[a] = "#{cls.relative_name}$#{x}"}
+          end
+        end
+        @label2atom = @atom2label.invert
+        [@universe, @atom2label, @label2atom].each(&:freeze)
+        freeze
+      end
+
+      def atoms()          @universe end
+      def find_atom(label) @label2atom[label] end
+      def label(atom)      @atom2label[atom] end
+      def sig_atoms()      @universe.select{|a| a.is_a?(ASig)} end
+    end
+
+    # ----------------------------------------------------------------
+    # Class +Bounds
+    #
     # Rel: [Class(Arby::Ast::Sig), Arby::Ast::Field]
     #
     # @attr sig_lowers, sig_uppers [Hash(Rel, Arby::Ast::TupleSet)]
     # @attr fld_lowers, fld_uppers [Hash(Rel, Arby::Ast::TupleSet)]
+    # ----------------------------------------------------------------
     class Bounds
 
       def initialize
@@ -45,7 +85,7 @@ module Arby
 
       def get_ints()      @ints end
 
-      # @return [Array] - list of all atoms appearing in all the bounds
+      # @return [Universe] - list of all atoms appearing in all the bounds
       def extract_universe
         univ = Set.new
         entries do |_, what, ts|
@@ -54,24 +94,13 @@ module Arby
             univ += ts.tuples!.map(&:atoms!).flatten
           end
         end
-        univ.to_a
+        Universe.new univ.to_a
       end
 
-      def serialize
-        @universe = extract_universe
-        @atom2label = {}
+      def serialize(univ=nil)
+        univ ||= extract_universe
 
-        # label atoms to make sure all of them have labels
-        # in the format of '<sig_name>$<index>'
-        @universe.group_by(&:class).each do |cls, atoms|
-          if cls <= Integer
-            atoms.each{|i| @atom2label[i] = "#{i}"}
-          else
-            atoms.each_with_index{|a, x| @atom2label[a] = "#{cls.relative_name}$#{x}"}
-          end
-        end
-
-        t_to_s =  proc{|t|  "<" + t.map{|a| @atom2label[a]}.join(', ') + ">"}
+        t_to_s =  proc{|t|  "<" + t.map{|a| univ.label(a)}.join(', ') + ">"}
         ts_to_s = proc{|ts| "{" + ts.map{|t| t_to_s[t]}.join('') + "}"}
 
         bounds_to_str = proc{|prefix, var|
@@ -85,11 +114,11 @@ module Arby
           }.compact.join("\n")
         }
         ser = """
-universe = #{t_to_s[@universe]}
+universe = #{t_to_s[univ.atoms]}
 #{bounds_to_str[:lowers, @lowers]}
 #{bounds_to_str[:uppers, @uppers]}
 """
-        ser = "#{ser}ints = <#{@ints.join(', ')}>" if @ints
+        ser += "ints = <#{@ints.join(', ')}>" if @ints
         ser
       end
 

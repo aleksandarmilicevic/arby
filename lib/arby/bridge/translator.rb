@@ -18,9 +18,10 @@ module Arby
       # according to field values in +inst+.
       #
       # @param inst [Arby::Ast::Instance<Arby::Bridge::Atom, Arby::Bridge::TupleSet>]
+      # @param univ [Arby::Ast::Universe]
       # @return [Arby::Ast::Instance<Arby::Ast::Sig, Arby::Ast::TupleSet>]
-      def to_arby_instance(inst)
-        atoms   = inst.atoms.map{|a| _create_atom(a)}
+      def to_arby_instance(inst, univ=nil)
+        atoms   = inst.atoms.map{|a| _create_atom(a, univ)}
         tmpi    = Arby::Ast::Instance.new atoms
         flds    = inst.fields.map{|name| [name, _to_tuple_set(tmpi, inst.field(name))]}
         skolems = inst.skolems.map{|name| [name, _to_tuple_set(tmpi, inst.skolem(name))]}
@@ -49,11 +50,12 @@ module Arby
 
       # @param atom [Arby::Bridge::Atom]
       # @return [Arby::Ast::Sig]
-      def _create_atom(atom)
-        sig_cls = _type_to_sig!(atom.type)
-        a = sig_cls.new()
-        a.label = atom.label
-        a
+      def _create_atom(atom, univ=nil)
+        new_atom =
+          (univ && univ.find_atom(atom.label)) ||
+          _type_to_sig!(atom.type).new()
+        new_atom.label = atom.label
+        new_atom
       end
 
       def _type_to_atype(type)
