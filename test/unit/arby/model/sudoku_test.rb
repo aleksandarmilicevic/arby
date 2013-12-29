@@ -30,6 +30,7 @@ class SudokuTest < Test::Unit::TestCase
 .35......
 """
     @@num_given = 26
+    @@timer = SDGUtils::Timing::Timer.new
   end
 
   def test_als
@@ -42,13 +43,13 @@ class SudokuTest < Test::Unit::TestCase
     puts "solving time: #{sol.solving_time}s"
 
     assert sol.satisfiable?, "instance not found"
-    # puts
-    # puts sol.arby_instance.atoms.first.print
+    puts
+    @@timer.time_it { puts sol.arby_instance.atoms.first.print }
+    puts "print time: #{@@timer.last_time}"
   end
 
   def test_pi
     bounds = @@s.partial_instance
-    # puts bounds.serialize
     assert_equal @@num_given, bounds.get_lower(Sudoku.grid).size
     assert_equal (81-@@num_given)*9 + @@num_given, bounds.get_upper(Sudoku.grid).size
     assert_equal 1, bounds.get_lower(Sudoku).size
@@ -57,10 +58,9 @@ class SudokuTest < Test::Unit::TestCase
   end
 
   def test_instance_pi
-    timer = SDGUtils::Timing::Timer.new
     puts
-    timer.time_it { puts @@s.print }
-    puts "print time: #{timer.last_time}"
+    @@timer.time_it { puts @@s.print }
+    puts "print time: #{@@timer.last_time}"
 
     puts "solving sudoku with partial instance..."
     sol = ArbyModels::SudokuModel.solve :solved, "for 1 but 5 Int", @@s.partial_instance
@@ -68,7 +68,7 @@ class SudokuTest < Test::Unit::TestCase
 
     assert sol.satisfiable?, "instance not found"
     puts
-    timer.time_it { puts sol.arby_instance.atoms.first.print }
-    puts "print time: #{timer.last_time}"
+    @@timer.time_it { puts sol.arby_instance.atoms.first.print }
+    puts "print time: #{@@timer.last_time}"
   end
 end
