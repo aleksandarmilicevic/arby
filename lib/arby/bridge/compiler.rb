@@ -62,7 +62,7 @@ module Arby
         # @param als_model [String]
         # @return [Rjb::Proxy ~> CompModule]
         def parse(als_model)
-          CompUtil_RJB.parseEverything_fromString(@rep, als_model)
+          catch_alloy_errors{ CompUtil_RJB.parseEverything_fromString(@rep, als_model) }
         end
 
         # Takes a proxy to an Alloy module and an index of a command to
@@ -86,7 +86,9 @@ module Arby
           opt = A4Options_RJB.new
           opt.solver = opt.solver.SAT4J #MiniSatJNI #SAT4J
           opt.partialInstance = bounds && bounds.serialize
-          TranslateAlloyToKodkod_RJB.execute_command(@rep, a4world.getAllSigs, cmd, opt)
+          catch_alloy_errors {
+            TranslateAlloyToKodkod_RJB.execute_command @rep, a4world.getAllSigs, cmd, opt
+          }
         end
 
         # Takes a proxy to an Alloy module and returns a flat list of

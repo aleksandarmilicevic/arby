@@ -1,4 +1,5 @@
 require 'rjb'
+require 'sdg_utils/errors'
 
 module Arby
   module Bridge
@@ -25,6 +26,32 @@ module Arby
       out = Rjb::import('java.lang.System').out
       itr = Rjb::import('java.lang.Iterable')
 
+      class AlloyError < SDGUtils::Errors::ErrorWithCause
+        attr_reader :java_type, :java_message, :java_stack_trace
+        def initialize(cause, java_type, java_message, java_stack_trace)
+          super(cause)
+          @java_type        = java_type
+          @java_message     = java_message
+          @java_stack_trace = java_stack_trace
+        end
+
+        def backtrace()
+          cause_backtrace +
+            ["", "Java exception:", "  #{@java_type}: #{@java_message}"] +
+            @java_stack_trace.map{|s| "#{@@tab}#{@@tab}#{s}"}
+        end
+      end
+
+      def catch_alloy_errors
+        begin
+          yield
+        rescue Exception => e
+          ex = e.cause || e
+          java_stack_trace = ex.getStackTrace.map(&:toString)
+          raise AlloyError.new(e, ex._classname, ex.getMessage,
+                               java_stack_trace), "An error occured while running Alloy"
+        end
+      end
     end
   end
 end
