@@ -1,7 +1,5 @@
 Partial instance examples:
 
-  - sudoku
-
   - from Derek's and Emina's papers
  
        https://ece.uwaterloo.ca/~drayside/abz12-partial-instances.pdf
@@ -28,8 +26,14 @@ Staging examples:
 TODO: 
 
   - have model specific config options
+  - add interface for passing options when running solver
   - create some class corresponding to Alloy's CompModule
   - move all the initialization stuff from Arby.meta to CompModule
-  - ensure initialization before solving
   - unify the implementation of different kinds of relation (e.g., in
     relation.rb, tuple_set.rb, types.rb, etc.)
+
+DONE: 
+
+  - ensure initialization before solving
+  - sudoku
+
