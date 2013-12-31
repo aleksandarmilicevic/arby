@@ -7,6 +7,8 @@ Partial instance examples:
 
   - chameleon (by Alcino)
 
+  - sudoku
+
   - squander-style for pure functions
 
       - hamiltonian path    
@@ -22,8 +24,20 @@ Staging examples:
   - longest path
   - prim's algorithm
 
+Dynamic symmetry breaking:
+
+  - think of some examples
+
+Specification testing
+
+  - seq filtering
+
 
 TODO: 
+
+  - formalize scope computing
+
+  - implment libraries (e.g., ordering, seq)
 
   - have model specific config options
   - add interface for passing options when running solver
