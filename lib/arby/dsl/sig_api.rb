@@ -90,8 +90,8 @@ module Arby
       #------------------------------------------------------------------------
       def _field(name, type, hash={})
         type = Arby::Ast::AType.get!(type)
-        opts = hash.merge(type.args)
-        fld = meta.add_field(name, type, opts)
+        # opts = hash.merge(type.args)
+        fld = meta.add_field(name, type, hash)
         fld_accessors fld
         fld
       end
