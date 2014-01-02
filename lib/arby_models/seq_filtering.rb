@@ -1,6 +1,6 @@
 require 'arby/arby_dsl'
 
-Arby.conf.sym_exe.convert_missing_fields_to_joins = true
+# Arby.conf.sym_exe.convert_missing_fields_to_joins = true
 
 module ArbyModels
   extend Arby::Dsl
@@ -16,10 +16,9 @@ module ArbyModels
 
     pred filter[s: (seq A), ans: (seq A)] {
       filtered = s[Int].select{|a| a.x < 3}
-
       s.size == 4 and
       ans[Int] == filtered and
-      all(a: filtered) { ans.a.size == s.a.size } and
+      all(a: filtered) { ans.join(a).size == s.join(a).size } and
       all(i1: s.inds, i2: s.inds) {
         if i2 > i1 && filtered.contains?(s[i1] + s[i2])
           some(ii1: ans.inds, ii2: ans.inds) {
