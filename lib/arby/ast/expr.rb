@@ -98,13 +98,26 @@ module Arby
           else_cb = proc { not_expr_fail(e, parent, kind_in_parent) }
         end
         case e
-        when NilClass;   default_val || else_cb.call
-        when Integer;    IntExpr.new(e)
-        when MExpr;      e
-        when AType;      TypeExpr.new(e)
-        when TrueClass;  BoolConst::TRUE
-        when FalseClass; BoolConst::FALSE
-        when Range;      ExprBuilder.union(*e.map{|i| IntExpr.new(i)})
+        when NilClass   then default_val || else_cb.call
+        when Integer    then IntExpr.new(e)
+        when MExpr      then e
+        when AType      then TypeExpr.new(e)
+        when TrueClass  then BoolConst::TRUE
+        when FalseClass then BoolConst::FALSE
+        when Range
+          if e.begin.is_a?(Integer) && e.end.is_a?(Integer)
+            ExprBuilder.union(*e.map{|i| IntExpr.new(i)})
+          else
+            min = Expr.resolve_expr(e.begin)
+            max = Expr.resolve_expr(e.end)
+            TypeExpr.new(TypeConsts::Int).select{|i|
+              if e.exclude_end?
+                (i >= min).and(i < max)
+              else
+                (i >= min).and(i <= max)
+              end
+            }
+          end
         when Proc; resolve_expr(e.call, parent, kind_in_parent, default_val, &else_cb)
         else
           if e.respond_to? :to_arby_expr
@@ -153,6 +166,13 @@ module Arby
           set_type(type)
         end
 
+        def coerce(other)
+          other_expr = Expr.resolve_expr(other)
+          [other_expr, self]
+        rescue
+          raise TypeError, "#{self.class} can't be coerced into #{other.class}"
+        end
+
         def set_type(type=nil)
           @__type = Arby::Ast::AType.get!(type) if type
           Expr.add_methods_for_type(self, @__type, false) if @__type && !@__type.empty?
@@ -188,6 +208,7 @@ module Arby
         def <=(other)        ExprBuilder.apply(LTE, self, other) end
         def >(other)         ExprBuilder.apply(GT, self, other) end
         def >=(other)        ExprBuilder.apply(GTE, self, other) end
+        def <=>(other)       ExprBuilder.apply(IFF, self, other) end
 
         def in?(other)       ExprBuilder.apply(IN, self, other) end
         def not_in?(other)   ExprBuilder.apply(NOT_IN, self, other) end
@@ -199,15 +220,17 @@ module Arby
 
         def !()              ExprBuilder.apply(NOT, self) end
         def empty?()         ExprBuilder.apply(NO, self) end
-        def no?()            ExprBuilder.apply(NO, self) end
-        def some?()          ExprBuilder.apply(SOME, self) end
         def lone?()          ExprBuilder.apply(LONE, self) end
-        def one?()           ExprBuilder.apply(ONE, self) end
+        def no?(&blk)        _quant_or_mod(:no, NO, &blk) end
+        def some?(&blk)      _quant_or_mod(:exist, SOME, &blk) end
+        def one?(&blk)       _quant_or_mod(:one, ONE, &blk) end
+        def all?(&blk)       _blk_to_quant(:all, &blk) end
+        def select(&blk)     _blk_to_quant(:comprehension, &blk) end
+
+        def and(other)       ExprBuilder.apply(AND, self, other) end
+        def or(other)        ExprBuilder.apply(OR, self, other) end
 
         def size()           ExprBuilder.apply(CARDINALITY, self) end
-
-        def select(&blk) _blk_to_quant(:comprehension, &blk) end
-        def all?(&blk)   _blk_to_quant(:all, &blk) end
 
         def apply_call(fun, *args) CallExpr.new(self, fun, *args) end
         def apply_join(other)      ExprBuilder.apply(JOIN, self, other) end
@@ -257,6 +280,10 @@ module Arby
         end
 
         protected
+
+        def _quant_or_mod(quant_kind, mod_op, &blk)
+          blk ? _blk_to_quant(quant_kind, &blk) : ExprBuilder.apply(mod_op, self)
+        end
 
         # @param kind [:all, :some, :comprehension]
         def _blk_to_quant(kind, &blk)

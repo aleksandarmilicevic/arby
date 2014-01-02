@@ -229,7 +229,7 @@ module Arby
                     end
         if expr.comprehension?
           @out.p "{#{decl_str} | "
-          @out.pn expr.body.to_conjuncts, "\n"
+          @out.pn [expr.body]
           @out.p "}"
         else
           @out.pl "#{expr_kind} #{decl_str} {"
@@ -271,14 +271,15 @@ module Arby
       end
 
       def binaryexpr_to_als(be)
-        op_left, op_right =
-          case be.op
-          when JOIN;   ["."]
-          when SELECT; ["[", "]"]
-          else
-            [" #{be.op} "]
-          end
-        @out.p "#{enclose be.op, be.lhs}#{op_left}#{enclose be.op, be.rhs}#{op_right}"
+        fmt = case be.op
+              when JOIN    then "%{lhs}.%{rhs}"
+              when SELECT  then "%{lhs}[%{rhs}]"
+              when IPLUS   then "plus[%{lhs}, %{rhs}]"
+              when IMINUS  then "minus[%{lhs}, %{rhs}]"
+              else
+                "%{lhs} #{be.op} %{rhs}"
+              end
+        @out.p(fmt % {lhs: enclose(be.op, be.lhs), rhs: enclose(be.op, be.rhs)})
       end
 
       def callexpr_to_als(ce)
