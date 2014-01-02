@@ -46,6 +46,10 @@ module Arby
           Fun.new :assertion, hash
         end
 
+        def procedure(hash)
+          Fun.new(:procedure, hash)
+        end
+
         def for_method(owner, method_name)
           meth = owner.instance_method(method_name)
           body = meth.bind(Fun.dummy_instance(owner)).to_proc
@@ -133,6 +137,7 @@ module Arby
       def pred?()      @kind == :pred  end
       def fact?()      @kind == :fact  end
       def assertion?() @kind == :assertion  end
+      def procedure?() @kind == :procedure  end
 
       def arity()      args.size end
       def arg_types()  args.map(&:type) end

@@ -73,6 +73,10 @@ module Arby
         _create_and_add_fn(:assertion, *args, &block)
       end
 
+      def procedure(*args, &block)
+        _create_and_add_fn(:procedure, *args, &block)
+      end
+
       def method_missing(sym, *args, &block)
         return super if Arby.is_caller_from_arby?(caller[0])
         begin

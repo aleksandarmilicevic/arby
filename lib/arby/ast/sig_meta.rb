@@ -22,7 +22,7 @@ module Arby
       attr_reader :multiplicity, :placeholder
       attr_reader :extra
 
-      attr_hier_searchable :subsig, :field, :inv_field, :fun, :pred, :fact
+      attr_hier_searchable :subsig, :field, :inv_field, :fun, :pred, :fact, :procedure
 
       def initialize(sig_cls, placeholder=false, abstract=false)
         @sig_cls      = sig_cls
