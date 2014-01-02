@@ -1,4 +1,5 @@
 require 'my_test_helper'
+require 'arby/ast/bounds'
 require 'arby/bridge/compiler'
 require 'arby/bridge/solution'
 require 'arby_models/seq_filtering'
@@ -20,17 +21,31 @@ class SeqFilteringTest < Test::Unit::TestCase
     puts als_model
     puts "compiling..."
     compiler = Compiler.compile(als_model)
+
+    pi = Arby::Ast::Bounds.new
+    a_upper = Arby::Ast::TupleSet.wrap (1..4).map{|_| A.new}
+    pi.add_upper(A, a_upper)
+    pi.add_upper(A.x, a_upper * (2..3))
+    pi.bound_int(0..5)
+
     puts "solving..."
-    sol = compiler.execute_command(0)
-    max_iter = 3 #10000000000000
+    sol = compiler.execute_command(0, pi)
+
+    a4bounds = sol._a4sol.getBoundsSer
+    assert_equal 0, a4bounds.get("this/A").a.size()
+    assert_equal 4, a4bounds.get("this/A").b.size()
+    assert_equal 0, a4bounds.get("this/A.x").a.size()
+    assert_equal 8, a4bounds.get("this/A.x").b.size()
+
+    max_iter = 310000000000000
     iter = 0
+    puts "checking nexts"
     while sol.satisfiable? do
       break if iter > max_iter
       iter += 1
       inst = sol.arby_instance()
       s = to_arr inst.skolem("$filter_s")
       ans = to_arr inst.skolem("$filter_ans")
-      puts "checking #{pr s} -> #{pr ans}"
       check_filter(s, ans)
       sol = sol.next()
     end
@@ -41,7 +56,9 @@ class SeqFilteringTest < Test::Unit::TestCase
   end
 
   def check_filter(s, ans)
-    expected = s.select{|a| a.x < 3}
+    # puts "checking #{pr s} -> #{pr ans}"
+    # expected = s.select{|a| a.x < 3}
+    expected = ArbyModels::SeqFiltering.filter_i(s)
     assert_seq_equal expected, ans
   end
 

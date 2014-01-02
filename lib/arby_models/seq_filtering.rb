@@ -7,20 +7,18 @@ module ArbyModels
 
   alloy_model :SeqFiltering do
     sig A [
-      x: Int
-    ] {
-      x == 2 || x == 4
-    }
+      x: Int[2..3]
+    ]
 
     fun prevOccurrences[s: (seq A), idx: Int][set Int] {
       s.indsOf(s[idx]).select{|i| i < idx}
     }
 
     pred filter[s: (seq A), ans: (seq A)] {
-      filtered = s.elems.select{|a| a.x < 3}
+      filtered = s[Int].select{|a| a.x < 3}
 
       s.size == 4 and
-      ans.elems == filtered and
+      ans[Int] == filtered and
       all(a: filtered) { ans.a.size == s.a.size } and
       all(i1: s.inds, i2: s.inds) {
         if i2 > i1 && filtered.contains?(s[i1] + s[i2])
@@ -34,6 +32,17 @@ module ArbyModels
         end
       }
     }
+
+    procedure filter_i[s: (seq A)][seq A] do
+      # s.select{|a| a.x < 3}
+      idx = 0
+      ans = []
+      while idx < s.size
+        ans << s[idx] if s[idx].x < 3
+        idx += 1
+      end
+      ans
+    end
 
     run :filter, "for 4"
   end
