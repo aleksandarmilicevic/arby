@@ -656,7 +656,15 @@ module Arby
         Object.instance_method(:freeze).bind(self).call
       end
 
-      def column!(idx)        (self.unary?) ? self : @type.column!(idx) end
+      def arity()             @type.arity + (seq?() ? 1 : 0) end
+      def column!(idx)
+        if seq?
+          idx == 0 ? TypeConsts::Int : @type.column!(idx-1)
+        else
+          (self.unary?) ? self : @type.column!(idx)
+        end
+      end
+      def seq?()              @mult == :seq end
       def has_multiplicity?() !!@mult end
       def multiplicity()      (has_multiplicity?) ? @mult : super end
       def modifiers()         @mods end
