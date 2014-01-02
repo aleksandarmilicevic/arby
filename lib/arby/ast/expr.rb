@@ -31,7 +31,7 @@ module Arby
         elsif (Arby::Dsl::ModelDslApi >= range_cls rescue false)
           add_fun_methods   cls, range_cls.meta.all_funs
         end
-        if type.range.seq?
+        if type.seq? || type.range.seq?
           #TODO: do it the right way
           seq_flds = [Field.new(:name   => :elems,
                                 :parent => type,
@@ -234,6 +234,7 @@ module Arby
 
         def apply_call(fun, *args) CallExpr.new(self, fun, *args) end
         def apply_join(other)      ExprBuilder.apply(JOIN, self, other) end
+        alias_method :join, :apply_join
 
         def pick_and_apply(int_op, rel_op, *args)
           op = if args.first.respond_to?(:__type) &&

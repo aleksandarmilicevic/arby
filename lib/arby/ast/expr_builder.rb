@@ -109,7 +109,7 @@ module Arby
       # @param args [Array(Arby::Ast::MExpr)] --- operands
       def compute_type(op, *args)
         # TODO: check only when we care about the operand types
-        unless args.all?{|a| a.respond_to?(:__type) && a.__type}
+        unless args.all?{|a| a.respond_to?(:__type) && a.__type && !a.__type.empty?}
           return nil
         end
 
