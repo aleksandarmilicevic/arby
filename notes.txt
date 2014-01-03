@@ -27,6 +27,9 @@ Staging examples:
 Dynamic symmetry breaking:
 
   - think of some examples
+  - this will require adding additional constraints when asking for 
+    next solution, which might not be trivial (maybe Kodkod's
+    incremental solving can help)
 
 Specification testing
 
