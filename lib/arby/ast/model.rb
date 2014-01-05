@@ -1,7 +1,8 @@
 require 'arby/bridge/solver_helpers'
 require 'arby/arby_conf'
 require 'arby/ast/types'
-require 'arby/resolver.rb'
+require 'arby/resolver'
+require 'arby/utils/codegen_repo'
 require 'sdg_utils/caching/searchable_attr'
 
 module Arby
@@ -46,6 +47,16 @@ module Arby
         resolve_fields
         init_inv_fields
         eval_sig_bodies
+        # add getters for all fields
+        flds = self.sigs.map{|s| s.meta.fields + s.meta.inv_fields}.flatten
+        flds.each do |fld|
+          Arby::Utils::CodegenRepo.module_eval_method @ruby_module, fld.getter_sym,
+          <<-RUBY, __FILE__, __LINE__+1
+def #{fld.getter_sym}
+  #{fld.parent.name}.#{fld.getter_sym}
+end
+RUBY
+        end
         @resolved = true
       end
 
