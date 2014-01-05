@@ -30,7 +30,8 @@ module Arby
       end
 
       # @see Compiler.execute_command
-      def execute_command(cmd_idx_or_name, bounds=nil)
+      # @result [Arby::Bridge::Solution]
+      def execute_command(cmd_idx_or_name=0, bounds=nil)
         fail_if_not_parsed
         univ = bounds && bounds.extract_universe
         pi = bounds && bounds.serialize(univ)

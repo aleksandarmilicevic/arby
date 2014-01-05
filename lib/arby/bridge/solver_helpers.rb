@@ -1,3 +1,5 @@
+require 'arby/bridge/compiler'
+
 module Arby
   module Bridge
     module SolverHelpers
@@ -20,6 +22,11 @@ module Arby
         # puts "---"
         comp = Arby::Bridge::Compiler.compile(als_model)
         comp.execute_command(cmd_name, bounds)
+      end
+
+      def execute_command(cmd_idx_or_name=0, bounds=nil)
+        comp = Arby::Bridge::Compiler.compile(to_als)
+        comp.execute_command(cmd_idx_or_name, bounds)
       end
 
       def find_instance(pred=nil, scope="", bounds=nil)
