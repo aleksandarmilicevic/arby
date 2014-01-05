@@ -56,6 +56,8 @@ require 'sdg_utils/string_utils'
       def impl()               Proc === @impl ? @impl.call : @impl end
       def belongs_to_parent?() !!@belongs_to_parent end
 
+      def ~()                  @inv end
+
       def full_name(relative=false)
         @parent ? "#{relative ? @parent.relative_name : @parent.name}.#{name}" : name
       end

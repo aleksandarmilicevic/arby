@@ -218,6 +218,9 @@ module Arby
         def *(other)         join_closure(RCLOSURE, other) end
         def ^(other)         join_closure(CLOSURE, other) end
 
+        def closure()        ExprBuilder.apply(CLOSURE, self) end
+        def rclosure()       ExprBuilder.apply(RCLOSURE, self) end
+        def ~()              ExprBuilder.apply(TRANSPOSE, self) end
         def !()              ExprBuilder.apply(NOT, self) end
         def empty?()         ExprBuilder.apply(NO, self) end
         def lone?()          ExprBuilder.apply(LONE, self) end
@@ -675,8 +678,13 @@ module Arby
           ans
         end
 
+        def self.let(decl, body)
+          self.new(Ops::LET, decl, body)
+        end
+
         def all?()           op == Ops::ALLOF end
         def exist?()         op == Ops::SOMEOF end
+        def let?()           op == Ops::LET end
         def comprehension?() op == Ops::SETCPH end
 
         def kind()   op.sym end

@@ -232,6 +232,7 @@ module Arby
           @out.pn [expr.body]
           @out.p "}"
         else
+          decl_str = decl_str.gsub /:/, " =" if expr.let?
           @out.pl "#{expr_kind} #{decl_str} {"
           @out.in do
             @out.pn expr.body.to_conjuncts, "\n"
