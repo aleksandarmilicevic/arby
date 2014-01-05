@@ -1,5 +1,3 @@
-require 'arby/bridge/compiler'
-
 module Arby
   module Bridge
     module SolverHelpers
@@ -25,6 +23,7 @@ module Arby
       end
 
       def execute_command(cmd_idx_or_name=0, bounds=nil)
+        require 'arby/bridge/compiler'
         comp = Arby::Bridge::Compiler.compile(to_als)
         comp.execute_command(cmd_idx_or_name, bounds)
       end
