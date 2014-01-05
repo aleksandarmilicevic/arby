@@ -64,6 +64,11 @@ module Utils
         eval_code_using(mod, src, :module_eval, file, line, desc)
       end
 
+      def module_eval_method(mod, meth, src, file=nil, line=nil, desc={})
+        #TODO check that +meth+ doesn't exist in +mod+
+        module_eval_code(mod, src, file=nil, line=nil, desc={})
+      end
+
       # --------------------------------------------------------------
       #
       # Evaluates a source code block (`src') in the context of a
