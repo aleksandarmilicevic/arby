@@ -115,13 +115,14 @@ module Arby
           :target => self,
           :field => fld_sym
         }
+        getter_src = "intercept_read(#{find_fld_src}) { #{_fld_reader_code(fld)} }"
+        setter_src = "intercept_write(#{find_fld_src}, value) { #{_fld_writer_code(fld, 'value')} }"
         Arby::Utils::CodegenRepo.eval_code cls, <<-RUBY, __FILE__, __LINE__+1, desc
-        def #{fld_sym}
-          intercept_read(#{find_fld_src}) { #{_fld_reader_code(fld)} }
-        end
-        def #{fld_sym}=(value)
-          intercept_write(#{find_fld_src}, value) { #{_fld_writer_code(fld, 'value')} }
-        end
+          def #{fld_sym}()       #{getter_src} end
+          def #{fld_sym}=(value) #{setter_src} end
+        RUBY
+        cls.instance_method(fld_sym).singleton_class.class_eval <<-RUBY
+          def source() #{getter_src.inspect} end
         RUBY
         cls.send :alias_method, "#{fld_sym}?".to_sym, fld_sym if fld.type.isBool?
         self.send :include, cls

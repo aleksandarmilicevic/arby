@@ -16,16 +16,17 @@ module Arby
   #   :logger          [Logger]
   def self.default_conf
     SDGUtils::Config.new do |c|
-      c.inv_field_namer        = lambda { |fld| "inv_#{fld.name}" }
-      c.turn_methods_into_funs = true
-      c.allow_undef_vars       = true
-      c.allow_undef_consts     = true
-      c.defer_body_eval        = true
-      c.detect_appended_facts  = true
-      c.wrap_field_values      = true
-      c.typecheck              = true
-      c.sym_exe                = default_symexe_conf
-      c.logger                 = Logger.new(NilIO.instance)
+      c.inv_field_namer                    = lambda { |fld| "inv_#{fld.name}" }
+      c.turn_methods_into_funs             = true
+      c.allow_undef_vars                   = true
+      c.allow_undef_consts                 = true
+      c.defer_body_eval                    = true
+      c.detect_appended_facts              = true
+      c.wrap_field_values                  = true
+      c.generate_methods_for_global_fields = true
+      c.typecheck                          = true
+      c.sym_exe                            = default_symexe_conf
+      c.logger                             = Logger.new(NilIO.instance)
     end
   end
 end
