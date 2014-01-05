@@ -66,7 +66,8 @@ module Arby
 
         def get_cls_field(fld)
           if Arby.symbolic_mode?
-            to_arby_expr.send fld.name.to_sym
+            fld.to_arby_expr
+            # to_arby_expr.send fld.name.to_sym
           else
             fld
           end
