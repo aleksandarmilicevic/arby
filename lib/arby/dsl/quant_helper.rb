@@ -23,6 +23,11 @@ module Arby
         Arby::Ast::Expr::QuantExpr.let(decls, block)
       end
 
+      def select(decl_hash, &block)
+        decls = _to_decls(decl_hash)
+        Arby::Ast::Expr::QuantExpr.comprehension(decls, block)
+      end
+
       def some(expr, &block)
         if block
           exist(expr, &block)
