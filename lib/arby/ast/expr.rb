@@ -5,6 +5,7 @@ require 'arby/ast/field'
 require 'arby/ast/types'
 require 'arby/utils/codegen_repo'
 require 'arby/utils/expr_visitor'
+require 'sdg_utils/meta_utils'
 
 module Arby
   module Ast

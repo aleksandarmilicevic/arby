@@ -215,6 +215,8 @@ module Arby
 
       protected
 
+      def this() self end
+
       include Arby::EventConstants
 
       def intercept_read(fld)
