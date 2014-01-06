@@ -232,7 +232,7 @@ module Arby
 
         def and(other)       ExprBuilder.apply(AND, self, other) end
         def or(other)        ExprBuilder.apply(OR, self, other) end
-
+        def implies(other)   ExprBuilder.apply(IMPLIES, self, other) end
         def size()           ExprBuilder.apply(CARDINALITY, self) end
 
         def apply_call(fun, *args) CallExpr.new(self, fun, *args) end

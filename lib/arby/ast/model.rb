@@ -51,7 +51,7 @@ module Arby
         if Arby.conf.generate_methods_for_global_fields
           flds = self.sigs.map{|s| s.meta.fields + s.meta.inv_fields}.flatten
           flds.each do |fld|
-            Arby::Utils::CodegenRepo.module_safe_eval_method @ruby_module, 
+            Arby::Utils::CodegenRepo.module_safe_eval_method @ruby_module,
               fld.getter_sym, <<-RUBY, __FILE__, __LINE__+1
             def #{fld.getter_sym}
                #{fld.parent.name}.#{fld.getter_sym}
