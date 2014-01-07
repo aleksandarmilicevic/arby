@@ -16,8 +16,8 @@ module Arby
     # Module to be included in each +alloy_model+.
     # ============================================================================
     module ModelDslApi
-      include MultHelper
       include QuantHelper
+      include MultHelper
       include AbstractHelper
       include FunHelper
       include CommandHelper

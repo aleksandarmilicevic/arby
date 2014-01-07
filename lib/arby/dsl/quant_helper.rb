@@ -7,25 +7,18 @@ module Arby
     module QuantHelper
       include ExprHelper
 
-      def all(decl_hash, &block)
-        decls = _to_decls(decl_hash)
-        Arby::Ast::Expr::QuantExpr.all(decls, block)
-      end
+      def all(decls, &body)    Arby::Ast::Expr::QuantExpr.all(_norm(decls), body) end
+      def no(decls, &body)     Arby::Ast::Expr::QuantExpr.no(_norm(decls), body) end
+      def one(decls, &body)    Arby::Ast::Expr::QuantExpr.one(_norm(decls), body) end
+      def lone(decls, &body)   Arby::Ast::Expr::QuantExpr.lone(_norm(decls), body) end
+      def exist(decls, &body)  Arby::Ast::Expr::QuantExpr.exist(_norm(decls), body) end
+      def let(decls, &body)    Arby::Ast::Expr::QuantExpr.let(_norm(decls), body) end
+      def select(decls, &body) Arby::Ast::Expr::QuantExpr.setcph(_norm(hash), body) end
 
-      def exist(decl_hash, &block) 
-        Arby::Ast::Expr::QuantExpr.exist(_to_decls(decl_hash), block)
-      end
-
-      def let(decl_hash, &block)
-        Arby::Ast::Expr::QuantExpr.let(_to_decls(decl_hash), block)
-      end
-
-      def select(decl_hash, &block)
-        Arby::Ast::Expr::QuantExpr.comprehension(_to_decls(decl_hash), block)
-      end
-
-      def some(expr) (block_given?) ? exist(expr, &Proc.new)   : _mult(:some, expr) end
-      def no(expr)   (block_given?) ? all(expr, &Proc.new).not : _mult(:no, expr) end
+      def no(expr)   (block_given?) ? no(expr, &Proc.new)    : _mult(:no, expr) end
+      def one(expr)  (block_given?) ? one(expr, &Proc.new)   : _mult(:one, expr) end
+      def lone(expr) (block_given?) ? lone(expr, &Proc.new)  : _mult(:lone, expr) end
+      def some(expr) (block_given?) ? exist(expr, &Proc.new) : _mult(:some, expr) end
 
       private
 
@@ -33,7 +26,7 @@ module Arby
         ExprHelper.instance_method(meth).bind(self).call(*args)
       end
 
-      def _to_decls(decl_hash)
+      def _norm(decl_hash)
         decls = []
         _traverse_fields_hash decl_hash, proc{ |arg_name, dom|
           # d = Arby::Ast::Decl.new :name => arg_name, :domain => dom

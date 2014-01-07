@@ -229,7 +229,7 @@ module Arby
         def some?(&blk)      _quant_or_mod(:exist, SOME, &blk) end
         def one?(&blk)       _quant_or_mod(:one, ONE, &blk) end
         def all?(&blk)       _blk_to_quant(:all, &blk) end
-        def select(&blk)     _blk_to_quant(:comprehension, &blk) end
+        def select(&blk)     _blk_to_quant(:setcph, &blk) end
 
         def and(other)       ExprBuilder.apply(AND, self, other) end
         def or(other)        ExprBuilder.apply(OR, self, other) end
@@ -666,23 +666,17 @@ module Arby
         include MExpr
         attr_reader :decl, :body
 
-        def self.all(decl, body)
-          self.new(Ops::ALLOF, decl, body)
-        end
-
-        def self.exist(decl, body)
-          self.new(Ops::SOMEOF, decl, body)
-        end
-
-        def self.comprehension(decl, body)
+        def self.all(decl, body)   self.new(Ops::ALLOF, decl, body) end
+        def self.no(decl, body)    self.new(Ops::NONEOF, decl, body) end
+        def self.exist(decl, body) self.new(Ops::SOMEOF, decl, body) end
+        def self.one(decl, body)   self.new(Ops::ONEOF, decl, body) end
+        def self.lone(decl, body)  self.new(Ops::LONEOF, decl, body) end
+        def self.let(decl, body)   self.new(Ops::LET, decl, body) end
+        def self.setcph(decl, body)
           ans = self.new(Ops::SETCPH, decl, body)
           #TODO: not quite right
           Expr.add_methods_for_type(ans, decl.last.type) if decl.last.type
           ans
-        end
-
-        def self.let(decl, body)
-          self.new(Ops::LET, decl, body)
         end
 
         def all?()           op == Ops::ALLOF end
