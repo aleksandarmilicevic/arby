@@ -43,7 +43,8 @@ TODO:
   - implment libraries (e.g., ordering, seq)
 
   - rename all non-api methods in Expr to start with __
-
+  - implement integer multiplication
+ 
   - have model specific config options
   - add interface for passing options when running solver
   - create some class corresponding to Alloy's CompModule
