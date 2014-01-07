@@ -5,7 +5,6 @@ module Arby
   module Dsl
 
     module QuantHelper
-      include FieldsHelper
       include ExprHelper
 
       def all(decl_hash, &block)
@@ -13,40 +12,24 @@ module Arby
         Arby::Ast::Expr::QuantExpr.all(decls, block)
       end
 
-      def exist(decl_hash, &block)
-        decls = _to_decls(decl_hash)
-        Arby::Ast::Expr::QuantExpr.exist(decls, block)
+      def exist(decl_hash, &block) 
+        Arby::Ast::Expr::QuantExpr.exist(_to_decls(decl_hash), block)
       end
 
       def let(decl_hash, &block)
-        decls = _to_decls(decl_hash)
-        Arby::Ast::Expr::QuantExpr.let(decls, block)
+        Arby::Ast::Expr::QuantExpr.let(_to_decls(decl_hash), block)
       end
 
       def select(decl_hash, &block)
-        decls = _to_decls(decl_hash)
-        Arby::Ast::Expr::QuantExpr.comprehension(decls, block)
+        Arby::Ast::Expr::QuantExpr.comprehension(_to_decls(decl_hash), block)
       end
 
-      def some(expr, &block)
-        if block
-          exist(expr, &block)
-        else
-          _call_from_expr(:some, expr)
-        end
-      end
-
-      def no(expr, &block)
-        if block
-          all(expr, &block).not
-        else
-          _call_from_expr(:no, expr)
-        end
-      end
+      def some(expr) (block_given?) ? exist(expr, &Proc.new)   : _mult(:some, expr) end
+      def no(expr)   (block_given?) ? all(expr, &Proc.new).not : _mult(:no, expr) end
 
       private
 
-      def _call_from_expr(meth, *args)
+      def _mult(meth, *args)
         ExprHelper.instance_method(meth).bind(self).call(*args)
       end
 

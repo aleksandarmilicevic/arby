@@ -1,18 +1,13 @@
 require 'arby/ast/op'
 require 'arby/ast/expr'
+require 'arby/dsl/expr_helper'
 
 module Arby
   module Ast
 
-    module ExprHelper
-      def union(*args) ExprBuilder.reduce_to_binary(Ops::PLUS, *args) end
-      def conj(*args)  ExprBuilder.reduce_to_binary(Ops::AND, *args) end
-      def disj(*args)  ExprBuilder.reduce_to_binary(Ops::AND, *args) end
-    end
-
     module ExprBuilder
       extend self
-      extend ExprHelper
+      extend Arby::Dsl::ExprHelper
 
       # Reduces the given operands (+args+) by applying the given
       # binary operator (+op+)
