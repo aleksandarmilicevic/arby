@@ -198,11 +198,13 @@ module Arby
         def ==(other)        ExprBuilder.apply(EQUALS, self, other) end
         def !=(other)        ExprBuilder.apply(NOT_EQUALS, self, other) end
 
-        def %(other)         ExprBuilder.apply(REM, self, other) end
-
         def +(other)         pick_and_apply(IPLUS, PLUS, self, other) end
         def -(other)         pick_and_apply(IMINUS, MINUS, self, other) end
         def /(other)         pick_and_apply(DIV, MINUS, self, other) end
+        def %(other)         ExprBuilder.apply(REM, self, other) end
+        def <<(other)        ExprBuilder.apply(SHL, self, other) end
+        def >>(other)        ExprBuilder.apply(SHA, self, other) end
+
         def **(other)        ExprBuilder.apply(PRODUCT, self, other) end
         def [](other)        ExprBuilder.apply(SELECT, self, other) end
         def <(other)         ExprBuilder.apply(LT, self, other) end
