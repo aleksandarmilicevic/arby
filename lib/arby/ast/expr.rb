@@ -256,6 +256,7 @@ module Arby
           closure_operand = case other
                             when MExpr; other
                             when String, Symbol;
+                              #TODO this is just ugly
                               joined = self.send other #returns a "join" BinaryExpr
                               joined.rhs
                             end
