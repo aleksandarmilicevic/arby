@@ -35,20 +35,14 @@ module ArbyModels
       }
     }
 
+    fun parents[p: Person][set Person] {
+      p.father + p.mother + p.father.wife + p.mother.husband
+    }
+
     pred ownGrandpa[m: Man] {
       m.in? grandpas(m)
     }
 
     run :ownGrandpa, "for 4 Person"
-
-    # fact socialConvention2 {
-    #   no wife & mother.*(~(mother+father)) and
-    #   no husband & father.*(~(mother+father))
-    # }
-
-    # fun grandpas2[p: Person][set Person] {
-    #   parent = mother + father + father.wife + mother.husband
-    #   p.join(parent).join(parent) & Man
-    # }
   end
 end

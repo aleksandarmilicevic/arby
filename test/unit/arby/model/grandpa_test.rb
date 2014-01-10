@@ -20,6 +20,10 @@ class GraphTest < Test::Unit::TestCase
   def test_instance
     sol = ArbyModels::Grandpa.execute_command
     assert sol.satisfiable?
+    inst = sol.arby_instance
+    m = inst["$ownGrandpa_m"]
+    assert m, "own grandpa skolem not found"
+    assert m.in? parents(parents(m))    
   end
 
 end
