@@ -143,7 +143,8 @@ module Arby
         fun_name = @conf.fun_namer[fun]
         @out.pl "#{kind} #{fun_name}#{params_str}#{ret_str} {"
         @out.in do
-          @out.pn fun.sym_exe.to_conjuncts, "\n"
+          fun_body = fun.sym_exe
+          @out.pn fun_body.to_conjuncts, "\n" if fun_body
         end
         @out.pl "\n}"
       end
@@ -280,7 +281,7 @@ module Arby
               else
                 "%{lhs} #{be.op} %{rhs}"
               end
-        @out.p(fmt % {lhs: enclose(be.op, be.lhs), rhs: enclose(be.op, be.rhs)})
+        @out.p(fmt % {lhs: encloseL(be.op, be.lhs), rhs: encloseR(be.op, be.rhs)})
       end
 
       def callexpr_to_als(ce)
@@ -301,10 +302,13 @@ module Arby
         end
       end
 
-      def enclose(op, expr)
+      def enclose(op, expr, rhs=false)
         e_str = export_to_als(expr)
-        (expr.op.precedence < op.precedence) ? "(#{e_str})" : e_str
+        (expr.op.precedence < op.precedence) || 
+          (rhs && expr.op.precedence == op.precedence) ? "(#{e_str})" : e_str
       end
+      def encloseL(op, expr) enclose(op, expr, false) end
+      def encloseR(op, expr) enclose(op, expr, true) end
     end
 
   end
