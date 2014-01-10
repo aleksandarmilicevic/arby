@@ -105,6 +105,7 @@ module Arby
         when AType      then TypeExpr.new(e)
         when TrueClass  then BoolConst::TRUE
         when FalseClass then BoolConst::FALSE
+        when ASig       then e.to_arby_expr
         when Range
           if e.begin.is_a?(Integer) && e.end.is_a?(Integer)
             ExprBuilder.reduce_to_binary Arby::Ast::Ops::PLUS, *e.map{|i| IntExpr.new(i)}
@@ -119,7 +120,11 @@ module Arby
               end
             }
           end
-        when Proc; resolve_expr(e.call, parent, kind_in_parent, default_val, &else_cb)
+        when Proc then resolve_expr e.call, parent, kind_in_parent, default_val, &else_cb
+        when Class
+          # try to find sig with the same name
+          sig_cls = Arby.meta.find_sig(e.relative_name)
+          sig_cls ? sig_cls.to_arby_expr : else_cb.call
         else
           if e.respond_to? :to_arby_expr
             al_expr = e.send :to_arby_expr
@@ -471,7 +476,7 @@ module Arby
         include MVarExpr
 
         def method_missing(sym, *args, &block)
-          if p=__parent()
+          if send(:respond_to?, :__parent) && p=__parent()
             p.send sym, *args, &block
           else
             raise ::NameError, "method `#{sym}' not found in #{self}:#{self.class}"
@@ -730,6 +735,27 @@ module Arby
             SDGUtils::ShadowMethods.shadow_methods_while(vars, &proc)
           }
         end
+      end
+
+      module ExprConsts
+        extend self
+
+        IDEN  = Var.new("iden")
+        UNIV  = Var.new("univ")
+        TRUE  = BoolConst::TRUE
+        FALSE = BoolConst::FALSE
+
+        def Iden() ExprConsts::Iden end
+        def iden() ExprConsts::Iden end
+
+        def Univ() ExprConsts::Iden end
+        def univ() ExprConsts::Iden end
+
+        def True() ExprConsts::TRUE end
+        def true() ExprConsts::TRUE end
+
+        def False() ExprConsts::FALSE end
+        def false() ExprConsts::FALSE end
       end
 
     end
