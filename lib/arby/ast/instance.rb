@@ -44,7 +44,7 @@ module Arby
       def field!(name)  field(name)  or fail("field `#{name}' not found") end
       def skolem!(name) skolem(name) or fail("skolem `#{name}' not found") end
 
-      alias_method :[], :atom
+      def [](name) atom(name) || skolem(name) || field(name) end
 
       def to_s
         atoms_str = atoms.map(&:label).join(', ')
