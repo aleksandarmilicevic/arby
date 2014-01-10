@@ -13,9 +13,12 @@ module Arby
     # +self.MyType+ can result in an instance of +Type+
     # ============================================================================
     class ModBuilder < BasicObject
-      def /(other)
-        ModBuilder.mult(@mod_smbl, other)
-      end
+      def /(other)  ModBuilder.mult(@mod_smbl, other) end
+      def **(other) @rhs_type = other; self end
+
+      def pending_product?() @mod_smbl && @rhs_type end
+      def rhs_type()         @rhs_type end
+      def mod_smbl()         @mod_smbl end
 
       #------------------------------------------------------------------------
       # Creates an Alloy type with a multiplicity modifier assigned
@@ -39,6 +42,7 @@ module Arby
 
       def initialize(mod_smbl)
         @mod_smbl = mod_smbl
+        @rhs_type = nil
       end
     end
 

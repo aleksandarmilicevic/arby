@@ -74,8 +74,14 @@ module Arby
         end
       end
 
-      def self.product(lhs, rhs) ProductType.new(AType.get!(lhs), AType.get!(rhs)) end
-      def self.transpose(t)      AType.get!(t.to_ary.reverse) end
+      def self.transpose(t)
+        AType.get!(t.to_ary.reverse)
+      end
+
+      def self.product(lhs, rhs, mult=nil)
+        ProductType.new(AType.get!(lhs), AType.get!(rhs), mult)
+      end
+
       def self.join(lhs, rhs)
         lhs, rhs = AType.get!(lhs), AType.get!(rhs)
         lhs_range = lhs.range
@@ -529,21 +535,22 @@ module Arby
     class ProductType
       include AType
 
-      attr_reader :lhs, :rhs
+      attr_reader :lhs, :rhs, :left_mult
 
-      def self.new(lhs, rhs)
+      def self.new(lhs, rhs, left_mult=nil)
         return check_sub(rhs) if lhs.nil?
         return check_sub(lhs) if rhs.nil?
-        super(lhs, rhs)
+        super(lhs, rhs, left_mult)
       end
 
       # @param lhs [AType]
       # @param rhs [AType]
-      def initialize(lhs, rhs)
+      def initialize(lhs, rhs, left_mult=nil)
         check_sub(lhs)
         check_sub(rhs)
         @lhs = lhs
         @rhs = rhs
+        @left_mult = left_mult
         freeze
       end
 
@@ -561,9 +568,9 @@ module Arby
 
       def to_s
         if rhs.arity > 1
-          "#{lhs.to_s} -> (#{rhs.to_s})"
+          "#{lhs.to_s} #{left_mult}-> (#{rhs.to_s})"
         else
-          "#{lhs.to_s} -> #{rhs.to_s}"
+          "#{lhs.to_s} #{left_mult}-> #{rhs.to_s}"
         end
       end
 

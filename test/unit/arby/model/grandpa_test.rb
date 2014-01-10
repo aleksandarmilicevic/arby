@@ -1,7 +1,7 @@
 require 'my_test_helper'
 require 'arby_models/grandpa'
 
-class GraphTest < Test::Unit::TestCase
+class GrandpaTest < Test::Unit::TestCase
   include SDGUtils::Testing::SmartSetup
   include SDGUtils::Testing::Assertions
   include Arby::Bridge
@@ -23,7 +23,7 @@ class GraphTest < Test::Unit::TestCase
     inst = sol.arby_instance
     m = inst["$ownGrandpa_m"]
     assert m, "own grandpa skolem not found"
-    assert m.in? parents(parents(m))    
+    assert m.in? parents(parents(m))
   end
 
 end

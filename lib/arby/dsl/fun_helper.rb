@@ -97,6 +97,11 @@ module Arby
             mb.append(args.first)
             args.first.consume
             mb
+          when args.size == 1 && Arby::Dsl::ModBuilder === args.first &&
+              args.first.pending_product?
+            modb = args.first
+            misb = SDGUtils::DSL::MissingBuilder.new(sym, &block)
+            Arby::Ast::AType.product(misb, modb.rhs_type, modb.mod_smbl)
           else
             raise ex
           end

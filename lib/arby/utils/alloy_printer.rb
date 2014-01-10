@@ -175,7 +175,7 @@ module Arby
           end
         when Arby::Ast::ProductType
           @out.pn [type.lhs]
-          @out.p " -> "
+          @out.p " #{type.left_mult}-> "
           @out.p "(" if type.rhs.arity > 1
           @out.pn [type.rhs]
           @out.p ")" if type.rhs.arity > 1
