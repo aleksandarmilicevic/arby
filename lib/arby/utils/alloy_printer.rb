@@ -33,11 +33,7 @@ module Arby
 
       def initialize(config={})
         @out = new_code_printer
-        @conf = SDGUtils::Config.new(nil, {
-          :sig_namer => lambda{|sig| sig.relative_name},
-          :fun_namer => lambda{|fun| fun.name},
-          :arg_namer => lambda{|fld| fld.name}
-        }).extend(config)
+        @conf = Arby.conf.alloy_printer.extend(config)
       end
 
       def new_code_printer
@@ -51,7 +47,12 @@ module Arby
         when Arby::Ast::Model; model_to_als(arby_obj)
         when Class
           if arby_obj < Arby::Ast::ASig
-            sig_to_als(arby_obj)
+            sig_cls = arby_obj
+            if sig_cls.meta.enum?
+              enum_to_als(sig_cls)
+            elsif not sig_cls.meta.enum_const?
+              sig_to_als(arby_obj)
+            end
           else
             _fail[]
           end
@@ -70,7 +71,7 @@ module Arby
       def model_to_als(model)
         @out.pl "module #{model.relative_name}"
         @out.pl
-        @out.pn model.sigs, "\n"
+        @out.pn model.sigs.reject{|s| s.meta.enum_const?}, "\n"
         unless model.all_funs.empty?
           @out.pl
           @out.pn model.all_funs, "\n"
@@ -79,6 +80,12 @@ module Arby
           @out.pl
           @out.pn model.commands, "\n"
         end
+      end
+
+      def enum_to_als(sig)
+        sig_name = @conf.sig_namer[sig]
+        enums = sig.meta.subsigs.map{|e| @conf.sig_namer[e]}.join(", ")
+        @out.pl "enum #{sig_name} {#{enums}}"
       end
 
       def sig_to_als(sig)
@@ -304,7 +311,7 @@ module Arby
 
       def enclose(op, expr, rhs=false)
         e_str = export_to_als(expr)
-        (expr.op.precedence < op.precedence) || 
+        (expr.op.precedence < op.precedence) ||
           (rhs && expr.op.precedence == op.precedence) ? "(#{e_str})" : e_str
       end
       def encloseL(op, expr) enclose(op, expr, false) end

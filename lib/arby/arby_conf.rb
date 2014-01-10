@@ -11,6 +11,14 @@ module Arby
     end
   end
 
+  def self.default_alloy_printer_conf
+    SDGUtils::Config.new do |c|
+      c.sig_namer = lambda{|sig| sig.relative_name}
+      c.fun_namer = lambda{|fun| fun.name}
+      c.arg_namer = lambda{|fld| fld.name}
+    end
+  end
+
   # Options
   #   :inv_field_namer [Proc(fld)]
   #   :logger          [Logger]
@@ -27,6 +35,7 @@ module Arby
       c.typecheck                          = true
       c.sym_exe                            = default_symexe_conf
       c.logger                             = Logger.new(NilIO.instance)
+      c.alloy_printer                      = default_alloy_printer_conf
     end
   end
 end

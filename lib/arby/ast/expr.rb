@@ -3,6 +3,7 @@ require 'arby/ast/op'
 require 'arby/ast/expr_builder'
 require 'arby/ast/field'
 require 'arby/ast/types'
+require 'arby/ast/type_consts'
 require 'arby/utils/codegen_repo'
 require 'arby/utils/expr_visitor'
 require 'sdg_utils/meta_utils'
@@ -443,8 +444,8 @@ module Arby
       # TODO
       # ============================================================================
       class TypeExpr < Var
-        def initialize(type)
-          super(type.to_s, type)
+        def initialize(type, name=nil)
+          super(name || type.to_s, type)
         end
         def exe_concrete() __type end
       end
@@ -741,7 +742,7 @@ module Arby
         extend self
 
         IDEN  = Var.new("iden")
-        UNIV  = Var.new("univ")
+        UNIV  = TypeExpr.new(TypeConsts::Univ, "univ")
         TRUE  = BoolConst::TRUE
         FALSE = BoolConst::FALSE
 

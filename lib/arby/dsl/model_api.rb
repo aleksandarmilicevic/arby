@@ -1,9 +1,10 @@
 require 'arby/dsl/helpers'
 require 'arby/dsl/command_helper'
 require 'arby/dsl/sig_builder'
+require 'arby/dsl/errors'
 require 'arby/ast/model'
 require 'arby/ast/expr_builder'
-
+require 'arby/ast/type_consts'
 require 'sdg_utils/delegator'
 require 'sdg_utils/lambda/sourcerer'
 
@@ -43,6 +44,20 @@ module Arby
 
       def iden() Arby::Ast::Expr::ExprConsts::IDEN end
       def univ() Arby::Ast::Expr::ExprConsts::UNIV end
+
+      def enum(*args, &block)
+        case
+        when args.size == 1 && SDGUtils::DSL::MissingBuilder === args.first then
+          missb = args.first
+          base_sig_cls = abstract(sig(missb.name)).return_result(:array).first
+          missb.args.each do |mb|
+            one(sig(mb < base_sig_cls))
+          end
+          base_sig_cls.meta.set_enum
+        else
+          raise Arby::Dsl::SyntaxError, "invalid enum args"
+        end
+      end
 
       def __created(scope_module)
         require 'arby/arby.rb'
