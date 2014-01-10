@@ -41,6 +41,9 @@ module Arby
         }).sig(*args, &block)
       end
 
+      def iden() Arby::Ast::Expr::ExprConsts::IDEN end
+      def univ() Arby::Ast::Expr::ExprConsts::UNIV end
+
       def __created(scope_module)
         require 'arby/arby.rb'
         mod = Arby.meta.find_model(name) || __create_model(scope_module)
