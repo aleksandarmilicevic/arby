@@ -34,7 +34,26 @@ module Arby
       def initialize(config={})
         @out = new_code_printer
         @conf = Arby.conf.alloy_printer.extend(config)
+        # @name_map = {}
+        # me = self
+        # @conf.define_singleton_method :sig_namer do |sig|
+        #   name = super(sig)
+        #   me.add_name_map(sig, name)
+        #   name
+        # end
+        # @conf.define_singleton_method :arg_namer do |fld|
+        #   name = super(fld)
+        #   me.add_name_map(fld, name)
+        #   name
+        # end
+        # @conf.define_singleton_method :sig_namer do |fun|
+        #   name = super(fun)
+        #   me.add_name_map(fun, name)
+        #   name
+        # end
       end
+
+      # def add_name_mapping(x, name) @name_map[x] = name end
 
       def new_code_printer
         SDGUtils::PrintUtils::CodePrinter.new :visitor => self,

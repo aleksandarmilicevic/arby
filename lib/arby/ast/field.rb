@@ -42,6 +42,8 @@ require 'sdg_utils/string_utils'
         set_inv(hash[:inv])
       end
 
+      alias_method :owner, :parent
+
       def getter_sym()         Field.getter_sym(self) end
       def setter_sym()         Field.setter_sym(self) end
 

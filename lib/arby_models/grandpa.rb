@@ -44,5 +44,6 @@ module ArbyModels
     }
 
     run :ownGrandpa, "for 4 Person"
+    # run :ownGrandpa, Person: 4
   end
 end

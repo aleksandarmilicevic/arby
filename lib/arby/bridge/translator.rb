@@ -33,7 +33,8 @@ module Arby
         atoms.each do |atom|
           atom.meta.fields(false).each do |fld|
             # select those tuples in +fld+s relation that have +atom+ on the lhs
-            fld_tuples = fld_map[fld.name].select{|tuple| tuple[0] == atom}
+            fld_name = Arby.conf.alloy_printer.arg_namer[fld]
+            fld_tuples = fld_map[fld_name].select{|tuple| tuple[0] == atom}
             # strip the lhs
             fld_val = fld_tuples.map{|tuple| tuple[1..-1]}
             # write that field value
@@ -70,7 +71,8 @@ module Arby
         return nil if type and type.arity != 1
         sig_name = type ? type.signature : type_name
         sig_name = sig_name[SIG_PREFIX.size..-1] if sig_name.start_with?(SIG_PREFIX)
-        Arby.meta.find_sig(sig_name)
+        Arby.meta.sigs.find{|s| Arby.conf.alloy_printer.sig_namer[s] == sig_name}
+        # Arby.meta.find_sig(sig_name)
       end
 
       def _type_to_atype!(type) _type_to_atype(type) or fail("type #{type} not found") end
