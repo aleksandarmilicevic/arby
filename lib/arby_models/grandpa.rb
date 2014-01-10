@@ -10,7 +10,7 @@ module ArbyModels
       father: (lone Man),
       mother: (lone Woman)
     ] {
-      not this.in? this.^(Person.father + Person.mother)
+      not in? this.^(Person.father + Person.mother)
     }
 
     sig Man extends Person [
@@ -22,6 +22,7 @@ module ArbyModels
     ]
 
     fact terminology { wife == ~husband }
+    fact biology     { no(p: Person){ p.in? p.^(father+mother) } }
 
     fact socialConvention {
       no wife & (mother+father).rclosure.mother and
