@@ -186,7 +186,7 @@ module Arby
           @out.pl
           @out.p "} "
         end
-        @out.pl "#{cmd.scope}"
+        @out.pl "#{cmd.scope.to_s(@conf.sig_namer)}"
       end
 
       def type_to_als(type)
@@ -229,6 +229,10 @@ module Arby
 
       def expr_to_als(expr)
         expr_visitor.visit(expr)
+      end
+
+      def typeexpr_to_als(expr)
+        type_to_als(expr.__type)
       end
 
       def mexpr_to_als(expr)

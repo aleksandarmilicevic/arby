@@ -44,11 +44,12 @@ module Arby
           obj
         end
 
-        def to_atype() UnaryType.get!(self) end
-        def to_expr()  Expr::SigExpr.new(self) end
-        def e()        to_expr() end
-        def f(fname)   meta().field(fname) end
-        alias_method   :to_arby_expr, :to_expr
+        def to_atype()   UnaryType.get!(self) end
+        def to_expr()    Expr::SigExpr.new(self) end
+        def e()          to_expr() end
+        def f(fname)     meta().field(fname) end
+        alias_method     :to_arby_expr, :to_expr
+        def alloy_name() Arby.conf.alloy_printer.sig_namer[self] end
 
         def add_method_for_field(fld)
           unless respond_to?(fld.name.to_sym)

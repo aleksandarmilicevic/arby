@@ -69,6 +69,10 @@ require 'sdg_utils/string_utils'
       end
 
       def full_relative_name() full_name(true) end
+      def alloy_name()         "#{Arby.conf.alloy_printer.arg_namer[self]}" end
+      def full_alloy_name()
+        "#{Arby.conf.alloy_printer.sig_namer[parent]}.#{alloy_name}"
+      end
 
       # @param owner [Arby::Ast::ASig]
       # @param value [Object]

@@ -32,10 +32,12 @@ class SeqFilteringTest < Test::Unit::TestCase
     sol = compiler.execute_command(0, pi)
 
     a4bounds = sol._a4sol.getBoundsSer
-    assert_equal 0, a4bounds.get("this/A").a.size()
-    assert_equal 4, a4bounds.get("this/A").b.size()
-    assert_equal 0, a4bounds.get("this/A.x").a.size()
-    assert_equal 8, a4bounds.get("this/A.x").b.size()
+    boundsA = a4bounds.get("this/#{A.alloy_name}")
+    boundsAx = a4bounds.get("this/#{A.x.full_alloy_name}")
+    assert_equal 0, boundsA.a.size()
+    assert_equal 4, boundsA.b.size()
+    assert_equal 0, boundsAx.a.size()
+    assert_equal 8, boundsAx.b.size()
 
     max_iter = 310000000000000
     iter = 0

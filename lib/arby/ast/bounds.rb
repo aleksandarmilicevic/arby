@@ -21,14 +21,15 @@ module Arby
       # unique labels in the format of '<sig_name>$<index>'
       #
       # @param [Array] - list of all atoms
-      def initialize(universe)
+      def initialize(universe, sig_namer=nil)
         @universe = universe.dup
         @atom2label = {}
+        sig_namer ||= Arby.conf.alloy_printer.sig_namer
         @universe.group_by(&:class).each do |cls, atoms|
           if cls <= Integer
             atoms.each{|i| @atom2label[i] = "#{i}"}
           else
-            atoms.each_with_index{|a, x| @atom2label[a] = "#{cls.relative_name}$#{x}"}
+            atoms.each_with_index{|a, x| @atom2label[a] = "#{sig_namer[cls]}$#{x}"}
           end
         end
         @label2atom = @atom2label.invert
@@ -86,7 +87,7 @@ module Arby
       def get_ints()      @ints end
 
       # @return [Universe] - list of all atoms appearing in all the bounds
-      def extract_universe
+      def extract_universe(sig_namer=nil)
         univ = Set.new
         entries do |_, what, ts|
           t = type_for_boundable(what)
@@ -94,22 +95,24 @@ module Arby
             univ += ts.tuples!.map(&:atoms!).flatten
           end
         end
-        Universe.new univ.to_a
+        Universe.new univ.to_a, sig_namer
       end
 
-      def serialize(univ=nil)
-        univ ||= extract_universe
+      def serialize(univ=nil, pconf=nil)
+        pconf ||= Arby.conf.alloy_printer
+        univ ||= extract_universe(pconf.sig_namer)
 
         t_to_s =  proc{|t|  "<" + t.map{|a| univ.label(a)}.join(', ') + ">"}
         ts_to_s = proc{|ts| "{" + ts.map{|t| t_to_s[t]}.join('') + "}"}
 
         bounds_to_str = proc{|prefix, var|
           var.map{ |what, ts|
-            what_name = case what
-                        when Class then what.relative_name
-                        when Field then what.full_relative_name
-                        else what.to_s
-                        end
+            what_name =
+              case what
+              when Class then pconf.sig_namer[what]
+              when Field then "#{pconf.sig_namer[what.parent]}.#{pconf.arg_namer[what]}"
+              else what.to_s
+              end
             "#{prefix}[#{what_name}] = #{ts_to_s[ts]}"
           }.compact.join("\n")
         }

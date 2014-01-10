@@ -57,8 +57,8 @@ module ArbyModels
       all o: Folder do lone o.contents! end
     }
 
-    check("for 5 expect 1") { noDirAliases if oneParent_buggyVersion }
-    check("for 5 expect 0") { noDirAliases if oneParent_correctVersion }
+    check(5) { noDirAliases if oneParent_buggyVersion }
+    check(5) { noDirAliases if oneParent_correctVersion }
   end
 
 module FileSystem

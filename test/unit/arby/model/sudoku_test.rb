@@ -76,8 +76,8 @@ class SudokuTest < Test::Unit::TestCase
     assert old_grid.in?(s.grid)
 
     a4bounds = sol._a4sol.getBoundsSer
-    a4sudoku_bounds = a4bounds.get("this/Sudoku")
-    a4grid_bounds = a4bounds.get("this/Sudoku.grid")
+    a4sudoku_bounds = a4bounds.get("this/#{Sudoku.alloy_name}")
+    a4grid_bounds = a4bounds.get("this/#{Sudoku.grid.full_alloy_name}")
 
     assert_equal 1, a4sudoku_bounds.a.size()
     assert_equal 1, a4sudoku_bounds.b.size()

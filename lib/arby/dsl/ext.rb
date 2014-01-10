@@ -3,6 +3,7 @@
 require 'arby/arby_ast'
 require 'arby/arby_dsl'
 require 'arby/ast/types'
+require 'arby/ast/scope'
 require 'sdg_utils/dsl/ext'
 require 'sdg_utils/meta_utils'
 require 'sdg_utils/dsl/missing_builder'
@@ -45,6 +46,12 @@ class Class
   def set_of()   Arby::Dsl::MultHelper.set(self) end
   def is_sig?()  ancestors.member? Arby::Ast::ASig end
   def to_atype() Arby::Ast::AType.get!(self) end
+end
+
+class Fixnum
+  def exactly
+    Arby::Ast::SigScope.new(nil, self, true)
+  end
 end
 
 class Object
