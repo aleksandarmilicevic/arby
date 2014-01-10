@@ -38,6 +38,12 @@ Specification testing
 
 TODO: 
 
+  - implement more robust joins (by having looking up the missing
+    symbol up the evaluation stack)
+
+      - examples that should not require "convert_missing_fields_to_joins":
+          grandpa, chameleon
+
   - formalize scope computing
 
   - implment libraries (e.g., ordering, seq)
