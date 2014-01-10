@@ -107,7 +107,7 @@ module Arby
         when FalseClass then BoolConst::FALSE
         when Range
           if e.begin.is_a?(Integer) && e.end.is_a?(Integer)
-            ExprBuilder.union(*e.map{|i| IntExpr.new(i)})
+            ExprBuilder.reduce_to_binary Arby::Ast::Ops::PLUS, *e.map{|i| IntExpr.new(i)}
           else
             min = Expr.resolve_expr(e.begin)
             max = Expr.resolve_expr(e.end)

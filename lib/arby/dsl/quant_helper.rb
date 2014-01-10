@@ -7,20 +7,21 @@ module Arby
     module QuantHelper
       include ExprHelper
 
-      def all(decls, &body)    Arby::Ast::Expr::QuantExpr.all(_norm(decls), body) end
-      def no(decls, &body)     Arby::Ast::Expr::QuantExpr.no(_norm(decls), body) end
-      def one(decls, &body)    Arby::Ast::Expr::QuantExpr.one(_norm(decls), body) end
-      def lone(decls, &body)   Arby::Ast::Expr::QuantExpr.lone(_norm(decls), body) end
-      def exist(decls, &body)  Arby::Ast::Expr::QuantExpr.exist(_norm(decls), body) end
-      def let(decls, &body)    Arby::Ast::Expr::QuantExpr.let(_norm(decls), body) end
-      def select(decls, &body) Arby::Ast::Expr::QuantExpr.setcph(_norm(hash), body) end
+      def all(decls, &body)    _quant(:all, decls, body)   end
+      def exist(decls, &body)  _quant(:exist, decls, body) end
+      def let(decls, &body)    _quant(:let, decls, body)   end
+      def select(decls, &body) _quant(:setcph, hash, body) end
 
-      def no(expr)   (block_given?) ? no(expr, &Proc.new)    : _mult(:no, expr) end
-      def one(expr)  (block_given?) ? one(expr, &Proc.new)   : _mult(:one, expr) end
-      def lone(expr) (block_given?) ? lone(expr, &Proc.new)  : _mult(:lone, expr) end
-      def some(expr) (block_given?) ? exist(expr, &Proc.new) : _mult(:some, expr) end
+      def no(expr, &body)   (body) ? _quant(:no, expr, body)    : _mult(:no, expr)   end
+      def one(expr, &body)  (body) ? _quant(:one, expr, body)   : _mult(:one, expr)  end
+      def lone(expr, &body) (body) ? _quant(:lone, expr, body)  : _mult(:lone, expr) end
+      def some(expr, &body) (body) ? _quant(:exist, expr, body) : _mult(:some, expr) end
 
       private
+
+      def _quant(kind, decls, body)
+        Arby::Ast::Expr::QuantExpr.send kind, _norm(decls), body
+      end
 
       def _mult(meth, *args)
         ExprHelper.instance_method(meth).bind(self).call(*args)
