@@ -17,7 +17,8 @@ module Arby
           # field += range_cls.meta.inv_fields_including_sub_and_super
           fields.each do |fld|
             fname = fld.getter_sym.to_s
-            cls.send(:define_method, fname){ self._join_fld(fld) }
+            #TODO: OPT
+            cls.send(:define_method, fname){ self.send :_join_fld, fld }
           end
         end
       end
@@ -106,10 +107,21 @@ module Arby
       end
 
       def _join_fld(fld)
-        fname = fld.getter_sym.to_s
+        fname = fld.getter_sym
+        ans_type = @type.join(fld.full_type)
         rhs = self.atoms.last
-        ans = rhs ? (atoms[0...-1] + [rhs.send(fname)]) : nil
-        Tuple.new(@type.join(fld.full_type()), ans)
+        if rhs.nil?
+          TupleSet.wrap(nil, ans_type)
+        else
+          rhs_tset = rhs.send(fname)
+          num_atoms = atoms.size
+          if num_atoms == 1
+            rhs_tset
+          else
+            lhs_tset = TupleSet.wrap([atoms[0...-1]], @type.project[0...num_atoms-1])
+            lhs_tset.join(rhs_tset)
+          end
+        end
       end
 
       def to_s()    "<" + @atoms.map(&:to_s).join(", ") + ">" end
@@ -142,7 +154,7 @@ module Arby
       def self.wrap(t, type=nil)
         type = AType.get!(type) if type
         case t
-        when TupleSet then t
+        when TupleSet then t #TODO: check and set type if unset
         else
           TupleSet.new(type, t)
         end
@@ -241,10 +253,11 @@ module Arby
       end
 
       def [](other)    ljoin(other) end
-      alias_method :*, :product
-      alias_method :**, :product
-      alias_method :-, :difference
+      alias_method :*,    :product
+      alias_method :**,   :product
+      alias_method :-,    :difference
       alias_method :"-=", :difference!
+      alias_method :+,    :union
       alias_method :"+=", :union!
 
       def inspect(sep=",\n") "{" + @tuples.map(&:to_s).join(sep) + "}" end
@@ -268,9 +281,9 @@ module Arby
       end
 
       def _join_fld(fld)
-        fname = fld.getter_sym.to_s
-        ans = self.tuples.map(&fname).reject(&:no?)
-        TupleSet.new(@type.join(fld.full_type()), ans)
+        fname = fld.getter_sym
+        ans = TupleSet.new(@type.join(fld.full_type), [])
+        self.tuples.map(&fname).reduce(ans){|acc, ts| acc.union!(ts)}
       end
     end
 
