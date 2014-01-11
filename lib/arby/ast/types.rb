@@ -86,11 +86,12 @@ module Arby
         lhs, rhs = AType.get!(lhs), AType.get!(rhs)
         lhs_range = lhs.range
         rhs_domain = rhs.domain
-        if not disjoint?(lhs_range, rhs_domain)
-          AType.get!(lhs.to_ary[0...-1] + rhs.to_ary[1..-1])
-        else
-          NoType.new
-        end
+        AType.get!(lhs.to_ary[0...-1] + rhs.to_ary[1..-1])
+        # if not disjoint?(lhs_range, rhs_domain)
+        #   AType.get!(lhs.to_ary[0...-1] + rhs.to_ary[1..-1])
+        # else
+        #   NoType.new
+        # end
       end
 
       # @param atypes [Array(AType)]
