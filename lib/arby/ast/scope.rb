@@ -20,7 +20,7 @@ module Arby
 
     class Scope
       attr_reader :global, :sig_scopes
-      def initialize(global, sig_scopes=[])
+      def initialize(global=4, sig_scopes=[])
         @global = global || 4
         @sig_scopes = sig_scopes
       end
@@ -30,6 +30,7 @@ module Arby
       def to_s(sig_namer=nil)
         global_scope = @global ? "#{@global} " : ''
         sig_scopes = @sig_scopes.map{|ss| ss.to_s(sig_namer)}.join(' ')
+        sig_scopes = "but #{sig_scopes}" unless sig_scopes.empty?
         "for #{global_scope}#{sig_scopes}"
       end
     end
