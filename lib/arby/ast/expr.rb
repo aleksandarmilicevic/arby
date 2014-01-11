@@ -247,7 +247,7 @@ module Arby
         def apply_call(fun, *args) CallExpr.new(self, fun, *args) end
         def apply_join(other)      ExprBuilder.apply(JOIN, self, other) end
         alias_method :join, :apply_join
-        alias_method :call, :apply_call
+        alias_method :call, :apply_join
 
         def pick_and_apply(int_op, rel_op, *args)
           op = if args.first.respond_to?(:__type) &&
