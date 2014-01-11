@@ -20,25 +20,23 @@ module ChameleonExample
     ]
 
     sig Edge [
-      edge:     (set Projection),
-      relation: (univ one ** edge),
-      source:   (Node one ** edge),
-      dest:     (Node one ** edge)
+      edge:   (set Projection),
+      source: (Node one ** edge),
+      dest:   (Node one ** edge)
     ]
 
     fact {
-      all(p: Projection, e: edge.p) {
-        (e.source + e.dest).p.in? node.p
+      all(p: Projection) {
+        all(e: edge.(p)) {
+          (source[e] + dest[e]).(p).in? node.(p)
+        }
       }
     }
   end
 
 
   alloy :Chameleons do
-    #open Viz
-    include Viz
-    extend Viz
-    ::Viz = Viz
+    open Viz
 
     sig Time
 
@@ -50,19 +48,20 @@ module ChameleonExample
     ]
 
     pred change[t1: Time, t2: Time, c: Chameleon] {
-      some meets.t1[c] and
-      color.t1[c] != color.t1[meets.t1[c]] and
-      color.t2[c] == Color - (color.t1[c] + color.t1[meets.t1[c]])
+      cmeets_color_t1 = c.meets.(t1).color.(t1)
+
+      some c.meets.(t1) and
+      c.color.(t1) != cmeets_color_t1 and
+      c.color.(t2) == Color - (c.color.(t1) + cmeets_color_t1)
     }
 
     pred same[t1: Time, t2: Time, c: Chameleon] {
-      (no meets.t1[c] or
-       color.t1[c] == color.t1[meets.t1[c]]) and
-      color.t2[c] == color.t1[c]
+      (no c.meets.(t1) or c.color.(t1) == c.meets.(t1).color.(t1)) and
+      c.color.(t2) == c.color.(t1)
     }
 
     fact inv {
-      all(t: Time) { meets.t == ~(meets.t) and no iden & (meets.t) }
+      all(t: Time) { meets.(t) == ~meets.(t) and no iden & meets.(t) }
     }
 
     fact changes {
@@ -79,15 +78,38 @@ module ChameleonExample
       # proj_next = proj_atoms.time_next.~proj_atoms
       proj_atoms.in? (Projection one ** (one Time)) and
       all(t: Time) {
-        let(p: proj_atoms.t) {
-          atom.p.in? (node.p one ** (one Chameleon))
-          all(c1: Chameleon) {
-            all(c2: Chameleon - c1) {
-              (c1.color.t == c2.color.t) <=>
-              (Viz.color.p[atom.p.c1] == Viz.color.p[atom.p.c2]) and
-              ((shape.p[atom.p.c1] == shape.p[atom.p.c2]) if c1.in?(c2.meets.t))
+        let(p: proj_atoms.(t)) {
+          atom.(p).in? (node.(p) ** (one_one Chameleon)) and
+
+          # Viz edges correspond to meets
+          meets.(t) == (~source.(p).atom.(p)).dest.(p).atom.(p) and
+
+          all(c: Chameleon) {
+            # Viz shape is Box iff it doesn't meet anyone
+            (no c.meets.(t)) <=> (atom.(p).(c).shape.(p) == Box) and
+
+            # for every other chameleon
+            all(c2: Chameleon - c) {
+              # Viz colors are the same iff their colors are the same
+              (c.color.(t) == c2.color.(t)) <=>
+              (Viz.color.(p)[atom.(p).(c)] == Viz.color.(p)[atom.(p).(c2)]) and
+
+              # Viz shapes are the same for those who meet
+              if c.in? c2.meets.(t)
+                atom.(p).(c).shape.(p) == atom.(p).(c2).shape.(p)
+              end
             }
           }
+
+        }
+      } and
+
+      # stability over Time: same colored Chameleons -> same viz colors
+      all(t: Time, t2: Time, c: Chameleon, c2: Chameleon) {
+        let(p: proj_atoms.(t), p2: proj_atoms.(t2)) {
+          if t != t2 and c.color.(t) == c2.color.(t2)
+            atom.(p).(c).color.(p) == atom.(p2).(c2).color.(p2)
+          end
         }
       }
     }

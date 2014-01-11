@@ -6,7 +6,7 @@ class ChameleonsTest < Test::Unit::TestCase
   include SDGUtils::Testing::Assertions
   include Arby::Bridge
 
-  include ArbyModels::ChameleonExample::Chameleons
+  include ArbyModels::ChameleonExample
 
   def setup_class
     Arby.reset
@@ -14,7 +14,12 @@ class ChameleonsTest < Test::Unit::TestCase
   end
 
   def test_als
-    puts Arby.meta.to_als
+    puts Chameleons.meta.to_als
+  end
+
+  def test_syntax
+    compiler = Chameleons.compile
+    assert compiler
   end
 
   # def test_instance
@@ -23,7 +28,7 @@ class ChameleonsTest < Test::Unit::TestCase
   #   inst = sol.arby_instance
   #   m = inst["$ownGrandpa_m"]
   #   assert m, "own grandpa skolem not found"
-  #   assert m.in? parents(parents(m))    
+  #   assert m.in? parents(parents(m))
   # end
 
 end
