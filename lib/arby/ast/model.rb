@@ -106,7 +106,6 @@ module Arby
                 logger.debug "[resolve_fields]     resolved to #{cls}"
                 utype.update_cls(cls)
               else
-                binding.pry
                 logger.debug "[resolve_fields]     unable to resolve #{col_type}"
               end
             end
