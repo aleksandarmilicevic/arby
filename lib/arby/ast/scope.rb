@@ -21,7 +21,7 @@ module Arby
     class Scope
       attr_reader :global, :sig_scopes
       def initialize(global, sig_scopes=[])
-        @global = global
+        @global = global || 4
         @sig_scopes = sig_scopes
       end
 
