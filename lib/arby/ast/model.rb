@@ -25,7 +25,9 @@ module Arby
         init_searchable_attrs
       end
 
-      attr_searchable :sig, :fun, :pred, :assertion, :procedure, :fact, :command, :run
+      attr_searchable :open, :sig
+      attr_searchable :fun, :pred, :assertion, :procedure, :fact
+      attr_searchable :command, :run
 
       def all_funs() funs + preds + assertions + facts end
       def checks() commands.select{|c| c.check?} end

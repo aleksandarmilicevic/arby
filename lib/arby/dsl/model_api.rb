@@ -68,6 +68,16 @@ module Arby
         end
       end
 
+      def open(*mods)
+        mods.each do |mod|
+          Arby::Ast::TypeChecker.check_arby_module!(mod)
+          send :include, mod
+          send :extend, mod
+          send :const_set, mod.relative_name, mod
+          meta.add_open(mod.meta)
+        end
+      end
+
       def __created(scope_module)
         require 'arby/arby.rb'
         mod = Arby.meta.find_model(name) || __create_model(scope_module)
