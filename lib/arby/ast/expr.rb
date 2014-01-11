@@ -479,6 +479,13 @@ module Arby
         def method_missing(sym, *args, &block)
           if send(:respond_to?, :__parent) && p=__parent()
             p.send sym, *args, &block
+          elsif args.size == 1 && Arby::Dsl::ModBuilder === args.first &&
+              args.first.pending_product?
+            lhs = Arby.meta.find_sig(sym) or raise ::NameError, "`#{sym}' not found"
+            modb = args.first
+            be = ExprBuilder.apply(Ops::PRODUCT, lhs, modb.rhs_type)
+            be.instance_variable_set "@left_mult", modb.mod_smbl
+            be
           else
             raise ::NameError, "method `#{sym}' not found in #{self}:#{self.class}"
           end
@@ -582,7 +589,12 @@ module Arby
       # Represents a binary expression.
       # ============================================================================
       class BinaryExpr < NaryExpr
-        def initialize(op, lhs, rhs) super(op, lhs, rhs) end
+        attr_reader :left_mult
+
+        def initialize(op, lhs, rhs, left_mult=nil)
+          super(op, lhs, rhs)
+          @left_mult = left_mult
+        end
         def lhs()                    children[0] end
         def rhs()                    children[1] end
 
@@ -590,7 +602,7 @@ module Arby
 
         def to_s
           op_str = op.to_s
-          op_str = " #{op_str} " unless op_str == "."
+          op_str = " #{left_mult}#{op_str} " unless op_str == "."
           "#{lhs}#{op_str}#{rhs}"
         end
       end

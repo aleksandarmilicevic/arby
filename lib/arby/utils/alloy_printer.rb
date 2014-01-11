@@ -312,6 +312,7 @@ module Arby
               when SELECT  then "%{lhs}[%{rhs}]"
               when IPLUS   then "plus[%{lhs}, %{rhs}]"
               when IMINUS  then "minus[%{lhs}, %{rhs}]"
+              when PRODUCT then "%{lhs} #{be.left_mult}#{be.op} %{rhs}"
               else
                 "%{lhs} #{be.op} %{rhs}"
               end

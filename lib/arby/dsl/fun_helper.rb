@@ -86,10 +86,6 @@ module Arby
           raise ex unless Arby.conf.allow_undef_vars
           raise ex unless SDGUtils::DSL::BaseBuilder.in_body?
           case
-          when args.empty? || (args.size == 1 && Array === args.first)
-            mb = SDGUtils::DSL::MissingBuilder.new(sym, &block)
-            mb[*args.first] unless args.empty?
-            mb
           when args.size == 1 &&
               SDGUtils::DSL::MissingBuilder === args.first &&
               args.first.nameless?
@@ -103,7 +99,9 @@ module Arby
             misb = SDGUtils::DSL::MissingBuilder.new(sym, &block)
             Arby::Ast::AType.product(misb, modb.rhs_type, modb.mod_smbl)
           else
-            raise ex
+            mb = SDGUtils::DSL::MissingBuilder.new(sym, &block)
+            mb[*args.flatten] unless args.empty?
+            mb
           end
         end
       end
