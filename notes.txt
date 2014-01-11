@@ -44,6 +44,8 @@ TODO:
       - examples that should not require "convert_missing_fields_to_joins":
           grandpa, chameleon
 
+  - implement better debugging messages for incorrect alloy models
+
   - formalize scope computing
 
   - implment libraries (e.g., ordering, seq)
