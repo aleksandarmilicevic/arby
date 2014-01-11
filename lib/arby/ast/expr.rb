@@ -279,7 +279,7 @@ module Arby
           elsif args.size == 1 && Arby::Dsl::ModBuilder === args.first &&
               args.first.pending_product?
             modb = args.first
-            be = ExprBuilder.apply(Ops::PRODUCT, self, modb.rhs_type)
+            be = ExprBuilder.apply(Ops::PRODUCT, self.join(Var.new(sym)), modb.rhs_type)
             be.instance_variable_set "@left_mult", modb.mod_smbl
             be
           else
