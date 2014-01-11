@@ -246,8 +246,9 @@ module Arby
 
         def apply_call(fun, *args) CallExpr.new(self, fun, *args) end
         def apply_join(other)      ExprBuilder.apply(JOIN, self, other) end
-        alias_method :join, :apply_join
-        alias_method :call, :apply_join
+        alias_method :join,    :apply_join
+        alias_method :call,    :apply_join
+        alias_method :product, :**
 
         def pick_and_apply(int_op, rel_op, *args)
           op = if args.first.respond_to?(:__type) &&
@@ -279,9 +280,7 @@ module Arby
           elsif args.size == 1 && Arby::Dsl::ModBuilder === args.first &&
               args.first.pending_product?
             modb = args.first
-            be = ExprBuilder.apply(Ops::PRODUCT, self.join(Var.new(sym)), modb.rhs_type)
-            be.instance_variable_set "@left_mult", modb.mod_smbl
-            be
+            self.join(Var.new(sym)).product(modb)
           else
             return super unless Arby.conf.sym_exe.convert_missing_methods_to_fun_calls
             apply_call sym, *args
