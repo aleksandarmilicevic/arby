@@ -43,7 +43,16 @@ module Arby
       end
 
       def iden() Arby::Ast::Expr::ExprConsts::IDEN end
-      def univ() Arby::Ast::Expr::ExprConsts::UNIV end
+      def univ(rhs=nil)
+        case
+        when rhs && ModBuilder === rhs && rhs.pending_product?
+          Arby::Ast::AType.product(Arby::Ast::TypeConsts::Univ,rhs.rhs_type,rhs.mod_smbl)
+        when rhs.nil?
+          Arby::Ast::Expr::ExprConsts::UNIV
+        else
+          raise SyntaxError, "invalid univ arg: #{rhs}:#{rhs.class}"
+        end
+      end
 
       def enum(*args, &block)
         case

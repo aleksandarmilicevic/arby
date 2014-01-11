@@ -80,6 +80,14 @@ module Arby
       def to_iden
         name.gsub(/[^a-zA-Z0-9_]/, "_")
       end
+
+      private
+
+      def __update_type(type)
+        @type = type
+        @resolved_expr = nil
+        @expr = type
+      end
     end
 
   end

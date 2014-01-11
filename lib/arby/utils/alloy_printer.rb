@@ -140,7 +140,7 @@ module Arby
 
       def field_to_als(fld)
         @out.p "#{@conf.arg_namer[fld]}: "
-        @out.pn [fld.type]
+        @out.pn [fld.expr]
       end
 
       def fun_to_als(fun)
@@ -190,29 +190,33 @@ module Arby
       end
 
       def type_to_als(type)
-        case type
-        when Arby::Ast::NoType
-          @out.p "univ"
-        when Arby::Ast::UnaryType
-          cls = type.klass
-          if cls <= Arby::Ast::ASig
-            @out.p @conf.sig_namer[cls]
-          else
-            @out.p type.cls.to_s.relative_name
-          end
-        when Arby::Ast::ProductType
-          @out.pn [type.lhs]
-          @out.p " #{type.left_mult}-> "
-          @out.p "(" if type.rhs.arity > 1
-          @out.pn [type.rhs]
-          @out.p ")" if type.rhs.arity > 1
-        when Arby::Ast::ModType
-          @out.p "#{type.mult} "
-          @out.p "(" if type.arity > 1
-          @out.pn [type.type]
-          @out.p ")" if type.arity > 1
+        if type.is_a?(Arby::Ast::FldRefType)
+          @out.p @conf.arg_namer[type.fld]
         else
-          @out.p type.to_s
+          case type
+          when Arby::Ast::NoType
+            @out.p "univ"
+          when Arby::Ast::UnaryType
+            cls = type.klass
+            if cls <= Arby::Ast::ASig
+              @out.p @conf.sig_namer[cls]
+            else
+              @out.p type.cls.to_s.relative_name
+            end
+          when Arby::Ast::ProductType
+            @out.pn [type.lhs]
+            @out.p " #{type.left_mult}-> "
+            @out.p "(" if type.rhs.arity > 1
+            @out.pn [type.rhs]
+            @out.p ")" if type.rhs.arity > 1
+          when Arby::Ast::ModType
+            @out.p "#{type.mult} "
+            @out.p "(" if type.arity > 1
+            @out.pn [type.type]
+            @out.p ")" if type.arity > 1
+          else
+            @out.p type.to_s
+          end
         end
       end
 

@@ -44,7 +44,7 @@ module Arby
 
       def resolve
         return if @resolved
-        resolve_fields
+        resolve_everything
         init_inv_fields
         eval_sig_bodies
         # add getters for all fields
@@ -62,12 +62,35 @@ module Arby
         @resolved = true
       end
 
+      def resolve_everything
+        resolve_fields
+        resolve_types
+      end
+
       # ----------------------------------------------------------------
-      # Goes through all the fields, searches for
+      # Goes through all the unresolved fields and only checks if the
+      # field name matches a name of another field, in which case
+      # resolves it to that other field.
+      # ----------------------------------------------------------------
+      def resolve_fields
+        logger = Arby.conf.logger
+        sigs.map{|s| s.meta.fields}.flatten.each do |fld|
+          fld.type.reject{|ut| ut.resolved?}.each do |utype|
+            src = utype.cls.src
+            ref_fld = fld.owner.meta.find_field(src, false)
+            if ref_fld
+              SDGUtils::MetaUtils.morph_into(utype, FldRefType.new(ref_fld))
+            end
+          end
+        end
+      end
+
+      # ----------------------------------------------------------------
+      # Goes through all the fields and funs, searches for
       # +UnresolvedRefColType+, resolves them and updates the field
       # information.
       # ----------------------------------------------------------------
-      def resolve_fields
+      def resolve_types
         logger = Arby.conf.logger
         flds = self.sigs.map{|s| s.meta.fields}.flatten
         funs = self.sigs.map{|s| s.meta.funs + s.meta.preds}.flatten + self.all_funs
@@ -75,14 +98,15 @@ module Arby
 
         types.each do |type|
           type.each do |utype|
-            col_type = utype.cls
-            if col_type.instance_of? Arby::Ast::UnaryType::ColType::UnresolvedRefColType
+            col_type = utype.respond_to?(:cls) && utype.cls
+            if col_type.is_a? UnaryType::ColType::UnresolvedRefColType
               logger.debug "[resolve_fields]   trying to resolve #{col_type}..."
               cls = Arby::Resolver.resolve_type(col_type)
               if cls
                 logger.debug "[resolve_fields]     resolved to #{cls}"
                 utype.update_cls(cls)
               else
+                binding.pry
                 logger.debug "[resolve_fields]     unable to resolve #{col_type}"
               end
             end

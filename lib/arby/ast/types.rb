@@ -166,6 +166,8 @@ module Arby
       def modifiers()         [] end
       def args()              {} end
 
+      def resolved()          true end
+
       def set_of()  self.apply_multiplicity(:set) end
       def seq_of()  self.apply_multiplicity(:seq) end
       def one_of()  self.apply_multiplicity(:one) end
@@ -324,6 +326,8 @@ module Arby
           end
         end
 
+        def resolved?() true end
+
         class PrimitiveColType < ColType
         end
 
@@ -354,9 +358,10 @@ module Arby
             @mod = mod
             @klass = nil
           end
+          def resolved?() false end
           def klass
             msg  = "`klass' method not available for #{self}:#{self.class}.\n"
-            msg += "Did you forget run Red::Initializer.resolve_fields?"
+            msg += "Did you forget run Arby::Initializer.resolve_fields?"
             fail msg
           end
         end
@@ -512,6 +517,7 @@ module Arby
       def klass()      @cls.klass end
       def arity()      1 end
       def column!(idx) self end
+      def resolved?()  @cls.resolved? end
 
       def primitive?() @cls.primitive? end
       def isInt?()     scalar? && ColType::IntColType === @cls end
@@ -631,9 +637,9 @@ module Arby
         end
       end
 
-      private
-
       def self.new(*a) fail("don't call ModType.new directly; call +wrap+ instead") end
+
+      protected
 
       # @param type [AType]
       # @param mult [Symbol]
@@ -645,18 +651,22 @@ module Arby
         @args = args
 
         # forward all methods defined in @type.class to @type
-        type.class.instance_methods(false).each{ |m|
-          unless ModType.instance_methods(false).member?(m)
-            self.singleton_class.class_eval <<-RUBY, __FILE__, __LINE__+1
-              def #{m}(*a, &b) @type.send #{m.inspect}, *a, &b end
-            RUBY
-          end
-        }
+        self.class.forward_methods(self, type)
 
         freeze
       end
 
       public
+
+      def self.forward_methods(from, to)
+        to.class.instance_methods(false).each do |m|
+          unless from.class.instance_methods(false).member?(m)
+            from.singleton_class.class_eval <<-RUBY, __FILE__, __LINE__+1
+              def #{m}(*a, &b) @type.send #{m.inspect}, *a, &b end
+            RUBY
+          end
+        end
+      end
 
       # don't forward +freeze+ to @type
       def freeze
@@ -686,5 +696,27 @@ module Arby
         "#{mm}#{ts}#{as}"
       end
     end
+
+    # ======================================================
+    # == Class +FldRefType+
+    #
+    # Wraps another type and adds a multiplicity modifier
+    # ======================================================
+    class FldRefType
+      include AType
+
+      attr_reader :fld
+
+      def initialize(fld)
+        @fld = fld
+        @type = fld.type
+        ModType.forward_methods(self, @type)
+      end
+
+      def to_s
+        @fld.name
+      end
+    end
+
   end
 end
