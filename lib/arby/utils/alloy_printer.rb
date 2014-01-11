@@ -61,7 +61,7 @@ module Arby
       end
 
       def to_als(arby_obj)
-        _fail = proc{fail "Unrecognized Arby entity: #{alloy_obj}:#{alloy_obj.class}"}
+        _fail = proc{fail "Unrecognized Arby entity: #{arby_obj}:#{arby_obj.class}"}
         case arby_obj
         when Arby::Ast::Model; model_to_als(arby_obj)
         when Class
@@ -88,16 +88,41 @@ module Arby
       end
 
       def model_to_als(model)
+        history = @history ||= Set.new
+        return if history.member?(model)
+        history << model
+
+        if @in_opened_module
+          @out.pl "-------------------------------------------"
+          @out.p  "// "
+        end
+
         @out.pl "module #{model.relative_name}"
         @out.pl
+
+        # print open decsl
+        was_open = @in_opened_module
+        @in_opened_module = true
+        @out.pn model.opens, "\n"
+        @in_opened_module = was_open
+
+        # print sigs
         @out.pn model.sigs.reject{|s| s.meta.enum_const?}, "\n"
+
+        # print funs
         unless model.all_funs.empty?
           @out.pl
           @out.pn model.all_funs, "\n"
         end
+
+        # print commands
         unless model.commands.empty?
           @out.pl
           @out.pn model.commands, "\n"
+        end
+
+        if @in_opened_module
+          @out.pl "-------------------------------------------\n"
         end
       end
 
