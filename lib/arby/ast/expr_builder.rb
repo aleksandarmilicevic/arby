@@ -1,5 +1,6 @@
 require 'arby/ast/op'
 require 'arby/ast/expr'
+require 'arby/dsl/mod_builder'
 
 module Arby
   module Ast
@@ -55,8 +56,22 @@ module Arby
           ans.set_type(type) if type
           ans
 
+        when Ops::PRODUCT
+          check_arity args, 2, "#{op} is a binary operators; #{args.size} operands given"
+          if Arby::Dsl::ModBuilder === args[1] && args[1].pending_product?
+            modb = args[1]
+            ans = apply(Ops::PRODUCT, args[0], modb.rhs_type)
+            ans.instance_variable_set "@left_mult", modb.mod_smbl
+            ans
+          else
+            ans = Expr::BinaryExpr.new(op, *args)
+            type = TypeComputer.compute_type(op, *ans.children)
+            ans.set_type(type) if type
+            ans
+          end
+
         # relational binary ops
-        when Ops::PLUS, Ops::MINUS, Ops::SELECT, Ops::JOIN, Ops::PRODUCT,
+        when Ops::PLUS, Ops::MINUS, Ops::SELECT, Ops::JOIN,
              Ops::DOMAIN, Ops::RANGE, Ops::INTERSECT
           check_arity args, 2, "#{op} is a binary operators; #{args.size} operands given"
           ans = Expr::BinaryExpr.new(op, *args)
@@ -89,7 +104,7 @@ module Arby
       end
 
       def check_arity(arr, expected_arity, err_msg=nil)
-        msg = "expected arity: #{expected_arity}, actual: #{arr.length}"
+        msg = "expected arity: #{expected_arity}, actual: #{arr.length}; "
         msg += err_msg if err_msg
         raise ArgumentError, msg unless arr.length == expected_arity
       end
