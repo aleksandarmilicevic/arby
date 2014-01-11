@@ -50,9 +50,26 @@ module ChameleonExample
     enum Shape[Box, Circle, Triangle]
 
     sig Projection [ proj_atoms: univ ]
+
     sig Node [
-      node: (set Projection)
+      node:  (set Projection),
+      color: (Color one ** node),
+      shape: (Shape one ** node),
+      atom:  (univ  one ** node)
     ]
+
+    sig Edge [
+      edge:     (set Projection),
+      relation: (univ one ** edge),
+      source:   (Node one ** edge),
+      dest:     (Node one ** edge)
+    ]
+
+    fact {
+      all(p: Projection, e: edge.p) {
+        (e.source + e.dest).p.in? node.p
+      }
+    }
   end
 
 end
