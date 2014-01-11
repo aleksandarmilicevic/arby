@@ -6,10 +6,43 @@ module ArbyModels
 module ChameleonExample
   extend Arby::Dsl
 
+  alloy :Viz do
+    enum Color(Red, Blue, Green, Yellow)
+    enum Shape(Box, Circle, Triangle)
+
+    sig Projection [ proj_atoms: univ ]
+
+    sig Node [
+      node:  (set Projection),
+      color: (Color one ** node),
+      shape: (Shape one ** node),
+      atom:  (univ  one ** node)
+    ]
+
+    sig Edge [
+      edge:     (set Projection),
+      relation: (univ one ** edge),
+      source:   (Node one ** edge),
+      dest:     (Node one ** edge)
+    ]
+
+    fact {
+      all(p: Projection, e: edge.p) {
+        (e.source + e.dest).p.in? node.p
+      }
+    }
+  end
+
+
   alloy :Chameleons do
+    #open Viz
+    include Viz
+    extend Viz
+    ::Viz = Viz
+
     sig Time
 
-    enum Color[R, G, B]
+    enum Color(R, G, B)
 
     sig Chameleon [
       color: (Color one ** Time),
@@ -42,34 +75,24 @@ module ChameleonExample
 
     pred some_meet { some meets }
 
-    run :some_meet
-  end
-
-  alloy :Viz do
-    enum Color[Red, Blue, Green, Yellow]
-    enum Shape[Box, Circle, Triangle]
-
-    sig Projection [ proj_atoms: univ ]
-
-    sig Node [
-      node:  (set Projection),
-      color: (Color one ** node),
-      shape: (Shape one ** node),
-      atom:  (univ  one ** node)
-    ]
-
-    sig Edge [
-      edge:     (set Projection),
-      relation: (univ one ** edge),
-      source:   (Node one ** edge),
-      dest:     (Node one ** edge)
-    ]
-
-    fact {
-      all(p: Projection, e: edge.p) {
-        (e.source + e.dest).p.in? node.p
+    pred theme {
+      # proj_next = proj_atoms.time_next.~proj_atoms
+      proj_atoms.in? (Projection one ** (one Time)) and
+      all(t: Time) {
+        let(p: proj_atoms.t) {
+          atom.p.in? (node.p one ** (one Chameleon))
+          all(c1: Chameleon) {
+            all(c2: Chameleon - c1) {
+              (c1.color.t == c2.color.t) <=>
+              (Viz.color.p[atom.p.c1] == Viz.color.p[atom.p.c2]) and
+              ((shape.p[atom.p.c1] == shape.p[atom.p.c2]) if c1.in?(c2.meets.t))
+            }
+          }
+        }
       }
     }
+
+    run :some_meet
   end
 
 end

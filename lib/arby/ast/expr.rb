@@ -493,7 +493,7 @@ module Arby
             be.instance_variable_set "@left_mult", modb.mod_smbl
             be
           else
-            raise ::NameError, "method `#{sym}' not found in #{self}:#{self.class}"
+            super #raise ::NameError, "method `#{sym}' not found in #{self}:#{self.class}"
           end
         end
 
