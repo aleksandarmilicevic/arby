@@ -22,10 +22,10 @@ module Arby
             else_src = compute_src(node.children[2], anno)
             if else_src.empty?
               "Arby::Ast::Expr::BinaryExpr.implies(" +
-                "#{cond_src}, proc{#{then_src}}) "
+                "proc{#{cond_src}}, proc{#{then_src}}) "
             else
               "Arby::Ast::Expr::ITEExpr.new(" +
-                "#{cond_src}, " +
+                "proc{#{cond_src}}, " +
                 "proc{#{then_src}}, " +
                 "proc{#{else_src}})"
             end
