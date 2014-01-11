@@ -2,6 +2,11 @@ module Arby
   module Bridge
     module SolverHelpers
 
+      def compile
+        require 'arby/bridge/compiler'
+        Arby::Bridge::Compiler.compile(to_als())
+      end
+
       def solve(pred=nil, scope="", bounds=nil)
         require 'arby/bridge/compiler'
         require 'arby/bridge/solution'
