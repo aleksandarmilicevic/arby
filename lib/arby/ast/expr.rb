@@ -276,6 +276,12 @@ module Arby
           if args.empty?
             return super unless Arby.conf.sym_exe.convert_missing_fields_to_joins
             ExprBuilder.apply(JOIN, self, Var.new(sym))
+          elsif args.size == 1 && Arby::Dsl::ModBuilder === args.first &&
+              args.first.pending_product?
+            modb = args.first
+            be = ExprBuilder.apply(Ops::PRODUCT, self, modb.rhs_type)
+            be.instance_variable_set "@left_mult", modb.mod_smbl
+            be
           else
             return super unless Arby.conf.sym_exe.convert_missing_methods_to_fun_calls
             apply_call sym, *args
