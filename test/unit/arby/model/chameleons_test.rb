@@ -23,7 +23,7 @@ class ChameleonsTest < Test::Unit::TestCase
     assert sol.satisfiable?
   end
 
-  def _test_chameleon_viz
+  def test_chameleon_viz
     puts ChameleonsViz.meta.to_als
     sol = ChameleonsViz.execute_command :viz
     assert sol.satisfiable?

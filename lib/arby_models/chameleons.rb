@@ -28,11 +28,39 @@ module ChameleonExample
     fact {
       all(p: Projection) {
         all(e: edge.(p)) {
-          (source[e] + dest[e]).(p).in? node.(p)
+          e.(source + dest).(p).in? node.(p)
         }
       }
     }
   end
+
+# alloy :Chameleons do
+# ordered sig Time
+# enum Color(R, G, B)
+
+# sig Chameleon [
+#  color: (Color one ** Time),
+#  meets: (Chameleon lone ** Time)]
+
+# fact {
+#  all(t: Time) {
+#   meets.(t) == ~meets.(t) and no iden & meets.(t) and
+#   all(t2: t.next, c: Chameleon) {
+#    change(t, t2, c) or same(t, t2, c) }}}
+
+# pred change[t1: Time, t2: Time, c: Chameleon] {
+#  some c.meets.(t1) and
+#  c.color.(t1) != c.meets.(t1).color.(t1) and
+#  c.color.(t2) == Color - (c + c.meets.(t1)).color.(t1) }
+
+# pred same[t1: Time, t2: Time, c: Chameleon] {
+#  (no c.meets.(t1) or
+#   c.color.(t1) == c.meets.(t1).color.(t1)) and
+#  c.color.(t2) == c.color.(t1) }
+
+# pred some_meet { some meets }
+# run :some_meet, 5
+# end
 
   alloy :Chameleons do
     ordered sig Time
@@ -45,15 +73,16 @@ module ChameleonExample
     ]
 
     pred change[t1: Time, t2: Time, c: Chameleon] {
-      cmeets_color_t1 = c.meets.(t1).color.(t1)
+      cmeets = c.meets.(t1)
 
       some c.meets.(t1) and
-      c.color.(t1) != cmeets_color_t1 and
-      c.color.(t2) == Color - (c.color.(t1) + cmeets_color_t1)
+      c.color.(t1) != cmeets.color.(t1) and
+      c.color.(t2) == Color - (c + cmeets).color.(t1)
     }
 
     pred same[t1: Time, t2: Time, c: Chameleon] {
-      (no c.meets.(t1) or c.color.(t1) == c.meets.(t1).color.(t1)) and
+      (no c.meets.(t1) or
+       c.color.(t1) == c.meets.(t1).color.(t1)) and
       c.color.(t2) == c.color.(t1)
     }
 
@@ -99,7 +128,7 @@ module ChameleonExample
             all(c2: Chameleon - c) {
               # Viz colors are the same iff their colors are the same
               (c.color.(t) == c2.color.(t)) <=>
-              (Viz.color.(p)[atom.(p).(c)] == Viz.color.(p)[atom.(p).(c2)]) and
+              (atom.(p).(c).color.(p) == atom.(p).(c2).color.(p)) and
 
               # Viz shapes are the same for those who meet
               if c.in? c2.meets.(t)
@@ -114,9 +143,10 @@ module ChameleonExample
       # stability over Time: same colored Chameleons -> same viz colors
       all(t: Time, t2: Time, c: Chameleon, c2: Chameleon) {
         let(p: proj_atoms.(t), p2: proj_atoms.(t2)) {
-          if t != t2 and c.color.(t) == c2.color.(t2)
-            atom.(p).(c).color.(p) == atom.(p2).(c2).color.(p2)
-          end
+          atom.(p).(c).color.(p) == atom.(p2).(c2).color.(p2) if t != t2 && c.color.(t) == c2.color.(t2)
+          # if t != t2 and c.color.(t) == c2.color.(t2)
+          #   atom.(p).(c).color.(p) == atom.(p2).(c2).color.(p2)
+          # end
         }
       }
     }
