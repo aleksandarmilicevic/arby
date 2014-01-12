@@ -503,6 +503,8 @@ module Arby
         if isBool?
           # TODO: implement union type
           FalseClass === obj || TrueClass === obj
+        elsif self == TypeConsts::Univ
+          true
         else
           klass === obj
         end

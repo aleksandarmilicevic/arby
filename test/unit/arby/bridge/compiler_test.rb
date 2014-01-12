@@ -21,7 +21,6 @@ run {
 """
 
       def setup_class
-        # @@compiler = Compiler.compile(@@model)
         @@a4world = Compiler.parse(@@model)
         @@a4sol = Compiler.execute_command(@@a4world)
       end

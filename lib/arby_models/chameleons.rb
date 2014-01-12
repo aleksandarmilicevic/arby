@@ -34,34 +34,6 @@ module ChameleonExample
     }
   end
 
-# alloy :Chameleons do
-# ordered sig Time
-# enum Color(R, G, B)
-
-# sig Chameleon [
-#  color: (Color one ** Time),
-#  meets: (Chameleon lone ** Time)]
-
-# fact {
-#  all(t: Time) {
-#   meets.(t) == ~meets.(t) and no iden & meets.(t) and
-#   all(t2: t.next, c: Chameleon) {
-#    change(t, t2, c) or same(t, t2, c) }}}
-
-# pred change[t1: Time, t2: Time, c: Chameleon] {
-#  some c.meets.(t1) and
-#  c.color.(t1) != c.meets.(t1).color.(t1) and
-#  c.color.(t2) == Color - (c + c.meets.(t1)).color.(t1) }
-
-# pred same[t1: Time, t2: Time, c: Chameleon] {
-#  (no c.meets.(t1) or
-#   c.color.(t1) == c.meets.(t1).color.(t1)) and
-#  c.color.(t2) == c.color.(t1) }
-
-# pred some_meet { some meets }
-# run :some_meet, 5
-# end
-
   alloy :Chameleons do
     ordered sig Time
 

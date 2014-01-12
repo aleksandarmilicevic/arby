@@ -8,7 +8,7 @@ module Arby
 
       # @override
       def setup_class
-        @@compiler = Compiler.compile(@@model)
+        @@compiler = Compiler.compile(nil, @@model)
         @@solution = @@compiler.execute_command(0)
       end
 

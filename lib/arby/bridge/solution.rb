@@ -190,7 +190,7 @@ module Arby
       # @return [Hash(String, Sig)] - a map of atom labels to aRby atoms
       def arby_instance()
         return Arby::Ast::Instance.new unless satisfiable?
-        @arby_instance ||= Translator.to_arby_instance(instance(), univ)
+        @arby_instance ||= Translator.to_arby_instance(instance(), univ, compiler.model)
       end
 
       private

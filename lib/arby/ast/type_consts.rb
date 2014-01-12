@@ -24,6 +24,7 @@ module Arby
         case sym.to_s
         when "Int", "Integer" then Int
         when "seq/Int"        then Int
+        when "univ"           then Univ
         else
           nil
         end

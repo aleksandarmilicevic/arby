@@ -20,18 +20,24 @@ module Arby
       # @param inst [Arby::Ast::Instance<Arby::Bridge::Atom, Arby::Bridge::TupleSet>]
       # @param univ [Arby::Ast::Universe]
       # @return [Arby::Ast::Instance<Arby::Ast::Sig, Arby::Ast::TupleSet>]
-      def to_arby_instance(inst, univ=nil)
-        atoms   = inst.atoms.map{|a| _create_atom(a, univ)}
+      def to_arby_instance(inst, univ=nil, model=nil)
+        atoms   = inst.atoms.map{|a| _create_atom(a, univ)}.compact
         tmpi    = Arby::Ast::Instance.new atoms
-        flds    = inst.fields.map{|name| [name, _to_tuple_set(tmpi, inst.field(name))]}
+        # flds    = inst.fields.map{|name| [name, _to_tuple_set(tmpi, inst.field(name))]}
         skolems = inst.skolems.map{|name| [name, _to_tuple_set(tmpi, inst.skolem(name))]}
 
+        m = model || Arby.meta
+        flds = m.all_reachable_sigs.map{|s| s.meta.fields}.flatten.map{ |fld|
+          fld_name = Arby.conf.alloy_printer.arg_namer[fld]
+          ts = inst.field(fld_name) and [fld_name, _to_tuple_set(tmpi, ts)]
+        }
+        
         fld_map    = Hash[flds]
         skolem_map = Hash[skolems]
 
         # restore field values
         atoms.each do |atom|
-          atom.meta.fields(false).each do |fld|
+          atom.meta.pfields(false).each do |fld|
             # select those tuples in +fld+s relation that have +atom+ on the lhs
             fld_name = Arby.conf.alloy_printer.arg_namer[fld]
             fld_tuples = fld_map[fld_name].select{|tuple| tuple[0] == atom}
@@ -42,7 +48,7 @@ module Arby
           end
         end
 
-        Arby::Ast::Instance.new atoms, fld_map, skolem_map, false
+        Arby::Ast::Instance.new atoms, fld_map, skolem_map, false, model
       end
 
       private
@@ -52,10 +58,10 @@ module Arby
       # @param atom [Arby::Bridge::Atom]
       # @return [Arby::Ast::Sig]
       def _create_atom(atom, univ=nil)
-        new_atom =
-          (univ && univ.find_atom(atom.label)) ||
-          _type_to_sig!(atom.type).new()
-        new_atom.label = atom.label
+        new_atom = 
+          (univ and univ.find_atom(atom.label)) ||
+          (sig_cls = _this_type_to_sig!(atom.type) and sig_cls.new())
+        new_atom.label = atom.label if new_atom
         new_atom
       end
 
@@ -75,8 +81,15 @@ module Arby
         # Arby.meta.find_sig(sig_name)
       end
 
-      def _type_to_atype!(type) _type_to_atype(type) or fail("type #{type} not found") end
-      def _type_to_sig!(type)   _type_to_sig(type) or fail("sig #{type} not found") end
+      def _type_to_atype!(type) _type_to_atype(type) or fail "type #{type} not found" end
+      def _type_to_sig!(type)   _type_to_sig(type) or fail "sig #{type} not found" end
+      def _this_type_to_sig!(type)
+        if type.signature.start_with?(SIG_PREFIX)
+          _type_to_sig!(type) 
+        else
+          _type_to_sig(type) 
+        end
+      end
 
       # @param inst [Arby::Ast::Instance<Arby::Ast::Sig, Arby::Ast::TupleSet>]
       # @param ts [Arby::Bridge::TupleSet]

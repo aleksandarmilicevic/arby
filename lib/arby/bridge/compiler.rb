@@ -5,15 +5,17 @@ require 'sdg_utils/timing/timer'
 module Arby
   module Bridge
     class Compiler
-      def self.compile(als_model)
-        compiler = Compiler.new(als_model)
+      # @model     [Arby::Ast::Model]
+      # @als_model [String]
+      def self.compile(model, als_model=nil)
+        als_model, model = [model, nil] if als_model.nil? && model.is_a?(String)
+        compiler = Compiler.new(model, als_model || model.to_als)
         compiler.parse
         compiler
       end
 
-      def _a4world
-        @a4world
-      end
+      def model() @model end
+      def _a4world() @a4world end
 
       # @see Compiler.parse
       def parse
@@ -49,7 +51,8 @@ module Arby
         fail "model not parsed; call `parse' first" unless @a4world
       end
 
-      def initialize(als_model)
+      def initialize(model, als_model)
+        @model     = model
         @rep       = nil # we don't care to listen to reports
         @als_model = als_model
         @timer     = SDGUtils::Timing::Timer.new

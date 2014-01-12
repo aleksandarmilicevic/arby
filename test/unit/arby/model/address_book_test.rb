@@ -17,7 +17,7 @@ class AddressBookTest < Test::Unit::TestCase
     Arby.meta.restrict_to(ArbyModels::AddressBook)
 
     @@als_model = Arby.meta.to_als
-    @@compiler  = Arby::Bridge::Compiler.compile(@@als_model)
+    @@compiler  = ArbyModels::AddressBook.compile
   end
 
   def test

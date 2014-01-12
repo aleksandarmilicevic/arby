@@ -56,6 +56,8 @@ module Arby
 
       attr_searchable :model, :sig
 
+      def all_reachable_sigs() sigs end
+
       def add_sig_builder(sb)
         @sig_builders << sb
         @opened_model and @opened_model.send(:add_sig_builder, sb)

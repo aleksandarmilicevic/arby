@@ -18,21 +18,28 @@ class ChameleonsTest < Test::Unit::TestCase
   #   puts ChameleonsViz.meta.to_als.inspect
   # end
 
-  def _test_chameleon
+  def test_chameleon
     puts Chameleons.meta.to_als
     sol = Chameleons.execute_command :some_meet
     assert sol.satisfiable?
+    sol.arby_instance
   end
 
-  def _test_chameleon_viz
+  def test_chameleon_viz
     puts ChameleonsViz.meta.to_als
     sol = ChameleonsViz.execute_command :viz
     assert sol.satisfiable?
+    sol.arby_instance
   end
 
   def _test_staged
     n = 5
     ch_sol = Chameleons.solve :some_meet, n, Chameleon => exactly(n-1)
+    assert ch_sol.satisfiable?
+    inst = ch_sol.arby_instance
+    bounds = inst.to_bounds
+    puts bounds.serialize
+    viz_sol = ChameleonsViz.solve :viz, bounds, n
   end
 
   # def test_instance

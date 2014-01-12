@@ -4,7 +4,7 @@ module Arby
 
       def compile
         require 'arby/bridge/compiler'
-        Arby::Bridge::Compiler.compile(to_als())
+        Arby::Bridge::Compiler.compile(self)
       end
 
       def solve(pred=nil, *scope_bounds)
@@ -20,20 +20,20 @@ module Arby
                              else
                                ["find_model_#{SDGUtils::Random.salted_timestamp}", "{}"]
                              end
-        run_cmd = "run #{cmd_name} #{cmd_body} #{scope}"
+        run_cmd = "run #{cmd_name} #{cmd_body} #{scope.to_als}"
         als_model = "#{to_als}\n\n#{run_cmd}"
 
         # puts "Solving this"
         # puts "---"
         # puts als_model
         # puts "---"
-        comp = Arby::Bridge::Compiler.compile(als_model)
+        comp = Arby::Bridge::Compiler.compile(self, als_model)
         comp.execute_command(-1, bounds)
       end
 
       def execute_command(cmd_idx_or_name=0, bounds=nil)
         require 'arby/bridge/compiler'
-        comp = Arby::Bridge::Compiler.compile(to_als)
+        comp = Arby::Bridge::Compiler.compile(self)
         comp.execute_command(cmd_idx_or_name, bounds)
       end
 

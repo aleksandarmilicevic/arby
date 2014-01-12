@@ -20,7 +20,7 @@ class SeqFilteringTest < Test::Unit::TestCase
     als_model = ArbyModels::SeqFiltering.meta.to_als
     puts als_model
     puts "compiling..."
-    compiler = Compiler.compile(als_model)
+    compiler = ArbyModels::SeqFiltering.compile
 
     pi = Arby::Ast::Bounds.new
     a_upper = Arby::Ast::TupleSet.wrap (1..4).map{|_| A.new}

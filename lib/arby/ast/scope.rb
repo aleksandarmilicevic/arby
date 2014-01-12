@@ -33,6 +33,14 @@ module Arby
         sig_scopes = "but #{sig_scopes}" unless sig_scopes.empty?
         "for #{global_scope}#{sig_scopes}"
       end
+
+      def to_als(sig_namer=Arby.conf.alloy_printer.sig_namer)
+        global_scope = @global ? "#{@global} " : ''
+        sig_scopes = @sig_scopes.map{|ss| ss.to_s(sig_namer)}.join(' ')
+        sig_scopes = "but #{sig_scopes}" unless sig_scopes.empty?
+        "for #{global_scope}#{sig_scopes}"
+      end
+
     end
 
   end

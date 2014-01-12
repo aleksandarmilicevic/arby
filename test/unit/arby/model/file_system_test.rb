@@ -19,7 +19,7 @@ class FileSystemTest < Test::Unit::TestCase
     Arby.meta.restrict_to(ArbyModels::FileSystem)
 
     @@als_model = Arby.meta.to_als
-    @@compiler  = Compiler.compile(@@als_model)
+    @@compiler  = ArbyModels::FileSystem.compile()
     @@sol       = @@compiler.execute_command(0)
   end
 
