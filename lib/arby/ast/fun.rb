@@ -77,7 +77,7 @@ module Arby
             obj = Object.new
             obj.singleton_class.send :include, cls
             obj.define_singleton_method :make_me_sym_expr do |name="self"|
-              Arby::Ast::Expr.as_atom(self, name, cls, Expr::MImplicitInst)
+              Expr.as_atom(self, name, cls, Expr::MImplicitInst)
             end
             obj
           end
