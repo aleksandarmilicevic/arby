@@ -29,9 +29,9 @@ module Arby
         m = model || Arby.meta
         flds = m.all_reachable_sigs.map{|s| s.meta.fields}.flatten.map{ |fld|
           fld_name = Arby.conf.alloy_printer.arg_namer[fld]
-          ts = inst.field(fld_name) and [fld_name, _to_tuple_set(tmpi, ts)]
+          ts = inst.field(fld_name) and [fld, _to_tuple_set(tmpi, ts)]
         }
-        
+
         fld_map    = Hash[flds]
         skolem_map = Hash[skolems]
 
@@ -39,8 +39,7 @@ module Arby
         atoms.each do |atom|
           atom.meta.pfields(false).each do |fld|
             # select those tuples in +fld+s relation that have +atom+ on the lhs
-            fld_name = Arby.conf.alloy_printer.arg_namer[fld]
-            fld_tuples = fld_map[fld_name].select{|tuple| tuple[0] == atom}
+            fld_tuples = fld_map[fld].select{|tuple| tuple[0] == atom}
             # strip the lhs
             fld_val = fld_tuples.map{|tuple| tuple[1..-1]}
             # write that field value
@@ -58,7 +57,7 @@ module Arby
       # @param atom [Arby::Bridge::Atom]
       # @return [Arby::Ast::Sig]
       def _create_atom(atom, univ=nil)
-        new_atom = 
+        new_atom =
           (univ and univ.find_atom(atom.label)) ||
           (sig_cls = _this_type_to_sig!(atom.type) and sig_cls.new())
         new_atom.label = atom.label if new_atom
@@ -85,9 +84,9 @@ module Arby
       def _type_to_sig!(type)   _type_to_sig(type) or fail "sig #{type} not found" end
       def _this_type_to_sig!(type)
         if type.signature.start_with?(SIG_PREFIX)
-          _type_to_sig!(type) 
+          _type_to_sig!(type)
         else
-          _type_to_sig(type) 
+          _type_to_sig(type)
         end
       end
 
