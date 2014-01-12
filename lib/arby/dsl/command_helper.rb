@@ -28,7 +28,7 @@ module Arby
       private
 
       def __command(kind, *name_scope_exceptions, &body)
-        msg = "Too many commmand args: expected max 3, got #{name_scope_exceptions}"
+        msg = "Too many commmand args: expected max 3, got #{name_scope_exceptions.size}"
         raise SyntaxError, msg if name_scope_exceptions.size > 3
         msg = "Too few command args: at least <scope> expected, got nothing"
         fail SyntaxError, msg if name_scope_exceptions.empty?
@@ -55,7 +55,6 @@ module Arby
           pred = _create_fn(:pred, pred_name, {}, nil, &body)
           _define_method_for_fun(pred)
         end
-
         sig_scopes = CommandHelper.__parse_sig_scope_hash(exceptions)
         scope = Arby::Ast::Scope.new(scope, sig_scopes)
 

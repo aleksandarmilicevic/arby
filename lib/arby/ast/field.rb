@@ -39,6 +39,7 @@ require 'sdg_utils/string_utils'
         @synth             = hash[:synth] || false
         @belongs_to_parent = hash[:belongs_to_parent] || hash[:owned] || false
         @transient         = hash[:transient] || false
+        @ordering          = hash[:ordering] || false
         set_inv(hash[:inv])
       end
 
@@ -47,6 +48,8 @@ require 'sdg_utils/string_utils'
       def getter_sym()         Field.getter_sym(self) end
       def setter_sym()         Field.setter_sym(self) end
 
+      def ordering?()          !!@ordering end
+      def virtual?()           @transient end
       def transient?()         @transient end
       def persistent?()        !@transient end
       def synth?()             @synth end

@@ -31,7 +31,8 @@ module Arby
           add_field_methods cls, range_cls.meta.inv_fields_including_sub_and_super
           add_fun_methods   cls, range_cls.meta.all_funs
         elsif (Arby::Dsl::ModelDslApi >= range_cls rescue false)
-          add_fun_methods   cls, range_cls.meta.all_funs
+          funs = range_cls.meta.opens.map(&:all_funs).flatten + range_cls.meta.all_funs
+          add_fun_methods   cls, funs
         end
         if type.seq? || type.range.seq?
           #TODO: do it the right way

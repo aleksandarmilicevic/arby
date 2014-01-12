@@ -90,16 +90,28 @@ module Arby
           # end
         end
 
-        # @see +SigMeta#abstract?+
-        # @return [TrueClass, FalseClass]
         def abstract?() meta.abstract? end
+        def ordered?()  meta.ordered? end
 
-        # @see +SigMeta#set_abstract+
         def set_abstract() meta.set_abstract end
-        # @see +SigMeta#set_one+
-        def set_one() meta.set_one end
-        # @see +SigMeta#set_lone+
-        def set_lone() meta.set_lone end
+        def set_one()      meta.set_one end
+        def set_lone()     meta.set_lone end
+        def set_ordered()
+          meta.set_ordered
+          #TODO: move elsewhere
+          # fnext = Field.new(:name    => :next,
+          #                   :parent  => self,
+          #                   :type    => self,
+          #                   :virtual => true)
+          meta.add_field(:next, self, :transient => true)
+          f = Field.new(:name     => "next",
+                        :parent   => self,
+                        :type     => self,
+                        :ordering => true)
+          define_singleton_method :next do
+            get_cls_field(f)
+          end
+        end
 
         # @see +SigMeta#placeholder?+
         # @return [TrueClass, FalseClass]

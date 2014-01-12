@@ -3,6 +3,7 @@ require 'arby/dsl/command_helper'
 require 'arby/dsl/sig_builder'
 require 'arby/dsl/errors'
 require 'arby/ast/model'
+require 'arby/ast/scope'
 require 'arby/ast/expr_builder'
 require 'arby/ast/type_consts'
 require 'sdg_utils/delegator'
@@ -42,6 +43,10 @@ module Arby
         }).sig(*args, &block)
       end
 
+      def ordered(blder, &block)
+        blder.apply_modifier("ordered", nil, &block)
+      end
+
       def iden() Arby::Ast::Expr::ExprConsts::IDEN end
       def univ(rhs=nil)
         case
@@ -76,6 +81,10 @@ module Arby
           send :const_set, mod.relative_name, mod
           meta.add_open(mod.meta)
         end
+      end
+
+      def exactly(int_scope)
+        Arby::Ast::SigScope.new(nil, int_scope, true)
       end
 
       def __created(scope_module)

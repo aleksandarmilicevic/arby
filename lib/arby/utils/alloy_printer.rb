@@ -93,11 +93,19 @@ module Arby
         history << model
 
         if @in_opened_module
-          @out.pl "-------------------------------------------"
-          @out.p  "// "
+          @out.pl "// ============================================="
+          @out.pl "// == module #{model.relative_name}"
+        else
+          # module name (useless)
+          @out.pl "module #{model.relative_name}"
+
+          # print builtin opens
+          model.all_reachable_sigs.select(&:ordered?).each do |s|
+            sname = @conf.sig_namer[s]
+            @out.pl "open util/ordering[#{sname}] as #{sname}_ord"
+          end
         end
 
-        @out.pl "module #{model.relative_name}"
         @out.pl
 
         # print open decsl
@@ -122,7 +130,7 @@ module Arby
         end
 
         if @in_opened_module
-          @out.pl "-------------------------------------------\n"
+          @out.pl "// -------------------------------------------\n"
         end
       end
 
@@ -138,10 +146,11 @@ module Arby
         psig_str = (psig != Arby::Ast::Sig) ? "extends #{@conf.sig_namer[psig]}" : ""
         sig_name = @conf.sig_namer[sig]
         @out.p "#{abs_str}sig #{sig_name} #{psig_str} {"
-        unless sig.meta.fields.empty?
+        flds = sig.meta.fields.reject(&:transient?)
+        unless flds.empty?
           @out.pl
           @out.in do
-            @out.pn sig.meta.fields, ",\n"
+            @out.pn flds, ",\n"
           end
           @out.pl
         end
@@ -275,7 +284,14 @@ module Arby
       end
 
       def fieldexpr_to_als(fe)
-        fld_name = @conf.arg_namer[fe.__field]
+        fld = fe.__field
+        fld_name = if fld.ordering?
+                     "#{@conf.sig_namer[fld.owner]}_ord/#{fld.name}"
+                   elsif fld.virtual?
+                     fld.name
+                   else
+                     @conf.arg_namer[fld]
+                   end
         if @in_appended_facts
           @out.p "@#{fld_name}"
         else
