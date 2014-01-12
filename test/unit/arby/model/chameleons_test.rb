@@ -25,6 +25,12 @@ class ChameleonsTest < Test::Unit::TestCase
     sol.arby_instance
   end
 
+  def test_viz
+    puts Viz.meta.to_als
+    inst = Viz.find_instance
+    assert inst
+  end
+
   def test_chameleon_viz
     puts ChameleonsViz.meta.to_als
     sol = ChameleonsViz.execute_command :viz
@@ -32,14 +38,15 @@ class ChameleonsTest < Test::Unit::TestCase
     sol.arby_instance
   end
 
-  def _test_staged
+  def test_staged
     n = 5
     ch_sol = Chameleons.solve :some_meet, n, Chameleon => exactly(n-1)
     assert ch_sol.satisfiable?
     inst = ch_sol.arby_instance
+    $pera = 1
     bounds = inst.to_bounds
     puts bounds.serialize
-    viz_sol = ChameleonsViz.solve :viz, bounds, n
+    # viz_sol = ChameleonsViz.solve :viz, bounds, n
   end
 
   # def test_instance

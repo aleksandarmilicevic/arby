@@ -7,7 +7,7 @@ module ChameleonExample
   extend Arby::Dsl
 
   alloy :Viz do
-    enum Color(Red, Blue, Green, Yellow)
+    enum Color(Red, Blue, Green, Grey)
     enum Shape(Box, Circle, Triangle)
 
     ordered sig Projection [ pr_atoms: univ ]

@@ -36,7 +36,7 @@ module Arby
         skolem_map = Hash[skolems]
 
         # restore field values
-        atoms.each do |atom|
+        atoms.select{|a| a.is_a?(Arby::Ast::ASig)}.each do |atom|
           atom.meta.pfields(false).each do |fld|
             # select those tuples in +fld+s relation that have +atom+ on the lhs
             fld_tuples = fld_map[fld].select{|tuple| tuple[0] == atom}
@@ -60,8 +60,12 @@ module Arby
         new_atom =
           (univ and univ.find_atom(atom.label)) ||
           (sig_cls = _this_type_to_sig!(atom.type) and sig_cls.new())
-        new_atom.label = atom.label if new_atom
-        new_atom
+        if new_atom
+          new_atom.label = atom.label
+          new_atom
+        else
+          atom
+        end
       end
 
       def _type_to_atype(type)

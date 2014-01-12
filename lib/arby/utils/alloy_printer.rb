@@ -236,6 +236,8 @@ module Arby
               @out.p @conf.sig_namer[cls]
             elsif sig_cls = Arby.meta.find_sig(type.cls.to_s.relative_name)
               @out.p @conf.sig_namer[sig_cls]
+            elsif cls == Object
+              @out.p "univ"
             else
               @out.p type.cls.to_s.relative_name
             end

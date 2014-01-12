@@ -262,6 +262,7 @@ module Arby
         return false unless self.arity == other.arity
         rlhs = self.to_ruby_type
         rrhs = other.to_ruby_type
+        # binding.pry if $pera && rlhs.size > 1
         (0...self.arity).to_a.all?{|idx| rlhs[idx].send(cmp_op, rrhs[idx])}
       end
 
@@ -398,7 +399,11 @@ module Arby
             elsif sym <= Time
               TimeColType.new(sym)
             else
-              RefColType.new(sym)
+              sig_cls = nil
+              if sym != Object && !(sym <= Arby::Ast::ASig)
+                sig_cls = Arby.meta.find_sig(sym.relative_name)
+              end
+              RefColType.new(sig_cls || sym)
             end
           when SDGUtils::DSL::MissingBuilder
             sym.consume
@@ -719,6 +724,11 @@ module Arby
       def to_s
         @fld.name
       end
+    end
+
+    class UnivType < UnaryType
+      def initialize() super(Object) end
+      def to_s()       "univ" end
     end
 
   end

@@ -1,3 +1,4 @@
+require 'arby/ast/bounds'
 require 'arby/ast/tuple_set'
 
 module Arby
@@ -39,17 +40,21 @@ module Arby
           fail "label must be either Integer, String or Symbol but is #{label.class}"
         end
       end
-      def field(name)  @fld2tuples[name] end
+      def field(fld)   @fld2tuples[fld] end
       def skolem(name) @skolem2tuples[name] end
 
       def atom!(label)  atom(label)  or fail("atom `#{label}' not found") end
-      def field!(name)  field(name)  or fail("field `#{name}' not found") end
+      def field!(fld)   field(fld)   or fail("field `#{fld}' not found") end
       def skolem!(name) skolem(name) or fail("skolem `#{name}' not found") end
 
       def [](name) atom(name) || skolem(name) || field(name) end
 
       def to_bounds
         bounds = Bounds.new
+        atoms.group_by(&:class).each do |cls, atoms|
+          bounds.bound_exactly(cls, atoms) if cls < Arby::Ast::ASig
+        end
+        @fld2tuples.each{|fld, ts| bounds.bound_exactly(fld, ts)}
         bounds
       end
 

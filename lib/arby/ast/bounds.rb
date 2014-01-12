@@ -20,7 +20,7 @@ module Arby
       # Labels all atoms in +universe+ to make sure all of them have
       # unique labels in the format of '<sig_name>$<index>'
       #
-      # @param [Array] - list of all atoms
+      # @param universe [Array] - list of all atoms
       def initialize(universe, sig_namer=nil)
         @universe = universe.dup
         @atom2label = {}

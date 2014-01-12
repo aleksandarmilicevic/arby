@@ -12,7 +12,8 @@ module Arby
     module TypeConsts
       extend self
 
-      Univ  = UnaryType.new(SigConsts::UnivCls)
+      # Univ  = UnaryType.new(SigConsts::UnivCls)
+      Univ  = UnivType.new
       Univ1 = Univ
       Int   = UnaryType.new(Integer)
       Bool  = UnaryType.new(:Bool)
