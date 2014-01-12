@@ -27,6 +27,7 @@ module Arby
         # puts "---"
         # puts als_model
         # puts "---"
+
         comp = Arby::Bridge::Compiler.compile(self, als_model)
         comp.execute_command(-1, bounds)
       end

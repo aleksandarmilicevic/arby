@@ -17,17 +17,17 @@ module Arby
       c.fun_namer = lambda{|fun| fun.name}
       c.arg_namer = lambda{|fld| fld.name}
 
-      c.sig_namer = lambda{|sig| sig.name.gsub /:/, "_"}
-      # c.sig_namer = lambda{|sig| sig.relative_name}
-      c.fun_namer = lambda{|fun| "#{c.sig_namer[fun.owner]}__#{fun.name}"}
-      c.fun_namer = lambda{|fun| fun.name}
-      c.arg_namer = lambda{|fld|
-        if Class === fld.owner && fld.owner.is_sig?
-          "#{c.sig_namer[fld.owner]}__#{fld.name}"
-        else
-          fld.name
-        end
-      }
+      # c.sig_namer = lambda{|sig| sig.name.gsub /:/, "_"}
+      # # c.sig_namer = lambda{|sig| sig.relative_name}
+      # c.fun_namer = lambda{|fun| "#{c.sig_namer[fun.owner]}__#{fun.name}"}
+      # c.fun_namer = lambda{|fun| fun.name}
+      # c.arg_namer = lambda{|fld|
+      #   if Class === fld.owner && fld.owner.is_sig?
+      #     "#{c.sig_namer[fld.owner]}__#{fld.name}"
+      #   else
+      #     fld.name
+      #   end
+      # }
     end
   end
 

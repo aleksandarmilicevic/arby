@@ -37,10 +37,10 @@ module ChameleonExample
   alloy :Chameleons do
     ordered sig Time
 
-    enum Color(R, G, B)
+    enum Kind(R, G, B)
 
     sig Chameleon [
-      color: (Color one ** Time),
+      kind: (Kind one ** Time),
       meets: (Chameleon lone ** Time)
     ]
 
@@ -48,14 +48,14 @@ module ChameleonExample
       cmeets = c.meets.(t1)
 
       some c.meets.(t1) and
-      c.color.(t1) != cmeets.color.(t1) and
-      c.color.(t2) == Color - (c + cmeets).color.(t1)
+      c.kind.(t1) != cmeets.kind.(t1) and
+      c.kind.(t2) == Kind - (c + cmeets).kind.(t1)
     }
 
     pred same[t1: Time, t2: Time, c: Chameleon] {
       (no c.meets.(t1) or
-       c.color.(t1) == c.meets.(t1).color.(t1)) and
-      c.color.(t2) == c.color.(t1)
+       c.kind.(t1) == c.meets.(t1).kind.(t1)) and
+      c.kind.(t2) == c.kind.(t1)
     }
 
     fact inv {
@@ -95,7 +95,7 @@ module ChameleonExample
           # for every other chameleon
           all(c2: Chameleon - c) {
             # Viz colors are the same iff their colors are the same
-            (c.color.(t) == c2.color.(t)) <=>
+            (c.kind.(t) == c2.kind.(t)) <=>
             (atom.(p).(c).color.(p) == atom.(p).(c2).color.(p)) and
 
             # Viz shapes are the same for those who meet
@@ -109,14 +109,14 @@ module ChameleonExample
       # stability over Time: same colored Chameleons -> same viz colors
       all(t: Time, t2: Time, c: Chameleon, c2: Chameleon) |
         let(p: pr_atoms.(t), p2: pr_atoms.(t2)) {
-          if t != t2 and c.color.(t) == c2.color.(t2)
+          if t != t2 and c.kind.(t) == c2.kind.(t2)
             atom.(p).(c).color.(p) == atom.(p2).(c2).color.(p2)
           end
       }
     }
 
     pred viz { some_meet and theme }
-    run :viz, 6, Chameleon => (exactly 5)
+    run :viz, 8, Chameleon => (exactly 7)
   end
 
 end

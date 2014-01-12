@@ -94,8 +94,18 @@ module Arby
           command_index = commands.size + command_index if command_index < 0
           cmd = commands.get(command_index)
           opt = A4Options_RJB.new
-          opt.solver = opt.solver.SAT4J #MiniSatJNI
+          opt.solver = opt.solver.MiniSatJNI #SAT4J #MiniSatJNI
           opt.partialInstance = partialInstanceStr
+
+          # puts "using command index--"
+          # puts command_index
+          # puts "---------------------"
+
+          # puts "using bounds---------"
+          # puts partialInstanceStr.inspect
+          # puts "---------------------"
+          # puts partialInstanceStr
+
           catch_alloy_errors {
             sigs = a4world.getAllReachableSigs
             TranslateAlloyToKodkod_RJB.execute_command @rep, sigs, cmd, opt
