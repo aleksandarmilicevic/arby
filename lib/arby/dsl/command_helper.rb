@@ -25,42 +25,17 @@ module Arby
         end
       end
 
-      private
-
-      def __command(kind, *name_scope_exceptions, &body)
-        msg = "Too many commmand args: expected max 3, got #{name_scope_exceptions.size}"
-        raise SyntaxError, msg if name_scope_exceptions.size > 3
-        msg = "Too few command args: at least <scope> expected, got nothing"
-        fail SyntaxError, msg if name_scope_exceptions.empty?
-
-        scope, name = []
+      def self.parse_scope(*args)
+        raise SyntaxError, "Invalid scope syntax.  " +
+          "Too many arguments: expected <=2, got #{args.size}." if args.size > 2
+        global = nil
         exceptions = {}
-        name_scope_exceptions.each do |x|
-          case x
-          when String, Symbol then !name ? name = x : scope = x.gsub(/^for /, "")
-          when Integer        then scope = x
-          when Hash           then exceptions = x
-          else
-            raise SyntaxError, "Unexpected argument type: " +
-              "expected String, Integer, or Hash, got #{x}:#{x.class}"
-          end
-        end
-        __cmd(kind, name, scope, exceptions, &body)
-      end
+        args.each {|e| e.is_a?(Hash) ? exceptions = e : global = e}
 
-      def __cmd(kind, name=nil, scope=nil, exceptions=nil, &body)
-        pred_name = name || "#{kind}_#{meta.checks.size}"
-        pred = nil
-        if body
-          pred = _create_fn(:pred, pred_name, {}, nil, &body)
-          _define_method_for_fun(pred)
-        end
-        sig_scopes = CommandHelper.__parse_sig_scope_hash(exceptions)
-        scope = Arby::Ast::Scope.new(scope, sig_scopes)
-
-        cmd = Arby::Ast::Command.new(kind, name, scope, pred)
-        meta.add_command cmd
-        cmd
+        global = global.gsub(/^for /, "") if global.is_a?(String)
+        global = 4 if global.to_s.empty?
+        sig_scopes = __parse_sig_scope_hash(exceptions)
+        Arby::Ast::Scope.new(global, sig_scopes)
       end
 
       def self.__parse_sig_scope_hash(hash={})
@@ -81,6 +56,44 @@ module Arby
           end
         end
       end
+
+      private
+
+      def __command(kind, *name_scope_exceptions, &body)
+        msg = "Too many commmand args: expected max 3, got #{name_scope_exceptions.size}"
+        raise SyntaxError, msg if name_scope_exceptions.size > 3
+        msg = "Too few command args: at least <scope> expected, got nothing"
+        raise SyntaxError, msg if name_scope_exceptions.empty?
+
+        scope, name = []
+        exceptions = {}
+        name_scope_exceptions.each do |x|
+          case x
+          when String, Symbol then !name ? name = x : scope = x
+          when Integer        then scope = x
+          when Hash           then exceptions = x
+          else
+            raise SyntaxError, "Unexpected argument type: " +
+              "expected String, Integer, or Hash, got #{x}:#{x.class}"
+          end
+        end
+
+        scope = CommandHelper.parse_scope(scope, exceptions)
+        __cmd(kind, name, scope, &body)
+      end
+
+      def __cmd(kind, name=nil, scope=nil, &body)
+        pred_name = name || "#{kind}_#{meta.checks.size}"
+        pred = nil
+        if body
+          pred = _create_fn(:pred, pred_name, {}, nil, &body)
+          _define_method_for_fun(pred)
+        end
+        cmd = Arby::Ast::Command.new(kind, name, scope, pred)
+        meta.add_command cmd
+        cmd
+      end
+
     end
 
   end

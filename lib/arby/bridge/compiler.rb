@@ -88,6 +88,7 @@ module Arby
                                     "got #{cmd_idx_or_name}:#{cmd_idx_or_name.class}"
                           end
           commands = a4world.getAllCommands()
+          command_index = commands.size + command_index if command_index < 0
           cmd = commands.get(command_index)
           opt = A4Options_RJB.new
           opt.solver = opt.solver.SAT4J #MiniSatJNI
@@ -126,7 +127,7 @@ module Arby
         def find_cmd_idx_by_name(a4world, cmd_name)
           commands = a4world.getAllCommands
           num_commands = commands.size
-          for i in 0...num_commands
+          for i in (0...num_commands).to_a.reverse
             return i if cmd_str = commands.get(i).label == cmd_name.to_s
           end
           -1

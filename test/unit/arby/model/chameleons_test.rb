@@ -7,6 +7,7 @@ class ChameleonsTest < Test::Unit::TestCase
   include Arby::Bridge
 
   include ArbyModels::ChameleonExample
+  include ArbyModels::ChameleonExample::Chameleons
 
   def setup_class
     Arby.reset
@@ -23,10 +24,15 @@ class ChameleonsTest < Test::Unit::TestCase
     assert sol.satisfiable?
   end
 
-  def test_chameleon_viz
+  def _test_chameleon_viz
     puts ChameleonsViz.meta.to_als
     sol = ChameleonsViz.execute_command :viz
     assert sol.satisfiable?
+  end
+
+  def _test_staged
+    n = 5
+    ch_sol = Chameleons.solve :some_meet, n, Chameleon => exactly(n-1)
   end
 
   # def test_instance

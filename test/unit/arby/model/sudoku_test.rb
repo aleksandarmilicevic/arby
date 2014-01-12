@@ -68,7 +68,7 @@ class SudokuTest < Test::Unit::TestCase
     old_grid = s.grid
 
     puts "solving sudoku with partial instance..."
-    sol = ArbyModels::SudokuModel.solve :solved, "", s.partial_instance
+    sol = ArbyModels::SudokuModel.solve :solved, s.partial_instance
     puts "solving time: #{sol.solving_time}s"
 
     assert sol.satisfiable?, "instance not found"

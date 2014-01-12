@@ -7,9 +7,13 @@ module Arby
         Arby::Bridge::Compiler.compile(to_als())
       end
 
-      def solve(pred=nil, scope="", bounds=nil)
+      def solve(pred=nil, *scope_bounds)
         require 'arby/bridge/compiler'
         require 'arby/bridge/solution'
+
+        grps = scope_bounds.group_by{|e| e.is_a? Arby::Ast::Bounds}
+        bounds = Array(grps[true]).first
+        scope = Arby::Dsl::CommandHelper.parse_scope(*Array(grps[false]))
 
         cmd_name, cmd_body = if pred
                                [pred, ""]
@@ -24,7 +28,7 @@ module Arby
         # puts als_model
         # puts "---"
         comp = Arby::Bridge::Compiler.compile(als_model)
-        comp.execute_command(cmd_name, bounds)
+        comp.execute_command(-1, bounds)
       end
 
       def execute_command(cmd_idx_or_name=0, bounds=nil)

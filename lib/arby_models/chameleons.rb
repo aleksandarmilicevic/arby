@@ -101,8 +101,7 @@ module ChameleonExample
   end
 
   alloy :ChameleonsViz do
-    open Viz
-    open Chameleons
+    open Viz, Chameleons
 
     pred theme {
       # same ordering of Time and Projection
