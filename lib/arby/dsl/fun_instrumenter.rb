@@ -35,11 +35,27 @@ module Arby
             "Arby::Ast::Expr::BinaryExpr.#{node.type}(" +
               "proc{#{lhs_src}}, " +
               "proc{#{rhs_src}})"
+          when :send then
+            if node.children.size == 3 && node.children[1] == :|
+              if quant?(node.children[0])
+                lhs_src = compute_src(node.children[0], anno)
+                rhs_src = compute_src(node.children[2], anno)
+                "#{lhs_src} do\n #{rhs_src} \n end "
+              end
+            end
           else
             nil
           end
         end
         [orig_src, instr_src]
+      end
+
+      def quant?(node)
+        Parser::AST::Node === node and
+          node.type == :send and
+          node.children.size == 3 and
+          node.children[0] == nil and
+          [:all, :some, :no, :one, :lone, :select, :exists].member? node.children[1]
       end
     end
 
