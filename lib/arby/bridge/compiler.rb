@@ -93,7 +93,8 @@ module Arby
           opt.solver = opt.solver.SAT4J #MiniSatJNI
           opt.partialInstance = partialInstanceStr
           catch_alloy_errors {
-            TranslateAlloyToKodkod_RJB.execute_command @rep, a4world.getAllSigs, cmd, opt
+            sigs = a4world.getAllReachableSigs
+            TranslateAlloyToKodkod_RJB.execute_command @rep, sigs, cmd, opt
           }
         end
 
