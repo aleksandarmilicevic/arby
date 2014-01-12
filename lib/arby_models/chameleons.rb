@@ -10,7 +10,7 @@ module ChameleonExample
     enum Color(Red, Blue, Green, Yellow)
     enum Shape(Box, Circle, Triangle)
 
-    ordered sig Projection [ proj_atoms: univ ]
+    ordered sig Projection [ pr_atoms: univ ]
 
     sig Node [
       node:  (set Projection),
@@ -91,10 +91,8 @@ module ChameleonExample
     }
 
     fact changes {
-      all(t1: Time) {
-        all(t2: t1.next, c: Chameleon) {
-          change(t1, t2, c) or same(t1, t2, c)
-        }
+      all(t1: Time) | all(t2: t1.next, c: Chameleon) {
+        change(t1, t2, c) or same(t1, t2, c)
       }
     }
 
@@ -108,46 +106,41 @@ module ChameleonExample
 
     pred theme {
       # same ordering of Time and Projection
-      Projection::next == proj_atoms.(Time::next).(~proj_atoms) and
+      Projection::next == pr_atoms.(Time::next).(~pr_atoms) and
 
       # project over Time
-      proj_atoms.in? (Projection one ** (one Time)) and
+      pr_atoms.in? (Projection one ** (one Time)) and
 
-      all(t: Time) {
-        let(p: proj_atoms.(t)) {
-          atom.(p).in? (node.(p) ** (one_one Chameleon)) and
+      all(t: Time) | let(p: pr_atoms.(t)) {
+        atom.(p).in? (node.(p) ** (one_one Chameleon)) and
 
-          # Viz edges correspond to meets
-          meets.(t) == (~source.(p).atom.(p)).dest.(p).atom.(p) and
+        # Viz edges correspond to meets
+        meets.(t) == (~source.(p).atom.(p)).dest.(p).atom.(p) and
 
-          all(c: Chameleon) {
-            # Viz shape is Box iff it doesn't meet anyone
-            (no c.meets.(t)) <=> (atom.(p).(c).shape.(p) == Box) and
+        all(c: Chameleon) {
+          # Viz shape is Box iff it doesn't meet anyone
+          (no c.meets.(t)) <=> (atom.(p).(c).shape.(p) == Box) and
 
-            # for every other chameleon
-            all(c2: Chameleon - c) {
-              # Viz colors are the same iff their colors are the same
-              (c.color.(t) == c2.color.(t)) <=>
-              (atom.(p).(c).color.(p) == atom.(p).(c2).color.(p)) and
+          # for every other chameleon
+          all(c2: Chameleon - c) {
+            # Viz colors are the same iff their colors are the same
+            (c.color.(t) == c2.color.(t)) <=>
+            (atom.(p).(c).color.(p) == atom.(p).(c2).color.(p)) and
 
-              # Viz shapes are the same for those who meet
-              if c.in? c2.meets.(t)
-                atom.(p).(c).shape.(p) == atom.(p).(c2).shape.(p)
-              end
-            }
+            # Viz shapes are the same for those who meet
+            if c.in? c2.meets.(t)
+              atom.(p).(c).shape.(p) == atom.(p).(c2).shape.(p)
+            end
           }
-
         }
       } and
 
       # stability over Time: same colored Chameleons -> same viz colors
-      all(t: Time, t2: Time, c: Chameleon, c2: Chameleon) {
-        let(p: proj_atoms.(t), p2: proj_atoms.(t2)) {
-          atom.(p).(c).color.(p) == atom.(p2).(c2).color.(p2) if t != t2 && c.color.(t) == c2.color.(t2)
-          # if t != t2 and c.color.(t) == c2.color.(t2)
-          #   atom.(p).(c).color.(p) == atom.(p2).(c2).color.(p2)
-          # end
-        }
+      all(t: Time, t2: Time, c: Chameleon, c2: Chameleon) |
+        let(p: pr_atoms.(t), p2: pr_atoms.(t2)) {
+          if t != t2 and c.color.(t) == c2.color.(t2)
+            atom.(p).(c).color.(p) == atom.(p2).(c2).color.(p2)
+          end
       }
     }
 

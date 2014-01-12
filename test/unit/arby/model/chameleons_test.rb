@@ -17,7 +17,7 @@ class ChameleonsTest < Test::Unit::TestCase
   #   puts ChameleonsViz.meta.to_als.inspect
   # end
 
-  def test_chameleon
+  def _test_chameleon
     puts Chameleons.meta.to_als
     sol = Chameleons.execute_command :some_meet
     assert sol.satisfiable?
