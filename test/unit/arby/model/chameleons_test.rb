@@ -43,9 +43,9 @@ class ChameleonsTest < Test::Unit::TestCase
     ch_sol = Chameleons.solve :some_meet, n, Chameleon => exactly(n-1)
     assert ch_sol.satisfiable?
     inst = ch_sol.arby_instance
-    $pera = 1
     bounds = inst.to_bounds
     puts bounds.serialize
+    binding.pry
     # viz_sol = ChameleonsViz.solve :viz, bounds, n
   end
 

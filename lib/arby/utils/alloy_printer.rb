@@ -66,12 +66,13 @@ module Arby
         when Arby::Ast::Model; model_to_als(arby_obj)
         when Class
           if arby_obj < Arby::Ast::ASig
-            sig_cls = arby_obj
-            if sig_cls.meta.enum?
-              enum_to_als(sig_cls)
-            elsif not sig_cls.meta.enum_const?
-              sig_to_als(arby_obj)
-            end
+            sig_to_als(arby_obj)
+            # sig_cls = arby_obj
+            # if sig_cls.meta.enum?
+            #   enum_to_als(sig_cls)
+            # elsif not sig_cls.meta.enum_const?
+            #   sig_to_als(arby_obj)
+            # end
           else
             _fail[]
           end
@@ -115,7 +116,8 @@ module Arby
         @in_opened_module = was_open
 
         # print sigs
-        @out.pn model.sigs.reject{|s| s.meta.enum_const?}, "\n"
+        sigs = model.sigs #.reject{|s| s.meta.enum_const?}
+        @out.pn sigs, "\n"
 
         # print funs
         unless model.all_funs.empty?

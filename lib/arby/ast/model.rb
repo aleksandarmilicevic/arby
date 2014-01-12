@@ -33,11 +33,13 @@ module Arby
       def checks() commands.select{|c| c.check?} end
       def runs()   commands.select{|c| c.run?} end
 
-      def all_reachable_sigs(ans=Set.new)
+      def reachable_sigs(ans=Set.new)
         sigs.each{|s| ans << s}
-        opens.each{|m| m.all_reachable_sigs(ans)}
+        opens.each{|m| m.reachable_sigs(ans)}
         ans.to_a
       end
+
+      alias_method :all_reachable_sigs, :reachable_sigs
 
       def to_als()
         require 'arby/utils/alloy_printer'
