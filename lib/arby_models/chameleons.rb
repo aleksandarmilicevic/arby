@@ -1,6 +1,6 @@
 require 'arby/arby_dsl'
 
-Arby.conf.sym_exe.convert_missing_fields_to_joins = true
+# Arby.conf.sym_exe.convert_missing_fields_to_joins = true
 
 module ArbyModels
 module ChameleonExample
@@ -10,7 +10,7 @@ module ChameleonExample
     enum Color(Red, Blue, Green, Yellow)
     enum Shape(Box, Circle, Triangle)
 
-    sig Projection [ proj_atoms: univ ]
+    ordered sig Projection [ proj_atoms: univ ]
 
     sig Node [
       node:  (set Projection),
@@ -34,11 +34,8 @@ module ChameleonExample
     }
   end
 
-
   alloy :Chameleons do
-    open Viz
-
-    sig Time
+    ordered sig Time
 
     enum Color(R, G, B)
 
@@ -73,10 +70,20 @@ module ChameleonExample
     }
 
     pred some_meet { some meets }
+    run :some_meet
+  end
+
+  alloy :ChameleonsViz do
+    open Viz
+    open Chameleons
 
     pred theme {
-      # proj_next = proj_atoms.time_next.~proj_atoms
+      # same ordering of Time and Projection
+      Projection::next == proj_atoms.(Time::next).(~proj_atoms) and
+
+      # project over Time
       proj_atoms.in? (Projection one ** (one Time)) and
+
       all(t: Time) {
         let(p: proj_atoms.(t)) {
           atom.(p).in? (node.(p) ** (one_one Chameleon)) and
@@ -114,7 +121,8 @@ module ChameleonExample
       }
     }
 
-    run :some_meet
+    pred viz { some_meet and theme }
+    run :viz, 6, Chameleon => (exactly 5)
   end
 
 end

@@ -13,13 +13,20 @@ class ChameleonsTest < Test::Unit::TestCase
     Arby.meta.restrict_to(ArbyModels::ChameleonExample)
   end
 
-  def test_als
+  # def test_als
+  #   puts ChameleonsViz.meta.to_als.inspect
+  # end
+
+  def test_chameleon
     puts Chameleons.meta.to_als
+    sol = Chameleons.execute_command :some_meet
+    assert sol.satisfiable?
   end
 
-  def test_syntax
-    compiler = Chameleons.compile
-    assert compiler
+  def _test_chameleon_viz
+    puts ChameleonsViz.meta.to_als
+    sol = ChameleonsViz.execute_command :viz
+    assert sol.satisfiable?
   end
 
   # def test_instance
