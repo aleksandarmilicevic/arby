@@ -18,10 +18,11 @@ module Arby
       def initialize(atoms=[], fld_map={}, skolem_map={}, dup=true, model=nil)
         @model         = model
         @label2atom    = Hash[atoms.map{|a| [a.label, a]}]
+        @type2atoms    = atoms.group_by(&:class)
         @fld2tuples    = dup ? fld_map.dup : fld_map
         @skolem2tuples = dup ? skolem_map.dup : skolem_map
 
-        ([@label2atom, @fld2tuples, @skolem2, self] +
+        ([@label2atom, @type2atoms, @fld2tuples, @skolem2, self] +
           @fld2tuples.values + @skolem2tuples.values).each(&:freeze)
       end
 
@@ -47,7 +48,14 @@ module Arby
       def field!(fld)   field(fld)   or fail("field `#{fld}' not found") end
       def skolem!(name) skolem(name) or fail("skolem `#{name}' not found") end
 
-      def [](name) atom(name) || skolem(name) || field(name) end
+      def [](key)
+        case key
+        when Class then @type2atoms[key] || []
+        when Field then field(key)
+        else
+          atom(key) || skolem(key) || field(key)
+        end
+      end
 
       def to_bounds
         bounds = Bounds.new
