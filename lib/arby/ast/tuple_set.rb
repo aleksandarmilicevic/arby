@@ -30,6 +30,7 @@ module Arby
       def _type_op(op, other)
         (self._type && other._type) ? _type.send(op, other._type) : nil
       end
+      alias_method :__type, :_type
 
       def wrap(*a)  self.class.wrap(*a) end
       def unwrap()  TupleSet.unwrap(self) end
@@ -177,7 +178,7 @@ module Arby
         end
       end
 
-      def each()       tuples.each {|t| yield t } end
+      def each()       tuples.each {|t| yield t} end
 
       def arity()      @type.arity end
       def tuples()     @tuples.to_a end
@@ -209,6 +210,16 @@ module Arby
 
         ans_tuples = tuples.product(other.tuples).map{|l, r| l.join(r)}.compact
         ans_type   = _type_op(:join, other)
+        wrap(ans_tuples, ans_type)
+      end
+
+      def zip(other)
+        other = wrap(other)
+        len = [size(), other.size()].min
+        this_tuples = tuples()
+        other_tuples = other.tuples()
+        ans_tuples = (0...len).map{|i| this_tuples[i].product(other_tuples[i])}
+        ans_type   = _type_op(:product, other)
         wrap(ans_tuples, ans_type)
       end
 
@@ -253,7 +264,7 @@ module Arby
       end
 
       def [](other)    ljoin(other) end
-      alias_method :*,    :product
+      alias_method :*,    :zip
       alias_method :**,   :product
       alias_method :-,    :difference
       alias_method :"-=", :difference!

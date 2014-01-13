@@ -54,6 +54,12 @@ class Fixnum
   end
 end
 
+class Array
+  def *(rhs) Arby::Ast::TupleSet.wrap(self) * rhs end
+  def **(rhs) Arby::Ast::TupleSet.wrap(self) ** rhs end
+end
+
+
 class Object
   def to_atype() Arby::Ast::AType.get(self) end
 end

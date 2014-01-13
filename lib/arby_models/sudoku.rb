@@ -63,9 +63,9 @@ module ArbyModels
 
     def partial_instance
       bounds = Arby::Ast::Bounds.new
-      bounds.add_lower(Sudoku.grid, self.to_ts * self.grid)
-      indexes = (0...N) * (0...N) - self.grid.project(0..1)
-      bounds.add_upper(Sudoku.grid, self.to_ts * indexes * (1..N))
+      bounds.add_lower(Sudoku.grid, self.to_ts ** self.grid)
+      indexes = (0...N) ** (0...N) - self.grid.project(0..1)
+      bounds.add_upper(Sudoku.grid, self.to_ts ** indexes ** (1..N))
       bounds.bound(Sudoku, self)
       bounds.bound_int(0..N)
       bounds

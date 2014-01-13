@@ -25,7 +25,7 @@ class SeqFilteringTest < Test::Unit::TestCase
     pi = Arby::Ast::Bounds.new
     a_upper = Arby::Ast::TupleSet.wrap (1..4).map{|_| A.new}
     pi.add_upper(A, a_upper)
-    pi.add_upper(A.x, a_upper * (2..3))
+    pi.add_upper(A.x, a_upper ** (2..3))
     pi.bound_int(0..5)
 
     puts "solving..."
