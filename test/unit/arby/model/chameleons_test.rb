@@ -41,13 +41,43 @@ class ChameleonsTest < Test::Unit::TestCase
   end
 
   def test_staged
+    n = 8
+    puts "scope = #{n}"
+    puts "solving chameleons..."
+    ch_sol = @@timer.time_it {
+      Chameleons.solve :some_meet, n, Chameleon => exactly(n-1)
+    }
+    t1 = @@timer.last_time
+    puts "time: #{t1}"
+    assert ch_sol.satisfiable?
+
+    inst = ch_sol.arby_instance
+    bounds = inst.to_bounds
+
+    projections                  = inst[Time].map{Viz::Projection.new}
+    nodes                        = inst[Chameleon].map{Viz::Node.new}
+    bounds[Viz::Projection]      = projections
+    bounds[Viz::Projection.over] = projections * inst[Time]
+    bounds[Viz::Node]            = nodes
+    bounds.hi[Viz::Node.atom]    = (nodes * inst[Chameleon]) ** projections
+
+    puts "solving viz for prev chameleons..."
+    viz_sol = @@timer.time_it {
+      ChameleonsViz.solve :viz, bounds, n
+    }
+    t2 = @@timer.last_time
+    puts "time: #{t2}"
+    puts "total: #{t1 + t2}"
+  end
+
+  def bench_staged
     puts "warming up: solving viz chameleons no bounds, scope: 5"
     viz_sol = @@timer.time_it {
       ChameleonsViz.solve :viz, 5, Chameleon => exactly(5-1)
     }
     puts "time: #{@@timer.last_time}"
 
-    n = 9
+    n = 8
     puts "scope = #{n}"
 
     puts "solving viz chameleons no bounds..."
@@ -63,10 +93,17 @@ class ChameleonsTest < Test::Unit::TestCase
     }
     t1 = @@timer.last_time
     puts "time: #{t1}"
-
     assert ch_sol.satisfiable?
+
     inst = ch_sol.arby_instance
     bounds = inst.to_bounds
+
+    projections = inst[Time].map{Viz::Projection.new}
+    nodes       = inst[Chameleon].map{Viz::Node.new}
+    bounds[Viz::Projection]      = projections
+    bounds[Viz::Projection.over] = projections * inst[Time]
+    bounds[Viz::Node]            = nodes
+    bounds.hi[Viz::Node.atom]    = (nodes * inst[Chameleon]) ** projections
 
     puts "solving viz for prev chameleons..."
     viz_sol = @@timer.time_it {
@@ -83,14 +120,5 @@ class ChameleonsTest < Test::Unit::TestCase
     t3 = @@timer.last_time
     puts "time: #{t3}"
   end
-
-  # def test_instance
-  #   sol = ArbyModels::Grandpa.execute_command
-  #   assert sol.satisfiable?
-  #   inst = sol.arby_instance
-  #   m = inst["$ownGrandpa_m"]
-  #   assert m, "own grandpa skolem not found"
-  #   assert m.in? parents(parents(m))
-  # end
 
 end

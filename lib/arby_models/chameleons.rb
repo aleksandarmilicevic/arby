@@ -10,7 +10,7 @@ module ChameleonExample
     enum Color(Red, Blue, Green, Grey)
     enum Shape(Box, Circle, Triangle)
 
-    ordered sig Projection [ pr_atoms: univ ]
+    ordered sig Projection [ over: univ ]
 
     sig Node [
       node:  (set Projection),
@@ -77,12 +77,12 @@ module ChameleonExample
 
     pred theme {
       # same ordering of Time and Projection
-      Projection::next == pr_atoms.(Time::next).(~pr_atoms) and
+      Projection::next == over.(Time::next).(~over) and
 
       # project over Time
-      pr_atoms.in? (Projection one ** (one Time)) and
+      over.in? (Projection one ** (one Time)) and
 
-      all(t: Time) | let(p: pr_atoms.(t)) {
+      all(t: Time) | let(p: over.(t)) {
         atom.(p).in? (node.(p) ** (one_one Chameleon)) and
 
         # Viz edges correspond to meets
@@ -108,7 +108,7 @@ module ChameleonExample
 
       # stability over Time: same colored Chameleons -> same viz colors
       all(t: Time, t2: Time, c: Chameleon, c2: Chameleon) |
-        let(p: pr_atoms.(t), p2: pr_atoms.(t2)) {
+        let(p: over.(t), p2: over.(t2)) {
           if t != t2 and c.kind.(t) == c2.kind.(t2)
             atom.(p).(c).color.(p) == atom.(p2).(c2).color.(p2)
           end
@@ -116,7 +116,7 @@ module ChameleonExample
     }
 
     pred viz { some_meet and theme }
-    run :viz, 8, Chameleon => (exactly 7)
+    run :viz, 5, Chameleon => (exactly 4)
   end
 
 end
