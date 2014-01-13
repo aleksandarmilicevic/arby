@@ -44,7 +44,19 @@ module Arby
     end
 
     # ----------------------------------------------------------------
-    # Class +Bounds
+    # Class +BoundBuilder+
+    #
+    # ----------------------------------------------------------------
+    class BoundBuilder
+      def initialize(kind, bounds)
+        @kind, @bounds = kind, bounds
+      end
+      def [](what)             @bounds.send :"get_#{@kind}", what end
+      def []=(what, tuple_set) @bounds.send :"set_#{@kind}", what, tuple_set end
+    end
+
+    # ----------------------------------------------------------------
+    # Class +Bounds+
     #
     # Rel: [Class(Arby::Ast::Sig), Arby::Ast::Field]
     #
@@ -70,6 +82,7 @@ module Arby
       end
 
       def add_lower(what, tuple_set)
+        return unless tuple_set
         add_bound(@lowers, what, tuple_set)
         add_bound(@uppers, what, tuple_set)
       end
@@ -81,8 +94,14 @@ module Arby
       def set_lower(what, tuple_set) set_bound(@lowers, what, tuple_set) end
       def set_upper(what, tuple_set) set_bound(@uppers, what, tuple_set) end
 
+      alias_method :[]=, :bound_exactly
+
+      def hi() BoundBuilder.new(:upper, self) end
+      def lo() BoundBuilder.new(:lower, self) end
+
       def get_lower(what) @lowers[what] end #dup ???
       def get_upper(what) @uppers[what] end #dup ???
+      def [](what)        [get_lower(what), get_upper(what)] end
 
       def get_ints()      @ints end
 
@@ -133,8 +152,9 @@ universe = #{t_to_s[univ.atoms]}
       end
 
       def set_bound(where, what, tuple_set)
-        tuple_set = TupleSet.wrap(tuple_set)
-        type = check_bound(what, tuple_set)
+        type = check_boundable(what)
+        tuple_set = TupleSet.wrap(tuple_set, type)
+        # check_bound(what, tuple_set)
         ts = get_or_new(where, what, type)
         ts.clear!
         ts.union!(tuple_set)
@@ -142,8 +162,9 @@ universe = #{t_to_s[univ.atoms]}
       end
 
       def add_bound(where, what, tuple_set)
-        tuple_set = TupleSet.wrap(tuple_set)
-        type = check_bound(what, tuple_set)
+        type = check_boundable(what)
+        tuple_set = TupleSet.wrap(tuple_set, type)
+        # check_bound(what, tuple_set)
         ts = get_or_new(where, what, type)
         ts.union!(tuple_set)
         self
