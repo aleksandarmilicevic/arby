@@ -42,7 +42,7 @@ module ChameleonExample
       meets: (Chameleon lone ** Time)
     ]
 
-    pred change[t1: Time, t2: Time, c: Chameleon] {
+    pred change[t1, t2: Time, c: Chameleon] {
       cmeets = c.meets.(t1)
 
       some c.meets.(t1) and
@@ -50,7 +50,7 @@ module ChameleonExample
       c.kind.(t2) == Kind - (c + cmeets).kind.(t1)
     }
 
-    pred same[t1: Time, t2: Time, c: Chameleon] {
+    pred same[t1, t2: Time, c: Chameleon] {
       (no c.meets.(t1) or
        c.kind.(t1) == c.meets.(t1).kind.(t1)) and
       c.kind.(t2) == c.kind.(t1)
@@ -102,8 +102,7 @@ module ChameleonExample
             end
           }
         }
-      }
-      $pera = 1
+      } and
 
       # stability over Time: same colored Chameleons -> same viz colors
       all(t, t2: Time) | all(c, c2: Chameleon) | let(p: over.(t), p2: over.(t2)) {
