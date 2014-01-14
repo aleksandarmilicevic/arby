@@ -1,5 +1,7 @@
 require 'arby/ast/expr'
 require 'arby/ast/decl'
+require 'arby/dsl/expr_helper'
+require 'arby/dsl/fields_helper'
 require 'sdg_utils/dsl/missing_builder'
 
 module Arby
@@ -7,6 +9,7 @@ module Arby
 
     module QuantHelper
       include ExprHelper
+      include FieldsHelper
 
       def all(*decls, &body)    _quant(:all, decls, body)   end
       def exist(*decls, &body)  _quant(:exist, decls, body) end
@@ -21,38 +24,12 @@ module Arby
       private
 
       def _quant(kind, decls, body)
-        Arby::Ast::Expr::QuantExpr.send kind, _norm(decls), body
+        Arby::Ast::Expr::QuantExpr.send kind, _decl_to_args(*decls), body
       end
 
       def _mult(meth, *args)
         ExprHelper.instance_method(meth).bind(self).call(*args)
       end
-
-      def _norm(decl_args)
-        decls = []
-        pending_syms = []
-        decl_args.each do |d|
-          case d
-          when String, Symbol
-            pending_syms << d.to_sym
-          when SDGUtils::DSL::MissingBuilder
-            pending_syms << d.name
-            d.consume
-          when Hash
-            _traverse_fields_hash d, proc{ |arg_name, dom|
-              pending_syms.each do |sym|
-                decls << Arby::Ast::Arg.new(:name => sym, :type => dom)
-              end
-              pending_syms = []
-              decls << Arby::Ast::Arg.new(:name => arg_name, :type => dom)
-            }
-          else
-            raise SyntaxError, "wrong quantifier syntax: #{decl_args}"
-          end
-        end
-        decls
-      end
-
     end
 
   end

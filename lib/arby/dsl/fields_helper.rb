@@ -1,8 +1,41 @@
+require 'arby/dsl/errors'
+require 'arby/ast/arg'
+require 'arby/ast/type_consts'
+require 'sdg_utils/dsl/missing_builder'
+
 module Arby
   module Dsl
 
     module FieldsHelper
       private
+
+      def _decl_to_args(*decl_args)
+        l_add_pending = lambda{|pending, dom, dest|
+          pending.each{|sym| dest << Arby::Ast::Arg.new(:name => sym, :type => dom)}
+        }
+
+        decls = []
+        pending_syms = []
+        decl_args.each do |d|
+          case d
+          when String, Symbol
+            pending_syms << d.to_sym
+          when SDGUtils::DSL::MissingBuilder
+            pending_syms << d.name
+            d.consume
+          when Hash
+            _traverse_fields_hash d, proc{ |arg_name, dom|
+              l_add_pending[pending_syms, dom, decls]
+              pending_syms = []
+              decls << Arby::Ast::Arg.new(:name => arg_name, :type => dom)
+            }
+          else
+            raise SyntaxError, "wrong decl syntax: #{decl_args}"
+          end
+        end
+        l_add_pending[pending_syms, Arby::Ast::TypeConsts::None, decls]
+        decls
+      end
 
       def _traverse_fields(hash, cont, &block)
         _traverse_fields_hash(hash, cont)

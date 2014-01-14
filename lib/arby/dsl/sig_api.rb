@@ -23,23 +23,20 @@ module Arby
       # ---------------------------------------------------------
       # TODO: DOCS
       # ---------------------------------------------------------
-      def fields(hash={}, &block)
-        _traverse_fields hash, lambda { |name, type| field(name, type) }, &block
+      # @param decl [Array]
+      def fields(decl)
+        _to_args(decl).each{|a| _field(a.name, a.type)}
       end
 
       alias_method :persistent, :fields
       alias_method :refs, :fields
 
-      def owns(hash={}, &block)
-        _traverse_fields hash, lambda { |name, type|
-          field(name, type, :owned => true)
-        }, &block
+      def owns(decl)
+        _to_args(decl).each{|a| _field(a.name, a.type, :owned => true)}
       end
 
-      def transient(hash={}, &block)
-        _traverse_fields hash, lambda { |name, type|
-          field(name, type, :transient => true)
-        }, &block
+      def transient(decl)
+        _to_args(decl).each{|a| _field(a.name, a.type, :transient => true)}
       end
 
       # ---------------------------------------------------------
@@ -80,6 +77,11 @@ module Arby
 
       # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ private stuff ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
       private
+
+      def _to_args(decl)
+        decl = [decl] if Hash === decl
+        _decl_to_args(*decl)
+      end
 
       #------------------------------------------------------------------------
       # For a given field (name, type) creates a getter and a setter

@@ -230,15 +230,6 @@ RUBY
         end
       end
 
-      def _to_args(hash)
-        ans = []
-        _traverse_fields_hash hash, lambda {|arg_name, type|
-          arg = Arby::Ast::Arg.new :name => arg_name, :type => type
-          ans << arg
-        }
-        ans
-      end
-
       def _to_fun_opts(*args, &block)
         fun_opts =
           case
@@ -246,7 +237,7 @@ RUBY
             case a = args[0]
             when Hash
               hash = a
-              fa = _to_args(hash[:args])
+              fa = _decl_to_args(hash[:args])
               hash.merge :args => fa
             when Arby::Ast::Fun
               a
@@ -254,7 +245,7 @@ RUBY
               a.consume
               fb = args[0]
               { :name     => fb.name,
-                :args     => _to_args(fb.args),
+                :args     => _decl_to_args(*fb.args),
                 :ret_type => fb.ret_type,
                 :body     => fb.body }
             when String, Symbol
@@ -267,14 +258,14 @@ RUBY
           when args.size == 2
             # expected types: String, Hash
             fun_name = args[0]
-            fun_args = _to_args(args[1])
+            fun_args = _decl_to_args(args[1])
             { :name     => fun_name,
               :args     => fun_args[0...-1],
               :ret_type => fun_args[-1].type }
           when args.size == 3
             # expected types: String, Hash, AType
             { :name     => args[0],
-              :args     => _to_args(args[1]),
+              :args     => _decl_to_args(args[1]),
               :ret_type => args[2] }
           else
             _raise_invalid_format
