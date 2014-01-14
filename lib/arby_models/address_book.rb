@@ -31,11 +31,11 @@ module ArbyModels
     end
 
     assertion delUndoesAdd {
-      all [:b1, :b2, :b3] => Book, n: Name, a: Addr do
+      all(b1, b2, b3: Book, n: Name, a: Addr) {
         if b1.addr[n].empty? && b1.add(b2, n, a) && b2.del(b3, n)
           b1.addr == b3.addr
         end
-      end
+      }
     }
 
     assertion addIdempotent {

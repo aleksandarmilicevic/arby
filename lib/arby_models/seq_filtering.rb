@@ -19,9 +19,9 @@ module ArbyModels
       s.size == 4 and
       ans[Int] == filtered and
       all(a: filtered) { ans.join(a).size == s.join(a).size } and
-      all(i1: s.inds, i2: s.inds) {
+      all(i1, i2: s.inds) {
         if i2 > i1 && filtered.contains?(s[i1] + s[i2])
-          some(ii1: ans.inds, ii2: ans.inds) {
+          some(ii1, ii2: ans.inds) {
             ii2 > ii1 and
             ans[ii1] == s[i1] and
             ans[ii2] == s[i2] and

@@ -25,9 +25,9 @@ module ArbyModels
       parent == contents!.entries! and
       not_in? self.^:parent and
       (self.*:parent).contains?(Root) and
-      all [:e1, :e2] => entries do
+      all(e1, e2: entries) {
         e1 == e2 if e1.name == e2.name
-      end
+      }
     }
 
     one sig Root extends Folder {

@@ -26,10 +26,8 @@ module ChameleonExample
     ]
 
     fact {
-      all(p: Projection) {
-        all(e: edge.(p)) {
-          e.(source + dest).(p).in? node.(p)
-        }
+      all(p: Projection) | all(e: edge.(p)) {
+        e.(source + dest).(p).in? node.(p)
       }
     }
   end
@@ -104,14 +102,16 @@ module ChameleonExample
             end
           }
         }
-      } and
+      }
+      $pera = 1
 
       # stability over Time: same colored Chameleons -> same viz colors
-      all(t: Time, t2: Time, c: Chameleon, c2: Chameleon) |
+      all(t, t2: Time) | all(c, c2: Chameleon) {
         let(p: over.(t), p2: over.(t2)) {
           if t != t2 and c.kind.(t) == c2.kind.(t2)
             atom.(p).(c).color.(p) == atom.(p2).(c2).color.(p2)
           end
+        }
       }
     }
 
