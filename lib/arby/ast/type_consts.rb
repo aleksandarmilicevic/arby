@@ -15,17 +15,23 @@ module Arby
       # Univ  = UnaryType.new(SigConsts::UnivCls)
       Univ  = UnivType.new
       Univ1 = Univ
+      None  = NoType.new
       Int   = UnaryType.new(Integer)
       Bool  = UnaryType.new(:Bool)
       Seq   = ProductType.new(Int, Univ)
 
-      def Int() TypeConsts::Int end
+      def Int()  TypeConsts::Int end
+      def Bool()  TypeConsts::Int end
+      def Univ() TypeConsts::None end
+      def None() TypeConsts::None end
 
       def self.get(sym)
         case sym.to_s
-        when "Int", "Integer" then Int
-        when "seq/Int"        then Int
-        when "univ"           then Univ
+        when "Int", "Integer"  then Int
+        when "seq/Int"         then Int
+        when "univ"            then Univ
+        when "none"            then None
+        when "Bool", "Boolean" then Bool
         else
           nil
         end
