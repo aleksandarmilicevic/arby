@@ -55,7 +55,7 @@ module Arby
           body = meth.bind(Fun.dummy_instance(owner)).to_proc
           fun :name     => method_name,
               :args     => proc_args(meth),
-              :ret_type => NoType.new,
+              :ret_type => TypeConsts::None,
               :owner    => owner,
               :body     => body
         end
