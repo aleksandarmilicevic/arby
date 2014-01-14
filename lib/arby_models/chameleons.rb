@@ -106,13 +106,11 @@ module ChameleonExample
       $pera = 1
 
       # stability over Time: same colored Chameleons -> same viz colors
-      all(t, t2: Time) | all(c, c2: Chameleon) {
-        let(p: over.(t), p2: over.(t2)) {
+      all(t, t2: Time) | all(c, c2: Chameleon) | let(p: over.(t), p2: over.(t2)) {
           if t != t2 and c.kind.(t) == c2.kind.(t2)
             atom.(p).(c).color.(p) == atom.(p2).(c2).color.(p2)
           end
         }
-      }
     }
 
     pred viz { some_meet and theme }
