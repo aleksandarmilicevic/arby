@@ -14,6 +14,7 @@ module Arby
         ast = parse_proc(@proc)
         return ["", ""] unless ast
         orig_src = read_src(ast)
+        pending_pipe_ends = 0
         instr_src = reprint(ast) do |node, parent, anno|
           case node.type
           when :if then
@@ -36,11 +37,20 @@ module Arby
               "proc{#{lhs_src}}, " +
               "proc{#{rhs_src}})"
           when :send then
-            if node.children.size >= 3 && node.children[1] == :|
-              if quant?(node.children[0])
+            if pipe_bin_op?(node)
+              if pending_pipe_ends > 0 || quant?(node.children[0])
+                # binding.pry if compute_src(node, anno).strip.start_with?("all(t, t")
                 lhs_src = compute_src(node.children[0], anno)
                 rhs_src = compute_src(node.children[2], anno)
-                "#{lhs_src} do\n #{rhs_src} \n end "
+                if quant?(node.children[2]) && pipe_bin_op?(parent) &&
+                    node.eql?(parent.children[0])
+                  pending_pipe_ends += 1
+                  "#{lhs_src} do\n #{rhs_src} "
+                else
+                  x = pending_pipe_ends
+                  pending_pipe_ends = 0
+                  "#{lhs_src} do\n #{rhs_src} \n end #{'end ' * x} "
+                end
               end
             end
           else
@@ -48,6 +58,13 @@ module Arby
           end
         end
         [orig_src, instr_src]
+      end
+
+      def pipe_bin_op?(node)
+        Parser::AST::Node === node and
+          node.type == :send and
+          node.children.size == 3 and
+          node.children[1] == :|
       end
 
       def quant?(node)
