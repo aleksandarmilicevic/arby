@@ -36,7 +36,7 @@ module Arby
               "proc{#{lhs_src}}, " +
               "proc{#{rhs_src}})"
           when :send then
-            if node.children.size == 3 && node.children[1] == :|
+            if node.children.size >= 3 && node.children[1] == :|
               if quant?(node.children[0])
                 lhs_src = compute_src(node.children[0], anno)
                 rhs_src = compute_src(node.children[2], anno)
@@ -53,7 +53,7 @@ module Arby
       def quant?(node)
         Parser::AST::Node === node and
           node.type == :send and
-          node.children.size == 3 and
+          node.children.size >= 3 and
           node.children[0] == nil and
           [:all, :some, :no, :one, :lone, :select, :exists].member? node.children[1]
       end
