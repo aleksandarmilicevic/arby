@@ -26,7 +26,7 @@ module Arby
         cls = target_inst.singleton_class
         cls.send :define_method, :__type, lambda{type} if define_type_method
         range_cls = type.range.klass
-        if (Arby::Ast::ASig >= range_cls rescue false)
+        if (Arby::Ast::ASig > range_cls rescue false)
           add_field_methods cls, range_cls.meta.fields_including_sub_and_super
           add_field_methods cls, range_cls.meta.inv_fields_including_sub_and_super
           add_fun_methods   cls, range_cls.meta.all_funs
@@ -183,7 +183,9 @@ module Arby
 
         def set_type(type=nil)
           @__type = Arby::Ast::AType.get!(type) if type
-          Expr.add_methods_for_type(self, @__type, false) if @__type && !@__type.empty?
+          if @__type && !@__type.univ? && !@__type.empty?
+            Expr.add_methods_for_type(self, @__type, false)
+          end
         end
 
         def exe

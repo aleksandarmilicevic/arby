@@ -188,10 +188,14 @@ module Arby
         end
       end
 
-      def seq?;  multiplicity == :seq end
-      def set?;  multiplicity == :set end
-      def one?;  multiplicity == :one end
-      def lone?; multiplicity == :lone end
+      def seq?()  multiplicity == :seq end
+      def set?()  multiplicity == :set end
+      def one?()  multiplicity == :one end
+      def lone?() multiplicity == :lone end
+
+      def none?() self.is_a?(NoType) end
+      def some?() !none?() end
+      def univ?() self.is_a?(UnivType) end
 
       # Returns a +UnaryType+ at the given position.
       #
@@ -727,6 +731,8 @@ module Arby
 
     class UnivType < UnaryType
       def initialize() super(Object) end
+      def klass()      Arby::Ast::ASig end
+      def univ?()      true end
       def to_s()       "univ" end
     end
 

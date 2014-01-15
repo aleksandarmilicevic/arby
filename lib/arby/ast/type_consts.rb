@@ -21,8 +21,8 @@ module Arby
       Seq   = ProductType.new(Int, Univ)
 
       def Int()  TypeConsts::Int end
-      def Bool()  TypeConsts::Int end
-      def Univ() TypeConsts::None end
+      def Bool() TypeConsts::Int end
+      def Univ() TypeConsts::Univ end
       def None() TypeConsts::None end
 
       def self.get(sym)

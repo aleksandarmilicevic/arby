@@ -9,35 +9,57 @@ module Arby
 
     module TypeMethodsHelper
       def add_methods_for_type()
-        return unless @type
+        return if @type.nil? || @type.none?
         cls = (class << self; self end)
         range_cls = @type.range.klass
-        if (Arby::Ast::ASig >= range_cls rescue false)
+        fields = []
+        if (Arby::Ast::ASig > range_cls rescue false)
           fields = range_cls.meta.fields_including_sub_and_super
-          # field += range_cls.meta.inv_fields_including_sub_and_super
-          fields.each do |fld|
-            fname = fld.getter_sym.to_s
+        elsif @type.range.univ?
+          fields = Arby.meta.reachable_fields
+        end
+        # field += range_cls.meta.inv_fields_including_sub_and_super
+        mod = Module.new
+        fields.each do |fld|
+          fname = fld.getter_sym
+          unless self.respond_to? fname
             #TODO: OPT
-            cls.send(:define_method, fname){ self.send :_join_fld, fld }
+            mod.send(:define_method, fname) do
+              self.send :_join_fld, fld
+            end
           end
         end
+        cls.send :include, mod
       end
     end
 
     module ArbyRelCommon
       def _target() @target end
       def _type()   @type end
-      def _type_op(op, other)
-        (self._type && other._type) ? _type.send(op, other._type) : nil
+      def _type_op_t(op, other_type)
+        (self._type && other_type) ? _type.send(op, other_type) : nil
+      end
+      def _type_op(op, other_ts)
+        other_ts && _type_op_t(op, other_ts._type)
       end
       alias_method :__type, :_type
 
       def wrap(*a)  self.class.wrap(*a) end
       def unwrap()  TupleSet.unwrap(self) end
 
+      def call(*a)  self.join(*a) end
+
       def hash()    TupleSet.unwrap(self).hash end
       def ==(other) TupleSet.unwrap(self) == TupleSet.unwrap(other) end
       alias_method  :eql?, :==
+
+      def method_missing(sym, *args, &b)
+        if args.empty?
+          _join_fld(sym)
+        else
+          super
+        end
+      end
     end
 
     class Tuple
@@ -61,6 +83,15 @@ module Arby
       end
 
       public
+
+
+      def method_missing(sym, *args, &b)
+        if args.empty?
+          _join_fld(sym) rescue super
+        else
+          super
+        end
+      end
 
       def self.wrap(t, type=nil)
         type = AType.get!(type) if type
@@ -108,8 +139,12 @@ module Arby
       end
 
       def _join_fld(fld)
-        fname = fld.getter_sym
-        ans_type = @type.join(fld.full_type)
+        fname, ftype = case fld
+                       when Field          then [fld.getter_sym, fld.full_type]
+                       when String, Symbol then [fld, nil]
+                       else fail("can't join #{fld.class}")
+                       end
+        ans_type = _type_op_t(:join, ftype)
         rhs = self.atoms.last
         if rhs.nil?
           TupleSet.wrap(nil, ans_type)
@@ -119,7 +154,8 @@ module Arby
           if num_atoms == 1
             rhs_tset
           else
-            lhs_tset = TupleSet.wrap([atoms[0...-1]], @type.project[0...num_atoms-1])
+            t = @type && @type.project[0...num_atoms-1]
+            lhs_tset = TupleSet.wrap([atoms[0...-1]], t)
             lhs_tset.join(rhs_tset)
           end
         end
@@ -144,7 +180,7 @@ module Arby
         tuples = Array(tuples)
         @tuples = Set.new(tuples.map{|t| Tuple.wrap(t, type)}.reject(&:empty?))
         @type = type || AType.interpolate(@tuples.map(&:_type))
-        TypeChecker.assert_type(@type)
+        TypeChecker.assert_type(@type) if @type && !@type.none?
         @target = @tuples # for MDelegator
         # (type.scalar?) ? super(@tuples.first) : super(@tuples)
         add_methods_for_type
@@ -263,7 +299,7 @@ module Arby
         wrap(@tuples.map{|t| t.project(*args)}, ans_type)
       end
 
-      def [](other)    ljoin(other) end
+      def [](other) ljoin(other) end
       alias_method :*,    :zip
       alias_method :**,   :product
       alias_method :-,    :difference
@@ -281,6 +317,14 @@ module Arby
         end
       end
 
+      def method_missing(sym, *args, &b)
+        if args.empty?
+          _join_fld(sym) rescue super
+        else
+          super
+        end
+      end
+
       private
 
       def check_same_arity(other)
@@ -292,8 +336,14 @@ module Arby
       end
 
       def _join_fld(fld)
-        fname = fld.getter_sym
-        ans = TupleSet.new(@type.join(fld.full_type), [])
+        fname, ftype = case fld
+                       when Field          then [fld.getter_sym, fld.full_type]
+                       when String, Symbol then [fld, nil]
+                       else fail("can't join #{fld.class}")
+                       end
+        # binding.pry if @type && @type.univ?
+
+        ans = TupleSet.new(_type_op_t(:join, ftype), [])
         self.tuples.map(&fname).reduce(ans){|acc, ts| acc.union!(ts)}
       end
     end

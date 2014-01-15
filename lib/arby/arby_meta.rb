@@ -57,7 +57,8 @@ module Arby
       attr_searchable :model, :sig
 
       def all_reachable_sigs() sigs end
-      def reachable_sigs() sigs end
+      def reachable_sigs()     sigs end
+      def reachable_fields()   reachable_sigs().map{|s| s.meta.pfields}.flatten end
 
       def add_sig_builder(sb)
         @sig_builders << sb
