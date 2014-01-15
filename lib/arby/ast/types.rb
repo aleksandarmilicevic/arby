@@ -402,7 +402,7 @@ module Arby
             mb = Arby::Dsl::ModelBuilder.get
             # re-resolve the name
             cls = if mb && mb.scope_module.const_defined?(cname)
-                    Arby::Dsl::ModelBuilder.get.scope_module.const_get cname
+                    mb.scope_module.const_get cname
                   else
                     sym
                   end
