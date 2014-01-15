@@ -52,14 +52,6 @@ module Arby
       def hash()    TupleSet.unwrap(self).hash end
       def ==(other) TupleSet.unwrap(self) == TupleSet.unwrap(other) end
       alias_method  :eql?, :==
-
-      def method_missing(sym, *args, &b)
-        if args.empty?
-          _join_fld(sym)
-        else
-          super
-        end
-      end
     end
 
     class Tuple
@@ -83,15 +75,6 @@ module Arby
       end
 
       public
-
-
-      def method_missing(sym, *args, &b)
-        if args.empty?
-          _join_fld(sym) rescue super
-        else
-          super
-        end
-      end
 
       def self.wrap(t, type=nil)
         type = AType.get!(type) if type
@@ -314,14 +297,6 @@ module Arby
         unless @type && @type.isInt?
           raise TypeError, "#{self} must be an integer value to be able to apply #{op};"+
             "instead, its type is #{@type}"
-        end
-      end
-
-      def method_missing(sym, *args, &b)
-        if args.empty?
-          _join_fld(sym) rescue super
-        else
-          super
         end
       end
 
