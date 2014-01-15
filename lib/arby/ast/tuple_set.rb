@@ -216,7 +216,7 @@ module Arby
       def >=(other)    int_cmp(:>=, other) end
 
       def sum
-        assert_int_set!
+        assert_int_set!("sum")
         @tuples.reduce(0){|sum, t| sum + t[0]}
       end
 
@@ -293,7 +293,7 @@ module Arby
       def inspect(sep=",\n") "{" + @tuples.map(&:to_s).join(sep) + "}" end
       def to_s()             TupleSet.unwrap(self).to_s end
 
-      def assert_int_set!
+      def assert_int_set!(op)
         unless @type && @type.isInt?
           raise TypeError, "#{self} must be an integer value to be able to apply #{op};"+
             "instead, its type is #{@type}"

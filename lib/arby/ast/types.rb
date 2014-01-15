@@ -51,7 +51,7 @@ module Arby
       end
 
       def self.get!(obj, allow_nil=true)
-        if obj.nil? && allow_nil
+        if obj == nil && allow_nil
           NoType.new
         else
           self.get(obj, allow_nil) or TypeError.raise_coercion_error(obj, self)
@@ -79,7 +79,12 @@ module Arby
       end
 
       def self.product(lhs, rhs, mult=nil)
-        ProductType.new(AType.get!(lhs), AType.get!(rhs), mult)
+        rhs2, mult2 = rhs, mult
+        if Arby::Dsl::ModBuilder === rhs && rhs.pending_product?
+          rhs2 = rhs.rhs_type
+          mult2 = rhs.mod_smbl
+        end
+        ProductType.new(AType.get!(lhs), AType.get!(rhs2), mult2)
       end
 
       def self.join(lhs, rhs)
@@ -387,26 +392,30 @@ module Arby
         def self.builtin(sym) @@built_in_types[sym.to_sym] end
 
         def self.get(sym)
+          return RefColType.new(Object) if sym == Object
+          return IntColType.new(sym)    if Class === sym && sym <= Integer
           case sym
           when ColType
             sym
           when Module
-            if sym == Object
-              RefColType.new(Object)
-            elsif sym <= Integer
-              IntColType.new(sym)
-            elsif !(sym <= ASig) && sig_cls = Arby.meta.find_sig(sym.relative_name)
-              RefColType.new(sig_cls)
-            elsif sym <= Float
-              FloatColType.new(sym)
-            elsif sym <= String
-              StringColType.new(sym)
-            elsif sym <= Date
-              DateColType.new(sym)
-            elsif sym <= Time
-              TimeColType.new(sym)
+            cname = sym.relative_name
+            mb = Arby::Dsl::ModelBuilder.get
+            # re-resolve the name
+            cls = if mb && mb.scope_module.const_defined?(cname)
+                    Arby::Dsl::ModelBuilder.get.scope_module.const_get cname
+                  else
+                    sym
+                  end
+            if cls <= Float
+              FloatColType.new(cls)
+            elsif cls <= String
+              StringColType.new(cls)
+            elsif cls <= Date
+              DateColType.new(cls)
+            elsif cls <= Time
+              TimeColType.new(cls)
             else
-              RefColType.new(sym)
+              RefColType.new(cls)
             end
           when SDGUtils::DSL::MissingBuilder
             sym.consume

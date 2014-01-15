@@ -60,6 +60,9 @@ module Arby
       def reachable_sigs()     sigs end
       def reachable_fields()   reachable_sigs().map{|s| s.meta.pfields}.flatten end
 
+      # @param sig_cls [Class]
+      def has_sig(sig_cls) _restrict(@sigs).member?(sig_cls) end
+
       def add_sig_builder(sb)
         @sig_builders << sb
         @opened_model and @opened_model.send(:add_sig_builder, sb)

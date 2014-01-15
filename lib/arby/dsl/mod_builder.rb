@@ -12,7 +12,7 @@ module Arby
     # "one", "set", "seq", etc, so that +self/MyType+ and
     # +self.MyType+ can result in an instance of +Type+
     # ============================================================================
-    class ModBuilder < BasicObject
+    class ModBuilder
       def /(other)  ModBuilder.mult(@mod_smbl, other) end
       def **(other) @rhs_type = other; self end
 
