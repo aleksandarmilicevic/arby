@@ -41,7 +41,7 @@ class ChameleonsTest < Test::Unit::TestCase
   end
 
   def test_staged
-    n = 8
+    n = 6
     puts "scope = #{n}"
     puts "solving chameleons..."
     ch_sol = @@timer.time_it {
@@ -54,8 +54,10 @@ class ChameleonsTest < Test::Unit::TestCase
     inst = ch_sol.arby_instance
     bounds = inst.to_bounds
 
-    projections                  = inst[Time].map{Viz::Projection.new}
-    nodes                        = inst[Chameleon].map{Viz::Node.new}
+    times                        = inst[Time]
+    chams                        = inst[Chameleon]
+    projections                  = times.map{Viz::Projection.new}
+    nodes                        = chams.map{Viz::Node.new}
     bounds[Viz::Projection]      = projections
     bounds[Viz::Projection.over] = projections * inst[Time]
     bounds[Viz::Node]            = nodes
@@ -68,6 +70,16 @@ class ChameleonsTest < Test::Unit::TestCase
     t2 = @@timer.last_time
     puts "time: #{t2}"
     puts "total: #{t1 + t2}"
+
+    projections.each do |p|
+      nodes.product(nodes).each do |n1, n2|
+        c1 = n1.atom.(p)
+        c2 = n2.atom.(p)
+        same_kind = c1.kind.(p.over) == c2.kind.(p.over)
+        same_color = n1.color.(p) == n2.color.(p)
+        assert_equal same_kind, same_color
+      end
+    end
   end
 
   def bench_staged
