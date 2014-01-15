@@ -41,7 +41,7 @@ class ChameleonsTest < Test::Unit::TestCase
   end
 
   def test_staged
-    n = 6
+    n = 5
     puts "scope = #{n}"
     puts "solving chameleons..."
     ch_sol = @@timer.time_it {
