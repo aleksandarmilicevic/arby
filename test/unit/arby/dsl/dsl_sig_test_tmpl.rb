@@ -68,7 +68,7 @@ def get_test_template(cls_name, model_func, sig_func, base_sig_cls)
       def test_create_sig_module
         sig_test_helper('X_#{cls_name}::S_#{cls_name}', #{base_sig_cls})
         sig_test_helper('X_#{cls_name}::S_sym_#{cls_name}', #{base_sig_cls})
-        sig_test_helper('X_#{cls_name}::S_ext_#{cls_name}', S_#{cls_name})
+        sig_test_helper('X_#{cls_name}::S_ext_#{cls_name}', X_#{cls_name}::S_#{cls_name})
       end
 
       def test_create_sig_nested_module

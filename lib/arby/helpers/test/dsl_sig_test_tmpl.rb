@@ -29,23 +29,23 @@ module Arby
     end
 
     #{model_func} "X_#{cls_name}" do
-    #{sig_func} S_#{cls_name}
-    #{sig_func} :S_sym_#{cls_name}
-    #{sig_func} :S_ext_#{cls_name} < S_#{cls_name}
-  end
+      #{sig_func} S_#{cls_name}
+      #{sig_func} :S_sym_#{cls_name}
+      #{sig_func} :S_ext_#{cls_name} < S_#{cls_name}
+    end
 
-  module N_#{cls_name}
-    #{model_func} do
-    #{sig_func} S_#{cls_name}
-    #{sig_func} :S_sym_#{cls_name}
-    #{sig_func} :S_ext_#{cls_name} < S_#{cls_name}
-  end
+    module N_#{cls_name}
+      #{model_func} do
+      #{sig_func} S_#{cls_name}
+      #{sig_func} :S_sym_#{cls_name}
+      #{sig_func} :S_ext_#{cls_name} < S_#{cls_name}
+    end
 
-  #{model_func} "X_#{cls_name}" do
-  #{sig_func} S_#{cls_name}
-  #{sig_func} :S_sym_#{cls_name}
-  #{sig_func} :S_ext_#{cls_name} < S_#{cls_name}
-end
+    #{model_func} "X_#{cls_name}" do
+      #{sig_func} S_#{cls_name}
+      #{sig_func} :S_sym_#{cls_name}
+      #{sig_func} :S_ext_#{cls_name} < S_#{cls_name}
+    end
       end
     end
 
@@ -75,7 +75,7 @@ end
       def test_create_sig_module
         sig_test_helper('X_#{cls_name}::S_#{cls_name}', #{base_sig_cls})
         sig_test_helper('X_#{cls_name}::S_sym_#{cls_name}', #{base_sig_cls})
-        sig_test_helper('X_#{cls_name}::S_ext_#{cls_name}', S_#{cls_name})
+        sig_test_helper('X_#{cls_name}::S_ext_#{cls_name}', X_#{cls_name}::S_#{cls_name})
       end
 
       def test_create_sig_nested_module
@@ -87,13 +87,13 @@ end
       def test_create_sig_nested_module2
         sig_test_helper('M_#{cls_name}::X_#{cls_name}::S_#{cls_name}', #{base_sig_cls})
         sig_test_helper('M_#{cls_name}::X_#{cls_name}::S_sym_#{cls_name}', #{base_sig_cls})
-        sig_test_helper('M_#{cls_name}::X_#{cls_name}::S_ext_#{cls_name}', M_#{cls_name}::S_#{cls_name})
+        sig_test_helper('M_#{cls_name}::X_#{cls_name}::S_ext_#{cls_name}', M_#{cls_name}::X_#{cls_name}::S_#{cls_name})
       end
 
       def test_create_sig_nested_module3
         sig_test_helper('M_#{cls_name}::N_#{cls_name}::X_#{cls_name}::S_#{cls_name}', #{base_sig_cls})
         sig_test_helper('M_#{cls_name}::N_#{cls_name}::X_#{cls_name}::S_sym_#{cls_name}', #{base_sig_cls})
-        sig_test_helper('M_#{cls_name}::N_#{cls_name}::X_#{cls_name}::S_ext_#{cls_name}', M_#{cls_name}::N_#{cls_name}::S_#{cls_name})
+        sig_test_helper('M_#{cls_name}::N_#{cls_name}::X_#{cls_name}::S_ext_#{cls_name}', M_#{cls_name}::N_#{cls_name}::X_#{cls_name}::S_#{cls_name})
       end
 
       def test_no_override1
