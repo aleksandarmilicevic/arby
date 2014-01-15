@@ -38,10 +38,10 @@ class FileSystemTest < Test::Unit::TestCase
     # assert_equal 2, inst.atoms.select{|a| a.instance_of? Name}.size
     # assert_equal 1, inst.atoms.select{|a| a.instance_of? File}.size
     # assert_equal 1, inst.atoms.select{|a| a.instance_of? Root}.size
-    # assert_equal 1, inst.atoms.select{|a| a.instance_of? Folder}.size
+    # assert_equal 1, inst.atoms.select{|a| a.instance_of? Dir}.size
     # assert_equal 3, inst.atoms.select{|a| a.instance_of? Entry}.size
 
-    flds = [Entry.meta.field("name"), Entry.contents, Folder.entries, Folder.parent]
+    flds = [Entry.meta.field("name"), Entry.contents, Dir.entries, Dir.parent]
     fld_names = flds.map(&:alloy_name)
     assert_set_equal fld_names, inst.fields
 
@@ -55,9 +55,9 @@ class FileSystemTest < Test::Unit::TestCase
   # Expects the following solution:
   #
   #   Root$0
-  #     Entry$0: Name$0 -> Folder$0
+  #     Entry$0: Name$0 -> Dir$0
   #                          Entry$2: Name$1 -> File$0
-  #     Entry$1: Name$1 -> Folder$0
+  #     Entry$1: Name$1 -> Dir$0
   #                          Entry$2: Name$1 -> File$0
   # !non-det!
   def __test_graph
@@ -66,7 +66,7 @@ class FileSystemTest < Test::Unit::TestCase
     assert_equal 2, inst.atoms.select{|a| a.instance_of? Name}.size
     assert_equal 1, inst.atoms.select{|a| a.instance_of? File}.size
     assert_equal 1, inst.atoms.select{|a| a.instance_of? Root}.size
-    assert_equal 1, inst.atoms.select{|a| a.instance_of? Folder}.size
+    assert_equal 1, inst.atoms.select{|a| a.instance_of? Dir}.size
     assert_equal 3, inst.atoms.select{|a| a.instance_of? Entry}.size
 
     assert_equal 8, inst.atoms.size
@@ -77,10 +77,10 @@ class FileSystemTest < Test::Unit::TestCase
     assert_ts_equal inst["Entry$0"].name, inst["Name$0"]
     assert_ts_equal inst["Entry$1"].name, inst["Name$1"]
     assert_ts_equal inst["Entry$2"].name, inst["Name$1"]
-    assert_ts_equal inst["Entry$0"].contents, inst["Folder$0"]
-    assert_ts_equal inst["Entry$1"].contents, inst["Folder$0"]
+    assert_ts_equal inst["Entry$0"].contents, inst["Dir$0"]
+    assert_ts_equal inst["Entry$1"].contents, inst["Dir$0"]
     assert_ts_equal inst["Entry$2"].contents, inst["File$0"]
-    assert_ts_equal inst["Folder$0"].entries, inst["Entry$2"]
+    assert_ts_equal inst["Dir$0"].entries, inst["Entry$2"]
   end
 
   def test_correct_check
