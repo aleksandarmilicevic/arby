@@ -38,6 +38,8 @@ Specification testing
 
 TODO: 
 
+  - optimize TupleSet operations (it's super slow now)
+
   - implement more robust joins (by having looking up the missing
     symbol up the evaluation stack)
 
