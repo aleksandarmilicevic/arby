@@ -23,8 +23,8 @@ module ArbyModels
       parent: (lone Dir)
     ] {
       parent == contents!.entries! and
-      not_in? self.^:parent and
-      (self.*:parent).contains?(Root) and
+      not_in? self.^(Dir::parent) and
+      (self.*(Dir::parent)).contains?(Root) and
       all(e1, e2: entries) {
         e1 == e2 if e1.name == e2.name
       }

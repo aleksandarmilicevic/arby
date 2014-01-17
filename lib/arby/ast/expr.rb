@@ -210,6 +210,7 @@ module Arby
         def +(other)         pick_and_apply(IPLUS, PLUS, self, other) end
         def -(other)         pick_and_apply(IMINUS, MINUS, self, other) end
         def /(other)         pick_and_apply(DIV, MINUS, self, other) end
+        def *(other)         ExprBuilder.apply(MUL, self, other) end
         def %(other)         ExprBuilder.apply(REM, self, other) end
         def <<(other)        ExprBuilder.apply(SHL, self, other) end
         def >>(other)        ExprBuilder.apply(SHA, self, other) end
@@ -227,8 +228,8 @@ module Arby
         def contains?(other) ExprBuilder.apply(IN, other, self) end
 
         def &(other)         ExprBuilder.apply(INTERSECT, self, other) end
-        def *(other)         join_closure(RCLOSURE, other) end
-        def ^(other)         join_closure(CLOSURE, other) end
+        # def *(other)         join_closure(RCLOSURE, other) end
+        # def ^(other)         join_closure(CLOSURE, other) end
 
         def domain(other)    ExprBuilder.apply(DOMAIN, self, other) end
         def range(other)     ExprBuilder.apply(RANGE, self, other) end

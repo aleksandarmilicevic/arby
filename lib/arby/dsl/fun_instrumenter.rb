@@ -52,11 +52,18 @@ module Arby
                   "#{lhs_src} do\n #{rhs_src} \n end #{'end ' * x} "
                 end
               end
-            elsif lt_gt?(node) && op_call_with_dot?(node, anno)
-              meth = (node.children[1] == :<) ? :domain : :range
+            elsif bin_call_with_dot?(node, anno) &&
+                [:<, :>, :*, :^].member?(node.children[1])
               lhs_src = compute_src(node.children[0], anno)
               rhs_src = compute_src(node.children[2], anno)
-              "#{lhs_src}.#{meth}(#{rhs_src})"
+              case node.children[1]
+              when :<, :>
+                meth = (node.children[1] == :<) ? :domain : :range
+                "#{lhs_src}.#{meth}(#{rhs_src})"
+              when :*, :^
+                meth = (node.children[1] == :*) ? :rclosure : :closure
+                "#{lhs_src}.(#{rhs_src}.#{meth}())"
+              end
             end
           else
             nil

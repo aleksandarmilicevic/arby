@@ -10,7 +10,7 @@ module ArbyModels
       father: (lone Man),
       mother: (lone Woman)
     ] {
-      not in? this.^(Person.father + Person.mother)
+      not in? this.^(Person::father + Person::mother)
     }
 
     sig Man extends Person [
