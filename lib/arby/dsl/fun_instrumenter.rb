@@ -52,12 +52,24 @@ module Arby
                   "#{lhs_src} do\n #{rhs_src} \n end #{'end ' * x} "
                 end
               end
+            elsif lt_gt?(node) && op_call_with_dot?(node, anno)
+              meth = (node.children[1] == :<) ? :domain : :range
+              lhs_src = compute_src(node.children[0], anno)
+              rhs_src = compute_src(node.children[2], anno)
+              "#{lhs_src}.#{meth}(#{rhs_src})"
             end
           else
             nil
           end
         end
         [orig_src, instr_src]
+      end
+
+      def lt_gt?(node)
+        Parser::AST::Node === node and
+          node.type == :send and
+          node.children.size == 3 and
+          (node.children[1] == :> || node.children[1] == :<)
       end
 
       def pipe_bin_op?(node)

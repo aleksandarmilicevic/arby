@@ -215,7 +215,7 @@ module Arby
         def >>(other)        ExprBuilder.apply(SHA, self, other) end
 
         def **(other)        ExprBuilder.apply(PRODUCT, self, other) end
-        def [](other)        ExprBuilder.apply(SELECT, self, other) end
+        def [](other)        ExprBuilder.apply(SELECT, self, other)  end
         def <(other)         ExprBuilder.apply(LT, self, other) end
         def <=(other)        ExprBuilder.apply(LTE, self, other) end
         def >(other)         ExprBuilder.apply(GT, self, other) end
@@ -230,6 +230,8 @@ module Arby
         def *(other)         join_closure(RCLOSURE, other) end
         def ^(other)         join_closure(CLOSURE, other) end
 
+        def domain(other)    ExprBuilder.apply(DOMAIN, self, other) end
+        def range(other)     ExprBuilder.apply(RANGE, self, other) end
         def closure()        ExprBuilder.apply(CLOSURE, self) end
         def rclosure()       ExprBuilder.apply(RCLOSURE, self) end
         def ~()              ExprBuilder.apply(TRANSPOSE, self) end
