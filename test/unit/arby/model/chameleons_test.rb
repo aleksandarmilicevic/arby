@@ -58,26 +58,28 @@ class ChameleonsTest < Test::Unit::TestCase
     chams                        = inst[Chameleon]
     projections                  = times.map{Viz::Projection.new}
     nodes                        = chams.map{Viz::Node.new}
-    bounds[Viz::Projection]      = projections
+    # bounds[Viz::Projection]      = projections
+    # bounds[Viz::Node]            = nodes
     bounds[Viz::Projection.over] = projections * inst[Time]
-    bounds[Viz::Node]            = nodes
     bounds.hi[Viz::Node.atom]    = (nodes * inst[Chameleon]) ** projections
 
     puts "solving viz for prev chameleons..."
     viz_sol = @@timer.time_it {
-      ChameleonsViz.solve :viz, bounds, n
+      ChameleonsViz.solve :viz, bounds, n, Viz::Node => exactly(n-1)
     }
     t2 = @@timer.last_time
     puts "time: #{t2}"
     puts "total: #{t1 + t2}"
 
-    projections.each do |p|
-      nodes.product(nodes).each do |n1, n2|
-        c1 = n1.atom.(p)
-        c2 = n2.atom.(p)
-        same_kind = c1.kind.(p.over) == c2.kind.(p.over)
-        same_color = n1.color.(p) == n2.color.(p)
-        assert_equal same_kind, same_color
+    unless n > 6
+      projections.each do |p|
+        nodes.product(nodes).each do |n1, n2|
+          c1 = n1.atom.(p)
+          c2 = n2.atom.(p)
+          same_kind = c1.kind.(p.over) == c2.kind.(p.over)
+          same_color = n1.color.(p) == n2.color.(p)
+          assert_equal same_kind, same_color
+        end
       end
     end
   end
