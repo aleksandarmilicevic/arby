@@ -97,14 +97,14 @@ module Arby
           opt.solver = opt.solver.MiniSatJNI #SAT4J #MiniSatJNI
           opt.partialInstance = partialInstanceStr
 
-          # puts "using command index--"
-          # puts command_index
-          # puts "---------------------"
+          puts "using command index--"
+          puts command_index
+          puts "---------------------"
 
-          # puts "using bounds---------"
-          # puts partialInstanceStr.inspect
-          # puts "---------------------"
-          # puts partialInstanceStr
+          puts "using bounds---------"
+          puts partialInstanceStr.inspect
+          puts "---------------------"
+          puts partialInstanceStr
 
           catch_alloy_errors {
             sigs = a4world.getAllReachableSigs

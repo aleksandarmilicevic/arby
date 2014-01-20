@@ -22,6 +22,20 @@ module Arby
     #=========================================================================
     module ASig
 
+      def self.all_reachable_atoms(atoms, ans=Set.new)
+        atoms.each do |a|
+          if ASig === a && !ans.member?(a)
+            ans << a
+            a.class.meta.fields(false).each do |fld|
+              fld_val = a.read_field(fld)
+              fld_val_atoms = fld_val.tuples.map(&:atoms).flatten
+              all_reachable_atoms(fld_val_atoms, ans)
+            end
+          end
+        end
+        ans.to_a
+      end
+
       module Static
         def inherited(subclass)
           super

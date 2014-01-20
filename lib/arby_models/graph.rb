@@ -6,7 +6,7 @@ module ArbyModels
   alloy_model :GraphModel do
 
     sig Node [
-      label: Int
+      val: Int
     ]
 
     sig Edge [

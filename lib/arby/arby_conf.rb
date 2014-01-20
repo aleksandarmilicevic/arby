@@ -36,6 +36,7 @@ module Arby
 
   def self.default_alloy_printer_conf
     full_alloy_printer_conf
+    short_alloy_printer_conf
   end
 
   # Options

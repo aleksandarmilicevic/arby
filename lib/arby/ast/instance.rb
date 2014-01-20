@@ -12,11 +12,27 @@ module Arby
     # @attr skolem2tuples [Hash(String, TupleSet)] - skolem names to tuples
     class Instance
 
+      def self.from_atoms(*atoms)
+        all_atoms = ASig.all_reachable_atoms(atoms)
+        fld_map = {}
+        all_atoms.each do |a|
+          if ASig === a
+            sig = a.class
+            sig.meta.fields(false).each do |fld|
+              ts = fld_map[fld] ||= TupleSet.wrap([], fld.full_type)
+              ts.union!([a] ** a.read_field(fld))
+            end
+          end
+        end
+        Instance.new(all_atoms, fld_map, {}, false)
+      end
+
       # @param atoms [Array(Atom)]
       # @param fld_map [Hash(String, TupleSet]    - field names to list of tuples
       # @param skolem_map [Hash(String, TupleSet] - skolem names to list of tuples
       def initialize(atoms=[], fld_map={}, skolem_map={}, dup=true, model=nil)
         @model         = model
+        @atoms         = dup ? atoms.dup : atoms
         @label2atom    = Hash[atoms.map{|a| [a.label, a]}]
         @type2atoms    = atoms.group_by(&:class)
         @fld2tuples    = dup ? fld_map.dup : fld_map
@@ -27,7 +43,7 @@ module Arby
       end
 
       def model()      @model end
-      def atoms()      @label2atom.values end
+      def atoms()      @atoms end
       def fields()     @fld2tuples.keys end
       def skolems()    @skolem2tuples.keys end
 
