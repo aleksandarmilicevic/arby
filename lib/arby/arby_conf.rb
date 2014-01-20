@@ -11,14 +11,17 @@ module Arby
     end
   end
 
-  def self.default_alloy_printer_conf
+  def self.shoft_alloy_printer_conf
     SDGUtils::Config.new do |c|
       c.sig_namer = lambda{|sig| sig.relative_name}
       c.fun_namer = lambda{|fun| fun.name}
       c.arg_namer = lambda{|fld| fld.name}
+    end
+  end
 
+  def self.full_alloy_printer_conf
+    SDGUtils::Config.new do |c|
       c.sig_namer = lambda{|sig| sig.name.gsub /:/, "_"}
-      # c.sig_namer = lambda{|sig| sig.relative_name}
       c.fun_namer = lambda{|fun| "#{c.sig_namer[fun.owner]}__#{fun.name}"}
       c.fun_namer = lambda{|fun| fun.name}
       c.arg_namer = lambda{|fld|
@@ -29,6 +32,10 @@ module Arby
         end
       }
     end
+  end
+
+  def self.default_alloy_printer_conf
+    full_alloy_printer_conf
   end
 
   # Options

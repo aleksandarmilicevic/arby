@@ -212,15 +212,20 @@ module Arby
       end
 
       def command_to_als(cmd)
-        name = (cmd.name.empty?) ? "" : "#{cmd.name} "
-        @out.p "#{cmd.kind} #{name}"
-        if cmd.fun && cmd.fun.body
+        cmd_name = cmd.name.to_s
+        if cmd.fun && cmd.fun.body        
+          name = (cmd.name.empty?) ? "" : "#{cmd_name} "
+          @out.p "#{cmd.kind} #{name}"
           @out.pl "{"
           @out.in do
             @out.pn [cmd.fun.sym_exe]
           end
           @out.pl
           @out.p "} "
+        else
+          pred = @history.to_a.reverse.map(&:preds).flatten.find{|p| p.name.to_s==cmd_name}
+          name = pred ? @conf.fun_namer[pred] : cmd_name
+          @out.p "#{cmd.kind} #{name} "
         end
         @out.pl "#{cmd.scope.to_s(@conf.sig_namer)}"
       end
@@ -369,7 +374,7 @@ module Arby
       def callexpr_to_als(ce)
         pre = (ce.has_target?) ? "#{export_to_als ce.target}." : ""
         fun = case f=ce.fun
-              when Arby::Ast::Fun; f.name
+              when Arby::Ast::Fun; @conf.fun_namer[f]
               else f
               end
         args = ce.args.map(&method(:export_to_als)).join(", ")
