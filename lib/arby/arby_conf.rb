@@ -11,7 +11,7 @@ module Arby
     end
   end
 
-  def self.shoft_alloy_printer_conf
+  def self.short_alloy_printer_conf
     SDGUtils::Config.new do |c|
       c.sig_namer = lambda{|sig| sig.relative_name}
       c.fun_namer = lambda{|fun| fun.name}
