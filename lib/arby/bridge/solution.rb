@@ -58,6 +58,8 @@ module Arby
         @type = Type.new(a4atom ? a4atom.type : type)
       end
 
+      alias_method :__label, :label
+
       def to_s() "#{label}: #{type}" end
     end
 

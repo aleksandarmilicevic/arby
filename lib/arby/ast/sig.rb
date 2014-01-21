@@ -191,7 +191,7 @@ module Arby
     module ASig
       include SDGUtils::ShadowMethods
 
-      attr_accessor :label, :__label
+      attr_accessor :__label
       attr_reader   :__atom_id
 
       def self.included(base)
@@ -204,7 +204,7 @@ module Arby
 
       def meta()     self.class.meta end
       def arity()    1 end
-      def to_s()     @label || @__label end
+      def to_s()     @__label end
       def to_atype() UnaryType.get!(self.class) end
       def to_expr()  Expr::AtomExpr.new(self) end
       def to_ts()    TupleSet.wrap(self, to_atype) end

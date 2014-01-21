@@ -63,7 +63,7 @@ module Arby
           (univ and univ.find_atom(atom.label)) ||
           (sig_cls = _this_type_to_sig!(model, atom.type) and sig_cls.new())
         if new_atom
-          new_atom.label = atom.label
+          new_atom.__label = atom.label
           new_atom
         else
           atom

@@ -23,10 +23,10 @@ module Arby
         run_cmd = "run #{cmd_name} #{cmd_body} #{scope.to_als}"
         als_model = "#{to_als}\n\n#{run_cmd}"
 
-        puts "Solving this"
-        puts "---"
-        puts als_model.inspect
-        puts "---"
+        # puts "Solving this"
+        # puts "---"
+        # puts als_model.inspect
+        # puts "---"
 
         comp = Arby::Bridge::Compiler.compile(self, als_model)
         comp.execute_command(-1, bounds)

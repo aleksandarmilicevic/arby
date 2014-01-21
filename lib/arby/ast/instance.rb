@@ -33,7 +33,7 @@ module Arby
       def initialize(atoms=[], fld_map={}, skolem_map={}, dup=true, model=nil)
         @model         = model
         @atoms         = dup ? atoms.dup : atoms
-        @label2atom    = Hash[atoms.map{|a| [a.label, a]}]
+        @label2atom    = Hash[atoms.map{|a| [a.__label, a]}]
         @type2atoms    = atoms.group_by(&:class)
         @fld2tuples    = dup ? fld_map.dup : fld_map
         @skolem2tuples = dup ? skolem_map.dup : skolem_map
