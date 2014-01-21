@@ -5,20 +5,26 @@ module Arby
     # Various helper methods for dealing with Rjb::Proxy objects.
     # ------------------------------------------------------------------
     module Helpers
+      extend self
+
       # @param a4arr [Rjb::Proxy ~> Array]
       # @return [Array]
       def java_to_ruby_array(a4arr)
-        size = a4arr.size
-        (0...size).map{|i| a4arr.get(i)}
+        ans = []
+        a4it = a4arr.iterator
+        while a4it.hasNext
+          ans << a4it.next
+        end
+        ans
       end
 
       # @param a4arr [Rjb::Proxy ~> Array]
       # @return [Array]
-      def jmap(a4arr, &block)
-        java_to_ruby_array(a4arr).map(&block)
+      def jmap(a4arr)
+        java_to_ruby_array(a4arr).map{|*a| yield(*a)}
       end
 
-      def jmap_iter(a4iterable, &block)
+      def jmap_iter(a4iterable)
         a4iterator = a4iterable.iterator
         ans = []
         while a4iterator.hasNext
