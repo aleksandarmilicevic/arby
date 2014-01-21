@@ -137,9 +137,9 @@ module Arby
           if num_atoms == 1
             rhs_tset
           else
-            t = @type && @type.project[0...num_atoms-1]
+            t = @type && @type.project(0...num_atoms-1)
             lhs_tset = TupleSet.wrap([atoms[0...-1]], t)
-            lhs_tset.join(rhs_tset)
+            lhs_tset.zip(rhs_tset)
           end
         end
       end
