@@ -316,8 +316,6 @@ module Arby
                        when String, Symbol then [fld, nil]
                        else fail("can't join #{fld.class}")
                        end
-        # binding.pry if @type && @type.univ?
-
         ans = TupleSet.new(_type_op_t(:join, ftype), [])
         self.tuples.map(&fname).reduce(ans){|acc, ts| acc.union!(ts)}
       end
