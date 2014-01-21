@@ -26,22 +26,22 @@ class GraphTest < Test::Unit::TestCase
     n = 5
     vals = Array(0...n)
     nodes = vals.map{|i| Node.new :val => i}
+
     assert_equal vals, nodes.map(&:val)
 
+    # binding.pry
     edges = (0...n-1).map{|i| Edge.new :src => nodes[i], :dst => nodes[i+1]}
-    binding.pry
     g = Graph.new :nodes => nodes.shuffle, :edges => edges
     bnd = Arby::Ast::Instance.from_atoms(g).to_bounds
+
     sol = ArbyModels::GraphModel.solve :hamiltonian, n, bnd
 
     assert_equal vals, nodes.map(&:val)
+
     assert sol.satisfiable?
     inst = sol.arby_instance
-
-binding.pry
-
-
-
+    ans = inst["$hamiltonian_ans"].val.project(1)
+    assert_equal Arby::Ast::TupleSet.wrap(vals.map{|i| [i]}), ans
   end
 
 end

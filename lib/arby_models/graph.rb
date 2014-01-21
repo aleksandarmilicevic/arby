@@ -6,13 +6,12 @@ module ArbyModels
   alloy_model :GraphModel do
 
     sig Node [
-      val: Int
+      val: (lone Int)
     ]
 
     sig Edge [
-      src: Node,
-      dst: Node,
-      cost: Int
+      src, dst: Node,
+      cost:     (lone Int)
     ]
 
     sig Graph [
