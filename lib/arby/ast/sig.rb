@@ -240,6 +240,24 @@ module Arby
 
       def __parent() nil end
 
+      def __execute_predicate(model, fun, *args)
+        atoms = [self] + args
+        bnd = Instance.from_atoms(self, *args).to_bounds
+        sol = model.solve fun.name, bnd
+        if sol.satisfiable?
+          inst = sol.arby_instance
+          ans = fun.args[atoms.size..-1].map{ |arg|
+            inst["$#{fun.name}_#{arg.name}"]
+          }
+          if    ans.size == 0 then nil
+          elsif ans.size == 1 then ans.first
+                              else ans
+          end
+        else
+          nil
+        end
+      end
+
       protected
 
       def this() self end

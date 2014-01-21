@@ -57,19 +57,35 @@ module Arby
         resolve_everything
         init_inv_fields
         eval_sig_bodies
-        # add getters for all fields
-        if Arby.conf.generate_methods_for_global_fields
-          flds = self.sigs.map{|s| s.meta.fields + s.meta.inv_fields}.flatten
-          flds.each do |fld|
-            Arby::Utils::CodegenRepo.module_safe_eval_method @ruby_module,
-              fld.getter_sym, <<-RUBY, __FILE__, __LINE__+1
+        add_field_getters if Arby.conf.generate_methods_for_global_fields
+        add_funs_to_sig_classes
+        @resolved = true
+      end
+
+      def add_field_getters
+        flds = self.sigs.map{|s| s.meta.fields + s.meta.inv_fields}.flatten
+        flds.each do |fld|
+          Arby::Utils::CodegenRepo.module_safe_eval_method @ruby_module,
+          fld.getter_sym, <<-RUBY, __FILE__, __LINE__+1
             def #{fld.getter_sym}
                #{fld.parent.name}.#{fld.getter_sym}
             end
-            RUBY
+          RUBY
+        end
+      end
+
+      def add_funs_to_sig_classes
+        my_model = self
+        (self.funs + self.preds).each do |fun|
+          if fun.args.first
+            dom_cls = fun.args.first.type.domain.klass rescue nil
+            if TypeChecker.check_sig_class(dom_cls)
+              dom_cls.send :define_method, fun.name do |*args|
+                self.__execute_predicate(my_model, fun, *args)
+              end
+            end
           end
-       end
-        @resolved = true
+        end
       end
 
       def resolve_everything

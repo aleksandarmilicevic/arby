@@ -14,6 +14,7 @@ module Arby
         grps = scope_bounds.group_by{|e| e.is_a? Arby::Ast::Bounds}
         bounds = Array(grps[true]).first
         scope = Arby::Dsl::CommandHelper.parse_scope(*Array(grps[false]))
+        scope.extend_for_bounds(bounds)
 
         cmd_name, cmd_body = if pred
                                [pred, ""]
