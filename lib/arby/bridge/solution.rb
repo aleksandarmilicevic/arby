@@ -108,7 +108,10 @@ module Arby
           skolem_map = Hash[skolem_map]
         end
 
-        Arby::Ast::Instance.new atoms, fld_map, skolem_map, false
+        Arby::Ast::Instance.new :atoms      => atoms,
+                                :fld_map    => fld_map,
+                                :skolem_map => skolem_map,
+                                :dup        => false
       end
 
       # Takes an Rjb Proxy object pointing to an A4Solution, gets all

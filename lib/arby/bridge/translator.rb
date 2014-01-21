@@ -23,8 +23,8 @@ module Arby
       def to_arby_instance(inst, univ=nil, model=nil)
         model ||= Arby.meta
 
-        atoms   = inst.atoms.map{|a| _create_atom(model, a, univ)}.compact
-        tmpi    = Arby::Ast::Instance.new atoms
+        atoms   = inst.atoms.map{|a| _get_atom(model, a, univ)}.compact
+        tmpi    = Arby::Ast::Instance.new :atoms => atoms, :univ => univ
 
         flds = model.reachable_sigs.map{|s| s.meta.fields}.flatten.map{ |fld|
           fld_name = Arby.conf.alloy_printer.arg_namer[fld]
@@ -49,16 +49,19 @@ module Arby
           end
         end
 
-        Arby::Ast::Instance.new atoms, fld_map, skolem_map, false, model
+        Arby::Ast::Instance.new :atoms      => atoms,
+                                :fld_map    => fld_map,
+                                :skolem_map => skolem_map,
+                                :dup        => false,
+                                :univ       => univ,
+                                :model      => model
       end
 
       private
 
       SIG_PREFIX = "this/"
 
-      # @param atom [Arby::Bridge::Atom]
-      # @return [Arby::Ast::Sig]
-      def _create_atom(model, atom, univ=nil)
+      def _get_atom(model, atom, univ=nil)
         new_atom =
           (univ and univ.find_atom(atom.label)) ||
           (sig_cls = _this_type_to_sig!(model, atom.type) and sig_cls.new())

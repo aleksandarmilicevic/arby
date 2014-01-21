@@ -1,5 +1,6 @@
 require 'arby/ast/bounds'
 require 'arby/ast/tuple_set'
+require 'sdg_utils/config'
 
 module Arby
   module Ast
@@ -24,19 +25,36 @@ module Arby
             end
           end
         end
-        Instance.new(all_atoms, fld_map, {}, false)
+        Instance.new :atoms => all_atoms, :fld_map => fld_map, :dup => false
       end
 
-      # @param atoms [Array(Atom)]
-      # @param fld_map [Hash(String, TupleSet]    - field names to list of tuples
-      # @param skolem_map [Hash(String, TupleSet] - skolem names to list of tuples
-      def initialize(atoms=[], fld_map={}, skolem_map={}, dup=true, model=nil)
-        @model         = model
-        @atoms         = dup ? atoms.dup : atoms
-        @label2atom    = Hash[atoms.map{|a| [a.__label, a]}]
-        @type2atoms    = atoms.group_by(&:class)
-        @fld2tuples    = dup ? fld_map.dup : fld_map
-        @skolem2tuples = dup ? skolem_map.dup : skolem_map
+      @@default_params = SDGUtils::Config.new do |c|
+        c.model = nil
+        c.atoms = []
+        c.fld_map = {}
+        c.skolem_map = {}
+        c.dup = true
+        c.univ = nil
+      end
+
+      # @param params [Hash]
+      #  :atoms      => [Array(Atom)]
+      #  :fld_map    => [Hash(String, TupleSet)]
+      #  :skolem_map => [Hash(String, TupleSet)]
+      #  :dup        => Bool
+      #  :model      => Arby::Ast::Model
+      #  :univ       => Arby::Ast::Universe
+      def initialize(params={})
+        params = @@default_params.extend(params)
+        dup            = params[:dup]
+        @model         = params[:model]
+        @univ          = params[:univ]
+        @atoms         = dup ? params[:atoms].dup : params[:atoms]
+        lab = proc{|a| @univ ? (@univ.label(a) || a.__label) : a.__label}
+        @label2atom    = Hash[@atoms.map{|a| [lab[a], a]}]
+        @type2atoms    = @atoms.group_by(&:class)
+        @fld2tuples    = dup ? params[:fld_map].dup : params[:fld_map]
+        @skolem2tuples = dup ? params[:skolem_map].dup : params[:skolem_map]
 
         ([@label2atom, @type2atoms, @fld2tuples, @skolem2, self] +
           @fld2tuples.values + @skolem2tuples.values).each(&:freeze)
