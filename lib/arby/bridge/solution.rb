@@ -198,6 +198,8 @@ module Arby
         @arby_instance ||= Translator.to_arby_instance(instance(), univ, compiler.model)
       end
 
+      def [](key) arby_instance()[key] end
+
       private
 
       def fail_if_unsat

@@ -1,4 +1,3 @@
-require 'arby/ast/bounds'
 require 'arby/ast/tuple_set'
 require 'sdg_utils/config'
 
@@ -92,6 +91,7 @@ module Arby
       end
 
       def to_bounds
+        require 'arby/ast/bounds'
         bounds = Bounds.new
         atoms.group_by(&:class).each do |cls, atoms|
           bounds.bound_exactly(cls, atoms) if cls < Arby::Ast::ASig

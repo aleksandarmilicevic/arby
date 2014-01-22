@@ -65,6 +65,11 @@ module Arby
     # ----------------------------------------------------------------
     class Bounds
 
+      def self.from_atoms(*atoms)
+        require 'arby/ast/instance'
+        Instance.from_atoms(*atoms).to_bounds
+      end
+
       def initialize
         @lowers = {}
         @uppers = {}

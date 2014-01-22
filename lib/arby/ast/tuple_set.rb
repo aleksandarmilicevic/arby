@@ -188,9 +188,7 @@ module Arby
           if t.empty?       then nil
           elsif t.size == 1 then self.unwrap(t.first)
           else
-            ans = t.map{|e| self.unwrap(e)}
-            ans = Set.new(ans) if Set === t
-            ans
+            t.map{|e| self.unwrap(e)}
           end
         else
           t
