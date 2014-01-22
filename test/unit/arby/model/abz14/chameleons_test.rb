@@ -7,12 +7,12 @@ class ABZ14ChameleonsTest < Test::Unit::TestCase
   include SDGUtils::Testing::Assertions
   include Arby::Bridge
 
-  include ArbyModels::ABZ14
-  include ArbyModels::ABZ14::Chameleons
+  include ArbyModels::ABZ14::ChameleonExample
+  include ArbyModels::ABZ14::ChameleonExample::Chameleons
 
   def setup_class
     Arby.reset
-    Arby.meta.restrict_to(ArbyModels::ABZ14)
+    Arby.meta.restrict_to(ArbyModels::ABZ14::ChameleonExample)
     @@timer = SDGUtils::Timing::Timer.new
   end
 

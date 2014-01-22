@@ -4,6 +4,7 @@ require 'arby/arby_dsl'
 
 module ArbyModels
 module ABZ14
+module ChameleonExample
   extend Arby::Dsl
 
   alloy :Chameleons do
@@ -104,5 +105,6 @@ module ABZ14
     pred viz { some_meet and theme }
   end
 
+end
 end
 end
