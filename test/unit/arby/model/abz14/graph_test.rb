@@ -19,6 +19,9 @@ class ABZ14GraphTest < Test::Unit::TestCase
     g = Graph.new nodes: [n1, n2], edges: [e]
     hp = g.find_hampath # => [n1, n2]
     assert_equal [n1, n2], hp.unwrap
+
+    hp = g.hampath.project(1) # => [n1, n2]
+    assert_equal [n1, n2], hp.unwrap
   end
 
 end
