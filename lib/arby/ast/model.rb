@@ -57,9 +57,23 @@ module Arby
         resolve_everything
         init_inv_fields
         eval_sig_bodies
+        add_const_accessors
         add_field_getters if Arby.conf.generate_methods_for_global_fields
         add_funs_to_sig_classes
         @resolved = true
+      end
+
+      def add_const_accessors
+        mod = self.ruby_module
+        mod.constants(false).each do |cst|
+          mod.module_eval <<-RUBY, __FILE__, __LINE__+1
+            def self.#{cst}()     self.const_get(#{cst.inspect}) end
+            def self.#{cst}=(val)
+              self.send :remove_const, #{cst.inspect}
+              self.const_set(#{cst.inspect}, val)
+            end
+          RUBY
+        end
       end
 
       def add_field_getters
