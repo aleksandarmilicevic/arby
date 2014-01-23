@@ -258,6 +258,9 @@ module Arby
         end
       end
 
+      def *(other)  self.to_ts * other end
+      def **(other) self.to_ts ** other end
+
       protected
 
       def this() self end
