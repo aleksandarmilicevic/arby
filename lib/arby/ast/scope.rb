@@ -14,7 +14,8 @@ module Arby
 
       def to_s(sig_namer=nil)
         sig_namer ||= proc{|s| s.relative_name}
-        "#{@exact ? 'exactly ' : ''}#{@scope} #{sig_namer[@sig]}"
+        sig_name = (@sig.is_a?(Class) && ASig > @sig) ? sig_namer[@sig] : @sig.to_s
+        "#{@exact ? 'exactly ' : ''}#{@scope} #{sig_name}"
       end
     end
 
@@ -36,6 +37,10 @@ module Arby
                      atoms.size
                    }.max
                   ].max
+        if ints = bnds.get_ints and !@sig_scopes.find{|ss| ss.sig == "Int"}
+          bw = Math.log2(ints.max + 1).ceil + 1
+          add_sig_scope SigScope.new "Int", bw
+        end
       end
 
       def to_s(sig_namer=nil)
