@@ -45,9 +45,9 @@ class SudokuTestBase < Test::Unit::TestCase
     puts "solving time: #{sol.solving_time}s"
 
     assert sol.satisfiable?, "instance not found"
-    puts
-    @@timer.time_it { puts sol.arby_instance.atoms.first.print }
-    puts "print time: #{@@timer.last_time}"
+    # puts
+    # @@timer.time_it { puts sol.arby_instance.atoms.first.print }
+    # puts "print time: #{@@timer.last_time}"
   end
 
   def test_pi
@@ -65,9 +65,9 @@ class SudokuTestBase < Test::Unit::TestCase
     return unless @pred
     s = Sudoku.parse @@puzle
 
-    puts
-    @@timer.time_it { puts s.print }
-    puts "print time: #{@@timer.last_time}"
+    # puts
+    # @@timer.time_it { puts s.print }
+    # puts "print time: #{@@timer.last_time}"
 
     old_grid = s.grid
 
@@ -89,9 +89,9 @@ class SudokuTestBase < Test::Unit::TestCase
     assert_equal 26, a4grid_bounds.a.size()
     assert_equal 521, a4grid_bounds.b.size()
 
-    puts
-    @@timer.time_it { puts s.print }
-    puts "print time: #{@@timer.last_time}"
+    # puts
+    # @@timer.time_it { puts s.print }
+    # puts "print time: #{@@timer.last_time}"
   end
 end
 
