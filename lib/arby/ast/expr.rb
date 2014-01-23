@@ -668,12 +668,13 @@ module Arby
 
         def exe_symbolic
           case
-          when MExpr === then_expr && MExpr === else_expr
+          when MExpr === cond && MExpr === then_expr && MExpr === else_expr
             self
           else
+            cnd = Expr.resolve_expr(cond, self, "ite cond")
             te = Expr.resolve_expr(then_expr, self, "then branch", BoolConst::TRUE)
             ee = Expr.resolve_expr(else_expr, self, "else branch", BoolConst::TRUE)
-            ITEExpr.new(cond, te, ee)
+            ITEExpr.new(cnd, te, ee)
           end
         end
 
