@@ -43,6 +43,8 @@ module Arby
           sig = case sig_spec
                 when String, Symbol then sig = Arby.meta.find_sig(sig_spec)
                 when Class          then sig = sig_spec if sig_spec < Arby::Ast::ASig
+                else
+                  "Int" if sig_spec == Arby::Ast::TypeConsts::Int
                 end
           sig or raise SyntaxError, "Invalid sig #{sig_spec}:#{sig_spec.class}"
 
