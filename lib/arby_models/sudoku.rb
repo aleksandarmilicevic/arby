@@ -13,9 +13,9 @@ module ArbyModels
       grid: Int[0...N] * Int[0...N] * (lone Int[1..N])
     ] {
       # grid[Int][Int].in?(1..N) and
+      # all(i: 0...N, j: 0...N) { one grid[i][j] } and
       grid[Int].Int.in?(0...N) and
-      grid.Int.Int.in?(0...N) # and
-      # all(i: 0...N, j: 0...N) { one grid[i][j] }
+      grid.Int.Int.in?(0...N)
     }
 
     pred solved[s: Sudoku] {
@@ -36,7 +36,7 @@ module ArbyModels
 
     pred solved2[s: Sudoku] {
       m = Integer(Math.sqrt(N))
-      sq = (0...m).map{|i| (m*i)..(m*(i+1)-1)}
+      sq = Array(0...m).map{|i| (m*i)..(m*(i+1)-1)}
       sq_exprs = sq.product(sq).map{|r, c|
         s.grid[r][c] == (1..N)
       }
@@ -46,6 +46,18 @@ module ArbyModels
       }
 
       conj(*rc_exprs, *sq_exprs)
+    }
+
+    pred solved3[s: Sudoku] {
+      m = Integer(Math.sqrt(N))
+
+      all(r: 0...N) {
+        s.grid[r][Int] == (1..N) and
+        s.grid[Int][r] == (1..N)
+      } and
+      all(c, r: 0...m) {
+        s.grid[m*c...m*(c+1)][m*r...m*(r+1)] == (1..N)
+      }
     }
   end
 

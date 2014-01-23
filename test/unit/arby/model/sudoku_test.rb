@@ -6,7 +6,7 @@ require 'arby/bridge/compiler'
 require 'arby/bridge/solution'
 require 'sdg_utils/timing/timer'
 
-class SudokuTest < Test::Unit::TestCase
+class SudokuTestBase < Test::Unit::TestCase
   include Arby::Helpers::Test::DslHelpers
   include SDGUtils::Testing::SmartSetup
   include SDGUtils::Testing::Assertions
@@ -34,12 +34,14 @@ class SudokuTest < Test::Unit::TestCase
   end
 
   def test_als
-    puts Arby.meta.to_als
+    puts ArbyModels::SudokuModel.meta.to_als
+    assert ArbyModels::SudokuModel.compile
   end
 
   def test_instance
-    puts "solving sudoku..."
-    sol = ArbyModels::SudokuModel.solve :solved, "for 1 but 5 Int"
+    return unless @pred
+    puts "solving sudoku using pred #{@pred} ..."
+    sol = ArbyModels::SudokuModel.solve @pred, "for 1 but 5 Int"
     puts "solving time: #{sol.solving_time}s"
 
     assert sol.satisfiable?, "instance not found"
@@ -49,6 +51,7 @@ class SudokuTest < Test::Unit::TestCase
   end
 
   def test_pi
+    return if @pred
     s = Sudoku.parse @@puzle
     bounds = s.partial_instance
     assert_equal @@num_given, bounds.get_lower(Sudoku.grid).size
@@ -59,6 +62,7 @@ class SudokuTest < Test::Unit::TestCase
   end
 
   def test_instance_pi
+    return unless @pred
     s = Sudoku.parse @@puzle
 
     puts
@@ -67,8 +71,8 @@ class SudokuTest < Test::Unit::TestCase
 
     old_grid = s.grid
 
-    puts "solving sudoku with partial instance..."
-    sol = ArbyModels::SudokuModel.solve :solved, s.partial_instance
+    puts "solving sudoku with partial instance using pred #{@pred}..."
+    sol = ArbyModels::SudokuModel.solve @pred, s.partial_instance, 1, Int => 5
     puts "solving time: #{sol.solving_time}s"
 
     assert sol.satisfiable?, "instance not found"
@@ -88,5 +92,24 @@ class SudokuTest < Test::Unit::TestCase
     puts
     @@timer.time_it { puts s.print }
     puts "print time: #{@@timer.last_time}"
+  end
+end
+
+
+class Sudoku1Test < SudokuTestBase
+  def setup_test
+    @pred = :solved
+  end
+end
+
+class Sudoku2Test < SudokuTestBase
+  def setup_test
+    @pred = :solved2
+  end
+end
+
+class Sudoku3Test < SudokuTestBase
+  def setup_test
+    @pred = :solved3
   end
 end
