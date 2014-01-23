@@ -245,6 +245,14 @@ module Arby
       def transpose()       AType.transpose(self) end
       def project(*indexes) AType.project(self, *indexes) end
 
+      def select(&blk)
+        if Arby.concrete_mode?
+          super
+        else
+          Expr.resolve_expr(self).select(&blk)
+        end
+      end
+
       def ===(obj)
         tuple = Array(obj)
         (0...arity).each do |idx|
