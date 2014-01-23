@@ -77,13 +77,15 @@ module Arby
 
       def bound(what, lower, upper=nil)
         set_bound(@lowers, what, lower)
-        set_bound(@uppers, what, upper || lower)
+        set_bound(@uppers, what, lower)
+        add_bound(@uppers, what, upper) if upper
         self
       end
 
       def bound_exactly(what, tuple_set) bound(what, tuple_set, nil) end
       def bound_int(*ints)
         @ints = ints.map{|i| Array(i)}.flatten
+        self
       end
 
       def add_lower(what, tuple_set)
@@ -108,7 +110,7 @@ module Arby
       def get_upper(what) @uppers[what] end #dup ???
       def [](what)        [get_lower(what), get_upper(what)] end
 
-      def get_ints()      @ints end
+      def get_ints()      @ints ? @ints.dup : nil end
 
       # @return [Universe] - list of all atoms appearing in all the bounds
       def extract_universe(sig_namer=nil)
