@@ -124,9 +124,13 @@ module Arby
           end
         when Proc then resolve_expr e.call, parent, kind_in_parent, default_val, &else_cb
         when Class
-          # try to find sig with the same name
-          sig_cls = Arby.meta.find_sig(e.relative_name)
-          sig_cls ? sig_cls.to_arby_expr : else_cb.call
+          if e < ASig
+            e.to_arby_expr
+          else
+            # try to find sig with the same name
+            sig_cls = Arby.meta.find_sig(e.relative_name)
+            sig_cls ? sig_cls.to_arby_expr : else_cb.call
+          end
         else
           if e.respond_to? :to_arby_expr
             al_expr = e.send :to_arby_expr
