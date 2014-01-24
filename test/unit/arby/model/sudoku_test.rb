@@ -34,7 +34,7 @@ class SudokuTestBase < Test::Unit::TestCase
   end
 
   def test_als
-    puts ArbyModels::SudokuModel.meta.to_als
+    # puts ArbyModels::SudokuModel.meta.to_als
     assert ArbyModels::SudokuModel.compile
   end
 
