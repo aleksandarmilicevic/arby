@@ -39,7 +39,7 @@ module Arby
 
       def atoms()          @universe end
       def find_atom(label) @label2atom[label] end
-      def label(atom)      @atom2label[atom] end
+      def label(atom)      @atom2label[atom] || atom.to_s end
       def sig_atoms()      @universe.select{|a| a.is_a?(ASig)} end
     end
 
@@ -118,7 +118,9 @@ module Arby
         entries do |_, what, ts|
           t = type_for_boundable(what)
           unless t.all?(&:primitive?)
-            univ += ts.tuples!.map(&:atoms!).flatten
+            ts_atoms = ts.tuples!.map(&:atoms!).flatten(1)
+            univ += ts_atoms.select{|a|
+              a.is_a?(Numeric) || a.is_a?(String) || a.is_a?(ASig)}
           end
         end
         Universe.new univ.to_a, sig_namer

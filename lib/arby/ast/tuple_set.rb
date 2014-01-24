@@ -175,6 +175,8 @@ module Arby
         type = AType.get!(type) if type
         case t
         when TupleSet then t #TODO: check and set type if unset
+        when AType
+          TupleSet.new(type, [t.columns])
         else
           TupleSet.new(type, t)
         end
