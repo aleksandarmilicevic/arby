@@ -47,7 +47,13 @@ module Arby
       def wrap(*a)  self.class.wrap(*a) end
       def unwrap()  TupleSet.unwrap(self) end
 
-      def call(*a)  self.join(*a) end
+      def call(other)
+        if Symbol === other
+          _read_fld_full(other)
+        else
+          self.join(other)
+        end
+      end
 
       def hash()    TupleSet.unwrap(self).hash end
       def ==(other) TupleSet.unwrap(self) == TupleSet.unwrap(other) end
@@ -138,10 +144,14 @@ module Arby
             rhs_tset
           else
             t = @type && @type.project(0...num_atoms-1)
-            lhs_tset = TupleSet.wrap([atoms[0...-1]], t)
+            lhs_tset = TupleSet.wrap([atoms[0...-1]] * rhs_tset.size, t)
             lhs_tset.zip(rhs_tset)
           end
         end
+      end
+
+      def _read_fld_full(fld)
+        TupleSet.wrap([self], @type) ** _join_fld(fld)
       end
 
       def to_s()    "<" + @atoms.map(&:to_s).join(", ") + ">" end
@@ -318,6 +328,17 @@ module Arby
                        end
         ans = TupleSet.new(_type_op_t(:join, ftype), [])
         self.tuples.map(&fname).reduce(ans){|acc, ts| acc.union!(ts)}
+      end
+
+      def _read_fld_full(fld)
+        tuples.reduce(nil){|acc, t|
+          aux = t._read_fld_full(fld)
+          if acc == nil
+            aux
+          else
+            acc.union!(aux)
+          end
+        }
       end
     end
 
