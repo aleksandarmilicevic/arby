@@ -17,24 +17,24 @@ class ChameleonsTest < Test::Unit::TestCase
   end
 
   # def test_als
-  #   puts ChameleonsViz.meta.to_als.inspect
+  #   # puts ChameleonsViz.meta.to_als
   # end
 
   def test_chameleon
-    puts Chameleons.meta.to_als
+    # puts Chameleons.meta.to_als
     sol = Chameleons.execute_command :some_meet
     assert sol.satisfiable?
     sol.arby_instance
   end
 
   def test_viz
-    puts Viz.meta.to_als
+    # puts Viz.meta.to_als
     inst = Viz.find_instance
     assert inst
   end
 
   def test_chameleon_viz
-    puts ChameleonsViz.meta.to_als
+    # puts ChameleonsViz.meta.to_als
     sol = ChameleonsViz.execute_command :viz
     assert sol.satisfiable?
     sol.arby_instance

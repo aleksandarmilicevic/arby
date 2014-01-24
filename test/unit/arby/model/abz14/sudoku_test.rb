@@ -26,7 +26,7 @@ class ABZ14SudokuTest < Test::Unit::TestCase
   end
 
   def test_als
-    puts ArbyModels::ABZ14::SudokuModel.meta.to_als
+    # puts ArbyModels::ABZ14::SudokuModel.meta.to_als
     assert ArbyModels::ABZ14::SudokuModel.compile
   end
 
@@ -59,7 +59,6 @@ class ABZ14SudokuTest < Test::Unit::TestCase
     fail unless s.grid.size == 16
     assert_equal 16, s.grid.size
     puts s.print
-    binding.pry
   ensure
     ArbyModels::ABZ14::SudokuModel.N = old
   end
