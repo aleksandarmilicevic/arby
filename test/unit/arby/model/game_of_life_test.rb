@@ -23,5 +23,24 @@ class GameOfLifeTest < Test::Unit::TestCase
     assert ArbyModels::GameOfLife.compile
   end
 
+  def test_blinker
+    c1 = Cell.new :x => -1, :y => 0
+    c2 = Cell.new :x =>  0, :y => 0
+    c3 = Cell.new :x =>  1, :y => 0
+    cells = [c1, c2, c3]
+    w = World.new :cells => cells
+    wn = World.new
+
+    bnds = Arby::Ast::Bounds.new
+    bnds.bound(World, [w, wn])
+    bnds.lo[Cell.x] = w.cells.(:x)
+    bnds.lo[Cell.y] = w.cells.(:y)
+    bnds.lo[World.cells] = w ** w.cells
+    # sol = ArbyModels::GameOfLife.solve bnds {
+    #   tick(w, wn)
+    # }
+    puts bnds.serialize
+    sol = ArbyModels::GameOfLife.solve :tick, bnds
+  end
 
 end

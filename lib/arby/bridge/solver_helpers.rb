@@ -7,9 +7,17 @@ module Arby
         Arby::Bridge::Compiler.compile(self)
       end
 
-      def solve(pred=nil, *scope_bounds)
+      def solve(*pred_scope_bounds, &block)
         require 'arby/bridge/compiler'
         require 'arby/bridge/solution'
+
+        if !block
+          pred = pred_scope_bounds[0]
+          scope_bounds = pred_scope_bounds[1..-1]
+        else
+          pred = nil
+          scope_bounds = pred_scope_bounds
+        end
 
         grps = scope_bounds.group_by{|e| e.is_a? Arby::Ast::Bounds}
         bounds = Array(grps[true]).first
