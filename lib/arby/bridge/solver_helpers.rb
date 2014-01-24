@@ -39,8 +39,8 @@ module Arby
         comp.execute_command(cmd_idx_or_name, bounds)
       end
 
-      def find_instance(pred=nil, scope="", bounds=nil)
-        sol = solve(pred, scope, bounds)
+      def find_instance(pred=nil, *scope_bounds)
+        sol = solve(pred, *scope_bounds)
         if sol.satisfiable?
           sol.arby_instance
         else
