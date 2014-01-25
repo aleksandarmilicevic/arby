@@ -3,7 +3,8 @@ require 'arby/arby_dsl'
 module ArbyModels
   extend Arby::Dsl
 
-  alloy_model :GameOfLife do
+  alloy :CellularAutomaton do
+
     sig Cell [
       x, y: Int
     ]
@@ -17,7 +18,7 @@ module ArbyModels
       cells: (set Cell)
     ]
 
-    fun neighbours[i, j: Int, w: World][set Cell] {
+    fun moore_neibourhood[i, j: Int, w: World][set Cell] {
       w.cells.select{ |c|
         (c.x != i || c.y != j) and
         (c.x - j).in?(-1..1) and
@@ -25,16 +26,29 @@ module ArbyModels
       }
     }
 
+    fun von_neumann_neighourhood[i, j: Int, w: World][set Cell] {
+      w.cells.select{ |c|
+        (c.y == j and (c.x - i).in? [-1, 1]) or
+        (c.x == i and (c.y - j).in? [-1, 1])
+      }
+    }
+
+  end
+
+  alloy :GameOfLife do
+    open CellularAutomaton
+
     pred tick[w, w_next: World] {
-      all(c: w.cells) | let(nbrs: neighbours(c.x, c.y, w)) {
-        if nbrs.size < 2 || nbrs.size > 3
-          !c.in?(w_next.cells)
-        else
-          c.in?(w_next.cells)
-        end
-      } and
+      all(c: w.cells) | 
+        let(nbrs: moore_neibourhood(c.x, c.y, w)) {
+          if nbrs.size < 2 || nbrs.size > 3
+            !c.in?(w_next.cells)
+          else
+            c.in?(w_next.cells)
+          end
+        } and
       all(i, j: Int) {
-        if no(c: w.cells){c.x == i && c.y == j} && neighbours(i, j, w).size == 3
+        if no(c: w.cells){c.x == i && c.y == j} && moore_neibourhood(i, j, w).size == 3
           some(c: w_next.cells){c.x == i && c.y == j}
         end
       }
