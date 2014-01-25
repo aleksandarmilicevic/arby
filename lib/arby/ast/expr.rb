@@ -108,9 +108,11 @@ module Arby
         when TrueClass  then BoolConst::TRUE
         when FalseClass then BoolConst::FALSE
         when ASig       then e.to_arby_expr
+        when Array
+          ExprBuilder.reduce_to_binary Arby::Ast::Ops::PLUS, *e.map{|i| resolve_expr(i)}
         when Range
           if e.begin.is_a?(Integer) && e.end.is_a?(Integer)
-            ExprBuilder.reduce_to_binary Arby::Ast::Ops::PLUS, *e.map{|i| IntExpr.new(i)}
+            resolve_expr(e.to_a)
           else
             min = Expr.resolve_expr(e.begin)
             max = Expr.resolve_expr(e.end)
