@@ -200,7 +200,11 @@ module Arby
               define_orig and
                 _define_method <<-RUBY, *proc_src_loc
   def #{fun.name}(#{args_str})
-    #{orig_src}
+    if Arby.symbolic_mode?
+      #{instr_src}
+    else
+      #{orig_src}
+    end
   end
 RUBY
               define_alloy and
