@@ -37,6 +37,11 @@ module Arby
         fail_if_not_parsed
         univ = bounds && bounds.extract_universe
         pi = bounds && bounds.serialize(univ)
+
+        puts "solving this"
+        puts @als_model
+        puts "--------------------------"
+
         a4sol = @timer.time_it("execute_command") {
           self.class.execute_command(@a4world, cmd_idx_or_name, pi)
         }
@@ -102,10 +107,12 @@ module Arby
           # puts command_index
           # puts "---------------------"
 
-          # puts "using bounds---------"
-          # puts partialInstanceStr.inspect
-          # puts "---------------------"
-          # puts partialInstanceStr
+          puts "using bounds---------"
+          puts partialInstanceStr.inspect
+          puts "---------------------"
+          puts partialInstanceStr
+
+
 
           catch_alloy_errors {
             sigs = a4world.getAllReachableSigs
