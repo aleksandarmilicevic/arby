@@ -299,6 +299,10 @@ module Arby
       alias_method :"-=", :difference!
       alias_method :+,    :union
       alias_method :"+=", :union!
+      alias_method :plus,   :union
+      alias_method :plus!,  :union!
+      alias_method :minus,  :difference
+      alias_method :minus!, :difference!
 
       def inspect(sep=",\n") "{" + @tuples.map(&:to_s).join(sep) + "}" end
       def to_s()             TupleSet.unwrap(self).to_s end
