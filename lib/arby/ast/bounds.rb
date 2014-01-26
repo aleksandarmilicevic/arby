@@ -24,12 +24,12 @@ module Arby
       def initialize(universe, sig_namer=nil)
         @universe = universe.dup
         @atom2label = {}
-        sig_namer ||= Arby.conf.alloy_printer.sig_namer
+        @sig_namer ||= Arby.conf.alloy_printer.sig_namer
         @universe.group_by(&:class).each do |cls, atoms|
           if cls <= Integer
             atoms.each{|i| @atom2label[i] = "#{i}"}
           else
-            atoms.each_with_index{|a, x| @atom2label[a] = "#{sig_namer[cls]}$#{x}"}
+            atoms.each_with_index{|a, x| @atom2label[a] = "#{@sig_namer[cls]}$#{x}"}
           end
         end
         @label2atom = @atom2label.invert
@@ -39,8 +39,17 @@ module Arby
 
       def atoms()          @universe end
       def find_atom(label) @label2atom[label] end
-      def label(atom)      @atom2label[atom] || atom.to_s end
       def sig_atoms()      @universe.select{|a| a.is_a?(ASig)} end
+      def label(what)
+        @atom2label[what] ||
+          begin
+            if what.is_a?(Class) && what < ASig
+              @sig_namer[what]
+            else
+              what.to_s
+            end
+          end
+      end
     end
 
     # ----------------------------------------------------------------
