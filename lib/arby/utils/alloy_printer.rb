@@ -381,7 +381,7 @@ module Arby
               else f
               end
         args = ce.args.map(&method(:export_to_als)).join(", ")
-        post = (args.empty?) ? "" : "[#args]"
+        post = (args.empty?) ? "" : "[#{args}]"
         @out.p "#{pre}#{fun}#{post}"
       end
 
