@@ -78,7 +78,7 @@ module ChameleonExample
       Projection::next == over.(Time::next).(~over) and
 
       # project over Time
-      over.in? (Projection one ** (one Time)) and
+      over.in? (Projection ** (one_one Time)) and
 
       all(t: Time) | let(p: over.(t)) {
         atom.(p).in? (node.(p) ** (one_one Chameleon)) and
