@@ -18,6 +18,12 @@ module Arby
         args[1..-1].reduce(args[0]){|acc, rhs| apply(op, acc, rhs)}
       end
 
+      def apply_call(lhs, fun, *args)
+        ans = Expr::CallExpr.new(lhs, fun, *args)
+        ans.set_type(fun.ret_type) if fun.is_a?(Fun)
+        ans
+      end
+
       # Keep track of result type
       #
       # @param op [Arby::Ast::Op] --- operator

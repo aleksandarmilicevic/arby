@@ -256,7 +256,7 @@ module Arby
         def implies(other)   ExprBuilder.apply(IMPLIES, self, other) end
         def size()           ExprBuilder.apply(CARDINALITY, self) end
 
-        def apply_call(fun, *args) CallExpr.new(self, fun, *args) end
+        def apply_call(fun, *args) ExprBuilder.apply_call(self, fun, *args) end
         def apply_join(other)      ExprBuilder.apply(JOIN, self, other) end
         alias_method :join,    :apply_join
         alias_method :call,    :apply_join
