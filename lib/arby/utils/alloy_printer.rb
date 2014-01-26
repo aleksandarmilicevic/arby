@@ -381,7 +381,8 @@ module Arby
               else f
               end
         args = ce.args.map(&method(:export_to_als)).join(", ")
-        @out.p "#{pre}#{fun}[#{args}]"
+        post = (args.empty?) ? "" : "[#args]"
+        @out.p "#{pre}#{fun}#{post}"
       end
 
       def boolconst_to_als(bc)
