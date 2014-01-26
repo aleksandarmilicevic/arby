@@ -113,18 +113,23 @@ module Arby
         def set_ordered()
           meta.set_ordered
           #TODO: move elsewhere
-          # fnext = Field.new(:name    => :next,
-          #                   :parent  => self,
-          #                   :type    => self,
-          #                   :virtual => true)
           meta.add_field(:next, self, :transient => true)
-          f = Field.new(:name     => "next",
+          meta.add_field(:nexts, self, :transient => true)
+          n = Field.new(:name     => "next",
                         :parent   => self,
                         :type     => self,
                         :ordering => true)
-          define_singleton_method :next do
-            get_cls_field(f)
-          end
+          f = Field.new(:name     => "first",
+                        :parent   => self,
+                        :type     => self,
+                        :ordering => true)
+          l = Field.new(:name     => "last",
+                        :parent   => self,
+                        :type     => self,
+                        :ordering => true)
+          define_singleton_method :next do get_cls_field(n) end
+          define_singleton_method :first do get_cls_field(f) end
+          define_singleton_method :last do get_cls_field(l) end
         end
 
         # @see +SigMeta#placeholder?+
