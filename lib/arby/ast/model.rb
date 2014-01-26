@@ -67,6 +67,8 @@ module Arby
         mod = self.ruby_module
         mod.constants(false).each do |cst|
           mod.module_eval <<-RUBY, __FILE__, __LINE__+1
+            def #{cst}()          #{mod.name}.#{cst} end
+            def #{cst}=(val)      #{mod.name}.#{cst}=(val) end
             def self.#{cst}()     self.const_get(#{cst.inspect}) end
             def self.#{cst}=(val)
               self.send :remove_const, #{cst.inspect}
@@ -74,6 +76,9 @@ module Arby
             end
           RUBY
         end
+        # mod.module_eval <<-RUBY, __FILE__, __LINE__+1
+        #   def const_missing(cst) binding.pry; sig(cst) || super(cst) end
+        # RUBY
       end
 
       def add_field_getters
