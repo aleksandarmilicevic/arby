@@ -95,7 +95,11 @@ module Arby
             dom_cls = fun.args.first.type.domain.klass rescue nil
             if TypeChecker.check_sig_class(dom_cls)
               dom_cls.send :define_method, fun.name do |*args|
-                self.__execute_predicate(my_model, fun, *args)
+                if Arby.symbolic_mode?
+                  self.apply_call(fun, *args)
+                else
+                  self.__execute_predicate(my_model, fun, *args)
+                end
               end
             end
           end
