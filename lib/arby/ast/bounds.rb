@@ -29,7 +29,7 @@ module Arby
           if cls <= Integer
             atoms.each{|i| @atom2label[i] = "#{i}"}
           else
-            atoms.each_with_index{|a, x| 
+            atoms.each_with_index{|a, x|
               a.__alloy_atom_id = x
               a.__label = "#{@sig_namer[cls]}$#{x}"
               @atom2label[a] = a.__label
@@ -123,7 +123,9 @@ module Arby
       def get_upper(what) @uppers[what] end #dup ???
       def [](what)        [get_lower(what), get_upper(what)] end
 
-      def get_ints()      @ints ? @ints.dup : nil end
+      def get_ints()   @ints ? @ints.dup : nil end
+      def each_lower() (block_given?) ? @lowers.each{|*a| yield(*a)} : @lowers.each end
+      def each_upper() (block_given?) ? @uppers.each{|*a| yield(*a)} : @uppers.each end
 
       # @return [Universe] - list of all atoms appearing in all the bounds
       def extract_universe(sig_namer=nil)
@@ -171,6 +173,14 @@ universe = #{t_to_s[univ.atoms]}
       def entries
         @lowers.each{|what, ts| yield(:lowers, what, ts)}
         @uppers.each{|what, ts| yield(:uppers, what, ts)}
+      end
+
+      def each_where(where)
+        if block_given?
+          where.each{|*a| yield(*a)}
+        else
+          where.each
+        end
       end
 
       def set_bound(where, what, tuple_set)
