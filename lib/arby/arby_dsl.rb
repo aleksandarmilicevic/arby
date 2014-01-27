@@ -20,8 +20,11 @@ module Arby
     #
     # @param name [String, Symbol] --- model name
     # @return [ModelBuilder] --- the builder used to create the module
-    def alloy_model(name="", &block)
-      ModelBuilder.new({:return => :builder}).model(:alloy, name, &block)
+    def alloy_model(name="", *opens, &block)
+      ModelBuilder.new({
+        :return => :builder,
+        :mods_to_include => opens
+      }).model(:alloy, name, &block)
     end
 
     # Different aliases for the +alloy_model+ method.
