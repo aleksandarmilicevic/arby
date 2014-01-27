@@ -66,6 +66,8 @@ module Arby
       def enum?()           !!@enum end
       def enum_const?()     parent_sig && parent_sig.meta.enum? end
       def ordered?()        !!@ordered end
+      def atom?()           !!@atom end
+      def atom_id()         @atom end
 
       def set_abstract()    @multiplicity = :abstract end
       def set_one()         @multiplicity = :one end
@@ -73,6 +75,7 @@ module Arby
       def set_placeholder() set_abstract; @placeholder = true end
       def set_enum()        @enum = true end
       def set_ordered()     @ordered = true end
+      def set_atom(id)      set_one; @atom = id end
 
       def persistent_fields(*args)
         fields(*args).select { |f| f.persistent? }

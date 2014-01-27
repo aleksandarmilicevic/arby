@@ -32,9 +32,10 @@ class SeqFilteringTest < Test::Unit::TestCase
 
     a4bounds = sol._a4sol.getBoundsSer
     boundsA = a4bounds.get("this/#{A.alloy_name}")
-    boundsAx = a4bounds.get("this/#{A.x.full_alloy_name}")
     assert_equal 0, boundsA.a.size()
     assert_equal 4, boundsA.b.size()
+
+    boundsAx = a4bounds.get("this/#{A.x.full_alloy_name}")
     assert_equal 0, boundsAx.a.size()
     assert_equal 8, boundsAx.b.size()
 
@@ -64,7 +65,7 @@ class SeqFilteringTest < Test::Unit::TestCase
   end
 
   def pr(ts)
-    ts.map{|a| "#{a.label}(#{a.x.first[0]})"}.inspect
+    ts.map{|a| "#{a.__label}(#{a.x.first[0]})"}.inspect
   end
 
 end

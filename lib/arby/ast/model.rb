@@ -61,8 +61,11 @@ module Arby
 
       def extend(&block)
         ts = SDGUtils::Random.salted_timestamp
-        m = Arby::Dsl.alloy "ArbyMod__#{ts}", self.ruby_module, &block
-
+        m = Arby::Dsl.alloy "ArbyMod__#{ts}", {
+          :parent_module => self.ruby_module,
+          :preamble => proc{|mod| mod.open self.ruby_module}
+        }, &block
+        m.return_result(:array).first
       end
 
       private

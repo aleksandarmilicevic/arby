@@ -110,6 +110,7 @@ module Arby
         def set_abstract() meta.set_abstract end
         def set_one()      meta.set_one end
         def set_lone()     meta.set_lone end
+        def set_atom(*a)   meta.set_atom(*a) end
         def set_ordered()
           meta.set_ordered
           #TODO: move elsewhere

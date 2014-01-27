@@ -24,6 +24,7 @@ module Arby
       end
 
       def model()     @model end
+      def univ()      @univ end
       def _a4world()  @a4world end
 
       # @see Compiler.all_fields
@@ -50,29 +51,28 @@ module Arby
       private
 
       def initialize(model, bounds=nil)
-        @model     = model ? model.clone : nil
+        @model     = model
         @bounds    = bounds
         @univ      = bounds ? bounds.extract_universe : nil
         @rep       = nil # we don't care to listen to reports
         @timer     = SDGUtils::Timing::Timer.new
 
-        # if @model && @univ
-        #   pconf = Arby.conf.alloy_printer
-        #   @univ.sig_atoms.each do |a|
-        #     sig_atom_name = pconf.atom_sig_namer[a]
-        #     $pera = 1
-        #     puts "--- this model #{@model.__id__}"
-        #     puts "--- this model's mod #{@model.ruby_module.__id__}"
-        #     puts "--- this model's mod's meta #{@model.ruby_module.meta.__id__}"
-        #     @model.extend do
-        #       one sig(sig_atom_name < a.class)
-        #     end
-        #     puts "--- this model #{@model.__id__}"
-        #     puts "--- this model's mod #{@model.ruby_module.__id__}"
-        #     puts "--- this model's mod's meta #{@model.ruby_module.meta.__id__}"
-        #     binding.pry
-        #   end
-        # end
+        if model && @bounds
+          __pi_atoms = @bounds.each_lower.map{ |what, ts|
+            if Arby::Ast::TypeChecker.check_sig_class(what)
+              fail unless ts.arity == 1
+              ts.tuples.map{|t| t.atom(0)}
+            end
+          }.compact.flatten(1)
+          @model = model.extend do
+            __pi_atoms.each do |a|
+              one sig(Arby.short_alloy_printer_conf.atom_sig_namer[
+                        a.class.relative_name, a.__alloy_atom_id] < a.class) do
+                set_atom(a.__alloy_atom_id)
+              end
+            end
+          end
+        end
       end
 
       # @see Compiler.execute_command

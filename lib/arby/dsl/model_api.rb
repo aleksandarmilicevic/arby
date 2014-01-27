@@ -78,18 +78,14 @@ module Arby
           Arby::Ast::TypeChecker.check_arby_module!(mod)
           send :include, mod unless self.include?(mod)
           send :extend, mod
-          if mod.respond_to?(:meta)
-            send :const_set, mod.relative_name, mod
-            meta.add_open(mod.meta)
-          end
+          send :const_set, mod.relative_name, mod
+          meta.add_open(mod.meta)
         end
       end
 
       def exactly(int_scope)
         Arby::Ast::SigScope.new(nil, int_scope, true)
       end
-
-      def __include(other_module) binding.pry; open(other_module) end
 
       def __created(scope_module)
         require 'arby/arby.rb'
