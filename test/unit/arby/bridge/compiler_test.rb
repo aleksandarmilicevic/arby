@@ -21,8 +21,8 @@ run {
 """
 
       def setup_class
-        @@a4world = Compiler.parse(@@model)
-        @@a4sol = Compiler.execute_command(@@a4world)
+        @@a4world = AlloyCompiler.parse(@@model)
+        @@a4sol = AlloyCompiler.execute_command(@@a4world)
       end
 
       def test_all_atoms
@@ -46,7 +46,7 @@ run {
       protected
 
       def get_all_atoms()  @@a4sol.getAllAtoms end
-      def get_all_fields() Compiler.all_fields(@@a4world) end
+      def get_all_fields() AlloyCompiler.all_fields(@@a4world) end
 
     end
   end

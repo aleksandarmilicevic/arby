@@ -20,7 +20,6 @@ class SeqFilteringTest < Test::Unit::TestCase
     als_model = ArbyModels::SeqFiltering.meta.to_als
     puts als_model
     puts "compiling..."
-    compiler = ArbyModels::SeqFiltering.compile
 
     pi = Arby::Ast::Bounds.new
     a_upper = Arby::Ast::TupleSet.wrap (1..4).map{|_| A.new}
@@ -29,7 +28,7 @@ class SeqFilteringTest < Test::Unit::TestCase
     pi.bound_int(0..5)
 
     puts "solving..."
-    sol = compiler.execute_command(0, pi)
+    sol = ArbyModels::SeqFiltering.execute_command(0, pi)
 
     a4bounds = sol._a4sol.getBoundsSer
     boundsA = a4bounds.get("this/#{A.alloy_name}")

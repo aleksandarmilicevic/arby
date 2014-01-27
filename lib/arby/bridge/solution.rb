@@ -97,7 +97,7 @@ module Arby
         if a4sol.satisfiable
           atoms = wrap_atoms(a4sol)
 
-          fld_map = Compiler.all_fields(a4world).map do |field|
+          fld_map = AlloyCompiler.all_fields(a4world).map do |field|
             [field.label, eval_expr(a4sol, field)]
           end
           fld_map = Hash[fld_map]
@@ -172,7 +172,13 @@ module Arby
 
       def satisfiable?() @a4sol.satisfiable end
       def solving_time() @solving_time end
-      def next()         Solution.new(@a4sol.next(), @compiler) end
+      def next()
+        if block_given?
+          binding.pry
+        else
+          Solution.new(@a4sol.next(), @compiler)
+        end
+      end
 
       # Converts the wrapped +A4Solution+ into +Arby::Ast::Instance+
       #

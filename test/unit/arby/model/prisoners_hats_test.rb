@@ -23,18 +23,6 @@ class PrisonersHatsTest < Test::Unit::TestCase
     assert ArbyModels::PrisonersHats.compile
   end
 
-  # def test_s1
-  #   sol = ArbyModels::PrisonersHats.solve :deducedRight, 4
-  #   if sol.satisfiable?
-  #     inst = sol.arby_instance
-  #     p = inst[inst.skolems.first]
-  #     bnd = inst.to_bounds
-  #     bnd.add_lower(Prisoner.deduced, p ** p ** Color)
-
-  #     binding.pry
-  #   end
-  # end
-
   def test_s1
     pr = 4.times.map{Prisoner.new}
     bnds = Arby::Ast::Bounds.new
@@ -46,7 +34,7 @@ class PrisonersHatsTest < Test::Unit::TestCase
       puts inst[Prisoner.hatColor]
 
       # sol = sol.next do
-      #   Prisoner.hatColor != inst[Prisoner.hatColor]
+      #   Prisoner::hatColor != inst[Prisoner.hatColor]
       # end
 
     end
