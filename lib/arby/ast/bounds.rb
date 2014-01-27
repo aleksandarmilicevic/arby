@@ -29,7 +29,11 @@ module Arby
           if cls <= Integer
             atoms.each{|i| @atom2label[i] = "#{i}"}
           else
-            atoms.each_with_index{|a, x| @atom2label[a] = "#{@sig_namer[cls]}$#{x}"}
+            atoms.each_with_index{|a, x| 
+              a.__alloy_atom_id = x
+              a.__label = "#{@sig_namer[cls]}$#{x}"
+              @atom2label[a] = a.__label
+            }
           end
         end
         @label2atom = @atom2label.invert
