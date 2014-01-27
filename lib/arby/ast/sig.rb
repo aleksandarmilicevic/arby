@@ -196,7 +196,7 @@ module Arby
     module ASig
       include SDGUtils::ShadowMethods
 
-      attr_accessor :__label
+      attr_accessor :__label, :__alloy_atom_id
       attr_reader   :__atom_id
 
       def self.included(base)
