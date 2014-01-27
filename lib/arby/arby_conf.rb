@@ -16,14 +16,13 @@ module Arby
       c.sig_namer = lambda{|sig| sig.relative_name}
       c.fun_namer = lambda{|fun| fun.name}
       c.arg_namer = lambda{|fld| fld.name}
+      c.atom_sig_namer = lambda{|a| "pi__#{c.sig_namer[a.class]}__#{a.__alloy_atom_id}"}
     end
   end
 
   def self.full_alloy_printer_conf
-    SDGUtils::Config.new do |c|
+    short_alloy_printer_conf.extend do |c|
       c.sig_namer = lambda{|sig| sig.name.gsub /:/, "_"}
-      c.fun_namer = lambda{|fun| "#{c.sig_namer[fun.owner]}__#{fun.name}"}
-      c.fun_namer = lambda{|fun| fun.name}
       c.arg_namer = lambda{|fld|
         if Class === fld.owner && fld.owner.is_sig?
           "#{c.sig_namer[fld.owner]}__#{fld.name}"
@@ -36,7 +35,7 @@ module Arby
 
   def self.default_alloy_printer_conf
     full_alloy_printer_conf
-     short_alloy_printer_conf
+    #short_alloy_printer_conf
   end
 
   # Options
