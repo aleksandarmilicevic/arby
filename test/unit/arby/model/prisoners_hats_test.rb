@@ -30,7 +30,7 @@ class PrisonersHatsTest < Test::Unit::TestCase
   #     p = inst[inst.skolems.first]
   #     bnd = inst.to_bounds
   #     bnd.add_lower(Prisoner.deduced, p ** p ** Color)
-      
+
   #     binding.pry
   #   end
   # end
@@ -45,13 +45,10 @@ class PrisonersHatsTest < Test::Unit::TestCase
       puts "colors: "
       puts inst[Prisoner.hatColor]
 
-      sol = sol.next do
-        Prisoner.hatColor != inst[Prisoner.hatColor]
-      end
+      # sol = sol.next do
+      #   Prisoner.hatColor != inst[Prisoner.hatColor]
+      # end
 
-      binding.pry
-      sol = ArbyModels::PrisonersHats.solve :allAmbig, 4, bnds
-      binding.pry
     end
   end
 
