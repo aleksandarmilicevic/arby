@@ -13,29 +13,48 @@ module Arby
 
   def self.short_alloy_printer_conf
     SDGUtils::Config.new do |c|
-      c.sig_namer = lambda{|sig| sig.relative_name}
+      c.sig_namer = lambda{|sig|
+        case sig
+        when String, Symbol then sig.to_s
+        when Class
+          if sig < Arby::Ast::ASig
+            if sig.meta.atom?
+              c.atom_sig_namer[sig, sig.meta.atom_id]
+            else
+              c.prim_sig_namer[sig]
+            end
+          else
+            sig.relative_name
+          end
+        else
+          fail "unknown sig type: #{sig}:#{sig.class}"
+        end
+      }
+      c.prim_sig_namer = lambda{|sig| sig.relative_name}
+      c.atom_sig_namer = lambda{|sig, atom_id|
+        sc = (Class === sig) ? sig.superclass : sig
+        "PI__#{c.sig_namer[sc]}__#{atom_id}"}
       c.fun_namer = lambda{|fun| fun.name}
       c.arg_namer = lambda{|fld| fld.name}
-      c.atom_sig_namer = lambda{|a| "PI__#{c.sig_namer[a.class]}__#{a.__alloy_atom_id}"}
     end
   end
 
   def self.full_alloy_printer_conf
-    short_alloy_printer_conf.extend do |c|
-      c.sig_namer = lambda{|sig| sig.name.gsub /:/, "_"}
-      c.arg_namer = lambda{|fld|
-        if Class === fld.owner && fld.owner.is_sig?
-          "#{c.sig_namer[fld.owner]}__#{fld.name}"
-        else
-          fld.name
-        end
-      }
-    end
+    c = short_alloy_printer_conf
+    c.prim_sig_namer = lambda{|sig| sig.name.gsub /:/, "_"}
+    c.arg_namer = lambda{|fld|
+      if Class === fld.owner && fld.owner.is_sig?
+        "#{c.sig_namer[fld.owner]}__#{fld.name}"
+      else
+        fld.name
+      end
+    }
+    c
   end
 
   def self.default_alloy_printer_conf
     full_alloy_printer_conf
-    short_alloy_printer_conf
+    # short_alloy_printer_conf
   end
 
   # Options
