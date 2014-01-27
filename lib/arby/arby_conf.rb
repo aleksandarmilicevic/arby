@@ -16,7 +16,7 @@ module Arby
       c.sig_namer = lambda{|sig| sig.relative_name}
       c.fun_namer = lambda{|fun| fun.name}
       c.arg_namer = lambda{|fld| fld.name}
-      c.atom_sig_namer = lambda{|a| "pi__#{c.sig_namer[a.class]}__#{a.__alloy_atom_id}"}
+      c.atom_sig_namer = lambda{|a| "PI__#{c.sig_namer[a.class]}__#{a.__alloy_atom_id}"}
     end
   end
 
@@ -35,7 +35,7 @@ module Arby
 
   def self.default_alloy_printer_conf
     full_alloy_printer_conf
-    # short_alloy_printer_conf
+    short_alloy_printer_conf
   end
 
   # Options

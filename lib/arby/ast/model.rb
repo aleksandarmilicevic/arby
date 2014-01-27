@@ -59,6 +59,12 @@ module Arby
         Arby::Utils::AlloyPrinter.export_to_als(self)
       end
 
+      def extend(&block)
+        ts = SDGUtils::Random.salted_timestamp
+        m = Arby::Dsl.alloy "ArbyMod__#{ts}", self.ruby_module, &block
+
+      end
+
       private
 
       def add_sig_builder(sb)

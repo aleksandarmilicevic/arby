@@ -10,11 +10,6 @@ module Arby
       # @bounds    [Arby::Ast::Bounds]
       def self.compile(model, bounds=nil)
         compiler = Compiler.new(model, bounds)
-
-        # puts "parsing this"
-        # puts compiler.model.to_als
-        # puts "--------------------------"
-
         compiler.send :_parse
         compiler
       end
@@ -57,21 +52,39 @@ module Arby
       def initialize(model, bounds=nil)
         @model     = model ? model.clone : nil
         @bounds    = bounds
+        @univ      = bounds ? bounds.extract_universe : nil
         @rep       = nil # we don't care to listen to reports
         @timer     = SDGUtils::Timing::Timer.new
+
+        # if @model && @univ
+        #   pconf = Arby.conf.alloy_printer
+        #   @univ.sig_atoms.each do |a|
+        #     sig_atom_name = pconf.atom_sig_namer[a]
+        #     $pera = 1
+        #     puts "--- this model #{@model.__id__}"
+        #     puts "--- this model's mod #{@model.ruby_module.__id__}"
+        #     puts "--- this model's mod's meta #{@model.ruby_module.meta.__id__}"
+        #     @model.extend do
+        #       one sig(sig_atom_name < a.class)
+        #     end
+        #     puts "--- this model #{@model.__id__}"
+        #     puts "--- this model's mod #{@model.ruby_module.__id__}"
+        #     puts "--- this model's mod's meta #{@model.ruby_module.meta.__id__}"
+        #     binding.pry
+        #   end
+        # end
       end
 
       # @see Compiler.execute_command
       # @result [Arby::Bridge::Solution]
       def _execute(a4wrld, cmd_idx_or_name=0)
-        univ = @bounds && @bounds.extract_universe
-        pi = @bounds && @bounds.serialize(univ)
+        pi = @bounds && @bounds.serialize(@univ)
 
         a4sol = @timer.time_it("execute_command") {
           AlloyCompiler.execute_command(a4wrld, cmd_idx_or_name, pi)
         }
-        sol = Solution.new(a4sol, self, univ, @bounds, @timer.last_time)
-        sol.arby_instance if univ && !univ.sig_atoms.empty?
+        sol = Solution.new(a4sol, self, @univ, @bounds, @timer.last_time)
+        sol.arby_instance if @univ && !@univ.sig_atoms.empty?
         sol
       end
 
@@ -80,7 +93,13 @@ module Arby
       def _parse(addendum="")
         # fail "already parsed" if @a4world
         fail "als model not set" unless @model
-        @a4world = AlloyCompiler.parse(@model.to_als + "\n" + addendum)
+        als = @model.to_als + "\n" + addendum
+
+        puts "parsing this"
+        puts als
+        puts "--------------------------"
+
+        @a4world = AlloyCompiler.parse(als)
       end
 
       def fail_if_not_parsed
