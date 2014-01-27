@@ -10,12 +10,17 @@ module Arby
       def self.compile(model, als_model=nil)
         als_model, model = [model, nil] if als_model.nil? && model.is_a?(String)
         compiler = Compiler.new(model, als_model || model.to_als)
+        # puts "parsing this"
+        # puts compiler.als_model.inspect
+        # puts "--------------------------"
+
         compiler.parse
         compiler
       end
 
-      def model() @model end
-      def _a4world() @a4world end
+      def model()     @model end
+      def als_model() @als_model end
+      def _a4world()  @a4world end
 
       # @see Compiler.parse
       def parse
@@ -37,10 +42,6 @@ module Arby
         fail_if_not_parsed
         univ = bounds && bounds.extract_universe
         pi = bounds && bounds.serialize(univ)
-
-        puts "solving this"
-        puts @als_model
-        puts "--------------------------"
 
         a4sol = @timer.time_it("execute_command") {
           self.class.execute_command(@a4world, cmd_idx_or_name, pi)
@@ -99,7 +100,7 @@ module Arby
           command_index = commands.size + command_index if command_index < 0
           cmd = commands.get(command_index)
           opt = A4Options_RJB.new
-          opt.solver = opt.solver.MiniSatJNI #SAT4J #MiniSatJNI
+          opt.solver = opt.solver.SAT4J #MiniSatJNI
           opt.renameAtoms = false
           opt.partialInstance = partialInstanceStr
 
@@ -107,12 +108,10 @@ module Arby
           # puts command_index
           # puts "---------------------"
 
-          puts "using bounds---------"
-          puts partialInstanceStr.inspect
-          puts "---------------------"
-          puts partialInstanceStr
-
-
+          # puts "using bounds---------"
+          # puts partialInstanceStr.inspect
+          # puts "---------------------"
+          # puts partialInstanceStr
 
           catch_alloy_errors {
             sigs = a4world.getAllReachableSigs
