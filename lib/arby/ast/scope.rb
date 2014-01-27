@@ -26,21 +26,24 @@ module Arby
         @sig_scopes = sig_scopes
       end
 
+      def clone() Scope.new(@global, @sig_scopes.dup) end
+
       def add_sig_scope(ss) @sig_scopes << ss end
 
       def extend_for_bounds(bnds)
-        return unless bnds
+        return self.clone unless bnds
         univ = bnds.extract_universe
-        @global = [@global, univ.sig_atoms.group_by{|a|
-                     a.class.meta.oldest_ancestor || a.class
-                   }.map{|sig_cls, atoms|
-                     atoms.size
-                   }.max
-                  ].max
+        glbl = [@global, univ.sig_atoms.group_by{|a|
+                  a.class.meta.oldest_ancestor || a.class
+                }.map{|sig_cls, atoms|
+                  atoms.size
+                }.max].max
+        ans = Scope.new(glbl, @sig_scopes)
         if ints = bnds.get_ints and !@sig_scopes.find{|ss| ss.sig == "Int"}
           bw = Math.log2(ints.max + 1).ceil + 1
-          add_sig_scope SigScope.new "Int", bw
+          ans.add_sig_scope SigScope.new "Int", bw
         end
+        ans
       end
 
       def to_s(sig_namer=nil)
