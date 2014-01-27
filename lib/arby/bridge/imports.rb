@@ -42,13 +42,21 @@ module Arby
         end
       end
 
+      def java_stack_trace(a4ex)
+        ans = a4ex.getStackTrace.map(&:toString)
+        if a4ex.getCause
+          ans << ""
+          ans += java_stack_trace(a4ex.getCause)
+        end
+        ans
+      end
+
       def catch_alloy_errors
         begin
           yield
         rescue Exception => ex
-          java_stack_trace = ex.getStackTrace.map(&:toString)
-          raise AlloyError.new(ex, ex._classname, ex.getMessage,
-                               java_stack_trace), "An error occured while running Alloy"
+          raise AlloyError.new(ex, ex._classname, ex.getMessage, java_stack_trace(ex)),
+            "An error occured while running Alloy"
         end
       end
     end
