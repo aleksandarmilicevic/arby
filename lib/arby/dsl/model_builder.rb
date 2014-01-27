@@ -15,9 +15,17 @@ module Arby
       def self.in_model?()      curr = self.get and curr.in_builder? end
       def self.in_model_body?() curr = self.get and curr.in_body? end
 
+      # def self.extend(model, &block)
+      #   mb = ModelBuilder.new #:defer_body_eval => false
+      #   mb.instance_variable_set "@mod", model.ruby_module
+      #   mb.instance_variable_set "@scope_mod", model.scope_module
+      #   mb.eval_body_now! model.ruby_module, :module_eval, &block
+      # end
+
       def initialize(options={})
+        other_incl = options.delete(:mods_to_include) || []
         opts = {
-          :mods_to_include => [ModelDslApi]
+          :mods_to_include => [ModelDslApi] + other_incl
         }.merge!(options)
         super(opts)
       end
