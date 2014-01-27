@@ -29,6 +29,19 @@ module Arby
       attr_searchable :fun, :pred, :assertion, :procedure, :fact
       attr_searchable :command, :run
 
+      def clone()
+        ans = self.class.allocate
+        self.instance_variables.each do |var|
+          var_value = self.instance_variable_get(var)
+          val = case var_value
+                when Array, Hash, Set then var_value.clone
+                else var_value
+                end
+          ans.instance_variable_set(var, val)
+        end
+        ans
+      end
+
       def all_funs() funs + preds + assertions + facts end
       def checks() commands.select{|c| c.check?} end
       def runs()   commands.select{|c| c.run?} end
