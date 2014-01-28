@@ -163,6 +163,7 @@ module Arby
         @bounds = bounds
         @instance = nil
         @solving_time = solving_time
+        @solving_params = nil
       end
 
       def _a4sol()   @a4sol end
@@ -170,11 +171,22 @@ module Arby
       def univ()     @univ end
       def bounds()   @bounds end
 
+      def set_solving_params(kind, *args)
+        @solving_params = [kind, args]
+      end
+
       def satisfiable?() @a4sol.satisfiable end
       def solving_time() @solving_time end
       def next()
         if block_given?
-          binding.pry
+          fail "no solving params" unless @solving_params
+          fail unless @compiler && m=Arby::Ast::TypeChecker.get_arby_model(@compiler.model)
+          __curr_inst = (satisfiable?) ? arby_instance() : nil
+          m2 = m.extend do
+            self.send :define_method, :inst, &proc{__curr_inst}
+            fact "pi_fact_#{SDGUtils::Random.salted_timestamp}", &Proc.new
+          end
+          Compiler.new(m2.meta, @bounds).send @solving_params.first, *@solving_params.last
         else
           Solution.new(@a4sol.next(), @compiler)
         end

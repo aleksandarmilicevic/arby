@@ -39,16 +39,18 @@ module Arby
                : ["find_model_#{SDGUtils::Random.salted_timestamp}", "{}"]
         cmd_als = "run #{cmd_name} #{cmd_body} #{scope.to_als}"
 
-        _execute(_parse(cmd_als), -1)
+        sol = _execute(_parse(cmd_als), -1)
+        sol.set_solving_params :solve, pred, scope
+        sol
       end
 
       # @see Compiler.execute_command
       # @result [Arby::Bridge::Solution]
       def execute_command(cmd_idx_or_name=0)
-        _execute(_parse(), cmd_idx_or_name)
+        sol = _execute(_parse(), cmd_idx_or_name)
+        sol.set_solving_params :execute_command, cmd_idx_or_name
+        sol
       end
-
-      private
 
       def initialize(model, bounds=nil)
         @model     = model
@@ -63,17 +65,21 @@ module Arby
               fail unless ts.arity == 1
               ts.tuples.map{|t| t.atom(0)}
             end
-          }.compact.flatten(1)
-          @model = model.extend do
-            __pi_atoms.each do |a|
-              one sig(Arby.short_alloy_printer_conf.atom_sig_namer[
-                        a.class.relative_name, a.__alloy_atom_id] < a.class) do
-                set_atom(a.__alloy_atom_id)
+          }.compact.flatten(1).reject{|a| model.find_pi_sig_for_atom(a)}
+          unless __pi_atoms.empty?
+            @model = model.extend do
+              __pi_atoms.each do |a|
+                one sig(Arby.short_alloy_printer_conf.atom_sig_namer[
+                          a.class.relative_name, a.__alloy_atom_id] < a.class) do
+                  set_atom(a.__alloy_atom_id)
+                end
               end
             end
           end
         end
       end
+
+      private
 
       # @see Compiler.execute_command
       # @result [Arby::Bridge::Solution]
@@ -95,9 +101,9 @@ module Arby
         fail "als model not set" unless @model
         als = @model.to_als + "\n" + addendum
 
-        puts "parsing this"
-        puts als
-        puts "--------------------------"
+        # puts "parsing this"
+        # puts als
+        # puts "--------------------------"
 
         @a4world = AlloyCompiler.parse(als)
       end
@@ -146,7 +152,7 @@ module Arby
         command_index = commands.size + command_index if command_index < 0
         cmd = commands.get(command_index)
         opt = A4Options_RJB.new
-        opt.solver = opt.solver.MiniSatJNI #SAT4J #MiniSatJNI
+        opt.solver = opt.solver.SAT4J #SAT4J #MiniSatJNI
         opt.renameAtoms = false
         opt.partialInstance = partialInstanceStr
 
