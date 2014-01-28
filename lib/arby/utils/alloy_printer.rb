@@ -213,7 +213,7 @@ module Arby
 
       def command_to_als(cmd)
         cmd_name = cmd.name.to_s
-        if cmd.fun && cmd.fun.body        
+        if cmd.fun && cmd.fun.body
           name = (cmd.name.empty?) ? "" : "#{cmd_name} "
           @out.p "#{cmd.kind} #{name}"
           @out.pl "{"
@@ -290,6 +290,10 @@ module Arby
 
       def mvarexpr_to_als(v)
         @out.p v.__name
+      end
+
+      def atomexpr_to_als(ae)
+        @out.p @conf.sig_namer[ae.__sig]
       end
 
       def fieldexpr_to_als(fe)
