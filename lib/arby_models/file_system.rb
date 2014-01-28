@@ -8,9 +8,9 @@ module ArbyModels
     sig Name
 
     sig Entry [
-               name: Name,
-               contents: Obj
-              ] {
+      name: Name,
+      contents: Obj
+    ] {
       one entries!
     }
 
@@ -19,9 +19,9 @@ module ArbyModels
     }
 
     sig Folder extends Obj [
-                            entries: (set Entry),
-                            parent: (lone Folder)
-                           ] {
+      entries: (set Entry),
+      parent: (lone Folder)
+    ] {
       parent == contents!.entries! and
       not_in? self.^:parent and
       (self.*:parent).contains?(Root) and
