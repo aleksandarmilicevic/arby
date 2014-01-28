@@ -59,7 +59,6 @@ class FileSystemTest < Test::Unit::TestCase
   #                          Entry$2: Name$1 -> File$0
   def test_graph
     inst = @@sol.translate_to_arby
-
     assert_equal 8, inst.size
     root0 = inst["Root$0"]
     entry1 = inst["Entry$1"]
