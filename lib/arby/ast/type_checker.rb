@@ -81,12 +81,28 @@ module Arby
       def check_arby_module(mod, model_cls=Arby::Ast::Model)
         Module === mod &&
           mod.respond_to?(:meta) &&
-          model_cls === mod.meta
+          mod.meta.is_a?(model_cls)
       end
 
       def check_arby_module!(mod, model_cls=Arby::Ast::Model, msg="")
         unless check_arby_module(mod)
           raise TypeError, "#{msg}#{mod} is not a ruby module used as Alloy model"
+        end
+      end
+
+      def get_arby_model(mod, model_cls=Arby::Ast::Model)
+        case mod
+        when model_cls then mod
+        when Module
+          mod.meta if check_arby_module(mod, model_cls)
+        else
+          nil
+        end
+      end
+
+      def get_arby_model!(mod, model_cls=Arby::Ast::Model)
+        unless get_arby_model(mod, model_cls)
+          raise TypeError, "#{msg}#{mod} is not an arby model or corresponding ruby module"
         end
       end
     end

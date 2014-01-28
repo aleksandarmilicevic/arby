@@ -52,6 +52,12 @@ module Arby
         ans.to_a
       end
 
+      def find_pi_sig_for_atom(atom)
+        reachable_sigs.find{|s|
+          s.meta.atom? && atom.is_a?(s.superclass) && s.meta.atom_id == atom.__alloy_atom_id
+        }
+      end
+
       alias_method :all_reachable_sigs, :reachable_sigs
 
       def to_als()

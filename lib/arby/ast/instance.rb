@@ -83,8 +83,9 @@ module Arby
 
       def [](key)
         case key
-        when Class then @type2atoms[key] || []
-        when Field then field(key)
+        when Class           then @type2atoms[key] || []
+        when Field           then field(key)
+        when Expr::FieldExpr then field(key.__field)
         else
           atom(key) || skolem(key) || field(key)
         end

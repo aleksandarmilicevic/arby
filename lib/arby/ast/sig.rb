@@ -118,7 +118,7 @@ module Arby
           meta.add_field(:nexts, self, :transient => true)
           n = Field.new(:name     => "next",
                         :parent   => self,
-                        :type     => self,
+                        :type     => self ** self,
                         :ordering => true)
           f = Field.new(:name     => "first",
                         :parent   => self,
@@ -214,6 +214,8 @@ module Arby
       def to_atype() UnaryType.get!(self.class) end
       def to_expr()  Expr::AtomExpr.new(self) end
       def to_ts()    TupleSet.wrap(self, to_atype) end
+
+      alias_method :to_arby_expr, :to_expr
 
       def initialize(*args)
         super()
