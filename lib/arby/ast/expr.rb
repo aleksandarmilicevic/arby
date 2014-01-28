@@ -125,6 +125,9 @@ module Arby
             }
           end
         when Proc then resolve_expr e.call, parent, kind_in_parent, default_val, &else_cb
+        when TupleSet then resolve_expr(e.tuples, e, "tuples")
+        when Tuple
+          ExprBuilder.reduce_to_binary Ops::PRODUCT, *e.map{|a| resolve_expr(a, e, "atom")}
         when Class
           if e < ASig
             e.to_arby_expr
@@ -444,11 +447,20 @@ module Arby
       # TODO
       # ============================================================================
       class AtomExpr < Var
-        attr_reader :__atom
+        attr_reader :__atom, :__sig
         def initialize(atom)
           sig = atom.class
-          TypeChecker.check_sig_class(sig)
+          TypeChecker.check_sig_class!(sig)
+          # check if singleton PI sig exists
+          if atom_id = atom.__alloy_atom_id
+            #TODO: should not rely on subsigs, 
+            #      because they don't have to belong to the current model
+            pi_sig = sig.meta.subsigs.find{|s| s.meta.atom? && s.meta.atom_id == atom_id}
+            fail "pi sig not found for atom #{atom}" unless pi_sig
+            sig = pi_sig
+          end
           super(sig.relative_name, sig.to_atype)
+          @__sig = sig
           @__atom = atom
         end
         def to_s()         @__atom.label end
