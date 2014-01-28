@@ -170,6 +170,7 @@ module Arby
       def compiler() @compiler end
       def univ()     @univ end
       def bounds()   @bounds end
+      def model()    @compiler.model end
 
       def set_solving_params(kind, *args)
         @solving_params = [kind, args]

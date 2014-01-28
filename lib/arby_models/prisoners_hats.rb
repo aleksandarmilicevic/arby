@@ -13,17 +13,19 @@ module ArbyModels
       rel.(Red).size == 2 && rel.(Blue).size == 2
     }
 
-    ordered sig Prisoner [ 
-      hatColor: Color, 
+    ordered sig Prisoner [
+      hatColor: Color,
       deduced1: Prisoner ** (one Color),
       deduced2: Prisoner ** (one Color)
     ] {
       colors_fact(this.deduced1) and
       colors_fact(this.deduced2) and
-      all(p: this.sees){ 
-        this.deduced1[p] == p.hatColor && 
-        this.deduced2[p] == p.hatColor 
-      }
+      (this.sees.< Prisoner::hatColor).in? this.deduced1 and
+      (this.sees.< Prisoner::hatColor).in? this.deduced2
+      # all(p: this.sees){
+      #   this.deduced1[p] == p.hatColor &&
+      #   this.deduced2[p] == p.hatColor
+      # }
     }
 
     fun sees[p: Prisoner][set Prisoner] {
@@ -36,6 +38,10 @@ module ArbyModels
 
     pred allAmbig {
       all(p: Prisoner){ p.deduced1[p] != p.deduced2[p] }
+    }
+
+    pred allAmbigExcept[certain: Prisoner] {
+      all(p: Prisoner - certain){ p.deduced1[p] != p.deduced2[p] }
     }
 
     # # for visualization only

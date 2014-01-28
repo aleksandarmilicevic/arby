@@ -34,11 +34,17 @@ class PrisonersHatsTest < Test::Unit::TestCase
       inst = sol.arby_instance
       puts "colors: "
       puts inst[Prisoner.hatColor]
-
-      sol = sol.next do
-        Prisoner::hatColor != inst[Prisoner.hatColor]
-      end
+      sol = sol.next { Prisoner::hatColor != inst[Prisoner.hatColor] }
     end
+    sol = sol.model.solve :allAmbigExcept, 4, bnds
+    while sol.satisfiable?
+      certain = sol['$allAmbigExcept_certain']
+      colors = sol[Prisoner.hatColor]
+      puts "if #{colors}"
+      puts "#{certain} deduced his own hat color: #{certain.deduced1[certain]}"
+      sol = sol.next { Prisoner::hatColor != inst[Prisoner.hatColor] }
+    end
+    binding.pry
   end
 
 

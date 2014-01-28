@@ -12,14 +12,14 @@ module Arby
       def self.export_to_als(*what)
         ap = AlloyPrinter.new
         what = Arby.meta.models if what.empty?
-        what.map{|e| ap.send :to_als, e}.join("\n")
+        what.each{|e| ap.send :to_als, e}
         ap.to_s
       end
 
       def export_to_als(*what)
         old_out = @out
         @out = new_code_printer
-        what.map{|e| to_als e}.join("\n")
+        what.each{|e| to_als e}
         ans = @out.to_s
         @out = old_out
         ans
@@ -34,23 +34,6 @@ module Arby
       def initialize(config={})
         @out = new_code_printer
         @conf = Arby.conf.alloy_printer.extend(config)
-        # @name_map = {}
-        # me = self
-        # @conf.define_singleton_method :sig_namer do |sig|
-        #   name = super(sig)
-        #   me.add_name_map(sig, name)
-        #   name
-        # end
-        # @conf.define_singleton_method :arg_namer do |fld|
-        #   name = super(fld)
-        #   me.add_name_map(fld, name)
-        #   name
-        # end
-        # @conf.define_singleton_method :sig_namer do |fun|
-        #   name = super(fun)
-        #   me.add_name_map(fun, name)
-        #   name
-        # end
       end
 
       # def add_name_mapping(x, name) @name_map[x] = name end
