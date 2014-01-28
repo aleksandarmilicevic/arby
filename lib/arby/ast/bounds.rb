@@ -153,7 +153,14 @@ module Arby
             what_name =
               case what
               when Class then pconf.sig_namer[what]
-              when Field then "#{pconf.sig_namer[what.parent]}.#{pconf.arg_namer[what]}"
+              when Field
+                pname = pconf.sig_namer[what.owner]
+                fname = pconf.arg_namer[what]
+                if what.ordering?
+                  "#{pname}_ord/Ord.#{fname[0].capitalize}#{fname[1..-1]}"
+                else
+                  "#{pname}.#{fname}"
+                end
               else what.to_s
               end
             "#{prefix}[#{what_name}] = #{ts_to_s[ts]}"
@@ -214,7 +221,7 @@ universe = #{t_to_s[univ.atoms]}
 
       def type_for_boundable(what)
         case
-        when Field === what                    then what.full_type
+        when Field === what then (what.ordering?) ? what.type : what.full_type
         when TypeChecker.check_sig_class(what) then what.to_atype
         else
           nil
