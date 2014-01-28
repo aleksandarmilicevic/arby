@@ -178,13 +178,14 @@ module Arby
 
       def satisfiable?() @a4sol.satisfiable end
       def solving_time() @solving_time end
-      def next()
+      def next(__locals={})
         if block_given?
           fail "no solving params" unless @solving_params
           fail unless @compiler && m=Arby::Ast::TypeChecker.get_arby_model(@compiler.model)
           __curr_inst = (satisfiable?) ? arby_instance() : nil
           m2 = m.extend do
             self.send :define_method, :inst, &proc{__curr_inst}
+            __locals.each{|k,v| self.send :define_method, k, &proc{__locals[k]}}
             fact "pi_fact_#{SDGUtils::Random.salted_timestamp}", &Proc.new
           end
           Compiler.new(m2.meta, @bounds).send @solving_params.first, *@solving_params.last

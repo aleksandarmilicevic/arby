@@ -80,6 +80,8 @@ SDGUtils::DSL::Ext.safe_extend(Arby::Ext, SDGUtils::DSL::MissingBuilder,
 
 class Array
   alias_method :int_times, :*
+  alias_method :str_join, :join
+
   def *(rhs)
     case rhs
     when Array, Hash, Arby::Ast::Tuple, Arby::Ast::TupleSet
@@ -88,4 +90,10 @@ class Array
       send :int_times, rhs
     end
   end
+
+  def arby_join(op)
+    Arby::Ast::ExprBuilder.reduce_to_binary op, *self
+  end
+
+
 end

@@ -29,23 +29,42 @@ class PrisonersHatsTest < Test::Unit::TestCase
     bnds[Prisoner] = pr
     bnds[Prisoner::first] = pr.first
     bnds[Prisoner::next] = (0...pr.size-1).map{|i| [pr[i],  pr[i+1]]}
+
+
     sol = ArbyModels::PrisonersHats.solve :allAmbig, 4, bnds
-    while sol.satisfiable?
-      inst = sol.arby_instance
-      puts "colors: "
-      puts inst[Prisoner.hatColor]
-      sol = sol.next { Prisoner::hatColor != inst[Prisoner.hatColor] }
+    round = 0
+    while true
+      round += 1
+      solvable = []
+      puts "====================== round #{round}"
+
+      rsol = sol
+      while rsol.satisfiable?
+        puts "ambiguos: #{sol[Prisoner.hatColor]}"
+        rsol = rsol.next { Prisoner::hatColor != inst[Prisoner.hatColor] }
+      end
+      rsol = rsol.model.solve :allAmbigExcept, 4, bnds
+      while rsol.satisfiable?
+        certain = rsol['$allAmbigExcept_certain']
+        colors = rsol[Prisoner.hatColor]
+        solvable << colors
+        puts "#{colors} -> #{certain} deduced his hat color: #{certain.deduced1[certain]}"
+        rsol = rsol.next { Prisoner::hatColor != inst[Prisoner.hatColor] }
+      end
+
+      break if solvable.empty?
+
+      sol = sol.next(:solvable => solvable) do
+        solvable.map{|hc|
+          (hatColor != hc) &&
+          all(p: Prisoner){ p.deduced1 != hc && p.deduced2 != hc}
+        }.arby_join(Arby::Ast::Ops::AND)
+      end
     end
-    sol = sol.model.solve :allAmbigExcept, 4, bnds
-    while sol.satisfiable?
-      certain = sol['$allAmbigExcept_certain']
-      colors = sol[Prisoner.hatColor]
-      puts "if #{colors}"
-      puts "#{certain} deduced his own hat color: #{certain.deduced1[certain]}"
-      sol = sol.next { Prisoner::hatColor != inst[Prisoner.hatColor] }
-    end
-    binding.pry
+
   end
-
-
 end
+
+
+
+
