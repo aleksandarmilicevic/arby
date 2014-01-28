@@ -27,16 +27,17 @@ class PrisonersHatsTest < Test::Unit::TestCase
     pr = 4.times.map{Prisoner.new}
     bnds = Arby::Ast::Bounds.new
     bnds[Prisoner] = pr
+    bnds[Prisoner::first] = pr.first
+    bnds[Prisoner::next] = (0...pr.size-1).map{|i| [pr[i],  pr[i+1]]}
     sol = ArbyModels::PrisonersHats.solve :allAmbig, 4, bnds
-    if sol.satisfiable?
+    while sol.satisfiable?
       inst = sol.arby_instance
       puts "colors: "
       puts inst[Prisoner.hatColor]
 
-      # sol = sol.next do
-      #   Prisoner::hatColor != inst[Prisoner.hatColor]
-      # end
-
+      sol = sol.next do
+        Prisoner::hatColor != inst[Prisoner.hatColor]
+      end
     end
   end
 
