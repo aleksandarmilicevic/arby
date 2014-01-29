@@ -1,0 +1,69 @@
+Partial instance examples:
+
+  - from Derek's and Emina's papers
+ 
+       https://ece.uwaterloo.ca/~drayside/abz12-partial-instances.pdf
+       http://people.csail.mit.edu/emina/pubs/kodkod.alloy06.pdf
+
+  - chameleon (by Alcino)
+
+  - sudoku
+
+  - squander-style for pure functions
+
+      - hamiltonian path    
+      - top sort
+      - k clique
+      - k coloring
+
+Staging examples:
+
+  - iteratively/binary increasing/decreasing scope
+  - max clique
+  - traveling salesman problem
+  - longest path
+  - prim's algorithm
+
+Dynamic symmetry breaking:
+
+  - think of some examples
+  - this will require adding additional constraints when asking for 
+    next solution, which might not be trivial (maybe Kodkod's
+    incremental solving can help)
+
+Specification testing
+
+  - seq filtering
+
+
+TODO: 
+
+  - optimize TupleSet operations (it's super slow now)
+
+  - implement more robust joins (by having looking up the missing
+    symbol up the evaluation stack)
+
+      - examples that should not require "convert_missing_fields_to_joins":
+          grandpa, chameleon
+
+  - implement better debugging messages for incorrect alloy models
+
+  - formalize scope computing
+
+  - implment libraries (e.g., ordering, seq)
+
+  - rename all non-api methods in Expr to start with __
+  - implement integer multiplication
+ 
+  - have model specific config options
+  - add interface for passing options when running solver
+  - create some class corresponding to Alloy's CompModule
+  - move all the initialization stuff from Arby.meta to CompModule
+  - unify the implementation of different kinds of relation (e.g., in
+    relation.rb, tuple_set.rb, types.rb, etc.)
+
+DONE: 
+
+  - ensure initialization before solving
+  - sudoku
+

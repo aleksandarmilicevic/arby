@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<alloy>
+
+<view>
+
+<defaultnode/>
+
+<defaultedge/>
+
+<node>
+   <type name="Blue"/>
+   <type name="Int"/>
+   <type name="Prisoner"/>
+   <type name="Red"/>
+   <type name="String"/>
+   <type name="univ"/>
+   <type name="Prisoner_ord/Ord"/>
+   <type name="seq/Int"/>
+</node>
+
+<node showlabel="no" color="Blue">
+   <set name="$isBlu" type="Prisoner"/>
+</node>
+
+<node showlabel="no" color="Red">
+   <set name="$isRed" type="Prisoner"/>
+</node>
+
+<node visible="no">
+   <type name="Color"/>
+</node>
+
+<edge attribute="no">
+   <relation name="deduced"> <type name="Prisoner"/> <type name="Prisoner"/> <type name="Color"/> </relation>
+</edge>
+
+<edge color="Blue" label="">
+   <relation name="$deducedBlu"> <type name="Prisoner"/> <type name="Prisoner"/> </relation>
+</edge>
+
+<edge color="Gray" label="">
+   <relation name="$ambiguous"> <type name="Prisoner"/> <type name="Prisoner"/> </relation>
+</edge>
+
+<edge color="Red" label="">
+   <relation name="$deducedRed"> <type name="Prisoner"/> <type name="Prisoner"/> </relation>
+</edge>
+
+</view>
+
+</alloy>

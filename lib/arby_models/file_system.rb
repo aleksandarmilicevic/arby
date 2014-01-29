@@ -1,7 +1,7 @@
-require 'alloy/alloy_dsl'
+require 'arby/arby_dsl'
 
 module ArbyModels
-  extend Alloy::Dsl
+  extend Arby::Dsl
 
   alloy_model :FileSystem do
     abstract sig Obj
@@ -14,38 +14,38 @@ module ArbyModels
       one entries!
     }
 
-    sig :File < Obj {
-      some d: Folder do in? d.entries.contents end
+    sig File < Obj {
+      some d: Dir do in? d.entries.contents end
     }
 
-    sig Folder extends Obj [
+    sig Dir extends Obj [
       entries: (set Entry),
-      parent: (lone Folder)
+      parent: (lone Dir)
     ] {
       parent == contents!.entries! and
-      not_in? self.^:parent and
-      (self.*:parent).contains?(Root) and
-      all [:e1, :e2] => entries do
+      not_in? self.^(Dir::parent) and
+      (self.*(Dir::parent)).contains?(Root) and
+      all(e1, e2: entries) {
         e1 == e2 if e1.name == e2.name
-      end
+      }
     }
 
-    one sig Root extends Folder {
+    one sig Root extends Dir {
       no parent
     }
 
-    lone sig Curr extends Folder
+    lone sig Curr extends Dir
 
     # all directories besides root have one parent
     pred oneParent_buggyVersion {
-      all d: Folder - Root do
+      all d: Dir - Root do
         one d.parent
       end
     }
 
     # all directories besides root have one parent
     pred oneParent_correctVersion {
-      all d: Folder - Root do
+      all d: Dir - Root do
         one d.parent and one d.contents!
       end
     }
@@ -54,11 +54,11 @@ module ArbyModels
     # is, all directories are the contents of at most one directory
     # entry.
     pred noDirAliases {
-      all o: Folder do lone o.contents! end
+      all o: Dir do lone o.contents! end
     }
 
-    check("for 5 expect 1") { noDirAliases if oneParent_buggyVersion }
-    check("for 5 expect 0") { noDirAliases if oneParent_correctVersion }
+    check(5) { noDirAliases if oneParent_buggyVersion }
+    check(5) { noDirAliases if oneParent_correctVersion }
   end
 
 module FileSystem
@@ -77,14 +77,14 @@ sig Entry  {
 }
 
 sig File extends Obj {} {
-  some d: Folder {
+  some d: Dir {
     this in d.@entries.@contents
   }
 }
 
-sig Folder extends Obj {
+sig Dir extends Obj {
   entries: set Entry,
-  parent: lone Folder
+  parent: lone Dir
 } {
   this.@parent = this.~@contents.~@entries
   this !in this.^@parent
@@ -94,26 +94,27 @@ sig Folder extends Obj {
   }
 }
 
-one sig Root extends Folder {} {
+one sig Root extends Dir {} {
   no this.@parent
 }
 
-lone sig Curr extends Folder {}
+lone sig Curr extends Dir {}
 
 pred oneParent_buggyVersion {
-  all d: Folder - Root {
+  all d: Dir - Root {
     one d.parent
   }
 }
 
 pred oneParent_correctVersion {
-  all d: Folder - Root {
-    one d.parent && one d.~contents
+  all d: Dir - Root {
+    one d.parent
+    one d.~contents
   }
 }
 
 pred noDirAliases {
-  all o: Folder {
+  all o: Dir {
     lone o.~contents
   }
 }
