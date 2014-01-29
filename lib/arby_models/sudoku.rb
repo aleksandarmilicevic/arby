@@ -83,17 +83,25 @@ module ArbyModels
       bounds
     end
 
+    def solve
+      SudokuModel.solve(:solved, self.partial_instance)
+    end
+
     def print
-      "+-------+-------+-------+\n" +
-        (0..8).map{|i|
-          row = (0..8).map{|j|
+      m = Integer(Math.sqrt(N))
+      dshs = "-"*(m*2+1)
+      dsha = m.times.map{dshs}
+      dshjp = dsha.join('+')
+      "+#{dshjp}+\n" +
+        (0...N).map{|i|
+          row = (0...N).map{|j|
             s = self.grid[i][j]
             cell = s.empty?() ? "." : s.to_s
-            j % 3 == 0 ? "| #{cell}" : cell
+            j % m == 0 ? "| #{cell}" : cell
           }.join(" ") + " |"
-          i > 0 && i % 3 == 0 ? "|-------+-------+-------|\n#{row}" : row
+        i > 0 && i % m == 0 ? "|#{dshjp}|\n#{row}" : row
         }.join("\n") + "\n" +
-      "+-------+-------+-------+"
+        "+#{dshjp}+"
     end
   end
 

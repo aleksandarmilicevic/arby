@@ -6,11 +6,12 @@ class ABZ14SudokuTest < Test::Unit::TestCase
   include SDGUtils::Testing::Assertions
   include Arby::Bridge
 
-  include ArbyModels::ABZ14::SudokuModel
+  SudokuModel = ArbyModels::ABZ14::SudokuModel
+  include SudokuModel
 
   def setup_class
     Arby.reset
-    Arby.meta.restrict_to(ArbyModels::ABZ14::SudokuModel)
+    Arby.meta.restrict_to(SudokuModel)
     @@puzle = """
 ......95.
 .8.7..6..
@@ -26,21 +27,51 @@ class ABZ14SudokuTest < Test::Unit::TestCase
   end
 
   def test_als
-    # puts ArbyModels::ABZ14::SudokuModel.meta.to_als
-    assert ArbyModels::ABZ14::SudokuModel.compile
+    # puts SudokuModel.meta.to_als
+    assert SudokuModel.compile
+  end
+
+  def gen(n_filled=SudokuModel.N * SudokuModel.N)
+    s = Sudoku.new
+    sol = s.solve
+    return nil unless sol.satisfiable?
+    while s && s.grid.size > n_filled do fail(); s = dec(s); end
+    s
+  end
+
+  def dec(sudoku, order=Array(0...sudoku.grid.size).shuffle)
+    return nil if order.empty?
+    s1 = Sudoku.new :grid => sudoku.grid.delete_at(order.first)
+    sol = s1.clone.solve()
+    (sol.satisfiable? && !sol.next.satisfiable?) ? s1 : dec(sudoku, order[1..-1])
+  end
+
+  def min(sudoku)
+    puts "minimizing size #{sudoku.grid.size}"
+    (s1 = dec(sudoku)) ? min(s1) : sudoku
+  end
+
+  def test_min
+    old = SudokuModel.N
+    SudokuModel.N = 4
+    s = min(gen())
+    assert s
+    puts "local minimum found: #{s.grid.size}"
+  ensure
+    SudokuModel.N = old
   end
 
   def do_test_n(n)
-    old = ArbyModels::ABZ14::SudokuModel.N
-    ArbyModels::ABZ14::SudokuModel.N = n
+    old = SudokuModel.N
+    SudokuModel.N = n
 
     puts "solving sudoku for size #{n}"
     s = Sudoku.new
-    sol = ArbyModels::ABZ14::SudokuModel.solve :solved, s.partial_instance
+    sol = s.solve()
     assert sol.satisfiable?, "instance not found"
     assert_equal n*n, s.grid.size
   ensure
-    ArbyModels::ABZ14::SudokuModel.N = old
+    SudokuModel.N = old
   end
 
   def test_size4()  do_test_n(4) end
@@ -48,19 +79,19 @@ class ABZ14SudokuTest < Test::Unit::TestCase
   # def test_size16() do_test_n(16) end
 
   def test_abz
-    old = ArbyModels::ABZ14::SudokuModel.N
-    ArbyModels::ABZ14::SudokuModel.N = 4
+    old = SudokuModel.N
+    SudokuModel.N = 4
 
     puts "solving sudoku for size #{4}"
     s = Sudoku.new :grid => [[0, 0, 1], [0, 3, 4], [3, 1, 1], [2, 2, 3]]
     puts s.print
-    sol = ArbyModels::ABZ14::SudokuModel.solve :solved, s.partial_instance
+    sol = s.solve()
     assert sol.satisfiable?, "instance not found"
     fail unless s.grid.size == 16
     assert_equal 16, s.grid.size
     puts s.print
   ensure
-    ArbyModels::ABZ14::SudokuModel.N = old
+    SudokuModel.N = old
   end
 
   def test_instance_pi
@@ -70,7 +101,7 @@ class ABZ14SudokuTest < Test::Unit::TestCase
     old_grid = s.grid.dup
 
     puts "solving sudoku with partial instance..."
-    sol = ArbyModels::ABZ14::SudokuModel.solve :solved, s.partial_instance
+    sol = s.solve()
     puts "solving time: #{sol.solving_time}s"
 
     assert sol.satisfiable?, "instance not found"
@@ -88,6 +119,9 @@ class ABZ14SudokuTest < Test::Unit::TestCase
 
     puts
     puts s.print
+
+    puts "checking for any other solutions..."
+    assert !sol.next.satisfiable?
   end
 
 
