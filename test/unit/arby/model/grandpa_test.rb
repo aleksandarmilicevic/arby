@@ -14,7 +14,8 @@ class GrandpaTest < Test::Unit::TestCase
   end
 
   def test_als
-    puts Arby.meta.to_als
+    puts ArbyModels::Grandpa.to_als
+    assert ArbyModels::Grandpa.compile
   end
 
   def test_instance

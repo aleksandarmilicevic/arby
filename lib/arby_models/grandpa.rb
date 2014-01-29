@@ -1,7 +1,5 @@
 require 'arby/arby_dsl'
 
-Arby.conf.sym_exe.convert_missing_fields_to_joins = true
-
 module ArbyModels
   extend Arby::Dsl
 
@@ -31,7 +29,7 @@ module ArbyModels
 
     fun grandpas[p: Person][set Person] {
       let(parent: mother + father + father.wife + mother.husband) {
-        p.parent.parent & Man
+        p.(parent).(parent) & Man
       }
     }
 
@@ -43,7 +41,6 @@ module ArbyModels
       m.in? grandpas(m)
     }
 
-    # run :ownGrandpa, "for 4 Person"
     run :ownGrandpa, Person => 4
   end
 end
