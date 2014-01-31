@@ -197,8 +197,8 @@ module Arby
 
       def self.unwrap(t)
         case t
-        when TupleSet then self.unwrap(t._target)
-        when Tuple    then self.unwrap(t._target)
+        when TupleSet then self.unwrap(t.tuples)
+        when Tuple    then self.unwrap(t.atoms)
         when Array, Set
           if t.empty?       then nil
           elsif t.size == 1 then self.unwrap(t.first)
