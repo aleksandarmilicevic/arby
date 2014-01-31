@@ -18,10 +18,8 @@ module ABZ14
         e.dst == path[i+1] }
     }
     assertion reach {
-      all(g: Graph, path: (seq Node)) |
-      if hampath(g, path)
-        g.nodes.in? path[0].*((~src).(dst))
-      end
+      all(g: Graph, path: (seq Node)) {
+        g.nodes.in? path[0].*((~src).dst) if hampath(g, path)}
     }
     run :hampath, 5, Graph=>exactly(1), Node=>3
     check :reach, 5, Graph=>exactly(1), Node=>3
