@@ -219,6 +219,7 @@ module Arby
         def +(other)         pick_and_apply(IPLUS, PLUS, self, other) end
         def -(other)         pick_and_apply(IMINUS, MINUS, self, other) end
         def /(other)         pick_and_apply(DIV, MINUS, self, other) end
+        def merge(other)     ExprBuilder.apply(PLUSPLUS, self, other) end
         def *(other)         ExprBuilder.apply(MUL, self, other) end
         def %(other)         ExprBuilder.apply(REM, self, other) end
         def <<(other)        ExprBuilder.apply(SHL, self, other) end
