@@ -18,7 +18,7 @@ class FileSystemTest < Test::Unit::TestCase
     Arby.reset
     Arby.meta.restrict_to(ArbyModels::FileSystem)
 
-    @@als_model = Arby.meta.to_als
+    @@als_model = ArbyModels::FileSystem.meta.to_als
     @@compiler  = ArbyModels::FileSystem.compile()
     @@sol       = @@compiler.execute_command(0)
   end
@@ -27,8 +27,8 @@ class FileSystemTest < Test::Unit::TestCase
     assert_equal Arby::Ast::TupleSet.wrap(ts1), Arby::Ast::TupleSet.wrap(tuples)
   end
 
-  def test
-    ans = Arby.meta.to_als
+  def test_als
+    ans = ArbyModels::FileSystem.meta.to_als
     # assert_equal_ignore_whitespace ArbyModels::FileSystem::Expected_alloy, ans
   end
 
