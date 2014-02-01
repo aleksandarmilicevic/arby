@@ -15,9 +15,15 @@ module ABZ14
 
     pred solved[s: Sudoku] {
       m = Integer(Math.sqrt(N))
+      rng = lambda{|i| m*i...m*(i+1)}
 
-      all(r: 0...N)    { s.grid[r][Int] == (1..N) and s.grid[Int][r] == (1..N) } and
-      all(c, r: 0...m) | (s.grid[m*c...m*(c+1)][m*r...m*(r+1)] == (1..N))
+      all(r: 0...N)    {
+        s.grid[r][Int] == (1..N) and
+        s.grid[Int][r] == (1..N)
+      } and
+      all(c, r: 0...m) {
+        s.grid[rng[c]][rng[r]] == (1..N)
+      }
     }
   end
 
@@ -40,6 +46,10 @@ module ABZ14
       bounds.bound(Sudoku, self)
       bounds.bound_int(0..N)
       bounds
+    end
+
+    def solve
+      SudokuModel.solve(:solved, self.partial_instance)
     end
 
     def print

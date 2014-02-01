@@ -91,6 +91,9 @@ module Arby
         end
       end
 
+      def clone()  wrap(@atoms.dup, @type) end
+      alias_method :dup, :clone
+
       def each() atoms.each {|a| yield a } end
 
       def atoms()   @atoms.dup() end
@@ -194,8 +197,8 @@ module Arby
 
       def self.unwrap(t)
         case t
-        when TupleSet then self.unwrap(t._target)
-        when Tuple    then self.unwrap(t._target)
+        when TupleSet then self.unwrap(t.tuples)
+        when Tuple    then self.unwrap(t.atoms)
         when Array, Set
           if t.empty?       then nil
           elsif t.size == 1 then self.unwrap(t.first)
@@ -207,6 +210,9 @@ module Arby
         end
       end
 
+      def clone()      wrap(tuples, @type) end
+      alias_method     :dup, :clone
+
       def each()       tuples.each {|t| yield t} end
 
       def arity()      @type.arity end
@@ -215,6 +221,13 @@ module Arby
       def size()       @tuples.size end
       def empty?()     @tuples.empty? end
       def clear!()     @tuples.clear end
+      def delete_at(i) t = tuples(); t.delete_at(i); wrap(t, @type) end
+      def delete_at!(i)
+        new_tuples = @tuples.to_a
+        ans = new_tuples.delete_at(i)
+        @tuples = Set.new(new_tuples)
+        ans
+      end
 
       def contains?(a) a.all?{|e| tuples.member?(e)} end
       def in?(a)       wrap(a).contains?(self) end

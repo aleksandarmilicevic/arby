@@ -56,6 +56,8 @@ module Arby
         Arby::Bridge::Compiler.execute_command(self, cmd_idx_or_name, bounds)
       end
 
+      alias_method :exe_cmd, :execute_command
+
       def find_instance(pred=nil, *scope_bounds)
         sol = solve(pred, *scope_bounds)
         if sol.satisfiable?

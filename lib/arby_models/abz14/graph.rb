@@ -5,18 +5,24 @@ module ArbyModels
 module ABZ14
   extend Arby::Dsl
 
-  alloy_model :GraphModel do
-    sig Node  [val: (lone Int)]
-    sig Edge  [src, dst: Node, cost: (lone Int)]
-    sig Graph [nodes: (set Node), edges: (set Edge)]
+  alloy :GraphModel do
+    sig Node [val: (lone Int)]
+    sig Edge [src, dst: (one Node)] {src != dst}
+    sig Graph[nodes:(set Node), edges:(set Edge)]
 
-    pred hampath[g: Graph, ans: (seq Node)] {
-     ans[Int] == g.nodes and
-     all(i: 0...ans.size-1) |
+    pred hampath[g: Graph, path: (seq Node)] {
+      path[Int] == g.nodes and
+      all(i: 0...path.size-1) |
       some(e: g.edges) {
-       e.src == ans[i] && e.dst == ans[i+1]
-      }
+        e.src == path[i] &&
+        e.dst == path[i+1] }
     }
+    assertion reach {
+      all(g: Graph, path: (seq Node)) {
+        g.nodes.in? path[0].*((~src).dst) if hampath(g, path)}
+    }
+    run :hampath, 5, Graph=>exactly(1), Node=>3
+    check :reach, 5, Graph=>exactly(1), Node=>3
   end
 
   class GraphModel::Graph
@@ -24,7 +30,7 @@ module ABZ14
       bnds = Arby::Ast::Bounds.from_atoms(self)
       sol = GraphModel.solve :hampath, bnds
       if sol.satisfiable?
-      then sol["$hampath_ans"].project(1)
+      then sol["$hampath_path"].project(1)
       else nil end
     end
   end

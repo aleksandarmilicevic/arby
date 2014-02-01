@@ -2,6 +2,7 @@ require 'arby/ast/command'
 require 'arby/ast/fun'
 require 'arby/ast/scope'
 require 'arby/dsl/errors'
+require 'arby/utils/codegen_repo'
 
 module Arby
   module Dsl
@@ -90,10 +91,20 @@ module Arby
         if body
           pred = _create_fn(:pred, pred_name, {}, nil, &body)
           _define_method_for_fun(pred)
+        else
+          raise SyntaxError, "neither name nor body specified" unless name
+          mname = "#{kind}_#{name}"
+          __eval_meth mname, <<-RUBY, __FILE__, __LINE__+1
+          def self.#{mname}(*args) exe_cmd #{name.inspect}, *args end
+          RUBY
         end
         cmd = Arby::Ast::Command.new(kind, name, scope, pred)
         meta.add_command cmd
         cmd
+      end
+
+      def __eval_meth(name, src, file=nil, line=nil)
+        Arby::Utils::CodegenRepo.module_safe_eval_method(self, name, src, file, line)
       end
 
     end
