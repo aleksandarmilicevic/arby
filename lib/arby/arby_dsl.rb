@@ -21,7 +21,9 @@ module Arby
     # @param name [String, Symbol] --- model name
     # @return [ModelBuilder] --- the builder used to create the module
     def alloy_model(name="", opts={}, &block)
-      opts2 = { :return => :builder }.merge!(opts)
+      opts2 = { :return => :builder }
+      opts2.merge!(:parent_module => self) if Module === self && self != Arby::Dsl
+      opts2.merge!(opts)
       ModelBuilder.new(opts2).model(:alloy, name, &block)
     end
 
