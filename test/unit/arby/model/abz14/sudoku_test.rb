@@ -61,10 +61,13 @@ class ABZ14SudokuTest < Test::Unit::TestCase
 
   def test_min
     old = SudokuModel.N
-    SudokuModel.N = 4
-    s = min(gen())
+    SudokuModel.N = 9
+    require 'sdg_utils/timing/timer'
+    timer = SDGUtils::Timing::Timer.new
+    s = timer.time_it {min(gen())}
     assert s
     puts "local minimum found: #{s.grid.size}"
+    puts "total time: #{timer.last_time}"
   ensure
     SudokuModel.N = old
   end
