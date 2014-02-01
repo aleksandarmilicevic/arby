@@ -28,7 +28,7 @@ module ABZ14
   end
 
   class SudokuModel::Sudoku
-    def self.parse(str)
+    def self.parse1(str)
       rows = str.split("\n").map(&:strip).reject(&:empty?)
       fail "expected exactly #{N} lines, got #{rows.size}" unless rows.size == N
       fail "expected exactly #{N} chars in each line" unless rows.all?{|r| r.size == N}
@@ -37,6 +37,10 @@ module ABZ14
           (ch>="1" && ch<=String(N)) ? [row_idx, col_idx, Integer(ch)] : nil
         }.compact
       }.flatten(1)
+    end
+
+    def self.parse(str) Sudoku.new grid: 
+        str.split(/\s*;\s*/).map{|x| x.split(/\s*,\s*/).map(&:to_i)}
     end
 
     def partial_instance

@@ -31,6 +31,14 @@ class ABZ14SudokuTest < Test::Unit::TestCase
     assert SudokuModel.compile
   end
 
+  def test_simple
+    SudokuModel.N = 4
+    s = Sudoku.parse "0,0,1; 0,3,4; 3,1,1; 2,2,3"
+    s.solve();
+    assert_equal 16, s.grid.size
+    puts s.print
+  end
+
   def gen(n_filled=SudokuModel.N * SudokuModel.N)
     s = Sudoku.new
     sol = s.solve
@@ -95,7 +103,7 @@ class ABZ14SudokuTest < Test::Unit::TestCase
   end
 
   def test_instance_pi
-    s = Sudoku.parse @@puzle
+    s = Sudoku.parse1 @@puzle
     puts s.print
 
     old_grid = s.grid.dup
