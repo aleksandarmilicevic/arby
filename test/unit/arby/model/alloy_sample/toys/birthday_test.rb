@@ -1,8 +1,5 @@
 require 'my_test_helper'
 require 'arby/helpers/test/dsl_helpers'
-require 'arby/initializer.rb'
-require 'arby/bridge/compiler'
-require 'arby/bridge/solution'
 
 require 'arby_models/alloy_sample/toys/birthday'
 
