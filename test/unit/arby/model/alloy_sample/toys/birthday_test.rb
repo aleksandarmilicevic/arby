@@ -30,4 +30,13 @@ class BirthdayTest < Test::Unit::TestCase
     assert !sol.satisfiable?
   end
 
+  def test_check_delIsUndo
+    sol = Birthday.check_delIsUndo
+    assert sol.satisfiable?
+  end
+
+  def test_run_busyDat
+    sol = Birthday.run_busyDay
+    assert sol.satisfiable?
+  end
 end
