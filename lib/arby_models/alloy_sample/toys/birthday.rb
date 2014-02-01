@@ -3,7 +3,7 @@ require 'arby_models/alloy_sample/toys/__init'
 module ArbyModels::AlloySample::Toys
   # =================================================================
   # Birthday Book
-  # 
+  #
   # A classic Z example to explain the basic form of an Alloy
   # model. For the original, see J.M. Spivey, The Z Notation, Second
   # Edition, Prentice Hall, 1992.
@@ -61,19 +61,19 @@ module ArbyModels::AlloySample::Toys
     }
 
     assertion addWorks {
-      all(bb, bb1: BirthdayBook, n: Name, d: Date, d1: (lone Date)) | 
+      all(bb, bb1: BirthdayBook, n: Name, d: Date, d1: (lone Date)) |
         if addBirthday(bb, bb1, n, d) && findBirthday(bb1, n, d1)
           d == d1
         end
     }
 
     assertion delIsUndo {
-      all(bb1, bb2, bb3: BirthdayBook, n: Name, d: Date) | 
+      all(bb1, bb2, bb3: BirthdayBook, n: Name, d: Date) |
         if addBirthday(bb1, bb2, n, d) && delBirthday(bb2, bb3, n)
           bb1.date == bb3.date
         end
     }
-    
+
     check :addWorks, 3, BirthdayBook => 2   # expect to hold
     check :delIsUndo, 3, BirthdayBook => 2  # expect to fail
 
