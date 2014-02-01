@@ -51,22 +51,18 @@ module ArbyModels::AlloySample::Toys
 
     fact bible {
       ##every person except Adam and Eve has a mother and father
-      #ALLOY
-      all p: Person - (Adam + Eve) { 
-        one mother: Woman, father: Man { #UNSURE about this line one mother: Woman, father: Man. can I apply one to both mother and father this way?
-          p.parents == mother + father 
-        }
-      }
-      #########
+      all(p: Person - (Adam + Eve)) | one(mother: Woman, father: Man) { 
+        p.parents == mother + father
+      } and
       ## Adam and Eve have no parents
-      no (Adam + Eve).parents
+      no (Adam + Eve).parents and
       ## Adam's spouse is Eve
       Adam.spouse == Eve
     }
 
     fact socialNorms {
       ## nobody is his or her own spouse
-      no p: Person { p.spouse == p } and
+      no(p: Person) { p.spouse == p } and
       ## spouse is symmetric
       spouse == ~spouse and
       ##a man's spouse is a woman and vice versa
@@ -75,13 +71,13 @@ module ArbyModels::AlloySample::Toys
 
    fact noIncest {
      ##can't marry a sibling
-     no p: Person { some p.spouse.(parents) & p.parents } and
+     no(p: Person) { some p.spouse.(parents) & p.parents } and
      ## can't marry a parent
-     no p: Person { some p.(spouse) & p.parents }
+     no(p: Person) { some p.(spouse) & p.parents }
     }
 
    pred show {
-     some (p: Person) - (Adam + Eve) { 
+     some(p: Person) - (Adam + Eve) { 
        some p.(spouse) 
      }
     }
