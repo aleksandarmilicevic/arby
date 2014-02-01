@@ -40,7 +40,6 @@ module ArbyModels::AlloySample::Toys
     ]
 
     pred addBirthday [bb, bb1: BirthdayBook, n: Name, d: Date] {
-      ## TODO: ++ does not any aRby syntex. using + for now.
       bb1.date == bb.date.merge(n ** d)
     }
 
@@ -49,7 +48,7 @@ module ArbyModels::AlloySample::Toys
     }
 
     pred findBirthday[bb: BirthdayBook, n: Name, d: (lone Date)] {
-      d == bb.date[n] #
+      d == bb.date[n]
     }
 
     pred remind[bb: BirthdayBook, today: Date, cards: (set Name)] {
