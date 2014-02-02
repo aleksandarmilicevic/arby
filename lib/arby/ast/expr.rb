@@ -241,11 +241,18 @@ module Arby
         # def *(other)         join_closure(RCLOSURE, other) end
         # def ^(other)         join_closure(CLOSURE, other) end
 
+        def ~(arg=nil)
+          if arg
+            ExprBuilder.apply(JOIN, self, ExprBuilder.apply(TRANSPOSE, arg))
+          else
+            ExprBuilder.apply(TRANSPOSE, self)
+          end
+        end
+
         def domain(other)    ExprBuilder.apply(DOMAIN, self, other) end
         def range(other)     ExprBuilder.apply(RANGE, self, other) end
         def closure()        ExprBuilder.apply(CLOSURE, self) end
         def rclosure()       ExprBuilder.apply(RCLOSURE, self) end
-        def ~()              ExprBuilder.apply(TRANSPOSE, self) end
         def !()              ExprBuilder.apply(NOT, self) end
         def empty?()         ExprBuilder.apply(NO, self) end
         def lone?()          ExprBuilder.apply(LONE, self) end
@@ -454,7 +461,7 @@ module Arby
           TypeChecker.check_sig_class!(sig)
           # check if singleton PI sig exists
           if atom_id = atom.__alloy_atom_id
-            #TODO: should not rely on subsigs, 
+            #TODO: should not rely on subsigs,
             #      because they don't have to belong to the current model
             pi_sig = sig.meta.subsigs.find{|s| s.meta.atom? && s.meta.atom_id == atom_id}
             fail "pi sig not found for atom #{atom}" unless pi_sig
