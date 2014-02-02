@@ -61,7 +61,7 @@ class ABZ14SudokuTest < Test::Unit::TestCase
 
   def test_min
     old = SudokuModel.N
-    SudokuModel.N = 9
+    SudokuModel.N = 4
     require 'sdg_utils/timing/timer'
     timer = SDGUtils::Timing::Timer.new
     s = timer.time_it {min(gen())}
