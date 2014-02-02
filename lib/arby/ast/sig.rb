@@ -69,6 +69,7 @@ module Arby
           unless respond_to?(fld.name.to_sym)
             define_singleton_method fld.name do
               get_cls_field(fld)
+              # self.to_expr.join(fld.to_arby_expr)
             end
             # class_eval <<-RUBY, __FILE__, __LINE__+1
             #   def self.#{fld.name}() get_cls_field(#{fld.name.to_s.inspect}) end

@@ -24,7 +24,8 @@ module Arby
       # Creates an Alloy type with a multiplicity modifier assigned
       # +Arby::Ast::ModType+ for a given multiplicity modifier and a given sig.
       #------------------------------------------------------------------------
-      def self.mult(mod_smbl, type=nil, &block)
+      def self.mult(mod_smbl, *args, &block)
+        type = args.first
         case type
         when ::NilClass
           new(mod_smbl)
@@ -33,8 +34,12 @@ module Arby
         when ::Arby::Ast::Expr::MExpr
           ::Arby::Ast::Expr::UnaryExpr.send mod_smbl, type
         else
-          atype = ::Arby::Ast::AType.get!(type)
-          atype.apply_multiplicity(mod_smbl)
+          if block
+            ::Arby::Dsl::QuantHelper.send mod_smbl, *args, &block
+          else
+            atype = ::Arby::Ast::AType.get!(type)
+            atype.apply_multiplicity(mod_smbl)
+          end
         end
       end
 

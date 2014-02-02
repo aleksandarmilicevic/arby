@@ -112,10 +112,13 @@ module Arby
       def add_field_getters
         flds = self.sigs.map{|s| s.meta.fields + s.meta.inv_fields}.flatten
         flds.each do |fld|
+          # @ruby_module.send :define_method, fld.getter_sym do
+          #   fld.parent.get_cls_field(fld)
+          # end
           Arby::Utils::CodegenRepo.module_safe_eval_method @ruby_module,
           fld.getter_sym, <<-RUBY, __FILE__, __LINE__+1
             def #{fld.getter_sym}
-               #{fld.parent.name}.#{fld.getter_sym}
+               #{fld.parent.name}::#{fld.getter_sym}
             end
           RUBY
         end

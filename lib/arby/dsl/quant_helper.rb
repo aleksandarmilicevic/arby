@@ -8,8 +8,8 @@ module Arby
   module Dsl
 
     module QuantHelper
+      extend self
       include ExprHelper
-      include FieldsHelper
 
       def all(*decls, &body)    _quant(:all, decls, body)   end
       def exist(*decls, &body)  _quant(:exist, decls, body) end
@@ -24,7 +24,8 @@ module Arby
       private
 
       def _quant(kind, decls, body)
-        Arby::Ast::Expr::QuantExpr.send kind, _decl_to_args(*decls), body
+        args = FieldsHelper.send :_decl_to_args, *decls
+        Arby::Ast::Expr::QuantExpr.send kind, args, body
       end
 
       def _mult(meth, *args)

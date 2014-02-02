@@ -7,6 +7,7 @@ module Arby
   module Dsl
 
     module FieldsHelper
+      extend self
       private
 
       def _decl_to_args(*decl_args)
