@@ -56,7 +56,7 @@ module Arby
     module Ops
       # multiplicity type modifiers
       SET         = Mop.new(:"set",        "set",         8)
-      SEQ         = Mop.new(:"seq",        "set",         8)
+      SEQ         = Mop.new(:"seq",        "seq",         8)
 
       # unary operators
       NOT         = Uop.new(:"!",          "not",         6)
