@@ -20,8 +20,8 @@ module Arby
       Bool  = UnaryType.new(:Bool)
       Seq   = ProductType.new(Int, Univ)
 
-      def Int()  TypeConsts::Int end
-      def Bool() TypeConsts::Int end
+      def Int(a=nil)  a ? Expr.resolve_expr(a) : TypeConsts::Int end
+      def Bool(b=nil) b ? Expr.resolve_expr(b) : TypeConsts::Bool end
       def Univ() TypeConsts::Univ end
       def None() TypeConsts::None end
 

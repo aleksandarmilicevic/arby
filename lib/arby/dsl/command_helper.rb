@@ -66,7 +66,7 @@ module Arby
         msg = "Too many commmand args: expected max 3, got #{name_scope_exceptions.size}"
         raise SyntaxError, msg if name_scope_exceptions.size > 3
         msg = "Too few command args: at least <scope> expected, got nothing"
-        raise SyntaxError, msg if name_scope_exceptions.empty?
+        raise SyntaxError, msg if name_scope_exceptions.empty? && !body
 
         scope, name = []
         exceptions = {}
