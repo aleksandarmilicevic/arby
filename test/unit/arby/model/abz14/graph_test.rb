@@ -53,7 +53,6 @@ class ABZ14GraphTest < Test::Unit::TestCase
   def test_guided
     sol = GraphModel.run_hampath
     assert sol.satisfiable?
-    $pera = 3;
     sol2 = sol.next { # "$hampath_path" != sol["$hampath_path"] &&
       g = sol[Graph].first
       Graph::nodes == sol[Graph::nodes] and

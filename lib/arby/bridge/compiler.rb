@@ -152,7 +152,7 @@ module Arby
         command_index = commands.size + command_index if command_index < 0
         cmd = commands.get(command_index)
         opt = A4Options_RJB.new
-        opt.solver = opt.solver.SAT4J #SAT4J #MiniSatJNI
+        opt.solver = opt.solver.MiniSatJNI #SAT4J #MiniSatJNI
         opt.renameAtoms = false
         opt.partialInstance = partialInstanceStr
 

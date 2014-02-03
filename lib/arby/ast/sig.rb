@@ -64,6 +64,7 @@ module Arby
         def f(fname)     meta().field(fname) end
         alias_method     :to_arby_expr, :to_expr
         def alloy_name() Arby.conf.alloy_printer.sig_namer[self] end
+        alias_method     :__type, :to_atype
 
         def add_method_for_field(fld)
           unless respond_to?(fld.name.to_sym)

@@ -26,7 +26,7 @@ module Arby
         end
       end
 
-      def self.parse_scope(*args)
+      def self.parse_scope(model, *args)
         raise SyntaxError, "Invalid scope syntax.  " +
           "Too many arguments: expected <=2, got #{args.size}." if args.size > 2
         global = nil
@@ -35,15 +35,19 @@ module Arby
 
         global = global.gsub(/^for /, "") if global.is_a?(String)
         global = 4 if global.to_s.empty?
-        sig_scopes = __parse_sig_scope_hash(exceptions)
+        sig_scopes = __parse_sig_scope_hash(model, exceptions)
         Arby::Ast::Scope.new(global, sig_scopes)
       end
 
-      def self.__parse_sig_scope_hash(hash={})
+      def self.__parse_sig_scope_hash(model, hash={})
+        resolve_str = lambda{|str| (model || Arby.meta).find_sig(str)}
+
         hash.map do |sig_spec, scope|
           sig = case sig_spec
-                when String, Symbol then sig = Arby.meta.find_sig(sig_spec)
-                when Class          then sig = sig_spec if sig_spec < Arby::Ast::ASig
+                when String, Symbol then sig = resolve_str[sig_spec]
+                when Class          then (sig_spec < Arby::Ast::ASig) ?
+                                          sig_spec                    :
+                                          resolve_str[sig_spec.relative_name]
                 else
                   "Int" if sig_spec == Arby::Ast::TypeConsts::Int
                 end
@@ -81,7 +85,7 @@ module Arby
           end
         end
 
-        scope = CommandHelper.parse_scope(scope, exceptions)
+        scope = CommandHelper.parse_scope(self.meta, scope, exceptions)
         __cmd(kind, name, scope, &body)
       end
 

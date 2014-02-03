@@ -260,7 +260,7 @@ module Arby
       end
 
       def expr_to_als(expr)
-        expr_visitor.visit(expr)
+        expr_visitor.visit(expr.exe_symbolic)
       end
 
       def typeexpr_to_als(expr)
@@ -308,7 +308,7 @@ module Arby
         else
           if expr.let?
             expr.decl.each do |a|
-              decl_str = decl_str.sub "#{a.name}:", "#{a.name} =" 
+              decl_str = decl_str.sub "#{a.name}:", "#{a.name} ="
             end
           end
           @out.pl "#{expr_kind} #{decl_str} {"

@@ -134,6 +134,7 @@ module Arby
       def to_ruby_type() map{|u| (u.klass rescue nil) || u.class} end
       def to_arby_expr() Expr.resolve_expr(self) end
       alias_method :to_expr, :to_arby_expr
+      def __type()       self end
 
       def ==(other) other.is_a?(AType) && to_ruby_type == other.to_ruby_type end
       def hash()    to_ruby_type.hash end

@@ -136,7 +136,9 @@ module Arby
         cls.instance_method(fld_sym).singleton_class.class_eval <<-RUBY
           def source() #{getter_src.inspect} end
         RUBY
-        cls.send :alias_method, "#{fld_sym}?".to_sym, fld_sym if fld.type.isBool?
+        if fld.type && fld.type.isBool?
+          cls.send :alias_method, "#{fld_sym}?".to_sym, fld_sym
+        end
         self.send :include, cls
       end
 
