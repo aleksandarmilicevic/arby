@@ -76,7 +76,7 @@ module ArbyModels::AlloySample::Util
 
     # r is complete over the set s
     pred complete[r: univ ** univ, s: univ] {
-      all(x,y: s){  if x!=y then (x ** y).in?(r + ~r) end }
+      all(x,y: s){  if x != y then (x ** y).in?(r + ~r) end }
     }
 
     # r is a preorder (or a quasi-order) over the set s
