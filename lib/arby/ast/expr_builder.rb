@@ -161,6 +161,12 @@ module Arby
           # TODO type check: types.first is a binary relation
           types.first
 
+        when Ops::DOMAIN
+          types.last
+
+        when Ops::RANGE
+          types.first
+
         when Ops::NO, Ops::SOME, Ops::LONE, Ops::ONE,
           # TODO type check: all operand types are relations
           Arby::Ast::TypeConsts::Bool

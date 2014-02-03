@@ -50,18 +50,21 @@ module Arby
         when args.size == 1 && Hash === args.first
           hash = args.first
           @name    = check_iden hash[:name], "arg name"
-          @expr    = hash[:type]
+          @expr    = hash[:expr] || hash[:type]
+          @type    = AType.get(hash[:type] || @expr) # nil is ok at this point
         when args.size == 2
           @name = args[0]
           @expr = args[1]
+          @type = AType.get(@expr) # nil is ok at this point
         else
           raise ArgumentError, "expected either a hash or a name/type pair; got `#{args}'"
         end
-        @type = AType.get(@expr) # nil is ok at this point
       end
 
-      def expr() @resolved_expr ||= Expr.resolve_expr(@expr, self, "expression") end
-      def type() @type ||= AType.get(expr) end
+      def expr()  @resolved_expr ||= Expr.resolve_expr(@expr, self, "expression") end
+      def type()  @type ||= AType.get(expr) end
+      def decl()  @expr || type end
+      def _expr() @expr end
 
       def scalar?()    @type.scalar? end
       def primitive?() scalar? && @type.range.primitive? end

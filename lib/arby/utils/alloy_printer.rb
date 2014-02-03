@@ -226,7 +226,7 @@ module Arby
               @out.p "univ"
             elsif cls < Arby::Ast::ASig
               @out.p @conf.sig_namer[cls]
-            elsif sig_cls = Arby.meta.find_sig(type.cls.to_s.relative_name)
+            elsif sig_cls = @history.first.find_sig(type.cls.to_s.relative_name)
               @out.p @conf.sig_namer[sig_cls]
             else
               @out.p type.cls.to_s.relative_name
@@ -306,7 +306,11 @@ module Arby
           @out.pn [expr.body]
           @out.p "}"
         else
-          decl_str = decl_str.gsub /:/, " =" if expr.let?
+          if expr.let?
+            expr.decl.each do |a|
+              decl_str = decl_str.sub "#{a.name}:", "#{a.name} =" 
+            end
+          end
           @out.pl "#{expr_kind} #{decl_str} {"
           @out.in do
             @out.pn expr.body.to_conjuncts, "\n"

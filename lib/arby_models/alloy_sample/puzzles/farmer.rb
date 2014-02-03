@@ -22,10 +22,8 @@ module ArbyModels::AlloySample::Puzzles
 
     # The farmer and all his possessions will be represented as Objects.
     # Some objects eat other objects when the Farmer's not around.
-
     abstract sig Object [eats: (set Object)]
     one sig Farmer, Fox, Chicken, Grain < Object
-
 
     # Define what eats what when the Farmer' not around.
     # Fox eats the chicken and the chicken eats the grain.

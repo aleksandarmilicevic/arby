@@ -130,7 +130,8 @@ module Arby
               end
             }
           end
-        when Proc then resolve_expr e.call, parent, kind_in_parent, default_val, &else_cb
+        when Proc 
+          resolve_expr e.call, parent, kind_in_parent, default_val
         when TupleSet
           if e.tuples.empty?
             ExprConsts.none_of(e.arity)
@@ -139,6 +140,9 @@ module Arby
           end
         when Tuple
           ExprBuilder.reduce_to_binary Ops::PRODUCT, *e.map{|a| resolve_expr(a, e, "atom")}
+        when SDGUtils::DSL::MissingBuilder
+          sig_cls = Arby.meta.find_sig(e.name)
+          sig_cls ? sig_cls.to_arby_expr : else_cb.call
         when Class
           if e < ASig
             e.to_arby_expr

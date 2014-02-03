@@ -137,6 +137,17 @@ module Arby
         end
       end
 
+      def add_field2(arg, hash={})
+        opts = hash.merge :parent => sig_cls,
+                          :name   => arg.name.to_s,
+                          :type   => arg.type,
+                          :expr   => arg._expr
+        fld = Field.new opts
+        @fields << fld
+        sig_cls.add_method_for_field(fld)
+        fld
+      end
+
       def add_field(fld_name, fld_type, hash={})
         opts = hash.merge :parent => sig_cls,
                           :name   => fld_name.to_s,

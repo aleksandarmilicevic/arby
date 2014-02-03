@@ -25,18 +25,21 @@ module Arby
       # ---------------------------------------------------------
       # @param decl [Array]
       def fields(decl)
-        _to_args(decl).each{|a| _field(a.name, a.type)}
+        # _to_args(decl).each{|a| _field(a.name, a.type)}
+        _to_args(decl).each{|a| _field2(a)}
       end
 
       alias_method :persistent, :fields
       alias_method :refs, :fields
 
       def owns(decl)
-        _to_args(decl).each{|a| _field(a.name, a.type, :owned => true)}
+        # _to_args(decl).each{|a| _field(a.name, a.type, :owned => true)}
+        _to_args(decl).each{|a| _field2(a, :owned => true)}
       end
 
       def transient(decl)
-        _to_args(decl).each{|a| _field(a.name, a.type, :transient => true)}
+        # _to_args(decl).each{|a| _field(a.name, a.type, :transient => true)}
+        _to_args(decl).each{|a| _field2(a, :transient => true)}
       end
 
       # ---------------------------------------------------------
@@ -97,6 +100,13 @@ module Arby
         fld_accessors fld
         fld
       end
+
+      def _field2(arg, hash={})
+        fld = meta.add_field2(arg, hash)
+        fld_accessors fld
+        fld
+      end
+
 
       def _fld_reader_code(fld) "@#{fld.getter_sym}" end
       def _fld_writer_code(fld, val) "@#{fld.getter_sym} = #{val}" end
