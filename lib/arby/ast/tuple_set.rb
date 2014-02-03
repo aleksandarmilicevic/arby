@@ -58,6 +58,8 @@ module Arby
       def hash()    TupleSet.unwrap(self).hash end
       def ==(other) TupleSet.unwrap(self) == TupleSet.unwrap(other) end
       alias_method  :eql?, :==
+
+      def to_expr() Arby::Ast::Expr.resolve_expr(self) end
     end
 
     class Tuple
@@ -230,7 +232,7 @@ module Arby
       end
 
       def contains?(a) a.all?{|e| tuples.member?(e)} end
-      def in?(a)       wrap(a).contains?(self) end
+      def in?(a)       Arby.symbolic_mode?() ? to_expr().in?(a) : wrap(a).contains?(self) end
       def ljoin(ts)    wrap(ts).join(self) end
 
       def <(other)     int_cmp(:<, other) end
@@ -303,6 +305,15 @@ module Arby
       def project(*args)
         ans_type = _type && _type.project(*args)
         wrap(@tuples.map{|t| t.project(*args)}, ans_type)
+      end
+
+      def domain(other)
+        ans_tuples = wrap(other).tuples.select{|t| self.contains?(t.project(0))}
+        wrap(ans_tuples, other.__type)
+      end
+      def range(other)
+        ans_tuples = tuples.select{|t| t.project(arity-1).in?(other)}
+        wrap(ans_tuples, __type)
       end
 
       def [](other) ljoin(other) end
