@@ -59,7 +59,7 @@ module ArbyModels::AlloySample::Toys
     pred show {
       some Class - Object and
       some Interface and
-      some Variable.(type) & Interface
+      some Variable.(Variable::type) & Interface
     }
 
     run :show, 3 # expect sat
