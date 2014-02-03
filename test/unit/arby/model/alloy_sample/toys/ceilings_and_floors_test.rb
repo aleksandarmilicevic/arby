@@ -1,7 +1,7 @@
 require 'my_test_helper'
 require 'arby/helpers/test/dsl_helpers'
 
-require 'arby_models/alloy_sample/toys/ceilingsAndFloors'
+require 'arby_models/alloy_sample/toys/ceilings_and_floors'
 
 class CeilingsAndFloorsTest < Test::Unit::TestCase
   include Arby::Helpers::Test::DslHelpers
@@ -21,9 +21,4 @@ class CeilingsAndFloorsTest < Test::Unit::TestCase
     puts CeilingsAndFloors.meta.to_als
     assert CeilingsAndFloors.compile
   end
-
-#  def test_run_show
- #   sol = Genealogy.run_show
-  #  assert sol.satisfiable?
-  #end
 end

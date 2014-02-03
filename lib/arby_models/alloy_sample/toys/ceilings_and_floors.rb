@@ -31,21 +31,21 @@ module ArbyModels::AlloySample::Toys
      floor: Platform
    ]
 
-   fact paulSimon { all(m: Man) | some(n: Man) { n.Above(m) } }
+   fact paulSimon { all(m: Man) | some(n: Man) { n.above(m) } }
 
    pred above[m, n: Man] { 
-     m.floor == n.ceiling 
+     m.floor == n.(ceiling) 
    }
 
-   assertion belowToo { all(m: Man) | some(n: Man) { m.Above(n) } }
+   assertion belowToo { all(m: Man) | some(n: Man) { m.above(n) } }
 
    check :belowToo, 2 # expect sat
 
    pred geometry {no(m: Man) | m.floor == m.(ceiling)}
 
    assertion belowToo1 { 
-	   if Geometry  
-	      (all(m: Man) | some(n: Man) { m.Above(n) } ) 
+	   if geometry  
+	      (all(m: Man) | some(n: Man) { m.above(n) } ) 
 	   end
     }
 
@@ -57,8 +57,8 @@ module ArbyModels::AlloySample::Toys
    }
 
    assertion belowToo2 { 
-	   if NoSharing 
-	      (all(m: Man) | some(n: Man) { m.Above(n) } ) 
+	   if noSharing 
+	      (all(m: Man) | some(n: Man) { m.above(n) } ) 
 	   end
    }
 
