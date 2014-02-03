@@ -62,7 +62,7 @@ module Arby
                 "#{lhs_src}.#{meth}(#{rhs_src})"
               when :*, :^
                 meth = (node.children[1] == :*) ? :rclosure : :closure
-                "#{lhs_src}.(#{rhs_src}.#{meth}())"
+                "#{lhs_src}.((#{rhs_src}).#{meth}())"
               end
             end
           else
