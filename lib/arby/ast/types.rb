@@ -131,9 +131,9 @@ module Arby
         base.extend(SDGUtils::Lambda::Class2Proc)
       end
 
-      def to_ruby_type
-        map{|u| (u.klass rescue nil) || u.class}
-      end
+      def to_ruby_type() map{|u| (u.klass rescue nil) || u.class} end
+      def to_arby_expr() Expr.resolve_expr(self) end
+      alias_method :to_expr, :to_arby_expr
 
       def ==(other) other.is_a?(AType) && to_ruby_type == other.to_ruby_type end
       def hash()    to_ruby_type.hash end
@@ -249,7 +249,7 @@ module Arby
         if Arby.concrete_mode?
           super
         else
-          Expr.resolve_expr(self).select(&blk)
+          to_arby_expr.select(&blk)
         end
       end
 
@@ -267,10 +267,11 @@ module Arby
       def <=(other) _subtype_cmp(:<=, other) end
       def >(other)  _subtype_cmp(:>, other) end
       def >=(other) _subtype_cmp(:>=, other) end
+      def +(other)  to_arby_expr + other end
+      def -(other)  to_arby_expr + other end
+      def &(other)  to_arby_expr + other end
 
-      def to_alloy
-        Arby::Utils::AlloyPrinter.export_to_als(self)
-      end
+      def to_alloy() Arby::Utils::AlloyPrinter.export_to_als(self) end
 
       private
 
@@ -400,7 +401,7 @@ module Arby
         def self.builtin(sym) @@built_in_types[sym.to_sym] end
 
         def self.get(sym)
-          return RefColType.new(Object) if sym == Object
+          return RefColType.new(Object) if sym == Object && !sym.respond_to?(:relative_name)
           return IntColType.new(sym)    if Class === sym && sym <= Integer
           case sym
           when ColType

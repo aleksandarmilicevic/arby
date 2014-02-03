@@ -42,7 +42,25 @@ class ABZ14GraphTest < Test::Unit::TestCase
 
   def test_check_reach
     sol = GraphModel.check_reach
-    assert !sol.satisfiable? #assertion holds
+    assert !sol.satisfiable? # assertion holds
+  end
+
+  def test_check_uniq
+    sol = GraphModel.check_uniq
+    assert !sol.satisfiable? # assertion holds
+  end
+
+  def test_guided
+    sol = GraphModel.run_hampath
+    assert sol.satisfiable?
+    $pera = 3;
+    sol2 = sol.next { # "$hampath_path" != sol["$hampath_path"] &&
+      g = sol[Graph].first
+      Graph::nodes == sol[Graph::nodes] and
+      Graph::edges == sol[Graph::edges] and
+      (g.edges.< sol[Edge::dst]).in? Edge::dst and
+      (g.edges.< sol[Edge::src]).in? Edge::src
+    }
   end
 
 end

@@ -109,7 +109,13 @@ module Arby
         when FalseClass then BoolConst::FALSE
         when ASig       then e.to_arby_expr
         when Array
-          ExprBuilder.reduce_to_binary Arby::Ast::Ops::PLUS, *e.map{|i| resolve_expr(i)}
+          if e.empty?
+            ExprConsts::NONE
+          elsif e.size == 1
+            resolve_expr(e.first)
+          else
+            ExprBuilder.reduce_to_binary Arby::Ast::Ops::PLUS, *e.map{|i| resolve_expr(i)}
+          end
         when Range
           if e.begin.is_a?(Integer) && e.end.is_a?(Integer)
             resolve_expr(e.to_a)
@@ -125,7 +131,12 @@ module Arby
             }
           end
         when Proc then resolve_expr e.call, parent, kind_in_parent, default_val, &else_cb
-        when TupleSet then resolve_expr(e.tuples, e, "tuples")
+        when TupleSet
+          if e.tuples.empty?
+            ExprConsts.none_of(e.arity)
+          else
+            resolve_expr(e.tuples, e, "tuples")
+          end
         when Tuple
           ExprBuilder.reduce_to_binary Ops::PRODUCT, *e.map{|a| resolve_expr(a, e, "atom")}
         when Class
@@ -459,6 +470,7 @@ module Arby
         def initialize(atom)
           sig = atom.class
           TypeChecker.check_sig_class!(sig)
+
           # check if singleton PI sig exists
           if atom_id = atom.__alloy_atom_id
             #TODO: should not rely on subsigs,
@@ -471,7 +483,7 @@ module Arby
           @__sig = sig
           @__atom = atom
         end
-        def to_s()         @__atom.label end
+        def to_s()         @__atom.__label end
         def exe_concrete() @__atom end
       end
 
@@ -794,21 +806,33 @@ module Arby
         extend self
 
         IDEN  = Var.new("iden")
+        NONE  = Var.new("none")
         UNIV  = TypeExpr.new(TypeConsts::Univ, "univ")
         TRUE  = BoolConst::TRUE
         FALSE = BoolConst::FALSE
 
-        def Iden() ExprConsts::Iden end
-        def iden() ExprConsts::Iden end
+        def Iden() ExprConsts::IDEN end
+        def iden() ExprConsts::IDEN end
 
-        def Univ() ExprConsts::Iden end
-        def univ() ExprConsts::Iden end
+        def None() ExprConsts::NONE end
+        def none() ExprConsts::NONE end
+
+        def Univ() ExprConsts::UNIV end
+        def univ() ExprConsts::UNIV end
 
         def True() ExprConsts::TRUE end
         def true() ExprConsts::TRUE end
 
         def False() ExprConsts::FALSE end
         def false() ExprConsts::FALSE end
+
+        def none_of(arity)
+          if arity == 1
+            NONE
+          else
+            ExprBuilder.reduce_to_binary(Ops::PRODUCT, *arity.times.map{NONE})
+          end
+        end
       end
 
     end

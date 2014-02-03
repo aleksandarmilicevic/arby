@@ -185,10 +185,19 @@ module Arby
           __curr_inst = (satisfiable?) ? arby_instance() : nil
           m2 = m.extend do
             self.send :define_method, :inst, &proc{__curr_inst}
+            self.send :define_method, :sol, &proc{__curr_inst}
             __locals.each{|k,v| self.send :define_method, k, &proc{__locals[k]}}
             fact "pi_fact_#{SDGUtils::Random.salted_timestamp}", &Proc.new
           end
-          Compiler.new(m2.meta, @bounds).send @solving_params.first, *@solving_params.last
+          bnds = @bounds
+          if !bnds && __curr_inst
+            #TODO: not the best solution
+            bnds = Arby::Ast::Bounds.new
+            __curr_inst.atoms.group_by(&:class).each do |cls, atoms|
+              bnds.lo[cls] = atoms
+            end
+          end
+          Compiler.new(m2.meta, bnds).send @solving_params.first, *@solving_params.last
         else
           Solution.new(@a4sol.next(), @compiler)
         end
