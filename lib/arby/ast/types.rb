@@ -683,7 +683,7 @@ module Arby
         # forward all methods defined in @type.class to @type
         self.class.forward_methods(self, type)
 
-        freeze
+        # freeze
       end
 
       public

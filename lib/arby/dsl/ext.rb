@@ -94,6 +94,15 @@ class Array
   def arby_join(op)
     Arby::Ast::ExprBuilder.reduce_to_binary op, *self
   end
+end
 
-
+class Symbol
+  alias_method :int_select, :[]
+  def [](*a)
+    if a.size == 1 && Integer === a.first
+      send :int_select, a
+    else
+      SDGUtils::DSL::MissingBuilder.new(self)[*a]
+    end
+  end
 end

@@ -24,6 +24,7 @@ module Arby
       include FunHelper
       include CommandHelper
       include Arby::Ast::TypeConsts
+      include Arby::Ast::Expr::ExprConsts
       extend self
 
       # protected
