@@ -163,12 +163,14 @@ module Arby
       end
 
       def fun_to_als(fun)
-        args = if Class === fun.owner && fun.owner.is_sig?
-                 selfarg = Arby::Ast::Arg.new :name => "self", :type => fun.owner
-                 [selfarg] + fun.args
-               else
-                 fun.args
-               end
+        args = fun.args
+        fun_name = @conf.fun_namer[fun]
+        is_inst_fun = Class === fun.owner && fun.owner.is_sig?
+        if is_inst_fun
+          # selfarg = Arby::Ast::Arg.new :name => "self", :type => fun.owner
+          # [selfarg] + fun.args
+          fun_name = "#{@conf.sig_namer[fun.owner]}.#{fun_name}"
+        end
         args_str = args.map(&method(:export_to_als)).join(", ")
         params_str = if args.empty? #&& !fun.fun? && !fun.pred?
                        ""
@@ -185,10 +187,9 @@ module Arby
                else
                  fun.kind
                end
-        fun_name = @conf.fun_namer[fun]
         @out.pl "#{kind} #{fun_name}#{params_str}#{ret_str} {"
         @out.in do
-          fun_body = fun.sym_exe
+          fun_body = is_inst_fun ? fun.sym_exe("this") : fun.sym_exe
           @out.pn fun_body.to_conjuncts, "\n" if fun_body
         end
         @out.pl "\n}"

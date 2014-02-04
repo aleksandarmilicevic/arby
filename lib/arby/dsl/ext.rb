@@ -39,11 +39,12 @@ module Arby
     #--------------------------------------------------------
     module MClassExt
       def *(rhs)  to_atype * rhs end
-      def **(rhs) to_atype ** rhs end
+      def **(rhs) (Arby.symbolic_mode?() ? to_expr : to_atype) ** rhs end
 
       def set_of()   Arby::Dsl::MultHelper.set(self) end
       def is_sig?()  ancestors.member? Arby::Ast::ASig end
       def to_atype() Arby::Ast::AType.get!(self) end
+      def to_expr()  Arby::Ast::Expr.resolve_expr(self) end
     end
 
     module MFixnumExt

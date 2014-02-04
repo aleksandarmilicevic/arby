@@ -268,8 +268,8 @@ module Arby
         end
       end
 
-      def *(other)  self.to_ts * other end
-      def **(other) self.to_ts ** other end
+      def *(other)  (Arby.symbolic_mode?() ? to_expr : to_ts) * other end
+      def **(other) (Arby.symbolic_mode?() ? to_expr : to_ts) ** other end
 
       protected
 
