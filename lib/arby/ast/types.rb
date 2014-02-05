@@ -20,6 +20,16 @@ module Arby
         TypeConsts.get(sym)
       end
 
+      def self.forward_methods(from, to, inst_var_name="type")
+        to.class.instance_methods(false).each do |m|
+          unless from.class.instance_methods(false).member?(m)
+            from.singleton_class.class_eval <<-RUBY, __FILE__, __LINE__+1
+              def #{m}(*a, &b) @#{inst_var_name}.send #{m.inspect}, *a, &b end
+            RUBY
+          end
+        end
+      end
+
       def self.get(obj, allow_nil=true)
         case obj
         when NilClass then allow_nil ? NoType.new : nil
@@ -140,7 +150,8 @@ module Arby
       def hash()    to_ruby_type.hash end
       alias_method  :eql?, :==
 
-      def instantiated?() true end
+      def instantiated?()   true end
+      def instantiate(inst) self end
 
       def arity()       fail "Class #{self.class} must override `arity'" end
       def column!(idx)  fail "Class #{self.class} must override `column!'" end
@@ -185,7 +196,7 @@ module Arby
       # @param args [Array]
       def apply_args(args)         ModType.wrap(self, nil, [], Array(args)) end
 
-      def remove_multiplicity()    ModType.wrap(@type, nil, modifiers, args) end
+      def remove_multiplicity()    self end
 
       def scalar?
         case multiplicity
@@ -294,7 +305,10 @@ module Arby
         @proc = proc
         @inst = inst
         if inst
-          delegate :arity, :column!, :to => lambda{@proc.call(inst)}
+          # delegate :arity, :column!, :to => lambda{@proc.call(inst)}
+          @type = @proc.call(inst)
+          fail "Dependent type could not be instantiated for #{inst}" unless @type
+          AType.forward_methods(self, @type)
         else
           class << self
             def arity()      0 end
@@ -304,7 +318,7 @@ module Arby
       end
 
       def instantiate(inst)
-        DependentType.new(@type, inst)
+        DependentType.new(@proc, inst)
       end
 
       def instantiated?() !@inst.nil? end
@@ -649,9 +663,12 @@ module Arby
       attr_reader :mult, :mods, :type, :args
 
       def self.wrap(type, mult, mods, args)
-        msg = "Cannot set multiplicity to `#{mult}': " +
-               "type `#{type}' already has multiplicity set to `#{type.multiplicity}'"
-        raise ArgumentError, msg if type.has_multiplicity? && mult
+        if type.has_multiplicity? && mult
+          msg = "Cannot set multiplicity to `#{mult}': " +
+            "type `#{type}' already has multiplicity set to `#{type.multiplicity}'"
+          raise ArgumentError, msg 
+        end
+
         if mult.nil? && mods.empty? && args.empty?
           type
         else
@@ -681,22 +698,12 @@ module Arby
         @args = args
 
         # forward all methods defined in @type.class to @type
-        self.class.forward_methods(self, type)
+        AType.forward_methods(self, type)
 
         # freeze
       end
 
       public
-
-      def self.forward_methods(from, to)
-        to.class.instance_methods(false).each do |m|
-          unless from.class.instance_methods(false).member?(m)
-            from.singleton_class.class_eval <<-RUBY, __FILE__, __LINE__+1
-              def #{m}(*a, &b) @type.send #{m.inspect}, *a, &b end
-            RUBY
-          end
-        end
-      end
 
       # don't forward +freeze+ to @type
       def freeze
@@ -716,6 +723,8 @@ module Arby
       def multiplicity()      (has_multiplicity?) ? @mult : super end
       def modifiers()         @mods end
       def args()              @args end
+
+      def remove_multiplicity() ModType.wrap(@type, nil, modifiers, args) end
 
       def to_s
         ts = @type.arity > 1 ? "(#{@type.to_s})" : "#{@type.to_s}"
@@ -740,7 +749,7 @@ module Arby
       def initialize(fld)
         @fld = fld
         @type = fld.type
-        ModType.forward_methods(self, @type)
+        AType.forward_methods(self, @type)
       end
 
       def to_s
