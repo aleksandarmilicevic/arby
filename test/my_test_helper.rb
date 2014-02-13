@@ -17,6 +17,7 @@ module Test
   module Unit
     class TestCase
       def puts(*a) end
+      def puts!(*a) Kernel.puts(*a) end
     end
   end
 end
