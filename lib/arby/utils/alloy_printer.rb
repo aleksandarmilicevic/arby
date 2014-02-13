@@ -261,7 +261,8 @@ module Arby
       end
 
       def expr_to_als(expr)
-        expr_visitor.visit(expr.exe_symbolic)
+        sym_expr = expr.exe_symbolic
+        expr_visitor.visit(sym_expr)
       end
 
       def typeexpr_to_als(expr)

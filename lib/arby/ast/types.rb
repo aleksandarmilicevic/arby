@@ -416,7 +416,8 @@ module Arby
         def self.builtin(sym) @@built_in_types[sym.to_sym] end
 
         def self.get(sym)
-          return RefColType.new(Object) if sym == Object && !sym.respond_to?(:relative_name)
+          return RefColType.new(Object) if sym == Object &&
+                                           !sym.respond_to?(:relative_name, true)
           return IntColType.new(sym)    if Class === sym && sym <= Integer
           case sym
           when ColType
@@ -572,7 +573,7 @@ module Arby
       def isTime?()    scalar? && ColType::TimeColType === @cls end
       def isBool?()    scalar? && ColType::BoolColType === @cls end
       def isBlob?()    scalar? && ColType::BlobColType === @cls end
-      def isFile?()    scalar? && klass.respond_to?(:isFile?) && klass.isFile?() end
+      def isFile?()    scalar? && klass.respond_to?(:isFile?,true) && klass.isFile?() end
 
       def to_s
         @cls.to_s
@@ -666,7 +667,7 @@ module Arby
         if type.has_multiplicity? && mult
           msg = "Cannot set multiplicity to `#{mult}': " +
             "type `#{type}' already has multiplicity set to `#{type.multiplicity}'"
-          raise ArgumentError, msg 
+          raise ArgumentError, msg
         end
 
         if mult.nil? && mods.empty? && args.empty?

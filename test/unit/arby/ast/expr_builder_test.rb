@@ -41,7 +41,7 @@ module Arby
       end
 
       def assert_type(type_array, expr)
-        assert expr.respond_to?(:__type), "Expr `#{expr}' doesn't respond to __type"
+        assert expr.respond_to?(:__type,true), "Expr `#{expr}' doesn't respond to __type"
         t = expr.__type
         assert t, "Expr `#{expr}' type is nil"
         type_array = type_array.map(&Arby::Ast::AType.method(:get))
