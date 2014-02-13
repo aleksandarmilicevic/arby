@@ -33,12 +33,13 @@ class PrisonersHatsTest < Test::Unit::TestCase
 
     sol = ArbyModels::PrisonersHats.solve :allAmbig, 4, bnds
     round = 0
+    scenarios_solved = 0
     while true
       round += 1; solvable = []; rsol = sol
-      puts "====================== round #{round}"
+      puts! "====================== round #{round}"
 
       while rsol.satisfiable?
-        puts "ambiguos: #{rsol[Prisoner::hatColor]}"
+        puts! "ambiguos: #{rsol[Prisoner::hatColor]}"
         rsol = rsol.next { Prisoner::hatColor != inst[Prisoner::hatColor] }
       end
       rsol = rsol.model.solve :allAmbigExcept, 4, bnds
@@ -46,7 +47,8 @@ class PrisonersHatsTest < Test::Unit::TestCase
         certain = rsol['$allAmbigExcept_certain']
         colors = rsol[Prisoner::hatColor]
         solvable << colors
-        puts "#{colors} -> #{certain} deduced his hat color: #{certain.deduced1[certain]}"
+        scenarios_solved += 1
+        puts! "#{colors} -> #{certain} deduced his hat color: #{certain.deduced1[certain]}"
         rsol = rsol.next { Prisoner::hatColor != inst[Prisoner::hatColor] }
       end
 
@@ -60,6 +62,8 @@ class PrisonersHatsTest < Test::Unit::TestCase
       end
     end
 
+    assert_equal 3, round
+    assert_equal 6, scenarios_solved
   end
 end
 
