@@ -13,4 +13,12 @@ require 'arby/arby'
 require 'sdg_utils/testing/assertions'
 require 'sdg_utils/testing/smart_setup'
 
+module Test
+  module Unit
+    class TestCase
+      def puts(*a) end
+    end
+  end
+end
+
 Arby.set_default :logger => Logger.new(NilIO.instance) # Logger.new(STDOUT)
