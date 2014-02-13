@@ -157,6 +157,7 @@ module Arby
                 pname = pconf.sig_namer[what.owner]
                 fname = pconf.arg_namer[what]
                 if what.ordering?
+                  fname = what.name
                   "#{pname}_ord/Ord.#{fname[0].capitalize}#{fname[1..-1]}"
                 else
                   "#{pname}.#{fname}"
