@@ -23,3 +23,6 @@ doc/
 # lock files
 *.lock
 
+# Aptana
+.project
+.settings
