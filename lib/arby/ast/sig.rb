@@ -213,6 +213,7 @@ module Arby
       def meta()     self.class.meta end
       def arity()    1 end
       def to_s()     @__label end
+      def inspect()  to_s() end
       def to_atype() UnaryType.get!(self.class) end
       def to_expr()  Expr::AtomExpr.new(self) end
       def to_ts()    TupleSet.wrap(self, to_atype) end
