@@ -10,7 +10,7 @@ module ArbyModels
     self::N = 9
 
     sig Sudoku [
-      grid: Int[0...N] * Int[0...N] * (lone Int[1..N])
+      grid: Int * Int * (lone Int)
     ] {
       # grid[Int][Int].in?(1..N) and
       # all(i: 0...N, j: 0...N) { one grid[i][j] } and
@@ -50,13 +50,14 @@ module ArbyModels
 
     pred solved3[s: Sudoku] {
       m = Integer(Math.sqrt(N))
+      rng = lambda{|i| m*i...m*(i+1)}
 
       all(r: 0...N) {
         s.grid[r][Int] == (1..N) and
         s.grid[Int][r] == (1..N)
       } and
       all(c, r: 0...m) {
-        s.grid[m*c...m*(c+1)][m*r...m*(r+1)] == (1..N)
+        s.grid[rng[c]][rng[r]] == (1..N)
       }
     }
   end
@@ -73,18 +74,21 @@ module ArbyModels
       }.flatten(1)
     end
 
+    def self.parse2(str) Sudoku.new grid: 
+      str.split(/\s*;\s*/).map{|x| x.split(/\s*,\s*/).map(&:to_i)}
+    end
+
     def partial_instance
       bounds = Arby::Ast::Bounds.new
-      bounds.add_lower(Sudoku.grid, self.to_ts ** self.grid)
       indexes = (0...N) ** (0...N) - self.grid.project(0..1)
-      bounds.add_upper(Sudoku.grid, self.to_ts ** indexes ** (1..N))
+      bounds.bound(Sudoku.grid, self ** self.grid, self ** indexes ** (1..N))
       bounds.bound(Sudoku, self)
       bounds.bound_int(0..N)
       bounds
     end
 
     def solve
-      SudokuModel.solve(:solved, self.partial_instance)
+      SudokuModel.solve(:solved3, self.partial_instance)
     end
 
     def print
