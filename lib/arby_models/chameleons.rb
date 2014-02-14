@@ -1,7 +1,5 @@
 require 'arby/arby_dsl'
 
-# Arby.conf.sym_exe.convert_missing_fields_to_joins = true
-
 module ArbyModels
 module ChameleonExample
   extend Arby::Dsl

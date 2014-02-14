@@ -16,9 +16,10 @@ class ChameleonsTest < Test::Unit::TestCase
     @@timer = SDGUtils::Timing::Timer.new
   end
 
-  # def test_als
-  #   # puts ChameleonsViz.meta.to_als
-  # end
+  def test_als
+    # puts ChameleonsViz.meta.to_als
+    assert ChameleonsViz.compile
+  end
 
   def test_chameleon
     # puts Chameleons.meta.to_als
