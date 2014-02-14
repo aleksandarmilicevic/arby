@@ -1,5 +1,5 @@
 require 'my_test_helper'
-require 'arby_models/abz14/graph'
+require 'arby_models/graph'
 
 class GraphTest < Test::Unit::TestCase
   include SDGUtils::Testing::SmartSetup
