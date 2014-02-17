@@ -15,7 +15,7 @@ class GraphTest < Test::Unit::TestCase
   end
 
   def test_als
-    puts GraphModel.meta.to_als
+    puts! GraphModel.meta.to_als
     assert GraphModel.compile
   end
 
@@ -41,16 +41,30 @@ class GraphTest < Test::Unit::TestCase
   end
 
   def test_check_reach
-    sol = GraphModel.check_reach
+    sol = GraphModel.check_hampath_reach
     assert !sol.satisfiable? # assertion holds
   end
 
   def test_check_uniq
-    sol = GraphModel.check_uniq
+    sol = GraphModel.check_hampath_uniq
     assert !sol.satisfiable? # assertion holds
   end
 
-  def test_guided
+  def test_k_color_props
+    sol = GraphModel.check_kColor_props
+    assert !sol.satisfiable? # assertion holds
+  end
+
+  def test_clique_props
+    sol = GraphModel.check_clique_props
+    assert !sol.satisfiable? # assertion holds
+  end
+
+  def test_no_clique
+    GraphModel.no_clique
+  end
+
+  def _test_guided
     sol = GraphModel.run_hampath
     assert sol.satisfiable?
     sol2 = sol.next { # "$hampath_path" != sol["$hampath_path"] &&
