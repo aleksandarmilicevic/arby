@@ -176,7 +176,13 @@ module Arby
         @solving_params = [kind, args]
       end
 
-      def satisfiable?() @a4sol.satisfiable end
+      def satisfiable?()    @a4sol.satisfiable end
+      def unsatisfiable?()  !satisfiable? end
+      alias_method :sat?,   :satisfiable?
+      alias_method :unsat?, :unsatisfiable?
+      alias_method :pass?,  :unsatisfiable?
+      alias_method :fail?,  :satisfiable?
+
       def solving_time() @solving_time end
       def next(__locals={})
         if block_given?
