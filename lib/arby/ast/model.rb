@@ -42,7 +42,9 @@ module Arby
         ans
       end
 
-      def all_funs() funs + preds + assertions + facts end
+      def all_funs()     funs + preds + assertions + facts end
+      def any_fun(name)  all_funs.find{|f| f.name.to_s == name.to_s} end
+
       def checks() commands.select{|c| c.check?} end
       def runs()   commands.select{|c| c.run?} end
 

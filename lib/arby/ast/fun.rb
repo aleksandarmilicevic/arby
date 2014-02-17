@@ -19,7 +19,7 @@ module Arby
     class Fun
       include Checks
 
-      attr_reader :kind, :owner, :name, :arby_method_name, :args, :ret_type, :body
+      attr_reader :kind, :owner, :name, :args, :ret_type, :body
 
       class << self
 
@@ -125,7 +125,6 @@ module Arby
         @kind              = kind
         @owner             = hash[:owner]
         @name              = check_iden hash[:name].to_s.to_sym, "function name"
-        @arby_method_name = "#{@name}_alloy"
         @args              = hash[:args] || []
         @ret_type          = Arby::Ast::AType.get!(hash[:ret_type])
         @body              = hash[:body]
@@ -143,6 +142,9 @@ module Arby
       def arg_types()  args.map(&:type) end
       def full_type()  (arg_types + [ret_type]).reduce(nil, &ProductType.cstr_proc) end
       def full_name()  "#{owner}.#{name}" end
+
+      def arby_method_name() "#{@name}_alloy" end
+      def orig_method_name() "#{@name}_orig" end
 
       def arg(name)    args.find {|a| a.name == name} end
 

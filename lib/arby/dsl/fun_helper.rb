@@ -175,7 +175,7 @@ module Arby
       end
 
       # TODO: cleanup, decompose, break into methods
-      def _define_method_for_fun(fun, define_orig=true, define_alloy=true)
+      def _define_method_for_fun(fun)
         _catch_syntax_errors do
           proc = fun.body || proc{}
 
@@ -187,8 +187,7 @@ module Arby
 
           args_str = fun.args.map(&:name).map(&:to_s).join(", ")
           if fun.body.nil?
-            define_orig and
-              _define_method "def #{fun.name}(#{args_str}) end", __FILE__, __LINE__
+            _define_method "def #{fun.name}(#{args_str}) end", __FILE__, __LINE__
           else
             proc_src_loc = proc.source_location rescue nil
             orig_src, instr_src = if fun.body
@@ -197,38 +196,52 @@ module Arby
                                     ["", ""]
                                   end
             if proc_src_loc && orig_src
-              define_orig and
-                _define_method <<-RUBY, *proc_src_loc
-  def #{fun.name}(#{args_str})
-    if Arby.symbolic_mode?
-      #{instr_src}
-    else
-      #{orig_src}
-    end
-  end
-RUBY
-              define_alloy and
-                _define_method <<-RUBY
-  def #{fun.arby_method_name}(#{args_str})
-    #{instr_src}
-  end
-RUBY
-            elsif define_orig
-              #TODO: doesn't work for module methods (because of some scoping issues)
-              method_body_name = "#{fun.name}_body__#{SDGUtils::Random.salted_timestamp}"
-              _define_method method_body_name.to_sym, &proc
-              if fun.arity == proc.arity
-                _define_method fun.name.to_sym, &proc
-              else
-                arg_map_str = fun.args.map{|a| "#{a.name}: #{a.name}"}.join(", ")
-                _define_method <<-RUBY
+              _define_method <<-RUBY, *proc_src_loc
+                def #{fun.orig_method_name}(#{args_str})
+                  #{orig_src}
+                end
+              RUBY
+
+              _define_method <<-RUBY, *proc_src_loc
+                def #{fun.arby_method_name}(#{args_str})
+                  #{instr_src}
+                end
+              RUBY
+
+              if fun.procedure?
+                _define_method <<-RUBY, __FILE__, __LINE__+1
                   def #{fun.name}(#{args_str})
-                    shadow_methods_while({#{arg_map_str}}) do
-                      #{method_body_name}
+                    #{fun.orig_method_name}(#{args_str})
+                  end
+                RUBY
+              else
+              _define_method <<-RUBY, __FILE__, __LINE__+1
+                  def #{fun.name}(#{args_str})
+                    if Arby.symbolic_mode?
+                      f = meta.any_fun(#{fun.name.inspect}) # and f.curry(#{args_str})
+                    else
+                      #{fun.orig_method_name}(#{args_str})
                     end
                   end
                 RUBY
               end
+            else
+              fail "could not instrument source"
+              # #TODO: doesn't work for module methods (because of some scoping issues)
+              # method_body_name = "#{fun.name}_body__#{SDGUtils::Random.salted_timestamp}"
+              # _define_method method_body_name.to_sym, &proc
+              # if fun.arity == proc.arity
+              #   _define_method fun.name.to_sym, &proc
+              # else
+              #   arg_map_str = fun.args.map{|a| "#{a.name}: #{a.name}"}.join(", ")
+              #   _define_method <<-RUBY
+              #     def #{fun.name}(#{args_str})
+              #       shadow_methods_while({#{arg_map_str}}) do
+              #         #{method_body_name}
+              #       end
+              #     end
+              #   RUBY
+              # end
             end
           end
         end
