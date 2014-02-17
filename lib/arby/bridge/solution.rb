@@ -183,6 +183,13 @@ module Arby
       alias_method :pass?,  :unsatisfiable?
       alias_method :fail?,  :satisfiable?
 
+      def viz!()
+        fail_if_unsat
+        xml_file_name = "arby_instance.xml" #TODO: don't hardcode
+        @a4sol.writeXML(xml_file_name)
+        viz = Imports::VizGUI_RJB.new(false, xml_file_name, nil);
+      end
+
       def solving_time() @solving_time end
       def next(__locals={})
         if block_given?

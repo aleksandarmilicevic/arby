@@ -21,6 +21,7 @@ module Arby
       A4Tuple_RJB                = Rjb::import('edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple')
       A4TupleSet_RJB             = Rjb::import('edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet')
       TranslateAlloyToKodkod_RJB = Rjb::import('edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod')
+      VizGUI_RJB                 = Rjb::import('edu.mit.csail.sdg.alloy4viz.VizGUI')
 
       str = Rjb::import('java.lang.String')
       out = Rjb::import('java.lang.System').out
