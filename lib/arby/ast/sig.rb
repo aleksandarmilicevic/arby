@@ -24,12 +24,17 @@ module Arby
 
       def self.all_reachable_atoms(atoms, ans=Set.new)
         atoms.each do |a|
-          if ASig === a && !ans.member?(a)
-            ans << a
-            a.class.meta.fields(false).each do |fld|
-              fld_val = a.read_field(fld)
-              fld_val_atoms = fld_val.tuples.map(&:atoms).flatten
-              all_reachable_atoms(fld_val_atoms, ans)
+          case a
+          when TupleSet then all_reachable_atoms(a.tuples, ans)
+          when Tuple    then all_reachable_atoms(a.atoms, ans)
+          when ASig
+            if !ans.member?(a)
+              ans << a
+              a.class.meta.fields(false).each do |fld|
+                fld_val = a.read_field(fld)
+                fld_val_atoms = fld_val.tuples.map(&:atoms).flatten
+                all_reachable_atoms(fld_val_atoms, ans)
+              end
             end
           end
         end
@@ -46,9 +51,9 @@ module Arby
         def new(*a, &b)
           sig_inst = super
           meta().register_atom(sig_inst)
-          if Arby.symbolic_mode?
-            sig_inst.make_me_sym_expr
-          end
+          # if Arby.symbolic_mode?
+          #   sig_inst.make_me_sym_expr
+          # end
           sig_inst
         end
 
