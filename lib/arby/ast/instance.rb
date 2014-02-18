@@ -91,18 +91,25 @@ module Arby
         end
       end
 
-      def to_bounds
+      def to_bounds(lo_only=false)
         require 'arby/ast/bounds'
         bounds = Bounds.new
+        bnd_meth = lo_only ? :set_lower : :bound_exactly
         atoms.group_by(&:class).each do |cls, atoms|
-          bounds.bound_exactly(cls, atoms) if cls < Arby::Ast::ASig
+          if cls < Arby::Ast::ASig
+            bounds.send bnd_meth, cls, atoms
+          end
         end
-        @fld2tuples.each{|fld, ts| bounds.bound_exactly(fld, ts)}
+        @fld2tuples.each{|fld, ts|
+          bounds.send bnd_meth, fld, ts
+        }
         bounds
       end
 
+      def to_lo_bounds() to_bounds(true) end
+
       def to_s
-        atoms_str = atoms.map(&:label).join(', ')
+        atoms_str = atoms.map(&:__label).join(', ')
         "atoms:\n  #{atoms_str}\n" +
           "fields:\n  #{@fld2tuples}\n" +
           "skolems:\n  #{@skolem2tuples}"

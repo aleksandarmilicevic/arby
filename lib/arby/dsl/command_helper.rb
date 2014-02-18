@@ -90,7 +90,7 @@ module Arby
       end
 
       def __cmd(kind, name=nil, scope=nil, &body)
-        pred_name = name || "#{kind}_#{meta.checks.size}"
+        pred_name = name || "#{kind}_#{meta.commands.  size}"
         pred = nil
         if body
           pred = _create_fn(:pred, pred_name, {}, nil, &body)

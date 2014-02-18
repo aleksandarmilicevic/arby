@@ -5,6 +5,11 @@ require 'sdg_utils/timing/timer'
 
 module Arby
   module Bridge
+
+    def self.debug(str)
+      puts str if $pera
+    end
+
     class Compiler
       # @model     [Arby::Ast::Model]
       # @bounds    [Arby::Ast::Bounds]
@@ -45,11 +50,28 @@ module Arby
             [pred.name, ""]
           when Arby::Ast::CurriedFun
             _check_pred(pred)
-            [pred.name, ""]
+            if not pred.args.empty?
+              name = "run_#{pred.name}"
+              model = @model.clone
+              qdecl = pred.fun.args[pred.args.size..-1]
+              qbody = Arby::Ast::Expr::CallExpr.new nil, pred.fun, *(pred.args + qdecl)
+              cbody = if qdecl.empty?
+                        qbody
+                      else
+                        Arby::Ast::Expr::QuantExpr.some(qdecl, qbody)
+                      end
+              cmd = Arby::Ast::Command.new :run, name, scope, cbody
+              model.add_command cmd
+              @model = model
+              nil
+            else
+              [pred.name, ""]
+            end
           else
             [pred.to_s, ""]
           end
-        cmd_als = "run #{cmd_name} #{cmd_body} #{scope.to_als}"
+
+        cmd_als = cmd_name ? "run #{cmd_name} #{cmd_body} #{scope.to_als}" : ""
 
         sol = _execute(_parse(cmd_als), -1)
         sol.set_solving_params :solve, pred, scope
@@ -65,13 +87,13 @@ module Arby
       end
 
       def initialize(model, bounds=nil)
-        @model     = model
+        @model     = Arby::Ast::TypeChecker.get_arby_model(model)
         @bounds    = bounds
         @univ      = bounds ? bounds.extract_universe : nil
         @rep       = nil # we don't care to listen to reports
         @timer     = SDGUtils::Timing::Timer.new
 
-        if model && @bounds
+        if @model && @bounds
           __pi_atoms = @bounds.each_lower.map{ |what, ts|
             if Arby::Ast::TypeChecker.check_sig_class(what)
               fail unless ts.arity == 1
@@ -79,14 +101,14 @@ module Arby
             end
           }.compact.flatten(1).reject{|a| model.find_pi_sig_for_atom(a)}
           unless __pi_atoms.empty?
-            @model = model.extend do
+            __namer = Arby.short_alloy_printer_conf.atom_sig_namer
+            @model = @model.extend {
               __pi_atoms.each do |a|
-                one sig(Arby.short_alloy_printer_conf.atom_sig_namer[
-                          a.class.relative_name, a.__alloy_atom_id] < a.class) do
+                one sig(__namer[a.class.relative_name, a.__alloy_atom_id] < a.class) do
                   set_atom(a.__alloy_atom_id)
                 end
               end
-            end
+            }.meta
           end
         end
       end
@@ -117,9 +139,9 @@ module Arby
         fail "als model not set" unless @model
         als = @model.to_als + "\n" + addendum
 
-        # puts "parsing this"
-        # puts als
-        # puts "--------------------------"
+        Bridge::debug "parsing this"
+        Bridge::debug als
+        Bridge::debug "--------------------------"
 
         @a4world = AlloyCompiler.parse(als)
       end
@@ -172,14 +194,14 @@ module Arby
         opt.renameAtoms = false
         opt.partialInstance = partialInstanceStr
 
-        # puts "using command index--"
-        # puts command_index
-        # puts "---------------------"
+        Bridge::debug "using command index--"
+        Bridge::debug command_index
+        Bridge::debug "---------------------"
 
-        # puts "using bounds---------"
-        # puts partialInstanceStr.inspect
-        # puts "---------------------"
-        # puts partialInstanceStr
+        Bridge::debug "using bounds---------"
+        Bridge::debug partialInstanceStr
+        Bridge::debug "---------------------"
+        # Bridge::debug partialInstanceStr
 
         catch_alloy_errors {
           sigs = a4world.getAllReachableSigs

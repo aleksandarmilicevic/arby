@@ -197,12 +197,12 @@ module Arby
 
       def command_to_als(cmd)
         cmd_name = cmd.name.to_s
-        if cmd.fun && cmd.fun.body
+        if cmd.body
           name = (cmd.name.empty?) ? "" : "#{cmd_name} "
           @out.p "#{cmd.kind} #{name}"
           @out.pl "{"
           @out.in do
-            @out.pn [cmd.fun.sym_exe]
+            @out.pn [cmd.body_expr]
           end
           @out.pl
           @out.p "} "

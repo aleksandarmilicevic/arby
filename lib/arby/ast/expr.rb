@@ -690,9 +690,10 @@ module Arby
         end
 
         def to_s
-          pre = target ? "#{target}." : ""
-          "#{pre}#{fun}[#{args.join(', ')}]"
+          pre = target ? "#{target}." : "";
+          "#{pre}#{fun.name}[#{args.join(', ')}]"
         end
+        def inspect() to_s end
       end
 
       # ============================================================================

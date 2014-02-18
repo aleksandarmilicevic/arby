@@ -33,6 +33,7 @@ module Arby
       def extend_for_bounds(bnds)
         return self.clone unless bnds
         univ = bnds.extract_universe
+        return self.clone if univ.sig_atoms.empty?
         glbl = [@global, univ.sig_atoms.group_by{|a|
                   a.class.meta.oldest_ancestor || a.class
                 }.map{|sig_cls, atoms|
