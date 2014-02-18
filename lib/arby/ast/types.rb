@@ -21,13 +21,7 @@ module Arby
       end
 
       def self.forward_methods(from, to, inst_var_name="type")
-        to.class.instance_methods(false).each do |m|
-          unless from.class.instance_methods(false).member?(m)
-            from.singleton_class.class_eval <<-RUBY, __FILE__, __LINE__+1
-              def #{m}(*a, &b) @#{inst_var_name}.send #{m.inspect}, *a, &b end
-            RUBY
-          end
-        end
+        SDGUtils::Delegate.forward_methods(from, to, inst_var_name)
       end
 
       def self.get(obj, allow_nil=true)
