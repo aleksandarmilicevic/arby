@@ -11,6 +11,9 @@ module Arby
   class CMain
     include TestAndSet
 
+    SYMBOLIC_MODE = :symbolic
+    CONCRETE_MODE = :concrete
+
     def initialize
       reset_fields
     end
@@ -24,12 +27,22 @@ module Arby
 
     public
 
-    def exe_mode()             @exe_mode ||= :concrete end
-    def symbolic_mode?()       exe_mode == :symbolic end
-    def concrete_mode?()       exe_mode == :concrete end
+    def exe_mode()             @exe_mode ||= CONCRETE_MODE end
+    def symbolic_mode?()       exe_mode == SYMBOLIC_MODE end
+    def concrete_mode?()       exe_mode == CONCRETE_MODE end
     def restore_exe_mode(mode) @exe_mode = mode end
-    def set_symbolic_mode()    @exe_mode = :symbolic end
-    def set_concrete_mode()    @exe_mode = :concrete end
+    def set_symbolic_mode()    @exe_mode = SYMBOLIC_MODE end
+    def set_concrete_mode()    @exe_mode = CONCRETE_MODE end
+
+    def in_mode(mode)
+      curr_mode = @exe_mode
+      @exe_mode = mode
+      yield
+    ensure
+      restore_exe_mode(curr_mode)
+    end
+    def in_symbolic_mode() in_mode(SYMBOLIC_MODE){ yield } end
+    def in_concrete_mode() in_mode(CONCRETE_MODE){ yield } end
 
     def is_arby_file?(filename)
       @arby_files.member?(filename)
@@ -89,5 +102,6 @@ module Arby
            :is_arby_file?, :is_caller_from_arby?,
            :exe_mode, :symbolic_mode?, :concrete_mode?,
            :restore_exe_mode, :set_symbolic_mode, :set_concrete_mode,
+           :in_mode, :in_symbolic_mode, :in_concrete_mode,
            :to => proc{alloy}, :proc => true
 end
