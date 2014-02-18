@@ -195,7 +195,7 @@ module Arby
         SDGUtils::Delegate.forward_methods(self, @fun, "fun")
       end
 
-      def curry(*args) CurriedFun.new(@fun, @args + args) end
+      def curry(*args) CurriedFun.new(@fun, *(@args + args)) end
       alias_method :[], :curry
     end
   end
