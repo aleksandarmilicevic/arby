@@ -14,8 +14,12 @@ module Arby
       # @param op   [Arby::Ast::Op] --- binary operator
       # @param args [Array(Expr)]   --- operands
       def reduce_to_binary(op, *args)
-        fail "received only #{args.size} arg (#{args}) for #{op}" unless args.size > 1
-        args[1..-1].reduce(args[0]){|acc, rhs| apply(op, acc, rhs)}
+        if args.size == 1
+          args.first
+        else
+          fail "received only #{args.size} arg (#{args}) for #{op}" unless args.size > 1
+          args[1..-1].reduce(args[0]){|acc, rhs| apply(op, acc, rhs)}
+        end
       end
 
       def apply_call(lhs, fun, *args)
