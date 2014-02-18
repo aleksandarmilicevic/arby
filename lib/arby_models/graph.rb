@@ -38,13 +38,24 @@ module ArbyModels
       }
     }
 
-    pred max_clique[g: Graph, clq: (set Node)] {
+    pred maxClique[g: Graph, clq: (set Node)] {
       clique(g, clq) # and max!(clq.size)
     }
 
-    # pred no_clique[g: Graph] {
-    #   no(clq: (set Node)) | clique(g, clq)
+    # pred noClique[g: Graph] {
+    #   no(clq: (set Node)) { clq.size > 1 && clique(g, clq) }
     # }
+
+    # pred noClique[g: Graph] {
+    #   all(clq: (set Node)) { !(clq.size > 1 && clique(g, clq)) }
+    # }
+
+    pred noClique_1[g: Graph] {
+      # some g.nodes
+    }
+    pred noClique_2[g: Graph] {
+      some(clq: (set Node)) { clq.size > 1 && clique(g, clq) }
+    }
 
     pred noSymEdges[g: Graph] {
       no(e1, e2: g.edges) {
@@ -103,8 +114,20 @@ module ArbyModels
   end
 
   module GraphModel
-    def no_clique
-      sol = run_clique
+    def no_clique(scope=Scope5)
+      Arby.in_symbolic_mode do
+        $pera = 1
+        sol = solve noClique_1, *scope
+        puts sol.sat?
+
+        inst = sol.arby_instance
+        g = inst[inst.skolems.first]
+
+        ch = solve noClique_2[g], Arby::Ast::Bounds.from_atoms(g), *scope
+        puts ch.sat?
+
+        # binding.pry
+      end
     end
   end
 
