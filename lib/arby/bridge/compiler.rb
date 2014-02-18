@@ -35,8 +35,20 @@ module Arby
 
       def solve(pred, scope)
         cmd_name, cmd_body =
-          pred ? [pred, ""]
-               : ["find_model_#{SDGUtils::Random.salted_timestamp}", "{}"]
+          case pred
+          when NilClass
+            ["find_model_#{SDGUtils::Random.salted_timestamp}", "{}"]
+          when String, Symbol
+            [pred, ""]
+          when Arby::Ast::Fun
+            _check_pred(pred)
+            [pred.name, ""]
+          when Arby::Ast::CurriedFun
+            _check_pred(pred)
+            [pred.name, ""]
+          else
+            [pred.to_s, ""]
+          end
         cmd_als = "run #{cmd_name} #{cmd_body} #{scope.to_als}"
 
         sol = _execute(_parse(cmd_als), -1)
@@ -80,6 +92,10 @@ module Arby
       end
 
       private
+
+      def _check_pred(pred)
+        fail "cannot solve a non-pred function: #{pred}" unless pred.pred?
+      end
 
       # @see Compiler.execute_command
       # @result [Arby::Bridge::Solution]

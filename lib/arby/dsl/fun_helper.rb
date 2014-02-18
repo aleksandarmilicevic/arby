@@ -215,12 +215,13 @@ module Arby
                   end
                 RUBY
               else
-              _define_method <<-RUBY, __FILE__, __LINE__+1
-                  def #{fun.name}(#{args_str})
+                _define_method <<-RUBY, __FILE__, __LINE__+1
+                  def #{fun.name}(*a)
                     if Arby.symbolic_mode?
-                      f = meta.any_fun(#{fun.name.inspect}) # and f.curry(#{args_str})
+                      f = meta.any_fun(#{fun.name.inspect}) and
+                      f.curry(*a)
                     else
-                      #{fun.orig_method_name}(#{args_str})
+                      #{fun.orig_method_name}(*a[0...#{fun.arity}])
                     end
                   end
                 RUBY
