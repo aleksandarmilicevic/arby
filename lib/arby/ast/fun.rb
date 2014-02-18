@@ -148,6 +148,9 @@ module Arby
 
       def arg(name)    args.find {|a| a.name == name} end
 
+      def curry(*args) CurriedFun.new(self, *args) end
+      alias_method :[], :curry
+
       def sym_exe(inst_name="self")
         target = Fun.dummy_instance_expr(@owner, inst_name)
         __sym_exe(target)
@@ -177,5 +180,23 @@ module Arby
       end
     end
 
+    # ============================================================================
+    # == Class +CurriedFun+
+    #
+    # Represents a function applied to a number of arguments
+    #
+    # @attr :fun    [Fun]
+    # @attr :args   [Array]
+    # ============================================================================
+    class CurriedFun
+      attr_reader :fun, :args
+      def initialize(fun, *args)
+        @fun, @args = fun, args
+        SDGUtils::Delegate.forward_methods(self, @fun, "fun")
+      end
+
+      def curry(*args) CurriedFun.new(@fun, @args + args) end
+      alias_method :[], :curry
+    end
   end
 end
