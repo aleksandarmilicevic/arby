@@ -71,11 +71,24 @@ module Arby
       def check_sig_class(cls, supercls=Arby::Ast::ASig)
         Class === cls && cls < supercls
       end
-
       def check_sig_class!(cls, supercls=Arby::Ast::ASig, msg="")
         unless check_sig_class(cls, supercls)
           raise TypeError, "#{msg}#{cls} is not a #{supercls} class"
         end
+      end
+
+      def check_sig_atom(atom, supercls=Arby::Ast::ASig)
+        check_sig_class(atom.class, supercls)
+      end
+      def check_sig_atom!(atom, supercls=Arby::Ast::ASig, msg="")
+        unless check_sig_atom(atom, supercls)
+          raise TypeError, "#{msg}#{atom} is not a #{supercls} atom"
+        end
+      end
+
+      def check_field(fld) Field === fld end
+      def check_field!(fld)
+        check_field(fld) or raise TypeError, "#{fld} is not a field"
       end
 
       def check_arby_module(mod, model_cls=Arby::Ast::Model)
