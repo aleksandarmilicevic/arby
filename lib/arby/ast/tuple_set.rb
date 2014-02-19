@@ -132,6 +132,11 @@ module Arby
         wrap(ans_atoms, ans_type)
       end
 
+      def transpose()
+        ans_type  = _type && _type.transpose
+        wrap(atoms.reverse, ans_type)
+      end
+
       def _join_fld(fld)
         fname, ftype = case fld
                        when Field          then [fld.getter_sym, fld.full_type]
@@ -189,7 +194,10 @@ module Arby
       def self.wrap(t, type=nil)
         type = AType.get!(type) if type
         case t
-        when TupleSet then t #TODO: check and set type if unset
+        when TupleSet
+          TypeChecker.check_subtype!(type, t.__type) if t.__type && type
+
+          t
         when AType
           TupleSet.new(type, [t.columns])
         else
@@ -307,6 +315,11 @@ module Arby
         wrap(@tuples.map{|t| t.project(*args)}, ans_type)
       end
 
+      def transpose
+        ans_type = _type && _type.transpose
+        wrap(@tuples.map(&:transpose), ans_type)
+      end
+
       def domain(other)
         ans_tuples = wrap(other).tuples.select{|t| self.contains?(t.project(0))}
         wrap(ans_tuples, other.__type)
@@ -327,6 +340,7 @@ module Arby
       alias_method :plus!,  :union!
       alias_method :minus,  :difference
       alias_method :minus!, :difference!
+      alias_method :~,      :transpose
 
       def inspect(sep=",\n") "{" + @tuples.map(&:to_s).join(sep) + "}" end
       def to_s()             TupleSet.unwrap(self).to_s end
