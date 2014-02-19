@@ -58,7 +58,6 @@ module Arby
 
     # ----------------------------------------------------------------
     # Class +BoundBuilder+
-    #
     # ----------------------------------------------------------------
     class BoundBuilder
       def initialize(kind, bounds)
@@ -69,6 +68,35 @@ module Arby
     end
 
     # ----------------------------------------------------------------
+    # Class +FieldFix+
+    # ----------------------------------------------------------------
+    class FieldFix
+      attr_reader :field, :idx, :atom
+
+      def initialize(*args)
+        if args.size == 1 && args.first.is_a?(Array)
+          init(*args.first)
+        else
+          init(*args)
+        end
+      end
+
+      def init(field, idx, atom)
+        TypeChecker.check_field!(field)
+        TypeChecker.check_sig_atom!(atom)
+        @field, @idx, @atom = field, idx, atom
+      end
+
+      def to_s()    "#{@field.owner.relative_name}.#{@field.name}:#{@idx}:#{@atom}" end
+      def inspect() to_s end
+
+      def hash()    to_s.hash end
+      def ==(other) self.class == other.class && to_s == other.to_s end
+      alias_method  :eql?, :==
+    end
+
+
+    # ----------------------------------------------------------------
     # Class +Bounds+
     #
     # Rel: [Class(Arby::Ast::Sig), Arby::Ast::Field]
@@ -77,15 +105,30 @@ module Arby
     # @attr fld_lowers, fld_uppers [Hash(Rel, Arby::Ast::TupleSet)]
     # ----------------------------------------------------------------
     class Bounds
-
       def self.from_atoms(*atoms)
         require 'arby/ast/instance'
         Instance.from_atoms(*atoms).to_bounds
       end
 
+      def self.fix_atoms(*args)
+        bounds = Bounds.new
+        ASig.all_reachable_atoms(args).group_by(&:class).each do |cls, atoms|
+          if cls < Arby::Ast::ASig
+            bounds.lo[cls] = atoms
+            cls.meta.fields(false).each do |fld|
+              atoms.each do |a|
+                bounds[fld, 0, a] = [a] ** a.read_field(fld)
+              end
+            end
+          end
+        end
+        bounds
+      end
+
       def initialize
         @lowers = {}
         @uppers = {}
+        @fixes  = {}
       end
 
       def bound(what, lower, upper=nil)
@@ -101,6 +144,11 @@ module Arby
         self
       end
 
+      def fix(what, tuple_set)
+        ff = wrap_field_fix(what)
+        set_bound(@fixes, ff, tuple_set)
+      end
+
       def add_lower(what, tuple_set)
         return unless tuple_set
         add_bound(@lowers, what, tuple_set)
@@ -114,7 +162,15 @@ module Arby
       def set_lower(what, tuple_set) set_bound(@lowers, what, tuple_set) end
       def set_upper(what, tuple_set) set_bound(@uppers, what, tuple_set) end
 
-      alias_method :[]=, :bound_exactly
+      def []=(*args)
+        return self if args.empty?
+        if args.size > 2 || args.first.is_a?(Hash) || args.first.is_a?(Array)
+          ff = wrap_field_fix(*args[0...-1])
+          fix ff, args[-1]
+        else
+          bound_exactly(*args)
+        end
+      end
 
       def hi() BoundBuilder.new(:upper, self) end
       def lo() BoundBuilder.new(:lower, self) end
@@ -171,6 +227,7 @@ module Arby
 universe = #{t_to_s[univ.atoms]}
 #{bounds_to_str[:lowers, @lowers]}
 #{bounds_to_str[:uppers, @uppers]}
+#{bounds_to_str[:fix, @fixes]}
 """
         ser += "ints = <#{@ints.join(', ')}>" if @ints
         ser
@@ -194,7 +251,6 @@ universe = #{t_to_s[univ.atoms]}
       def set_bound(where, what, tuple_set)
         type = check_boundable(what)
         tuple_set = TupleSet.wrap(tuple_set, type)
-        # check_bound(what, tuple_set)
         ts = get_or_new(where, what, type)
         ts.clear!
         ts.union!(tuple_set)
@@ -204,16 +260,9 @@ universe = #{t_to_s[univ.atoms]}
       def add_bound(where, what, tuple_set)
         type = check_boundable(what)
         tuple_set = TupleSet.wrap(tuple_set, type)
-        # check_bound(what, tuple_set)
         ts = get_or_new(where, what, type)
         ts.union!(tuple_set)
         self
-      end
-
-      def check_bound(what, tuple_set)
-        type = check_boundable(what)
-        TypeChecker.check_subtype!(type, tuple_set._type)
-        type
       end
 
       def get_or_new(col, what, type)
@@ -222,17 +271,30 @@ universe = #{t_to_s[univ.atoms]}
 
       def type_for_boundable(what)
         case
-        when Field === what then (what.ordering?) ? what.type : what.full_type
-        when TypeChecker.check_sig_class(what) then what.to_atype
+        when Field === what
+          (what.ordering?) ? what.type : what.full_type
+        when TypeChecker.check_sig_class(what)
+          what.to_atype
+        when FieldFix === what
+          what.field.full_type
         else
           nil
         end
       end
 
       def check_boundable(what)
-        type_for_boundable(what) or (
-          msg = "`#{what}' not boundable (expected Field, Class<Sig>, or AType<Int>)" and
-          raise(TypeError, msg))
+        type_for_boundable(what) or
+          raise TypeError,
+                "`#{what}' not boundable " +
+                "(expected Field, Class<Sig>, AType<Int>, or Hash<Atom, Field>)"
+      end
+
+      def wrap_field_fix(*what)
+        if what.size == 1 && what.first.is_a?(FieldFix)
+          what.first
+        else
+          FieldFix.new(*what)
+        end
       end
     end
 
