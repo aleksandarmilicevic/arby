@@ -240,7 +240,8 @@ module Arby
         @arby_instance ||= Translator.to_arby_instance(instance(), univ, compiler.model)
       end
 
-      def [](key) arby_instance()[key] end
+      def [](key)   arby_instance()[key] end
+      def skolems() arby_instance().skolems end
 
       private
 
