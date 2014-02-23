@@ -5,6 +5,10 @@ require 'arby/bridge/helpers'
 require 'arby/bridge/translator'
 require 'sdg_utils/proxy'
 
+require 'sdg_utils/timing/timer'
+
+$sol_timer = SDGUtils::Timing::Timer.new
+
 module Arby
   module Bridge
 
@@ -28,10 +32,12 @@ module Arby
           fail "Union types not supported: #{a4type.toString}" unless union_types.size==1
           @prim_sigs = java_to_ruby_array(union_types.get(0))
         end
-        @signature = @prim_sigs.map(&:toString).join(" -> ")
+        @prim_sig_names = @prim_sigs.map(&:toString)
+        @signature = @prim_sig_names.join(" -> ")
       end
 
-      def prim_sigs() @prim_sigs end
+      def prim_sigs()      @prim_sigs end
+      def prim_sig_names() @prim_sig_names end
       def signature() @signature end
       def arity()     @prim_sigs.size end
       def to_s()      @signature end
@@ -212,7 +218,9 @@ module Arby
           end
           Compiler.new(m2.meta, bnds).send @solving_params.first, *@solving_params.last
         else
-          Solution.new(@a4sol.next(), @compiler)
+          $sol_timer.time_it("next") {
+            Solution.new(@a4sol.next(), @compiler)
+          }
         end
       end
 
@@ -221,7 +229,9 @@ module Arby
       # @see SolutionConv#to_instance
       # @return [Arby::Ast::Instance]
       def instance()
-        @instance ||= SolutionConv.to_instance(@compiler._a4world, @a4sol)
+        @instance ||= $sol_timer.time_it("inst") {
+          SolutionConv.to_instance(@compiler._a4world, @a4sol)
+        }
       end
 
       # Translates the underlying solution from Alloy to aRby:
@@ -237,7 +247,13 @@ module Arby
       # @return [Hash(String, Sig)] - a map of atom labels to aRby atoms
       def arby_instance()
         return Arby::Ast::Instance.new unless satisfiable?
-        @arby_instance ||= Translator.to_arby_instance(instance(), univ, compiler.model)
+        @arby_instance ||=
+          begin
+            inst = instance()
+            $sol_timer.time_it("arby_instance") {
+              Translator.to_arby_instance(inst, univ, compiler)
+            }
+          end
       end
 
       def [](key)   arby_instance()[key] end

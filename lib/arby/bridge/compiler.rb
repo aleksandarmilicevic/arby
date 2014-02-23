@@ -32,6 +32,10 @@ module Arby
       def univ()      @univ end
       def _a4world()  @a4world end
 
+      def sigs()       @sigs ||= model.reachable_sigs end
+      def type2atype() @type2atype ||= {} end
+      def type2sig()   @type2sig ||= {} end
+
       # @see Compiler.all_fields
       def all_fields
         fail_if_not_parsed
@@ -93,13 +97,8 @@ module Arby
         @rep       = nil # we don't care to listen to reports
         @timer     = SDGUtils::Timing::Timer.new
 
-        if @model && @bounds
-          __pi_atoms = @bounds.each_lower.map{ |what, ts|
-            if Arby::Ast::TypeChecker.check_sig_class(what)
-              fail unless ts.arity == 1
-              ts.tuples.map{|t| t.atom(0)}
-            end
-          }.compact.flatten(1).reject{|a| model.find_pi_sig_for_atom(a)}
+        if @model && @univ
+          __pi_atoms = @univ.sig_atoms.reject{|a| find_pi_sig_for_atom(a)}
           unless __pi_atoms.empty?
             __namer = Arby.short_alloy_printer_conf.atom_sig_namer
             @model = @model.extend {
@@ -114,6 +113,14 @@ module Arby
       end
 
       private
+
+      def find_pi_sig_for_atom(atom)
+        sigs.find{ |s|
+          s.meta.atom? and
+          atom.is_a?(s.superclass) and
+          s.meta.atom_id == atom.__alloy_atom_id
+        }
+      end
 
       def _check_pred(pred)
         fail "cannot solve a non-pred function: #{pred}" unless pred.pred?
@@ -140,7 +147,7 @@ module Arby
         als = @model.to_als + "\n" + addendum
 
         Bridge::debug "parsing this"
-        Bridge::debug als.inspect
+        Bridge::debug als
         Bridge::debug "--------------------------"
 
         @a4world = AlloyCompiler.parse(als)
@@ -192,6 +199,7 @@ module Arby
         opt = A4Options_RJB.new
         opt.solver = opt.solver.MiniSatJNI #SAT4J #MiniSatJNI
         opt.renameAtoms = false
+        opt.createAtomRelations = true
         opt.partialInstance = partialInstanceStr
 
         Bridge::debug "using command index--"
@@ -199,7 +207,7 @@ module Arby
         Bridge::debug "---------------------"
 
         Bridge::debug "using bounds---------"
-        Bridge::debug partialInstanceStr.inspect
+        Bridge::debug partialInstanceStr
         Bridge::debug "---------------------"
         # Bridge::debug partialInstanceStr
 

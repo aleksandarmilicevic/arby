@@ -8,6 +8,7 @@ module Arby
   module Ast
 
     module TypeMethodsHelper
+      #TODO: slow
       def add_methods_for_type()
         return if @type.nil? || @type.none?
         cls = (class << self; self end)
@@ -185,7 +186,6 @@ module Arby
         @type = type || AType.interpolate(@tuples.map(&:_type))
         TypeChecker.assert_type(@type) if @type && !@type.none?
         @target = @tuples # for MDelegator
-        # (type.scalar?) ? super(@tuples.first) : super(@tuples)
         add_methods_for_type
       end
 
@@ -196,7 +196,6 @@ module Arby
         case t
         when TupleSet
           TypeChecker.check_subtype!(type, t.__type) if t.__type && type
-
           t
         when AType
           TupleSet.new(type, [t.columns])

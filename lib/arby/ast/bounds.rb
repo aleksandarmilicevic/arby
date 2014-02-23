@@ -18,20 +18,20 @@ module Arby
     class Universe
 
       # Labels all atoms in +universe+ to make sure all of them have
-      # unique labels in the format of '<sig_name>$<index>'
+      # unique labels in the format of '<sig_name><index>'
       #
       # @param universe [Array] - list of all atoms
       def initialize(universe, sig_namer=nil)
         @universe = universe.dup
         @atom2label = {}
-        @sig_namer ||= Arby.conf.alloy_printer.sig_namer
+        @sig_namer = sig_namer ||= Arby.conf.alloy_printer.sig_namer
         @universe.group_by(&:class).each do |cls, atoms|
           if cls <= Integer
             atoms.each{|i| @atom2label[i] = "#{i}"}
           else
             atoms.each_with_index{|a, x|
               a.__alloy_atom_id = x
-              a.__label = "#{@sig_namer[cls]}$#{x}"
+              a.__label = Arby.conf.alloy_printer.atom_sig_namer[a, x]
               @atom2label[a] = a.__label
             }
           end
@@ -53,6 +53,14 @@ module Arby
               what.to_s
             end
           end
+      end
+
+      def format(what)
+        if what.is_a? ASig
+          "#{@sig_namer[what.class]}$#{label(what)}"
+        else
+          label(what)
+        end
       end
     end
 
@@ -201,7 +209,7 @@ module Arby
         pconf ||= Arby.conf.alloy_printer
         univ ||= extract_universe(pconf.sig_namer)
 
-        t_to_s =  proc{|t|  "<" + t.map{|a| univ.label(a)}.join(', ') + ">"}
+        t_to_s =  proc{|t|  "<" + t.map{|a| univ.format(a)}.join(', ') + ">"}
         ts_to_s = proc{|ts| "{" + ts.map{|t| t_to_s[t]}.join('') + "}"}
 
         bounds_to_str = proc{|prefix, var|

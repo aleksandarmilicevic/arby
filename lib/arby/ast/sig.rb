@@ -231,7 +231,7 @@ module Arby
         cls = self.class
         id_cnt = cls.instance_variable_get("@sig_id_cnt") || 0
         @__atom_id = id_cnt
-        @__label = "#{cls.relative_name}$#{id_cnt}"
+        @__label = "#{cls.relative_name}#{id_cnt}"
         cls.instance_variable_set("@sig_id_cnt", id_cnt + 1)
 
         init_fld_values(*args)

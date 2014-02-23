@@ -49,7 +49,13 @@ module Arby
         when Arby::Ast::Model; model_to_als(arby_obj)
         when Class
           if arby_obj < Arby::Ast::ASig
-            sig_to_als(arby_obj)
+            # sig_to_als(arby_obj)
+            if arby_obj.meta.atom?
+              atomsig_to_als(arby_obj)
+            else
+              sig_to_als(arby_obj)
+            end
+
             # sig_cls = arby_obj
             # if sig_cls.meta.enum?
             #   enum_to_als(sig_cls)
@@ -84,7 +90,7 @@ module Arby
           @out.pl "module #{model.relative_name}"
 
           # print builtin opens
-          model.all_reachable_sigs.select(&:ordered?).each do |s|
+          model.reachable_sigs.select(&:ordered?).each do |s|
             sname = @conf.sig_namer[s]
             @out.pl "open util/ordering[#{sname}] as #{sname}_ord"
           end
@@ -123,6 +129,12 @@ module Arby
         sig_name = @conf.sig_namer[sig]
         enums = sig.meta.subsigs.map{|e| @conf.sig_namer[e]}.join(", ")
         @out.pl "enum #{sig_name} {#{enums}}"
+      end
+
+      def atomsig_to_als(sig)
+        psig_str    = @conf.sig_namer[sig.superclass]
+        atomsig_str = @conf.atom_sig_namer[sig, sig.meta.atom_id]
+        @out.pl "atomsig #{atomsig_str} : #{psig_str}"
       end
 
       def sig_to_als(sig)

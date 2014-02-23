@@ -15,7 +15,8 @@ module Arby
     SDGUtils::Config.new do |c|
       c.sig_namer = lambda{|sig|
         case sig
-        when String, Symbol then sig.to_s
+        when String, Symbol  then sig.to_s
+        when Arby::Ast::ASig then c.sig_namer[sig.class]
         when Class
           if sig < Arby::Ast::ASig
             if sig.meta.atom?
@@ -33,7 +34,7 @@ module Arby
       c.prim_sig_namer = lambda{|sig| sig.relative_name}
       c.atom_sig_namer = lambda{|sig, atom_id|
         sc = (Class === sig) ? sig.superclass : sig
-        "PI__#{c.sig_namer[sc]}__#{atom_id}"}
+        "#{c.sig_namer[sc]}__#{atom_id}"}
       c.fun_namer = lambda{|fun| fun.name}
       c.arg_namer = lambda{|fld| fld.name}
     end
