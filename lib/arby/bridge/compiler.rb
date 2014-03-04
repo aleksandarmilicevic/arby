@@ -7,7 +7,7 @@ module Arby
   module Bridge
 
     def self.debug(str)
-      puts str if $pera
+      # puts str if $pera
     end
 
     class Compiler
@@ -200,6 +200,7 @@ module Arby
         opt.solver = opt.solver.MiniSatJNI #SAT4J #MiniSatJNI
         opt.renameAtoms = false
         opt.createAtomRelations = true
+        opt.higherOrderSolver = true
         opt.partialInstance = partialInstanceStr
 
         Bridge::debug "using command index--"

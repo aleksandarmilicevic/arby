@@ -60,8 +60,8 @@ class GraphTest < Test::Unit::TestCase
     assert !sol.satisfiable? # assertion holds
   end
 
-  def test_no_clique
-    GraphModel.no_clique
+  def test_noClique
+    GraphModel.run_noClique
   end
 
   def _test_guided

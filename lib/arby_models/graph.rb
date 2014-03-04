@@ -44,21 +44,20 @@ module ArbyModels
       clique(g, clq) # and max!(clq.size)
     }
 
-    # pred noClique[g: Graph] {
-    #   no(clq: (set Node)) { clq.size > 1 && clique(g, clq) }
-    # }
+    pred noClique[g: Graph] {
+      no(clq: (set Node)) { clq.size > 1 && clique(g, clq) }
+    }
 
     # pred noClique[g: Graph] {
     #   all(clq: (set Node)) { !(clq.size > 1 && clique(g, clq)) }
     # }
-
-    pred noClique_1[g: Graph] {
-      some g.nodes and
-      some g.edges
-    }
-    pred noClique_2[g: Graph] {
-      some(clq: (set Node)) { clq.size > 1 && clique(g, clq) }
-    }
+    # pred noClique_1[g: Graph] {
+    #   some g.nodes and
+    #   some g.edges
+    # }
+    # pred noClique_2[g: Graph] {
+    #   some(clq: (set Node)) { clq.size > 1 && clique(g, clq) }
+    # }
 
     pred noSymEdges[g: Graph] {
       no(e1, e2: g.edges) {
@@ -113,42 +112,44 @@ module ArbyModels
     run :clique,          *Scope5
     check :clique_props,  *Scope5
 
+   run :noClique,         *Scope5
+
     # fix :clique, :max => lambda { |g, clq| clq.size }
   end
 
-  module GraphModel
-    def no_clique(scope=Scope5)
-      Arby.in_symbolic_mode do
-        $pera = 2
-        sol = solve noClique_1, *scope
-        while sol.sat? do
-          inst = sol.arby_instance
-          g = inst[inst.skolems.first]
-          s = g.edges.domain(inst[src])
-          d = g.edges.domain(inst[dst])
-          puts "candidate"
-          puts "  nodes: " + g.nodes.to_s.gsub("\n", " ")
-          puts "  edges: #{(~s).(d)}"
-          # bnd = inst.to_bounds
-          bnd = Arby::Ast::Bounds.fix_atoms(g)
-          ch = solve noClique_2[g], bnd, *scope
-          break if ch.pass?
-          clq = ch[ch.skolems.first]
-          binding.pry
-          puts "finding next"
-          sol = sol.next(:clq => clq) { |g|
-            not (clq.size > 1 && clique(g, clq))
-          }
-        end
-        if sol.sat?
-          puts "solution found"
-          puts sol
-        else
-          puts "no solution found"
-        end
-      end
-    end
-  end
+  # module GraphModel
+  #   def no_clique(scope=Scope5)
+  #     Arby.in_symbolic_mode do
+  #       $pera = 2
+  #       sol = solve noClique_1, *scope
+  #       while sol.sat? do
+  #         inst = sol.arby_instance
+  #         g = inst[inst.skolems.first]
+  #         s = g.edges.domain(inst[src])
+  #         d = g.edges.domain(inst[dst])
+  #         puts "candidate"
+  #         puts "  nodes: " + g.nodes.to_s.gsub("\n", " ")
+  #         puts "  edges: #{(~s).(d)}"
+  #         # bnd = inst.to_bounds
+  #         bnd = Arby::Ast::Bounds.fix_atoms(g)
+  #         ch = solve noClique_2[g], bnd, *scope
+  #         break if ch.pass?
+  #         clq = ch[ch.skolems.first]
+  #         binding.pry
+  #         puts "finding next"
+  #         sol = sol.next(:clq => clq) { |g|
+  #           not (clq.size > 1 && clique(g, clq))
+  #         }
+  #       end
+  #       if sol.sat?
+  #         puts "solution found"
+  #         puts sol
+  #       else
+  #         puts "no solution found"
+  #       end
+  #     end
+  #   end
+  # end
 
   class GraphModel::Graph
     def find_hampath

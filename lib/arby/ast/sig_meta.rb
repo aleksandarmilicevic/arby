@@ -140,7 +140,7 @@ module Arby
       def add_field2(arg, hash={})
         opts = hash.merge :parent => sig_cls,
                           :name   => arg.name.to_s,
-                          :type   => arg.type,
+                          :type   => arg._type,
                           :expr   => arg._expr
         fld = Field.new opts
         @fields << fld

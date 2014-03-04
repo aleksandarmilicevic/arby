@@ -72,6 +72,5 @@ module ArbyModels::AlloySample::Puzzles
     }
 
     run :p10, Person => exactly(10), Int => 5 do puzzle end
-
   end
 end

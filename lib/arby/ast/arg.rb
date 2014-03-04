@@ -65,6 +65,7 @@ module Arby
       def type()  @type ||= AType.get(expr) end
       def decl()  @expr || type end
       def _expr() @expr end
+      def _type() @type end
 
       def scalar?()    @type.scalar? end
       def primitive?() scalar? && @type.range.primitive? end
