@@ -41,23 +41,17 @@ module ArbyModels
     }
 
     pred maxClique[g: Graph, clq: (set Node)] {
-      clique(g, clq) # and max!(clq.size)
+      clique(g, clq) and
+      no(clq2: (set Node)) {
+        clq2 != clq and
+        clique(g, clq2) and
+        clq2.size > clq.size
+      }
     }
 
-    pred noClique[g: Graph] {
-      no(clq: (set Node)) { clq.size > 1 && clique(g, clq) }
+    pred noClique[g: Graph, n: Int] {
+      no(clq: (set Node)) { clq.size == n && clique(g, clq) }
     }
-
-    # pred noClique[g: Graph] {
-    #   all(clq: (set Node)) { !(clq.size > 1 && clique(g, clq)) }
-    # }
-    # pred noClique_1[g: Graph] {
-    #   some g.nodes and
-    #   some g.edges
-    # }
-    # pred noClique_2[g: Graph] {
-    #   some(clq: (set Node)) { clq.size > 1 && clique(g, clq) }
-    # }
 
     pred noSymEdges[g: Graph] {
       no(e1, e2: g.edges) {
@@ -100,7 +94,25 @@ module ArbyModels
       }
     }
 
-    Scope5 = [5, Int=>6, Graph=>exactly(1), Node=>5, Edge=>10]
+    # assertion maxClique_props {
+    #   all(g: Graph, clq: (set Node)) {
+    #     n = g.nodes.size
+    #     if maxClique(g, clq) && n == clq.size && noSymEdges(g)
+    #       g.edges.size == n*(n-1)/2
+    #     end
+    #   }
+    # }
+
+    assertion maxClique_props {
+      all(g: Graph, clq: (set Node)) {
+        if g.nodes.size == 2 and some g.edges and maxClique(g, clq)
+          g.nodes == clq
+        end
+      }
+    }
+
+
+    self::Scope5 = [5, Int=>5, Graph=>exactly(1), Node=>5, Edge=>10]
 
     run :hampath,         *Scope5
     check :hampath_reach, *Scope5
@@ -112,7 +124,9 @@ module ArbyModels
     run :clique,          *Scope5
     check :clique_props,  *Scope5
 
-   run :noClique,         *Scope5
+    run :noClique,        *Scope5
+
+    check :maxClique_props, *Scope5
 
     # fix :clique, :max => lambda { |g, clq| clq.size }
   end
@@ -157,6 +171,14 @@ module ArbyModels
       sol = GraphModel.solve :hampath, bnds
       if sol.satisfiable?
       then sol["$hampath_path"].project(1)
+      else nil end
+    end
+
+    def find_maxClique
+      bnds = Arby::Ast::Bounds.from_atoms(self)
+      sol = GraphModel.solve :maxClique, bnds
+      if sol.satisfiable?
+      then sol["$maxClique_clq"]
       else nil end
     end
   end
