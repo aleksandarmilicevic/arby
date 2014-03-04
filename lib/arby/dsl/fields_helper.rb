@@ -24,6 +24,8 @@ module Arby
           when SDGUtils::DSL::MissingBuilder
             pending_syms << d.name
             d.consume
+          when Arby::Ast::Arg
+            decls << d
           when Hash
             _traverse_fields_hash d, proc{ |arg_name, dom|
               l_add_pending[pending_syms, dom, decls]

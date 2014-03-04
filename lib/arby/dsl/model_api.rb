@@ -109,6 +109,7 @@ module Arby
         ensure
           Arby.meta.close_model(mod)
           # delegate all method_missing to its meta
+          # TODO: don't delegate all, just for arby stuff
           mod.ruby_module.instance_variable_set "@target", mod
           mod.ruby_module.send :extend, SDGUtils::MDelegator
         end

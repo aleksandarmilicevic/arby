@@ -151,6 +151,8 @@ module Arby
       def curry(*args) CurriedFun.new(self, *args) end
       alias_method :[], :curry
 
+      def constrain(&block) ConstrainedFun.new(self, block) end
+
       def sym_exe(inst_name="self")
         target = Fun.dummy_instance_expr(@owner, inst_name)
         __sym_exe(target)
@@ -197,6 +199,20 @@ module Arby
 
       def curry(*args) CurriedFun.new(@fun, *(@args + args)) end
       alias_method :[], :curry
+    end
+
+    # ============================================================================
+    # == Class +ConstrainedFun+
+    #
+    # @attr :fun    [Fun]
+    # @attr :bloc   [Proc]
+    # ============================================================================
+    class ConstrainedFun
+      attr_reader :fun, :block
+      def initialize(fun, block)
+        @fun, @block = fun, block
+        SDGUtils::Delegate.forward_methods(self, @fun, "fun")
+      end
     end
   end
 end

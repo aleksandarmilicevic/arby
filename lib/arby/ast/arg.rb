@@ -85,6 +85,10 @@ module Arby
         name.gsub(/[^a-zA-Z0-9_]/, "_")
       end
 
+      def to_e
+        Expr::Var.new @name, type
+      end
+
       private
 
       def __update_type(type)

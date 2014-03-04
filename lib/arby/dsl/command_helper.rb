@@ -99,7 +99,7 @@ module Arby
           raise SyntaxError, "neither name nor body specified" unless name
           mname = "#{kind}_#{name}"
           __eval_meth mname, <<-RUBY, __FILE__, __LINE__+1
-          def self.#{mname}(*args) exe_cmd #{name.inspect}, *args end
+          def self.#{mname}(*args) meta.exe_cmd #{name.inspect}, *args end
           RUBY
         end
         cmd = Arby::Ast::Command.new(kind, name, scope, pred)

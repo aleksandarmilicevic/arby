@@ -7,7 +7,7 @@ module Arby
   module Bridge
 
     def self.debug(str)
-      # puts str if $pera
+      # puts str # if $pera
     end
 
     class Compiler
@@ -52,17 +52,34 @@ module Arby
           when Arby::Ast::Fun
             _check_pred(pred)
             [pred.name, ""]
+          when Arby::Ast::ConstrainedFun
+            _check_pred(pred)
+            model = @model.extend.meta
+            aux_pred_name = "aux_#{pred.name}_#{SDGUtils::Random.salted_timestamp}"
+            aux_pred = model.ruby_module.pred :name => aux_pred_name,
+                                              :args => pred.args,
+                                              :body => pred.block
+            name = "#{pred.name}"
+            qdecl = pred.fun.args
+            call_p_aux = Arby::Ast::Expr::CallExpr.new nil, aux_pred, *qdecl.map(&:to_e)
+            call_p = Arby::Ast::Expr::CallExpr.new nil, pred.fun, *qdecl.map(&:to_e)
+            qbody = call_p_aux.and(call_p)
+            cbody = Arby::Ast::Expr::QuantExpr.exist(qdecl, qbody)
+            cmd = Arby::Ast::Command.new :run, name, scope, cbody
+            model.add_command cmd
+            @model = model
+            nil
           when Arby::Ast::CurriedFun
             _check_pred(pred)
             if not pred.args.empty?
-              name = "run_#{pred.name}"
+              name = "#{pred.name}"
               model = @model.clone
               qdecl = pred.fun.args[pred.args.size..-1]
               qbody = Arby::Ast::Expr::CallExpr.new nil, pred.fun, *(pred.args + qdecl)
               cbody = if qdecl.empty?
                         qbody
                       else
-                        Arby::Ast::Expr::QuantExpr.some(qdecl, qbody)
+                        Arby::Ast::Expr::QuantExpr.exist(qdecl, qbody)
                       end
               cmd = Arby::Ast::Command.new :run, name, scope, cbody
               model.add_command cmd
@@ -201,6 +218,7 @@ module Arby
         opt.renameAtoms = false
         opt.createAtomRelations = true
         opt.higherOrderSolver = true
+        opt.noOverflow = true
         opt.partialInstance = partialInstanceStr
 
         Bridge::debug "using command index--"

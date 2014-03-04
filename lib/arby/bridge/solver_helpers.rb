@@ -22,7 +22,6 @@ module Arby
         grps = scope_bounds.group_by{|e| e.is_a? Arby::Ast::Bounds}
         bounds = Array(grps[true]).first
         scope = Arby::Dsl::CommandHelper.parse_scope(self, *Array(grps[false]))
-
         Arby::Bridge::Compiler.solve(self, pred, scope, bounds)
       end
 

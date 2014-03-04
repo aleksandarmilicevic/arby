@@ -5,7 +5,7 @@ module Arby
   module Bridge
     module Imports
 
-      Rjb::load('vendor/alloy.jar', ['-Xmx1024m', '-Xms256m'])
+      Rjb::load('vendor/alloy.jar', ['-Xmx1024m', '-Xms256m', '-ea'])
 
       A4Reporter_RJB             = Rjb::import('edu.mit.csail.sdg.alloy4.A4Reporter')
       CompUtil_RJB               = Rjb::import('edu.mit.csail.sdg.alloy4compiler.parser.CompUtil')

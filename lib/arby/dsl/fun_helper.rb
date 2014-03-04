@@ -217,8 +217,11 @@ module Arby
               else
                 _define_method <<-RUBY, __FILE__, __LINE__+1
                   def #{fun.name}(*a)
-                    if Arby.symbolic_mode?
-                      f = meta.any_fun(#{fun.name.inspect}) and
+                    if a.empty? && block_given?
+                      f = #{self.inspect}.meta.any_fun(#{fun.name.inspect}) and
+                      f.constrain(&Proc.new)
+                    elsif Arby.symbolic_mode?
+                      f = #{self.inspect}.any_fun(#{fun.name.inspect}) and
                       f.curry(*a)
                     else
                       #{fun.orig_method_name}(*a[0...#{fun.arity}])
@@ -255,7 +258,8 @@ module Arby
             case a = args[0]
             when Hash
               hash = a
-              fa = _decl_to_args(hash[:args])
+              ha = hash[:args]
+              fa = Array === ha ? _decl_to_args(*ha) : _decl_to_args(ha)
               hash.merge :args => fa
             when Arby::Ast::Fun
               a
