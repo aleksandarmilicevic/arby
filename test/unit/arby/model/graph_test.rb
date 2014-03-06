@@ -60,11 +60,6 @@ class GraphTest < Test::Unit::TestCase
     assert !sol.satisfiable? # assertion holds
   end
 
-  def test_maxClique_props
-    sol = GraphModel.check_maxClique_props
-    assert !sol.satisfiable? # assertion holds
-  end
-
   def test_noClique_sat
     sol = GraphModel.solve noClique { |g, n|
       n == 1
@@ -80,6 +75,11 @@ class GraphTest < Test::Unit::TestCase
       n == 1
     }, *GraphModel::Scope5
     assert !sol.satisfiable?
+  end
+
+  def test_maxClique_props
+    sol = GraphModel.check_maxClique_props
+    assert !sol.satisfiable? # assertion holds
   end
 
   def test_maxClique_sat1

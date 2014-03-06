@@ -7,7 +7,7 @@ module Arby
   module Bridge
 
     def self.debug(str)
-      # puts str # if $pera
+      #puts str # if $pera
     end
 
     class Compiler

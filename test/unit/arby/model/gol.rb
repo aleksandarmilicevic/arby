@@ -199,7 +199,7 @@ Curses.curs_set(0)
 
 win.move(10, 10)
 
-w = GameOfLife.new *cow
+w = GameOfLife.new *bigun
 print(win, w)
 i = 0
 while i < 400
