@@ -219,7 +219,9 @@ module Arby
           Compiler.new(m2.meta, bnds).send @solving_params.first, *@solving_params.last
         else
           $sol_timer.time_it("next") {
-            Solution.new(@a4sol.next(), @compiler)
+            Imports.catch_alloy_errors {
+              Solution.new(@a4sol.next(), @compiler)
+            }
           }
         end
       end
