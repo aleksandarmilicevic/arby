@@ -218,6 +218,7 @@ module Arby
         opt.renameAtoms = false
         opt.createAtomRelations = true
         opt.higherOrderSolver = true
+        opt.holSome4AllMaxIter = 15
         opt.noOverflow = true
         opt.partialInstance = partialInstanceStr
 

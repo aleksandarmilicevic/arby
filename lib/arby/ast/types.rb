@@ -528,6 +528,9 @@ module Arby
 
       def initialize(cls)
         @cls = ColType.get!(cls)
+        define_singleton_method :+ do |other|
+          ExprBuilder.apply(Ops::PLUS, self, other)
+        end
         freeze unless @cls.instance_of?(ColType::UnresolvedRefColType)
       end
 

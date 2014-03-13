@@ -12,6 +12,7 @@ module Arby
       include ExprHelper
 
       def all(*decls, &body)    _quant(:all, decls, body)   end
+      def sum(*decls, &body)    _quant(:sum, decls, body)   end
       def exist(*decls, &body)  _quant(:exist, decls, body) end
       def let(*decls, &body)    _quant(:let, decls, body)   end
       def select(*decls, &body) _quant(:setcph, hash, body) end

@@ -332,6 +332,12 @@ module Arby
           args.first.each do |name, value|
             self.write_field(name, value)
           end
+        else
+          flds = meta.fields
+          args.each_with_index do |arg, idx|
+            break if idx >= flds.size
+            self.write_field(flds[idx], arg)
+          end
         end
       end
     end

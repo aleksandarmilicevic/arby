@@ -91,7 +91,7 @@ module Arby
           node.type == :send and
           node.children.size >= 3 and
           node.children[0] == nil and
-          [:all, :some, :no, :one, :lone, :select, :exists].member? node.children[1]
+          [:all, :sum, :some, :no, :one, :lone, :select, :exists].member? node.children[1]
       end
     end
 

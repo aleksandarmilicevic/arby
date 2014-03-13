@@ -11,6 +11,10 @@ module ArbyModels
       this.edges.(src + dst).in? this.nodes
     }
 
+    fun valsum[nodes: (set Node)][Int] {
+      sum(n: nodes) | n.val
+    }
+
     pred hampath[g: Graph, path: (seq Node)] {
       path[Int] == g.nodes and
       path.size == g.nodes.size and
@@ -46,6 +50,15 @@ module ArbyModels
         clq2 != clq and
         clique(g, clq2) and
         clq2.size > clq.size
+      }
+    }
+
+    pred maxMaxClique[g: Graph, clq: (set Node)] {
+      maxClique(g, clq) and
+      no(clq2: (set Node)) {
+        clq2 != clq and
+        maxClique(g, clq2) and
+        valsum(clq2) > valsum(clq)
       }
     }
 
@@ -174,11 +187,20 @@ module ArbyModels
       else nil end
     end
 
-    def find_maxClique
+    def find_hampath(&blk)      p=find_for(:hampath, :path, &blk) and p.project(1) end
+    def find_maxClique(&blk)    find_for(:maxClique, :clq, &blk) end
+    def find_maxMaxClique(&blk) find_for(:maxMaxClique, :clq, &blk) end
+
+    def find_for(pred_name, out_var_name)
       bnds = Arby::Ast::Bounds.from_atoms(self)
-      sol = GraphModel.solve :maxClique, bnds
+      pred = if block_given?
+               GraphModel.send(pred_name, &Proc.new)
+             else
+               pred_name
+             end
+      sol = GraphModel.solve pred, bnds
       if sol.satisfiable?
-      then sol["$maxClique_clq"]
+      then sol["$#{pred_name}_#{out_var_name}"]
       else nil end
     end
   end

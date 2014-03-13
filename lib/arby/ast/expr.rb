@@ -750,6 +750,7 @@ module Arby
         def self.one(decl, body)   self.new(Ops::ONEOF, decl, body) end
         def self.lone(decl, body)  self.new(Ops::LONEOF, decl, body) end
         def self.let(decl, body)   self.new(Ops::LET, decl, body) end
+        def self.sum(decl, body)   self.new(Ops::SUM, decl, body) end
         def self.setcph(decl, body)
           ans = self.new(Ops::SETCPH, decl, body)
           #TODO: not quite right
@@ -760,6 +761,7 @@ module Arby
         def all?()           op == Ops::ALLOF end
         def exist?()         op == Ops::SOMEOF end
         def let?()           op == Ops::LET end
+        def sum?()           op == Ops::SUM end
         def comprehension?() op == Ops::SETCPH end
 
         def kind()   op.sym end
