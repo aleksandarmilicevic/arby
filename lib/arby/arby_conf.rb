@@ -58,6 +58,18 @@ module Arby
     short_alloy_printer_conf
   end
 
+  def self.default_a4options
+    SDGUtils::Config.new do |opt|
+      opt.solver = :MiniSatJNI #:SAT4J
+      opt.renameAtoms = false
+      opt.createAtomRelations = true
+      opt.higherOrderSolver = true
+      opt.holSome4AllMaxIter = 50
+      opt.convertHolInst2A4Sol = false
+      opt.noOverflow = true
+    end
+  end
+
   # Options
   #   :inv_field_namer [Proc(fld)]
   #   :logger          [Logger]
@@ -65,6 +77,7 @@ module Arby
     SDGUtils::Config.new do |c|
       c.inv_field_namer                    = lambda { |fld| "inv_#{fld.name}" }
       c.turn_methods_into_funs             = true
+      c.reporter                           = nil
       c.allow_undef_vars                   = true
       c.allow_undef_consts                 = true
       c.defer_body_eval                    = true
@@ -75,6 +88,7 @@ module Arby
       c.sym_exe                            = default_symexe_conf
       c.logger                             = Logger.new(NilIO.instance)
       c.alloy_printer                      = default_alloy_printer_conf
+      c.a4options                          = default_a4options
     end
   end
 end

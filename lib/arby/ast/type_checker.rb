@@ -50,6 +50,7 @@ module Arby
       # @param tuple [Array]
       def typecheck!(type, tuple)
         atype = AType.get!(type)
+        return if atype.univ?
         tuple = Array(tuple)
         msg = "tuple #{tuple} doesn't typecheck against #{atype}"
         raise TypeError, "arities differ: #{msg}" unless atype.arity == tuple.size

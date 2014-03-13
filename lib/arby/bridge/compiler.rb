@@ -1,4 +1,5 @@
 require 'arby/bridge/imports'
+require 'arby/bridge/reporter'
 require 'arby/bridge/solution'
 require 'sdg_utils/random'
 require 'sdg_utils/timing/timer'
@@ -7,10 +8,15 @@ module Arby
   module Bridge
 
     def self.debug(str)
-      #puts str # if $pera
+      # puts str # if $pera
     end
 
     class Compiler
+
+      @@current = nil
+      def self.current() @@current end
+      def self.current=(c) @@current = c end
+
       # @model     [Arby::Ast::Model]
       # @bounds    [Arby::Ast::Bounds]
       def self.compile(model, bounds=nil)
@@ -30,6 +36,7 @@ module Arby
 
       def model()     @model end
       def univ()      @univ end
+      def bounds()    @bounds end
       def _a4world()  @a4world end
 
       def sigs()       @sigs ||= model.reachable_sigs end
@@ -148,9 +155,12 @@ module Arby
       def _execute(a4wrld, cmd_idx_or_name=0)
         pi = @bounds && @bounds.serialize(@univ)
 
+        Compiler.current = self
         a4sol = @timer.time_it("execute_command") {
           AlloyCompiler.execute_command(a4wrld, cmd_idx_or_name, pi)
         }
+        Compiler.current = nil
+
         sol = Solution.new(a4sol, self, @univ, @bounds, @timer.last_time)
         sol.arby_instance if @univ && !@univ.sig_atoms.empty?
         sol
@@ -213,13 +223,13 @@ module Arby
         commands = a4world.getAllCommands()
         command_index = commands.size + command_index if command_index < 0
         cmd = commands.get(command_index)
+
+        copt = Arby.conf.a4options
         opt = A4Options_RJB.new
-        opt.solver = opt.solver.MiniSatJNI #SAT4J #MiniSatJNI
-        opt.renameAtoms = false
-        opt.createAtomRelations = true
-        opt.higherOrderSolver = true
-        opt.holSome4AllMaxIter = 15
-        opt.noOverflow = true
+        opt.solver = opt.solver.send copt.solver
+        (copt.keys - [:solver]).each do |key|
+          opt.send "#{key}=", copt[key]
+        end
         opt.partialInstance = partialInstanceStr
 
         Bridge::debug "using command index--"
@@ -233,7 +243,9 @@ module Arby
 
         catch_alloy_errors {
           sigs = a4world.getAllReachableSigs
-          TranslateAlloyToKodkod_RJB.execute_command @rep, sigs, cmd, opt
+          rep = Arby.conf.reporter
+          rep = Rjb::bind rep, 'edu.mit.csail.sdg.alloy4.IA4Reporter' if rep
+          TranslateAlloyToKodkod_RJB.execute_command rep, sigs, cmd, opt
         }
       end
 

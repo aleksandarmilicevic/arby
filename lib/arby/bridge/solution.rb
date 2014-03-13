@@ -29,8 +29,12 @@ module Arby
         else
           @a4type = a4type
           union_types = a4type.fold
-          fail "Union types not supported: #{a4type.toString}" unless union_types.size==1
-          @prim_sigs = java_to_ruby_array(union_types.get(0))
+          if union_types.size > 1
+            # fail "Union types not supported: #{a4type.toString}"
+            @prim_sigs = [Imports::Sig_RJB.UNIV]
+          else
+            @prim_sigs = java_to_ruby_array(union_types.get(0))
+          end
         end
         @prim_sig_names = @prim_sigs.map(&:toString)
         @signature = @prim_sig_names.join(" -> ")
@@ -128,7 +132,13 @@ module Arby
       def wrap_atoms(a4sol)
         a4atoms = a4sol.getAllAtoms
         len = a4atoms.size
-        (0...len).map{ |idx| Atom.new(a4atoms.get(idx)) }
+        (0...len).map{ |idx|
+          a4atom = a4atoms.get(idx)
+          label = a4atom.label
+          type = a4sol.atom2sig(label)
+          type = type ? [type] : a4atom.type
+          Atom.new(nil, label, type)
+        }
       end
 
       # Returns a hash of tuples grouped by field names.

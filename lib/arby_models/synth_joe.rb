@@ -23,7 +23,9 @@ module ArbyModels
       condition: BoolNode,
       then: IntNode,
       elsen: IntNode
-    ]
+    ] {
+      # condition.in? GTE
+    }
 
     abstract sig BoolNode extends Node
     sig GTE extends BoolNode [
@@ -53,8 +55,6 @@ module ArbyModels
         eval[n].in? Boolean and
         eval[n.left].in? Int and
         eval[n.right].in? Int and
-        # eval[n.left] >= eval[n.right] <=> eval[n] = BoolTrue
-        # not(eval[n.left] >= eval[n.right]) <=> eval[n] = BoolFalse
         if eval[n.left] >= eval[n.right]
           eval[n] == BoolTrue
         else
@@ -62,10 +62,10 @@ module ArbyModels
         end
       } and
 
-      all(v: Var) { eval[v].in? Int } and
-      eval[X].in? Int and
-      eval[Y].in? Int and
-      eval[Z].in? Int
+      all(v: Var) { one eval[v] and eval[v].in? Int } and
+      # eval[Z].in? Int and
+      # eval[Y].in? Int and
+      eval[X].in? Int
     }
 
     # --------------------------------------------------------------------------------
@@ -81,8 +81,6 @@ module ArbyModels
       acyclic(condition + ITE.then + elsen + left + right, Node)
     }
 
-    $pera = 1
-    binding.pry
     pred spec[root: Node, eval: Node.e ** (Int + Boolean)] {
       eval[root] >= eval[X] and
       eval[root] >= eval[Y] and
@@ -92,33 +90,44 @@ module ArbyModels
            eval[root] == eval[Z])
     }
 
-    # pred program[root: Node] {
-    #   root.in? ITE and
+    pred program[root: Node] {
+      root.in? ITE and
 
-    #   root.condition.in? GTE and
-    #   root.condition.left == X and
-    #   root.condition.right == Y and
+      root.condition.in? GTE and
+      root.condition.left == X and
+      root.condition.right == Y and
 
-    #   root.then.in? ITE and
+      root.then.in? ITE and
 
-    #   root.then.condition.in? GTE and
-    #   root.then.condition.left == X and
-    #   root.then.condition.right == Z and
+      root.then.condition.in? GTE and
+      root.then.condition.left == X and
+      root.then.condition.right == Z and
 
-    #   root.then.then == X and
-    #   root.then.elsen == Z and
+      root.then.then == X and
+      root.then.elsen == Z and
 
-    #   root.elsen.in? ITE and
+      root.elsen.in? ITE and
 
-    #   root.elsen.condition.in? GTE and
-    #   root.elsen.condition.left == Y and
-    #   root.elsen.condition.right == Z and
+      root.elsen.condition.in? GTE and
+      root.elsen.condition.left == Y and
+      root.elsen.condition.right == Z and
 
-    #   root.elsen.then == Y and
-    #   root.elsen.elsen == Z and
-    # }
+      root.elsen.then == Y and
+      root.elsen.elsen == Z
+    }
 
-    pred synth_max3 {
+    pred max3 {
+      some(root: IntNode) {
+        some(eval: Node.e ** (Int + Boolean)) {
+          spec(root, eval) && semantics(eval) and
+          all(eval2: Node.e ** (Int + Boolean)) {
+            spec(root, eval2-eval) if semantics(eval2-eval)
+          }
+        }
+      }
+    }
+
+    pred mmmax3 {
       some(root: IntNode) {
         # program[root]
         all(eval: Node.e ** (Int + Boolean)) {
@@ -127,6 +136,24 @@ module ArbyModels
       }
     }
 
-    run :synth_max3, 9, Int => 2
+    run :max3, 9, Int => 2
+  end
+
+  module SynthJoe
+    class BoolTrue;  def to_s() "true" end end
+    class BoolFalse; def to_s() "false" end end
+    class Var;       def prnt(i="") i + self.class.relative_name end end
+    class ITE
+      def prnt(i="")
+        "#{i}if (#{condition.unwrap.prnt}) then {\n" +
+        "#{i}#{self.then.unwrap.prnt(i + '  ')}\n" +
+        "#{i}} else {\n" +
+        "#{i}#{self.elsen.unwrap.prnt(i + '  ')}\n" +
+        "#{i}}"
+      end
+    end
+    class GTE
+      def prnt(i="") "#{left.unwrap.prnt} >= #{right.unwrap.prnt}" end
+    end
   end
 end

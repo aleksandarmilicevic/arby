@@ -139,6 +139,78 @@ class GraphTest < Test::Unit::TestCase
     assert !sol.satisfiable?
   end
 
+  def test_maxMaxClique_sat1
+    sol = GraphModel.solve maxMaxClique { |g, clq|
+      g.nodes.size == 2 and
+      no g.edges and
+      some(n1, n2: g.nodes) {
+        n1 != n2 and
+        some n1.val and
+        some n2.val and
+        n1.val != n2.val
+      }
+    }, *GraphModel::Scope5
+    assert sol.satisfiable?
+    clq = sol["$maxMaxClique_clq"]
+    g = sol["$maxMaxClique_g"]
+    assert_equal 1, clq.size
+    assert_equal g.nodes.val.unwrap.max, clq.val.unwrap
+  end
+
+  def test_maxMaxClique_sat2
+    sol = GraphModel.solve maxMaxClique { |g, clq|
+      g.nodes.size == 3 and
+      clq.size == 2 and
+      all(n: g.nodes) { some n.val }
+    }
+    assert sol.satisfiable?
+    clq = sol["$maxMaxClique_clq"]
+    g = sol["$maxMaxClique_g"]
+    assert_equal 2, clq.size
+  end
+
+  def test_maxMaxClique_inst1
+    n0, n1, n2 = Node.new(1), Node.new(2), Node.new(3)
+    g = Graph.new :nodes => [n0, n1, n2],
+                  :edges => [Edge.new(:src => n0, :dst => n1),
+                             Edge.new(:src => n0, :dst => n2)]
+    clq = g.find_maxMaxClique
+    assert_equal 2, clq.size
+    assert_set_equal [n0, n2], clq
+    assert_set_equal [1, 3], clq.val
+  end
+
+  def test_maxMaxClique_inst2
+    n0, n1, n2 = Node.new(1), Node.new(2), Node.new(3)
+    g = Graph.new :nodes => [n0, n1, n2],
+                  :edges => [Edge.new(:src => n0, :dst => n1),
+                             Edge.new(:src => n2, :dst => n1),
+                             Edge.new(:src => n0, :dst => n2)]
+    clq = g.find_maxMaxClique
+    assert_equal 3, clq.size
+    assert_set_equal [n0, n1, n2], clq
+    assert_set_equal [1, 2, 3], clq.val
+  end
+
+  def test_maxMaxClique_inst3
+    n0, n1, n2 = Node.new(1), Node.new(2), Node.new(3)
+    g = Graph.new :nodes => [n0, n1, n2],
+                  :edges => []
+    clq = g.find_maxMaxClique
+    assert_equal 1, clq.size
+    assert_set_equal [n2], clq
+    assert_set_equal [3], clq.val
+  end
+
+  def test_maxMaxClique_noinst1
+    n0, n1, n2 = Node.new(1), Node.new(2), Node.new(3)
+    g = Graph.new :nodes => [n0, n1, n2],
+                  :edges => []
+    clq = g.find_maxMaxClique { |g, clq| clq.size > 1 }
+    assert !clq
+  end
+
+
   def _test_guided
     sol = GraphModel.run_hampath
     assert sol.satisfiable?
