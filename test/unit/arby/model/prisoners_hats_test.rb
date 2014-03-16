@@ -19,7 +19,7 @@ class PrisonersHatsTest < Test::Unit::TestCase
   end
 
   def test_als
-    puts ArbyModels::PrisonersHats.to_als
+    puts! ArbyModels::PrisonersHats.to_als
     assert ArbyModels::PrisonersHats.compile
   end
 
@@ -35,7 +35,9 @@ class PrisonersHatsTest < Test::Unit::TestCase
     round = 0
     scenarios_solved = 0
     while true
-      round += 1; solvable = []; rsol = sol
+      round += 1
+      solvable = []
+      rsol = sol
       puts! "====================== round #{round}"
 
       while rsol.satisfiable?

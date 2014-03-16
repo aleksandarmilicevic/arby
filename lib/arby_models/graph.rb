@@ -53,6 +53,10 @@ module ArbyModels
       }
     }
 
+    pred maxCliqueFix[g: Graph, clq: (set Node)] {
+      "fix clique[g, clq] until #clq > #_clq"
+    }
+
     pred maxMaxClique[g: Graph, clq: (set Node)] {
       maxClique(g, clq) and
       no(clq2: (set Node)) {
@@ -60,6 +64,24 @@ module ArbyModels
         maxClique(g, clq2) and
         valsum(clq2) > valsum(clq)
       }
+    }
+
+    pred maxMaxCliqueFix[g: Graph, clq: (set Node)] {
+      """
+      fix maxClique[g, clq]
+      until {
+        valsum[clq] > valsum[_clq]
+      }
+      """
+    }
+
+    pred maxCliqueFixFix[g: Graph, clq: (set Node)] {
+      """
+      fix maxCliqueFix[g, clq]
+      until {
+        valsum[clq] > valsum[_clq]
+      }
+      """
     }
 
     pred noClique[g: Graph, n: Int] {
@@ -187,9 +209,11 @@ module ArbyModels
       else nil end
     end
 
-    def find_hampath(&blk)      p=find_for(:hampath, :path, &blk) and p.project(1) end
-    def find_maxClique(&blk)    find_for(:maxClique, :clq, &blk) end
-    def find_maxMaxClique(&blk) find_for(:maxMaxClique, :clq, &blk) end
+    def find_hampath(&blk)         p=find_for(:hampath, :path, &blk) and p.project(1) end
+    def find_maxClique(&blk)       find_for(:maxClique, :clq, &blk) end
+    def find_maxCliqueFix(&blk)    find_for(:maxCliqueFix, :clq, &blk) end
+    def find_maxMaxClique(&blk)    find_for(:maxMaxClique, :clq, &blk) end
+    def find_maxMaxCliqueFix(&blk) find_for(:maxMaxCliqueFix, :clq, &blk) end
 
     def find_for(pred_name, out_var_name)
       bnds = Arby::Ast::Bounds.from_atoms(self)

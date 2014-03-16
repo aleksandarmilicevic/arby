@@ -202,7 +202,11 @@ module Arby
         @out.pl "#{kind} #{fun_name}#{params_str}#{ret_str} {"
         @out.in do
           fun_body = is_inst_fun ? fun.sym_exe("this") : fun.sym_exe
-          @out.pn fun_body.to_conjuncts, "\n" if fun_body
+          if fun_body.is_a? String
+            @out.p fun_body
+          else
+            @out.pn fun_body.to_conjuncts, "\n" if fun_body
+          end
         end
         @out.pl "\n}"
       end

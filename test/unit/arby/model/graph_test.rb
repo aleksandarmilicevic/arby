@@ -82,65 +82,101 @@ class GraphTest < Test::Unit::TestCase
     assert !sol.satisfiable? # assertion holds
   end
 
+  @@max_clique_preds = [:maxClique] #, :maxCliqueFix]
+  @@find_max_clique_preds = [:find_maxClique] #, :find_maxCliqueFix]
+
+  @@max_max_clique_preds = [:maxMaxClique] #, :maxMaxCliqueFix]
+  @@find_max_max_clique_preds = [:find_maxMaxClique] #, :find_maxMaxCliqueFix]
+
   def test_maxClique_sat1
-    sol = GraphModel.solve maxClique { |g, clq|
+    @@max_clique_preds.each { |p| do_test_maxClique_sat1 p }
+  end
+
+  def do_test_maxClique_sat1(maxCliquePred)
+    pred = send(maxCliquePred) { |g, clq|
       g.nodes.size == 2 and
       some g.edges
-    }, *GraphModel::Scope5
+    }
+    sol = GraphModel.solve pred, *GraphModel::Scope5
     assert sol.satisfiable?
-    clq = sol["$maxClique_clq"]
+    clq = sol["$#{maxCliquePred}_clq"]
     assert_equal 2, clq.size
   end
 
   def test_maxClique_sat2
-    sol = GraphModel.solve maxClique { |g, clq|
+    @@max_clique_preds.each { |p| do_test_maxClique_sat2 p }
+  end
+
+  def do_test_maxClique_sat2(maxCliquePred)
+    pred = send(maxCliquePred) { |g, clq|
       some clq and
       g.nodes.size == clq.size
-    }, *GraphModel::Scope5
+    }
+    sol = GraphModel.solve pred, *GraphModel::Scope5
     assert sol.satisfiable?
-    g = sol["$maxClique_g"]
+    g = sol["$#{maxCliquePred}_g"]
     assert_equal g.edges.size, g.nodes.size * (g.nodes.size - 1) / 2
   end
 
   def test_maxClique_unsat
-    sol = GraphModel.solve maxClique { |g, clq|
+    @@max_clique_preds.each { |p| do_test_maxClique_unsat p }
+  end
+
+  def do_test_maxClique_unsat(pred_name)
+    pred = send(pred_name) { |g, clq|
       g.nodes.size < clq.size
-    }, *GraphModel::Scope5
+    }
+    sol = GraphModel.solve pred, *GraphModel::Scope5
     assert !sol.satisfiable?
   end
 
   def test_maxClique_inst1
+    @@find_max_clique_preds.each { |p| do_test_maxClique_inst1 p }
+  end
+
+  def do_test_maxClique_inst1(pred_name)
     n0, n1 = Node.new, Node.new
     g = Graph.new :nodes => [n0, n1],
                   :edges => [Edge.new(:src => n0, :dst => n1)]
-    clq = g.find_maxClique
+    clq = g.send(pred_name)
     assert_equal 2, clq.size
     assert_equal [n0, n1], clq.unwrap
   end
 
   def test_maxClique_inst2
+    @@find_max_clique_preds.each { |p| do_test_maxClique_inst2 p }
+  end
+
+  def do_test_maxClique_inst2(pred_name)
     n0, n1, n2 = Node.new, Node.new, Node.new
     g = Graph.new :nodes => [n0, n1, n2],
                   :edges => [Edge.new(:src => n0, :dst => n1),
                              Edge.new(:src => n2, :dst => n1)]
-    clq = g.find_maxClique
+    clq = g.send(pred_name)
     assert_equal 2, clq.size
   end
 
-  def test_maxClique_inst3
+  def test_maxClique_noinst
+    @@max_clique_preds.each { |p| do_test_maxClique_noinst p }
+  end
+
+  def do_test_maxClique_noinst(pred_name)
     n0, n1, n2 = Node.new, Node.new, Node.new
     g = Graph.new :nodes => [n0, n1, n2],
                   :edges => [Edge.new(:src => n0, :dst => n1),
                              Edge.new(:src => n2, :dst => n1)]
     pi = Arby::Ast::Bounds.from_atoms(g)
-    sol = GraphModel.solve maxClique { |graph, clq|
-      graph == g && clq.size > 2
-    }, pi
+    pred = send(pred_name) { |graph, clq| graph == g && clq.size > 2 }
+    sol = GraphModel.solve pred, pi
     assert !sol.satisfiable?
   end
 
   def test_maxMaxClique_sat1
-    sol = GraphModel.solve maxMaxClique { |g, clq|
+    @@max_max_clique_preds.each { |p| do_test_maxMaxClique_sat1 p }
+  end
+
+  def do_test_maxMaxClique_sat1(pred_name)
+    pred = send(pred_name) { |g, clq|
       g.nodes.size == 2 and
       no g.edges and
       some(n1, n2: g.nodes) {
@@ -149,64 +185,86 @@ class GraphTest < Test::Unit::TestCase
         some n2.val and
         n1.val != n2.val
       }
-    }, *GraphModel::Scope5
+    }
+    sol = GraphModel.solve pred, *GraphModel::Scope5
     assert sol.satisfiable?
-    clq = sol["$maxMaxClique_clq"]
-    g = sol["$maxMaxClique_g"]
+    clq = sol["$#{pred_name}_clq"]
+    g = sol["$#{pred_name}_g"]
     assert_equal 1, clq.size
     assert_equal g.nodes.val.unwrap.max, clq.val.unwrap
   end
 
   def test_maxMaxClique_sat2
-    sol = GraphModel.solve maxMaxClique { |g, clq|
+    @@max_max_clique_preds.each { |p| do_test_maxMaxClique_sat2 p }
+  end
+
+  def do_test_maxMaxClique_sat2(pred_name)
+    pred = send(pred_name) { |g, clq|
       g.nodes.size == 3 and
       clq.size == 2 and
       all(n: g.nodes) { some n.val }
     }
+    sol = GraphModel.solve pred, *GraphModel::Scope5
     assert sol.satisfiable?
-    clq = sol["$maxMaxClique_clq"]
-    g = sol["$maxMaxClique_g"]
+    clq = sol["$#{pred_name}_clq"]
+    g = sol["$#{pred_name}_g"]
     assert_equal 2, clq.size
   end
 
   def test_maxMaxClique_inst1
+    @@find_max_max_clique_preds.each { |p| do_test_maxMaxClique_inst1 p }
+  end
+
+  def do_test_maxMaxClique_inst1(pred_name)
     n0, n1, n2 = Node.new(1), Node.new(2), Node.new(3)
     g = Graph.new :nodes => [n0, n1, n2],
                   :edges => [Edge.new(:src => n0, :dst => n1),
                              Edge.new(:src => n0, :dst => n2)]
-    clq = g.find_maxMaxClique
+    clq = g.send(pred_name)
     assert_equal 2, clq.size
     assert_set_equal [n0, n2], clq
     assert_set_equal [1, 3], clq.val
   end
 
   def test_maxMaxClique_inst2
+    @@find_max_max_clique_preds.each { |p| do_test_maxMaxClique_inst2 p }
+  end
+
+  def do_test_maxMaxClique_inst2(pred_name)
     n0, n1, n2 = Node.new(1), Node.new(2), Node.new(3)
     g = Graph.new :nodes => [n0, n1, n2],
                   :edges => [Edge.new(:src => n0, :dst => n1),
                              Edge.new(:src => n2, :dst => n1),
                              Edge.new(:src => n0, :dst => n2)]
-    clq = g.find_maxMaxClique
+    clq = g.send(pred_name)
     assert_equal 3, clq.size
     assert_set_equal [n0, n1, n2], clq
     assert_set_equal [1, 2, 3], clq.val
   end
 
   def test_maxMaxClique_inst3
+    @@find_max_max_clique_preds.each { |p| do_test_maxMaxClique_inst3 p }
+  end
+
+  def do_test_maxMaxClique_inst3(pred_name)
     n0, n1, n2 = Node.new(1), Node.new(2), Node.new(3)
     g = Graph.new :nodes => [n0, n1, n2],
                   :edges => []
-    clq = g.find_maxMaxClique
+    clq = g.send(pred_name)
     assert_equal 1, clq.size
     assert_set_equal [n2], clq
     assert_set_equal [3], clq.val
   end
 
   def test_maxMaxClique_noinst1
+    @@find_max_max_clique_preds.each { |p| do_test_maxMaxClique_noinst1 p }
+  end
+
+  def do_test_maxMaxClique_noinst1(pred_name)
     n0, n1, n2 = Node.new(1), Node.new(2), Node.new(3)
     g = Graph.new :nodes => [n0, n1, n2],
                   :edges => []
-    clq = g.find_maxMaxClique { |g, clq| clq.size > 1 }
+    clq = g.send(pred_name) { |g, clq| clq.size > 1 }
     assert !clq
   end
 
