@@ -221,6 +221,7 @@ class GraphTest < Test::Unit::TestCase
                   :edges => [Edge.new(:src => n0, :dst => n1),
                              Edge.new(:src => n0, :dst => n2)]
     clq = g.send(pred_name)
+    assert clq
     assert_equal 2, clq.size
     assert_set_equal [n0, n2], clq
     assert_set_equal [1, 3], clq.val
