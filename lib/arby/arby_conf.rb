@@ -65,6 +65,7 @@ module Arby
       opt.createAtomRelations = true
       opt.higherOrderSolver = true
       opt.holMaxIter = 50
+      opt.holFullIncrements = false
       opt.convertHolInst2A4Sol = false
       opt.noOverflow = true
     end
