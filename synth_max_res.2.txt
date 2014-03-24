@@ -1,0 +1,1904 @@
+Run options: -ntest_max
+
+# Running tests:
+
+max2 run_2 INC
+compiling/solving
+solving time: 0.399225809
+num candidates: 3
+if (X1 >= X2) then {
+  X1
+} else {
+  X2
+}
+testing...
+(num test inputs = 4)
+testing time: 0.002803918
+.
+
+Finished tests in 4.596053s, 0.2176 tests/s, 1.0879 assertions/s.
+
+1 tests, 5 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max2 run_2 FULL
+compiling/solving
+solving time: 0.495959682
+num candidates: 3
+if (X2 >= X1) then {
+  X2
+} else {
+  X1
+}
+testing...
+(num test inputs = 4)
+testing time: 0.00353369
+.
+
+Finished tests in 4.623933s, 0.2163 tests/s, 1.0813 assertions/s.
+
+1 tests, 5 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max2 run_1 INC
+compiling/solving
+solving time: 0.422901653
+num candidates: 3
+if (X1 >= X2) then {
+  X1
+} else {
+  X2
+}
+testing...
+(num test inputs = 4)
+testing time: 0.003538928
+.
+
+Finished tests in 4.561925s, 0.2192 tests/s, 1.0960 assertions/s.
+
+1 tests, 5 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max2 run_1 FULL
+compiling/solving
+solving time: 0.536855242
+num candidates: 3
+if (X1 >= X2) then {
+  X1
+} else {
+  X2
+}
+testing...
+(num test inputs = 4)
+testing time: 0.004317868
+.
+
+Finished tests in 4.680405s, 0.2137 tests/s, 1.0683 assertions/s.
+
+1 tests, 5 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max2 run_0 INC
+compiling/solving
+solving time: 0.442630837
+num candidates: 3
+if (X1 >= X2) then {
+  X1
+} else {
+  X2
+}
+testing...
+(num test inputs = 4)
+testing time: 0.002781359
+.
+
+Finished tests in 4.577391s, 0.2185 tests/s, 1.0923 assertions/s.
+
+1 tests, 5 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max2 run_0 FULL
+compiling/solving
+solving time: 0.603824927
+num candidates: 3
+if (X2 <= X1) then {
+  X1
+} else {
+  X2
+}
+testing...
+(num test inputs = 4)
+testing time: 0.003309709
+.
+
+Finished tests in 4.794355s, 0.2086 tests/s, 1.0429 assertions/s.
+
+1 tests, 5 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max3 run_2 INC
+compiling/solving
+solving time: 0.93683534
+num candidates: 6
+if (if (X1 >= X2) then {
+  X1
+} else {
+  X2
+} >= X3) then {
+  if (X1 >= X2) then {
+      X1
+  } else {
+      X2
+  }
+} else {
+  X3
+}
+testing...
+(num test inputs = 27)
+testing time: 0.215850339
+.
+
+Finished tests in 5.911180s, 0.1692 tests/s, 4.7368 assertions/s.
+
+1 tests, 28 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max3 run_2 FULL
+compiling/solving
+solving time: 1.1983852
+num candidates: 5
+if (X1 >= if (X2 >= X3) then {
+  X2
+} else {
+  X3
+}) then {
+  X1
+} else {
+  if (X2 >= X3) then {
+      X2
+  } else {
+      X3
+  }
+}
+testing...
+(num test inputs = 27)
+testing time: 0.247531181
+.
+
+Finished tests in 6.313604s, 0.1584 tests/s, 4.4349 assertions/s.
+
+1 tests, 28 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max3 run_1 INC
+compiling/solving
+solving time: 0.998648852
+num candidates: 7
+if (if (X3 >= X2) then {
+  X3
+} else {
+  X2
+} >= X1) then {
+  if (X3 >= X2) then {
+      X3
+  } else {
+      X2
+  }
+} else {
+  X1
+}
+testing...
+(num test inputs = 27)
+testing time: 0.392263052
+.
+
+Finished tests in 6.153434s, 0.1625 tests/s, 4.5503 assertions/s.
+
+1 tests, 28 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max3 run_1 FULL
+compiling/solving
+solving time: 1.336902528
+num candidates: 4
+if (X1 >= if (X2 >= X3) then {
+  X2
+} else {
+  X3
+}) then {
+  X1
+} else {
+  if (X2 >= X3) then {
+      X2
+  } else {
+      X3
+  }
+}
+testing...
+(num test inputs = 27)
+testing time: 0.403221149
+.
+
+Finished tests in 6.574671s, 0.1521 tests/s, 4.2588 assertions/s.
+
+1 tests, 28 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max3 run_0 INC
+compiling/solving
+solving time: 1.250180751
+num candidates: 8
+if (if (X2 >= X1) then {
+  X2
+} else {
+  X1
+} <= X3) then {
+  X3
+} else {
+  if (X2 >= X1) then {
+      X2
+  } else {
+      X1
+  }
+}
+testing...
+(num test inputs = 27)
+testing time: 0.390721167
+.
+
+Finished tests in 6.521109s, 0.1533 tests/s, 4.2937 assertions/s.
+
+1 tests, 28 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max3 run_0 FULL
+compiling/solving
+solving time: 1.834522337
+num candidates: 5
+if (X1 >= if (X2 >= X3) then {
+  X2
+} else {
+  X3
+}) then {
+  X1
+} else {
+  if (X2 >= X3) then {
+      X2
+  } else {
+      X3
+  }
+}
+testing...
+(num test inputs = 27)
+testing time: 0.290268177
+.
+
+Finished tests in 7.002700s, 0.1428 tests/s, 3.9985 assertions/s.
+
+1 tests, 28 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max4 run_2 INC
+compiling/solving
+solving time: 1.406909679
+num candidates: 8
+if (if (X1 >= if (X4 >= X2) then {
+  X4
+} else {
+  X2
+}) then {
+  X1
+} else {
+  if (X4 >= X2) then {
+      X4
+  } else {
+      X2
+  }
+} >= X3) then {
+  if (X1 >= if (X4 >= X2) then {
+  X4
+} else {
+  X2
+}) then {
+      X1
+  } else {
+      if (X4 >= X2) then {
+          X4
+    } else {
+          X2
+    }
+  }
+} else {
+  X3
+}
+testing...
+(num test inputs = 256)
+testing time: 4.402855395
+.
+
+Finished tests in 11.389250s, 0.0878 tests/s, 22.5651 assertions/s.
+
+1 tests, 257 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max4 run_2 FULL
+compiling/solving
+solving time: 3.850968424
+num candidates: 12
+if (if (X3 >= if (X2 >= X1) then {
+  X2
+} else {
+  X1
+}) then {
+  X3
+} else {
+  if (X2 >= X1) then {
+      X2
+  } else {
+      X1
+  }
+} >= X4) then {
+  if (X3 >= if (X2 >= X1) then {
+  X2
+} else {
+  X1
+}) then {
+      X3
+  } else {
+      if (X2 >= X1) then {
+          X2
+    } else {
+          X1
+    }
+  }
+} else {
+  X4
+}
+testing...
+(num test inputs = 256)
+testing time: 4.221571321
+.
+
+Finished tests in 13.835035s, 0.0723 tests/s, 18.5760 assertions/s.
+
+1 tests, 257 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max4 run_1 INC
+compiling/solving
+solving time: 2.825213054
+num candidates: 8
+if (X2 >= if (if (X4 >= X3) then {
+  X4
+} else {
+  X3
+} >= X1) then {
+  if (X4 >= X3) then {
+      X4
+  } else {
+      X3
+  }
+} else {
+  X1
+}) then {
+  X2
+} else {
+  if (if (X4 >= X3) then {
+  X4
+} else {
+  X3
+} >= X1) then {
+      if (X4 >= X3) then {
+          X4
+    } else {
+          X3
+    }
+  } else {
+      X1
+  }
+}
+testing...
+(num test inputs = 256)
+testing time: 4.042204252
+.
+
+Finished tests in 12.291347s, 0.0814 tests/s, 20.9090 assertions/s.
+
+1 tests, 257 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max4 run_1 FULL
+compiling/solving
+solving time: 15.382307266
+num candidates: 16
+if (X3 >= if (if (X1 >= X4) then {
+  X1
+} else {
+  X4
+} >= X2) then {
+  if (X1 >= X4) then {
+      X1
+  } else {
+      X4
+  }
+} else {
+  X2
+}) then {
+  X3
+} else {
+  if (if (X1 >= X4) then {
+  X1
+} else {
+  X4
+} >= X2) then {
+      if (X1 >= X4) then {
+          X1
+    } else {
+          X4
+    }
+  } else {
+      X2
+  }
+}
+testing...
+(num test inputs = 256)
+testing time: 4.095224886
+.
+
+Finished tests in 24.875208s, 0.0402 tests/s, 10.3316 assertions/s.
+
+1 tests, 257 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max4 run_0 INC
+compiling/solving
+solving time: 5.665408949
+num candidates: 15
+if (X2 <= if (X3 <= if (X4 <= X1) then {
+  X1
+} else {
+  X4
+}) then {
+  if (X4 <= X1) then {
+      X1
+  } else {
+      X4
+  }
+} else {
+  X3
+}) then {
+  if (X3 <= if (X4 <= X1) then {
+  X1
+} else {
+  X4
+}) then {
+      if (X4 <= X1) then {
+          X1
+    } else {
+          X4
+    }
+  } else {
+      X3
+  }
+} else {
+  X2
+}
+testing...
+(num test inputs = 256)
+testing time: 4.844978487
+.
+
+Finished tests in 15.874678s, 0.0630 tests/s, 16.1893 assertions/s.
+
+1 tests, 257 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max4 run_0 FULL
+compiling/solving
+solving time: 13.479000281
+num candidates: 17
+if (if (X2 >= if (X3 <= X4) then {
+  X4
+} else {
+  X3
+}) then {
+  X2
+} else {
+  if (X3 <= X4) then {
+      X4
+  } else {
+      X3
+  }
+} >= X1) then {
+  if (X2 >= if (X3 <= X4) then {
+  X4
+} else {
+  X3
+}) then {
+      X2
+  } else {
+      if (X3 <= X4) then {
+          X4
+    } else {
+          X3
+    }
+  }
+} else {
+  X1
+}
+testing...
+(num test inputs = 256)
+testing time: 4.265706261
+.
+
+Finished tests in 23.132652s, 0.0432 tests/s, 11.1098 assertions/s.
+
+1 tests, 257 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max5 run_2 INC
+compiling/solving
+solving time: 4.496437541
+num candidates: 25
+if (if (X4 >= if (if (X3 >= X1) then {
+  X3
+} else {
+  X1
+} >= X5) then {
+  if (X3 >= X1) then {
+      X3
+  } else {
+      X1
+  }
+} else {
+  X5
+}) then {
+  X4
+} else {
+  if (if (X3 >= X1) then {
+  X3
+} else {
+  X1
+} >= X5) then {
+      if (X3 >= X1) then {
+          X3
+    } else {
+          X1
+    }
+  } else {
+      X5
+  }
+} >= X2) then {
+  if (X4 >= if (if (X3 >= X1) then {
+  X3
+} else {
+  X1
+} >= X5) then {
+  if (X3 >= X1) then {
+      X3
+  } else {
+      X1
+  }
+} else {
+  X5
+}) then {
+      X4
+  } else {
+      if (if (X3 >= X1) then {
+  X3
+} else {
+  X1
+} >= X5) then {
+          if (X3 >= X1) then {
+              X3
+      } else {
+              X1
+      }
+    } else {
+          X5
+    }
+  }
+} else {
+  X2
+}
+testing...
+(num test inputs = 3125)
+testing time: 106.405857504
+.
+
+Finished tests in 117.164617s, 0.0085 tests/s, 26.6804 assertions/s.
+
+1 tests, 3126 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max5 run_2 FULL
+compiling/solving
+solving time: 10.547345416
+num candidates: 21
+if (if (if (X4 >= if (X3 >= X5) then {
+  X3
+} else {
+  X5
+}) then {
+  X4
+} else {
+  if (X3 >= X5) then {
+      X3
+  } else {
+      X5
+  }
+} >= X1) then {
+  if (X4 >= if (X3 >= X5) then {
+  X3
+} else {
+  X5
+}) then {
+      X4
+  } else {
+      if (X3 >= X5) then {
+          X3
+    } else {
+          X5
+    }
+  }
+} else {
+  X1
+} >= X2) then {
+  if (if (X4 >= if (X3 >= X5) then {
+  X3
+} else {
+  X5
+}) then {
+  X4
+} else {
+  if (X3 >= X5) then {
+      X3
+  } else {
+      X5
+  }
+} >= X1) then {
+      if (X4 >= if (X3 >= X5) then {
+  X3
+} else {
+  X5
+}) then {
+          X4
+    } else {
+          if (X3 >= X5) then {
+              X3
+      } else {
+              X5
+      }
+    }
+  } else {
+      X1
+  }
+} else {
+  X2
+}
+testing...
+(num test inputs = 3125)
+testing time: 108.012990185
+.
+
+Finished tests in 124.706753s, 0.0080 tests/s, 25.0668 assertions/s.
+
+1 tests, 3126 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max5 run_1 INC
+compiling/solving
+solving time: 37.562868649
+num candidates: 23
+if (if (if (if (X4 >= X2) then {
+  X4
+} else {
+  X2
+} >= X5) then {
+  if (X4 >= X2) then {
+      X4
+  } else {
+      X2
+  }
+} else {
+  X5
+} >= X1) then {
+  if (if (X4 >= X2) then {
+  X4
+} else {
+  X2
+} >= X5) then {
+      if (X4 >= X2) then {
+          X4
+    } else {
+          X2
+    }
+  } else {
+      X5
+  }
+} else {
+  X1
+} >= X3) then {
+  if (if (if (X4 >= X2) then {
+  X4
+} else {
+  X2
+} >= X5) then {
+  if (X4 >= X2) then {
+      X4
+  } else {
+      X2
+  }
+} else {
+  X5
+} >= X1) then {
+      if (if (X4 >= X2) then {
+  X4
+} else {
+  X2
+} >= X5) then {
+          if (X4 >= X2) then {
+              X4
+      } else {
+              X2
+      }
+    } else {
+          X5
+    }
+  } else {
+      X1
+  }
+} else {
+  X3
+}
+testing...
+(num test inputs = 3125)
+testing time: 114.338450133
+.
+
+Finished tests in 158.053618s, 0.0063 tests/s, 19.7781 assertions/s.
+
+1 tests, 3126 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max5 run_1 FULL
+compiling/solving
+solving time: 650.857525599
+num candidates: 24
+if (X5 >= if (if (X1 >= if (X4 >= X2) then {
+  X4
+} else {
+  X2
+}) then {
+  X1
+} else {
+  if (X4 >= X2) then {
+      X4
+  } else {
+      X2
+  }
+} >= X3) then {
+  if (X1 >= if (X4 >= X2) then {
+  X4
+} else {
+  X2
+}) then {
+      X1
+  } else {
+      if (X4 >= X2) then {
+          X4
+    } else {
+          X2
+    }
+  }
+} else {
+  X3
+}) then {
+  X5
+} else {
+  if (if (X1 >= if (X4 >= X2) then {
+  X4
+} else {
+  X2
+}) then {
+  X1
+} else {
+  if (X4 >= X2) then {
+      X4
+  } else {
+      X2
+  }
+} >= X3) then {
+      if (X1 >= if (X4 >= X2) then {
+  X4
+} else {
+  X2
+}) then {
+          X1
+    } else {
+          if (X4 >= X2) then {
+              X4
+      } else {
+              X2
+      }
+    }
+  } else {
+      X3
+  }
+}
+testing...
+(num test inputs = 3125)
+testing time: 100.924361245
+.
+
+Finished tests in 757.916308s, 0.0013 tests/s, 4.1245 assertions/s.
+
+1 tests, 3126 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max5 run_0 INC
+compiling/solving
+solving time: 25.409514507
+num candidates: 19
+if (X4 >= if (X1 <= if (if (X2 >= X3) then {
+  X2
+} else {
+  X3
+} <= X5) then {
+  X5
+} else {
+  if (X2 >= X3) then {
+      X2
+  } else {
+      X3
+  }
+}) then {
+  if (if (X2 >= X3) then {
+  X2
+} else {
+  X3
+} <= X5) then {
+      X5
+  } else {
+      if (X2 >= X3) then {
+          X2
+    } else {
+          X3
+    }
+  }
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X1 <= if (if (X2 >= X3) then {
+  X2
+} else {
+  X3
+} <= X5) then {
+  X5
+} else {
+  if (X2 >= X3) then {
+      X2
+  } else {
+      X3
+  }
+}) then {
+      if (if (X2 >= X3) then {
+  X2
+} else {
+  X3
+} <= X5) then {
+          X5
+    } else {
+          if (X2 >= X3) then {
+              X2
+      } else {
+              X3
+      }
+    }
+  } else {
+      X1
+  }
+}
+testing...
+(num test inputs = 3125)
+testing time: 101.789119337
+.
+
+Finished tests in 133.551121s, 0.0075 tests/s, 23.4068 assertions/s.
+
+1 tests, 3126 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max5 run_0 FULL
+compiling/solving
+solving time: 435.491386146
+num candidates: 22
+if (X1 >= if (if (X5 <= X3) then {
+  X3
+} else {
+  X5
+} <= if (X2 >= X4) then {
+  X2
+} else {
+  X4
+}) then {
+  if (X2 >= X4) then {
+      X2
+  } else {
+      X4
+  }
+} else {
+  if (X5 <= X3) then {
+      X3
+  } else {
+      X5
+  }
+}) then {
+  X1
+} else {
+  if (if (X5 <= X3) then {
+  X3
+} else {
+  X5
+} <= if (X2 >= X4) then {
+  X2
+} else {
+  X4
+}) then {
+      if (X2 >= X4) then {
+          X2
+    } else {
+          X4
+    }
+  } else {
+      if (X5 <= X3) then {
+          X3
+    } else {
+          X5
+    }
+  }
+}
+testing...
+(num test inputs = 3125)
+testing time: 73.505642632
+.
+
+Finished tests in 515.360978s, 0.0019 tests/s, 6.0657 assertions/s.
+
+1 tests, 3126 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max6 run_2 INC
+compiling/solving
+solving time: 16.639191662
+num candidates: 29
+if (if (X4 >= X1) then {
+  X4
+} else {
+  X1
+} >= if (X2 >= if (X6 >= if (X5 >= X3) then {
+  X5
+} else {
+  X3
+}) then {
+  X6
+} else {
+  if (X5 >= X3) then {
+      X5
+  } else {
+      X3
+  }
+}) then {
+  X2
+} else {
+  if (X6 >= if (X5 >= X3) then {
+  X5
+} else {
+  X3
+}) then {
+      X6
+  } else {
+      if (X5 >= X3) then {
+          X5
+    } else {
+          X3
+    }
+  }
+}) then {
+  if (X4 >= X1) then {
+      X4
+  } else {
+      X1
+  }
+} else {
+  if (X2 >= if (X6 >= if (X5 >= X3) then {
+  X5
+} else {
+  X3
+}) then {
+  X6
+} else {
+  if (X5 >= X3) then {
+      X5
+  } else {
+      X3
+  }
+}) then {
+      X2
+  } else {
+      if (X6 >= if (X5 >= X3) then {
+  X5
+} else {
+  X3
+}) then {
+          X6
+    } else {
+          if (X5 >= X3) then {
+              X5
+      } else {
+              X3
+      }
+    }
+  }
+}
+testing...
+(num test inputs = 46656)
+Run options: -ntest_max
+
+# Running tests:
+
+max6 run_2 FULL
+compiling/solving
+solving time: 137.364538599
+num candidates: 31
+if (X3 >= if (X1 >= if (X6 >= if (if (X2 >= X4) then {
+  X2
+} else {
+  X4
+} >= X5) then {
+  if (X2 >= X4) then {
+      X2
+  } else {
+      X4
+  }
+} else {
+  X5
+}) then {
+  X6
+} else {
+  if (if (X2 >= X4) then {
+  X2
+} else {
+  X4
+} >= X5) then {
+      if (X2 >= X4) then {
+          X2
+    } else {
+          X4
+    }
+  } else {
+      X5
+  }
+}) then {
+  X1
+} else {
+  if (X6 >= if (if (X2 >= X4) then {
+  X2
+} else {
+  X4
+} >= X5) then {
+  if (X2 >= X4) then {
+      X2
+  } else {
+      X4
+  }
+} else {
+  X5
+}) then {
+      X6
+  } else {
+      if (if (X2 >= X4) then {
+  X2
+} else {
+  X4
+} >= X5) then {
+          if (X2 >= X4) then {
+              X2
+      } else {
+              X4
+      }
+    } else {
+          X5
+    }
+  }
+}) then {
+  X3
+} else {
+  if (X1 >= if (X6 >= if (if (X2 >= X4) then {
+  X2
+} else {
+  X4
+} >= X5) then {
+  if (X2 >= X4) then {
+      X2
+  } else {
+      X4
+  }
+} else {
+  X5
+}) then {
+  X6
+} else {
+  if (if (X2 >= X4) then {
+  X2
+} else {
+  X4
+} >= X5) then {
+      if (X2 >= X4) then {
+          X2
+    } else {
+          X4
+    }
+  } else {
+      X5
+  }
+}) then {
+      X1
+  } else {
+      if (X6 >= if (if (X2 >= X4) then {
+  X2
+} else {
+  X4
+} >= X5) then {
+  if (X2 >= X4) then {
+      X2
+  } else {
+      X4
+  }
+} else {
+  X5
+}) then {
+          X6
+    } else {
+          if (if (X2 >= X4) then {
+  X2
+} else {
+  X4
+} >= X5) then {
+              if (X2 >= X4) then {
+                  X2
+        } else {
+                  X4
+        }
+      } else {
+              X5
+      }
+    }
+  }
+}
+testing...
+(num test inputs = 46656)
+Run options: -ntest_max
+
+# Running tests:
+
+max6 run_1 INC
+compiling/solving
+Run options: -ntest_max
+
+# Running tests:
+
+max6 run_1 FULL
+compiling/solving
+Run options: -ntest_max
+
+# Running tests:
+
+max6 run_0 INC
+compiling/solving
+Run options: -ntest_max
+
+# Running tests:
+
+max6 run_0 FULL
+compiling/solving
+Run options: -ntest_max
+
+# Running tests:
+
+max7 run_2 INC
+compiling/solving
+solving time: 190.49718541
+num candidates: 44
+if (if (if (X6 >= X1) then {
+  X6
+} else {
+  X1
+} >= if (X5 >= if (X3 >= X2) then {
+  X3
+} else {
+  X2
+}) then {
+  X5
+} else {
+  if (X3 >= X2) then {
+      X3
+  } else {
+      X2
+  }
+}) then {
+  if (X6 >= X1) then {
+      X6
+  } else {
+      X1
+  }
+} else {
+  if (X5 >= if (X3 >= X2) then {
+  X3
+} else {
+  X2
+}) then {
+      X5
+  } else {
+      if (X3 >= X2) then {
+          X3
+    } else {
+          X2
+    }
+  }
+} >= if (X7 >= X4) then {
+  X7
+} else {
+  X4
+}) then {
+  if (if (X6 >= X1) then {
+  X6
+} else {
+  X1
+} >= if (X5 >= if (X3 >= X2) then {
+  X3
+} else {
+  X2
+}) then {
+  X5
+} else {
+  if (X3 >= X2) then {
+      X3
+  } else {
+      X2
+  }
+}) then {
+      if (X6 >= X1) then {
+          X6
+    } else {
+          X1
+    }
+  } else {
+      if (X5 >= if (X3 >= X2) then {
+  X3
+} else {
+  X2
+}) then {
+          X5
+    } else {
+          if (X3 >= X2) then {
+              X3
+      } else {
+              X2
+      }
+    }
+  }
+} else {
+  if (X7 >= X4) then {
+      X7
+  } else {
+      X4
+  }
+}
+testing...
+(num test inputs = 823543)
+Run options: -ntest_max
+
+# Running tests:
+
+max7 run_2 FULL
+compiling/solving
+Run options: -ntest_max
+
+# Running tests:
+
+max7 run_1 INC
+compiling/solving
+Run options: -ntest_max
+
+# Running tests:
+
+max7 run_1 FULL
+compiling/solving
+Run options: -ntest_max
+
+# Running tests:
+
+max7 run_0 INC
+compiling/solving
+Run options: -ntest_max
+
+# Running tests:
+
+max7 run_0 FULL
+compiling/solving
+Run options: -ntest_max
+
+# Running tests:
+
+max8 run_2 INC
+compiling/solving
+solving time: 1014.101496903
+num candidates: 32
+if (X7 >= if (X2 >= if (X3 >= if (X6 >= if (X8 >= if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X5 >= X1) then {
+      X5
+  } else {
+      X1
+  }
+}) then {
+  X8
+} else {
+  if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+      X4
+  } else {
+      if (X5 >= X1) then {
+          X5
+    } else {
+          X1
+    }
+  }
+}) then {
+  X6
+} else {
+  if (X8 >= if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X5 >= X1) then {
+      X5
+  } else {
+      X1
+  }
+}) then {
+      X8
+  } else {
+      if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+          X4
+    } else {
+          if (X5 >= X1) then {
+              X5
+      } else {
+              X1
+      }
+    }
+  }
+}) then {
+  X3
+} else {
+  if (X6 >= if (X8 >= if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X5 >= X1) then {
+      X5
+  } else {
+      X1
+  }
+}) then {
+  X8
+} else {
+  if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+      X4
+  } else {
+      if (X5 >= X1) then {
+          X5
+    } else {
+          X1
+    }
+  }
+}) then {
+      X6
+  } else {
+      if (X8 >= if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X5 >= X1) then {
+      X5
+  } else {
+      X1
+  }
+}) then {
+          X8
+    } else {
+          if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+              X4
+      } else {
+              if (X5 >= X1) then {
+                  X5
+        } else {
+                  X1
+        }
+      }
+    }
+  }
+}) then {
+  X2
+} else {
+  if (X3 >= if (X6 >= if (X8 >= if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X5 >= X1) then {
+      X5
+  } else {
+      X1
+  }
+}) then {
+  X8
+} else {
+  if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+      X4
+  } else {
+      if (X5 >= X1) then {
+          X5
+    } else {
+          X1
+    }
+  }
+}) then {
+  X6
+} else {
+  if (X8 >= if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X5 >= X1) then {
+      X5
+  } else {
+      X1
+  }
+}) then {
+      X8
+  } else {
+      if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+          X4
+    } else {
+          if (X5 >= X1) then {
+              X5
+      } else {
+              X1
+      }
+    }
+  }
+}) then {
+      X3
+  } else {
+      if (X6 >= if (X8 >= if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X5 >= X1) then {
+      X5
+  } else {
+      X1
+  }
+}) then {
+  X8
+} else {
+  if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+      X4
+  } else {
+      if (X5 >= X1) then {
+          X5
+    } else {
+          X1
+    }
+  }
+}) then {
+          X6
+    } else {
+          if (X8 >= if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X5 >= X1) then {
+      X5
+  } else {
+      X1
+  }
+}) then {
+              X8
+      } else {
+              if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+                  X4
+        } else {
+                  if (X5 >= X1) then {
+                      X5
+          } else {
+                      X1
+          }
+        }
+      }
+    }
+  }
+}) then {
+  X7
+} else {
+  if (X2 >= if (X3 >= if (X6 >= if (X8 >= if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X5 >= X1) then {
+      X5
+  } else {
+      X1
+  }
+}) then {
+  X8
+} else {
+  if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+      X4
+  } else {
+      if (X5 >= X1) then {
+          X5
+    } else {
+          X1
+    }
+  }
+}) then {
+  X6
+} else {
+  if (X8 >= if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X5 >= X1) then {
+      X5
+  } else {
+      X1
+  }
+}) then {
+      X8
+  } else {
+      if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+          X4
+    } else {
+          if (X5 >= X1) then {
+              X5
+      } else {
+              X1
+      }
+    }
+  }
+}) then {
+  X3
+} else {
+  if (X6 >= if (X8 >= if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X5 >= X1) then {
+      X5
+  } else {
+      X1
+  }
+}) then {
+  X8
+} else {
+  if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+      X4
+  } else {
+      if (X5 >= X1) then {
+          X5
+    } else {
+          X1
+    }
+  }
+}) then {
+      X6
+  } else {
+      if (X8 >= if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X5 >= X1) then {
+      X5
+  } else {
+      X1
+  }
+}) then {
+          X8
+    } else {
+          if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+              X4
+      } else {
+              if (X5 >= X1) then {
+                  X5
+        } else {
+                  X1
+        }
+      }
+    }
+  }
+}) then {
+      X2
+  } else {
+      if (X3 >= if (X6 >= if (X8 >= if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X5 >= X1) then {
+      X5
+  } else {
+      X1
+  }
+}) then {
+  X8
+} else {
+  if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+      X4
+  } else {
+      if (X5 >= X1) then {
+          X5
+    } else {
+          X1
+    }
+  }
+}) then {
+  X6
+} else {
+  if (X8 >= if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X5 >= X1) then {
+      X5
+  } else {
+      X1
+  }
+}) then {
+      X8
+  } else {
+      if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+          X4
+    } else {
+          if (X5 >= X1) then {
+              X5
+      } else {
+              X1
+      }
+    }
+  }
+}) then {
+          X3
+    } else {
+          if (X6 >= if (X8 >= if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X5 >= X1) then {
+      X5
+  } else {
+      X1
+  }
+}) then {
+  X8
+} else {
+  if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+      X4
+  } else {
+      if (X5 >= X1) then {
+          X5
+    } else {
+          X1
+    }
+  }
+}) then {
+              X6
+      } else {
+              if (X8 >= if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+  X4
+} else {
+  if (X5 >= X1) then {
+      X5
+  } else {
+      X1
+  }
+}) then {
+                  X8
+        } else {
+                  if (X4 >= if (X5 >= X1) then {
+  X5
+} else {
+  X1
+}) then {
+                      X4
+          } else {
+                      if (X5 >= X1) then {
+                          X5
+            } else {
+                          X1
+            }
+          }
+        }
+      }
+    }
+  }
+}
+testing...
+(num test inputs = 16777216)
+Run options: -ntest_max
+
+# Running tests:
+
+max8 run_2 FULL
+compiling/solving

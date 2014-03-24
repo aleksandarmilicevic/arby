@@ -1,0 +1,725 @@
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_2 run_2 INC
+compiling/solving
+solving time: 1.645756586
+num candidates: 8
+testing...
+if (X1 < K) then {
+  if (K < X2) then {
+      1
+  } else {
+      2
+  }
+} else {
+  0
+}
+test env: {X1$0=>20, X2$0=>40, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, K$0=>41}; expected: 2; actual: 2
+.
+
+Finished tests in 8.736783s, 0.1145 tests/s, 0.4578 assertions/s.
+
+1 tests, 4 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_2 run_2 FULL
+compiling/solving
+solving time: 2.967923369
+num candidates: 7
+testing...
+if (K < if (K < X1) then {
+  K
+} else {
+  X2
+}) then {
+  1
+} else {
+  if (K < X1) then {
+      0
+  } else {
+      2
+  }
+}
+test env: {X1$0=>20, X2$0=>40, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, K$0=>41}; expected: 2; actual: 2
+.
+
+Finished tests in 10.013732s, 0.0999 tests/s, 0.3995 assertions/s.
+
+1 tests, 4 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_2 run_1 INC
+compiling/solving
+solving time: 2.343317939
+num candidates: 8
+testing...
+if (X1 < K) then {
+  if (X2 < K) then {
+      2
+  } else {
+      1
+  }
+} else {
+  0
+}
+test env: {X1$0=>20, X2$0=>40, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, K$0=>41}; expected: 2; actual: 2
+.
+
+Finished tests in 9.549855s, 0.1047 tests/s, 0.4189 assertions/s.
+
+1 tests, 4 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_2 run_1 FULL
+compiling/solving
+solving time: 1.851010047
+num candidates: 4
+testing...
+if (K < X2) then {
+  if (X1 > K) then {
+      0
+  } else {
+      1
+  }
+} else {
+  2
+}
+test env: {X1$0=>20, X2$0=>40, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, K$0=>41}; expected: 2; actual: 2
+.
+
+Finished tests in 9.153005s, 0.1093 tests/s, 0.4370 assertions/s.
+
+1 tests, 4 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_2 run_0 INC
+compiling/solving
+solving time: 1.987110305
+num candidates: 8
+testing...
+if (X2 <= K) then {
+  2
+} else {
+  if (X1 > K) then {
+      0
+  } else {
+      1
+  }
+}
+test env: {X1$0=>20, X2$0=>40, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, K$0=>41}; expected: 2; actual: 2
+.
+
+Finished tests in 9.237230s, 0.1083 tests/s, 0.4330 assertions/s.
+
+1 tests, 4 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_2 run_0 FULL
+compiling/solving
+solving time: 3.044023407
+num candidates: 6
+testing...
+if (K > X1) then {
+  if (X2 > K) then {
+      1
+  } else {
+      2
+  }
+} else {
+  0
+}
+test env: {X1$0=>20, X2$0=>40, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, K$0=>41}; expected: 2; actual: 2
+.
+
+Finished tests in 10.250047s, 0.0976 tests/s, 0.3902 assertions/s.
+
+1 tests, 4 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_3 run_2 INC
+compiling/solving
+solving time: 4.04918398
+num candidates: 13
+testing...
+if (X3 < K) then {
+  if (X2 < K) then {
+      3
+  } else {
+      X1
+  }
+} else {
+  if (X1 < K) then {
+      if (X2 < K) then {
+          2
+    } else {
+          1
+    }
+  } else {
+      0
+  }
+}
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>41}; expected: 2; actual: 2
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>61}; expected: 3; actual: 3
+.
+
+Finished tests in 12.578528s, 0.0795 tests/s, 0.3975 assertions/s.
+
+1 tests, 5 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_3 run_2 FULL
+compiling/solving
+solving time: 6.334920786
+num candidates: 11
+testing...
+if (K < X3) then {
+  if (K < X2) then {
+      if (K < X1) then {
+          0
+    } else {
+          1
+    }
+  } else {
+      2
+  }
+} else {
+  if (K < X2) then {
+      if (K < X1) then {
+          0
+    } else {
+          1
+    }
+  } else {
+      3
+  }
+}
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>41}; expected: 2; actual: 2
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>61}; expected: 3; actual: 3
+.
+
+Finished tests in 14.798554s, 0.0676 tests/s, 0.3379 assertions/s.
+
+1 tests, 5 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_3 run_1 INC
+compiling/solving
+solving time: 8.108630994
+num candidates: 9
+testing...
+if (K > X3) then {
+  3
+} else {
+  if (X2 < K) then {
+      2
+  } else {
+      if (X1 > K) then {
+          0
+    } else {
+          1
+    }
+  }
+}
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>41}; expected: 2; actual: 2
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>61}; expected: 3; actual: 3
+.
+
+Finished tests in 16.625024s, 0.0602 tests/s, 0.3008 assertions/s.
+
+1 tests, 5 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_3 run_1 FULL
+compiling/solving
+solving time: 4.030580427
+num candidates: 7
+testing...
+if (K < if (K < X2) then {
+  X1
+} else {
+  X3
+}) then {
+  if (K < X2) then {
+      0
+  } else {
+      2
+  }
+} else {
+  if (K < X2) then {
+      1
+  } else {
+      3
+  }
+}
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>41}; expected: 2; actual: 2
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>61}; expected: 3; actual: 3
+.
+
+Finished tests in 12.547997s, 0.0797 tests/s, 0.3985 assertions/s.
+
+1 tests, 5 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_3 run_0 INC
+compiling/solving
+solving time: 3.733039819
+num candidates: 7
+testing...
+if (X1 >= K) then {
+  0
+} else {
+  if (K <= X2) then {
+      1
+  } else {
+      if (X3 > K) then {
+          2
+    } else {
+          3
+    }
+  }
+}
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>41}; expected: 2; actual: 2
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>61}; expected: 3; actual: 3
+.
+
+Finished tests in 12.102050s, 0.0826 tests/s, 0.4132 assertions/s.
+
+1 tests, 5 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_3 run_0 FULL
+compiling/solving
+solving time: 15.037154671
+num candidates: 11
+testing...
+if (if (X2 > K) then {
+  X1
+} else {
+  X3
+} >= K) then {
+  if (X2 > K) then {
+      0
+  } else {
+      2
+  }
+} else {
+  if (X2 > K) then {
+      1
+  } else {
+      3
+  }
+}
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>41}; expected: 2; actual: 2
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, K$0=>61}; expected: 3; actual: 3
+.
+
+Finished tests in 23.725750s, 0.0421 tests/s, 0.2107 assertions/s.
+
+1 tests, 5 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_4 run_2 INC
+compiling/solving
+solving time: 16.113595252
+num candidates: 15
+testing...
+if (K < X4) then {
+  if (X1 < K) then {
+      if (K < X3) then {
+          if (X2 < K) then {
+              2
+      } else {
+              if (X1 < K) then {
+                  1
+        } else {
+                  X3
+        }
+      }
+    } else {
+          3
+    }
+  } else {
+      0
+  }
+} else {
+  4
+}
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>41}; expected: 2; actual: 2
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>61}; expected: 3; actual: 3
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>81}; expected: 4; actual: 4
+.
+
+Finished tests in 26.072604s, 0.0384 tests/s, 0.2301 assertions/s.
+
+1 tests, 6 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_4 run_2 FULL
+compiling/solving
+solving time: 76.990384622
+num candidates: 13
+testing...
+if (K < X4) then {
+  if (X3 < K) then {
+      3
+  } else {
+      if (X2 < K) then {
+          if (X3 < K) then {
+              K
+      } else {
+              2
+      }
+    } else {
+          if (X1 < K) then {
+              1
+      } else {
+              0
+      }
+    }
+  }
+} else {
+  4
+}
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>41}; expected: 2; actual: 2
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>61}; expected: 3; actual: 3
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>81}; expected: 4; actual: 4
+.
+
+Finished tests in 86.956015s, 0.0115 tests/s, 0.0690 assertions/s.
+
+1 tests, 6 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_4 run_1 INC
+compiling/solving
+solving time: 97.452598558
+num candidates: 11
+testing...
+if (X1 > K) then {
+  0
+} else {
+  if (K < X3) then {
+      if (if (K < X3) then {
+  X2
+} else {
+  X4
+} < K) then {
+          2
+    } else {
+          1
+    }
+  } else {
+      if (if (K < X3) then {
+  X2
+} else {
+  X4
+} < K) then {
+          4
+    } else {
+          3
+    }
+  }
+}
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>41}; expected: 2; actual: 2
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>61}; expected: 3; actual: 3
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>81}; expected: 4; actual: 4
+.
+
+Finished tests in 107.247455s, 0.0093 tests/s, 0.0559 assertions/s.
+
+1 tests, 6 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_4 run_1 FULL
+compiling/solving
+solving time: 351.900150152
+num candidates: 13
+testing...
+if (if (X3 < K) then {
+  X4
+} else {
+  X2
+} < K) then {
+  if (X3 < K) then {
+      4
+  } else {
+      2
+  }
+} else {
+  if (X1 < K) then {
+      if (X3 < K) then {
+          3
+    } else {
+          1
+    }
+  } else {
+      0
+  }
+}
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>41}; expected: 2; actual: 2
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>61}; expected: 3; actual: 3
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>81}; expected: 4; actual: 4
+.
+
+Finished tests in 361.627832s, 0.0028 tests/s, 0.0166 assertions/s.
+
+1 tests, 6 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_4 run_0 INC
+compiling/solving
+solving time: 310.744270515
+num candidates: 15
+testing...
+if (X4 >= K) then {
+  if (X3 <= K) then {
+      3
+  } else {
+      if (X1 <= K) then {
+          if (X2 <= K) then {
+              2
+      } else {
+              1
+      }
+    } else {
+          0
+    }
+  }
+} else {
+  4
+}
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>41}; expected: 2; actual: 2
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>61}; expected: 3; actual: 3
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>81}; expected: 4; actual: 4
+.
+
+Finished tests in 320.377366s, 0.0031 tests/s, 0.0187 assertions/s.
+
+1 tests, 6 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_4 run_0 FULL
+compiling/solving
+solving time: 543.657101117
+num candidates: 13
+testing...
+if (X2 <= K) then {
+  if (if (K >= X3) then {
+  X4
+} else {
+  X1
+} >= K) then {
+      3
+  } else {
+      if (K >= X3) then {
+          4
+    } else {
+          2
+    }
+  }
+} else {
+  if (if (K >= X3) then {
+  X4
+} else {
+  X1
+} >= K) then {
+      0
+  } else {
+      1
+  }
+}
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>41}; expected: 2; actual: 2
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>61}; expected: 3; actual: 3
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, K$0=>81}; expected: 4; actual: 4
+.
+
+Finished tests in 553.743748s, 0.0018 tests/s, 0.0108 assertions/s.
+
+1 tests, 6 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_5 run_2 INC
+compiling/solving
+solving time: 485.624348215
+num candidates: 18
+testing...
+if (X1 < K) then {
+  if (K < X2) then {
+      1
+  } else {
+      if (K < X4) then {
+          if (K < if (X5 < K) then {
+  5
+} else {
+  X3
+}) then {
+              2
+      } else {
+              3
+      }
+    } else {
+          if (X5 < K) then {
+              if (X5 < K) then {
+                  5
+        } else {
+                  X3
+        }
+      } else {
+              4
+      }
+    }
+  }
+} else {
+  0
+}
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, X5$0=>100, K$0=>1}; expected: 0; actual: 0
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, X5$0=>100, K$0=>21}; expected: 1; actual: 1
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, X5$0=>100, K$0=>41}; expected: 2; actual: 2
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, X5$0=>100, K$0=>61}; expected: 3; actual: 3
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, X5$0=>100, K$0=>81}; expected: 4; actual: 4
+test env: {X1$0=>20, X2$0=>40, X3$0=>60, X4$0=>80, X5$0=>100, K$0=>101}; expected: 5; actual: 5
+.
+
+Finished tests in 496.895244s, 0.0020 tests/s, 0.0141 assertions/s.
+
+1 tests, 7 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_search
+
+# Running tests:
+
+reading N
+reading C
+reading F
+array_search_5 run_2 FULL
+compiling/solving
