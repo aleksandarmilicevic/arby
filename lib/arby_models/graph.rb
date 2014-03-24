@@ -63,9 +63,11 @@ module ArbyModels
     }
 
     fun crossing[g: Graph, cut: (set Node)][(set Edge)] {
+      compl = g.nodes - cut
+
       g.edges.select { 
-        |e| (e.src.in? cut and e.dst.in? (g.nodes - cut)) or 
-            (e.dst.in? cut and e.src.in?  (g.nodes - cut)) }
+        |e| (e.src.in? cut and e.dst.in? compl) or 
+            (e.dst.in? cut and e.src.in? compl) }
     }
 
     pred minVertexCover[g: Graph, cover: (set Node)] {

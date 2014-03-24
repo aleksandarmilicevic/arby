@@ -18,8 +18,7 @@ class GraphTester
     Arby.meta.restrict_to(ArbyModels::GraphModel)
   end
 
-  @@max_clique_preds = [:maxClique] #, :maxCliqueFix]
-  @@find_max_clique_preds = [:find_maxClique] #, :find_maxCliqueFix]
+  @@ref_impls = {}
 
   def convert_to_arby_graph(g)
     n = g.size
@@ -75,7 +74,10 @@ class GraphTester
     alloy_ret = nil
     m = Benchmark.measure { alloy_ret = g.send(alg_name) }
     fio = File.open("#{RESULT_DIR}/#{alg_name}", 'a')
-    print_line("#{size}\t#{threshold}\t#{run_id}\t#{m.total}", fio)
+    solving_time = $arby_sol.solving_time
+    num_cands = $arby_sol._a4sol.getStats().numCandidates()
+    sat_solving_time = $arby_sol._a4sol.getStats().solvingTime()
+    print_line("#{size}\t#{threshold}\t#{run_id}\t#{m.total}\t#{solving_time}\t#{sat_solving_time/1000.0}\t#{num_cands}", fio)
 
     # run the Java reference implementation
     rjb_ret = run_rjb_max_indset_finder(a)
