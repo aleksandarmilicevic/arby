@@ -106,15 +106,21 @@ module Arby
       # @param inst [Arby::Ast::Instance<Arby::Ast::Sig, Arby::Ast::TupleSet>]
       # @param ts [Arby::Bridge::TupleSet]
       def _to_tuple_set(compiler, inst, ts)
+        unary = true
         tuples = $sol_timer.time_it("tuplemap") {
           ts.tuples.map do |tuple|
+            unary = unary && tuple.size == 1
             atoms = tuple.map{|a| inst.atom!(a.label)}
           end
         }
-        type =  $sol_timer.time_it("toatype") { _type_to_atype!(compiler, ts.type) }
-        $sol_timer.time_it("wrap") {
-          Arby::Ast::TupleSet.wrap(tuples, type)
-        }
+        if Arby.conf.wrap_field_values
+          type =  $sol_timer.time_it("toatype") { _type_to_atype!(compiler, ts.type) }
+          $sol_timer.time_it("wrap") {
+            Arby::Ast::TupleSet.wrap(tuples, type)
+          }
+        else
+          tuples
+        end
       end
 
     end

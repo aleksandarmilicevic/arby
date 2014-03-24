@@ -1,0 +1,106 @@
+max2 run_2 INC
+compiling/solving
+solving time: 0.43524659
+--
+max2 run_2 FULL
+compiling/solving
+solving time: 0.410309341
+--
+max2 run_1 INC
+compiling/solving
+solving time: 0.47530615
+--
+max2 run_1 FULL
+compiling/solving
+solving time: 0.59949351
+--
+max2 run_0 INC
+compiling/solving
+solving time: 0.435679743
+--
+max2 run_0 FULL
+compiling/solving
+solving time: 0.579808259
+--
+max3 run_2 INC
+compiling/solving
+solving time: 0.719717869
+--
+max3 run_2 FULL
+compiling/solving
+solving time: 1.031812214
+--
+max3 run_1 INC
+compiling/solving
+solving time: 1.162318817
+--
+max3 run_1 FULL
+compiling/solving
+solving time: 1.19552995
+--
+max3 run_0 INC
+compiling/solving
+solving time: 0.950975406
+--
+max3 run_0 FULL
+compiling/solving
+solving time: 1.564848327
+--
+max4 run_2 INC
+compiling/solving
+solving time: 1.483903963
+--
+max4 run_2 FULL
+compiling/solving
+solving time: 4.732893013
+--
+max4 run_1 INC
+compiling/solving
+solving time: 2.277290552
+--
+max4 run_1 FULL
+compiling/solving
+solving time: 15.356282242
+--
+max4 run_0 INC
+compiling/solving
+solving time: 2.854137331
+--
+max4 run_0 FULL
+compiling/solving
+solving time: 13.1111529
+--
+max5 run_2 INC
+compiling/solving
+solving time: 2.777171404
+--
+max5 run_2 FULL
+compiling/solving
+solving time: 10.33548399
+--
+max5 run_1 INC
+compiling/solving
+solving time: 38.90394049
+--
+max5 run_1 FULL
+compiling/solving
+solving time: 650.882944821
+--
+max5 run_0 INC
+compiling/solving
+solving time: 44.970617549
+--
+max5 run_0 FULL
+compiling/solving
+solving time: 435.467259264
+--
+max6 run_2 INC
+compiling/solving
+solving time: 13.606151986
+--
+max6 run_2 FULL
+compiling/solving
+solving time: 136.379329165
+--
+max6 run_1 INC
+compiling/solving

@@ -1,0 +1,318 @@
+Run options: -ntest_max
+
+# Running tests:
+
+max2 run_2 full_inc = false
+compiling/solving
+solving time: 0.43524659
+.
+
+Finished tests in 4.398462s, 0.2274 tests/s, 0.2274 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max2 run_2 full_inc = true
+compiling/solving
+solving time: 0.410309341
+.
+
+Finished tests in 4.291765s, 0.2330 tests/s, 0.2330 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max2 run_1 full_inc = false
+compiling/solving
+solving time: 0.47530615
+.
+
+Finished tests in 4.327160s, 0.2311 tests/s, 0.2311 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max2 run_1 full_inc = true
+compiling/solving
+solving time: 0.59949351
+.
+
+Finished tests in 4.486629s, 0.2229 tests/s, 0.2229 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max2 run_0 full_inc = false
+compiling/solving
+solving time: 0.435679743
+.
+
+Finished tests in 4.366696s, 0.2290 tests/s, 0.2290 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max2 run_0 full_inc = true
+compiling/solving
+solving time: 0.579808259
+.
+
+Finished tests in 4.486524s, 0.2229 tests/s, 0.2229 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max3 run_2 full_inc = false
+compiling/solving
+solving time: 0.719717869
+.
+
+Finished tests in 5.185209s, 0.1929 tests/s, 0.1929 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max3 run_2 full_inc = true
+compiling/solving
+solving time: 1.031812214
+.
+
+Finished tests in 5.500127s, 0.1818 tests/s, 0.1818 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max3 run_1 full_inc = false
+compiling/solving
+solving time: 1.162318817
+.
+
+Finished tests in 5.647359s, 0.1771 tests/s, 0.1771 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max3 run_1 full_inc = true
+compiling/solving
+solving time: 1.19552995
+.
+
+Finished tests in 5.687766s, 0.1758 tests/s, 0.1758 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max3 run_0 full_inc = false
+compiling/solving
+solving time: 0.950975406
+.
+
+Finished tests in 5.451967s, 0.1834 tests/s, 0.1834 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max3 run_0 full_inc = true
+compiling/solving
+solving time: 1.564848327
+.
+
+Finished tests in 6.080265s, 0.1645 tests/s, 0.1645 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max4 run_2 full_inc = false
+compiling/solving
+solving time: 1.483903963
+.
+
+Finished tests in 6.567978s, 0.1523 tests/s, 0.1523 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max4 run_2 full_inc = true
+compiling/solving
+solving time: 4.732893013
+.
+
+Finished tests in 9.845101s, 0.1016 tests/s, 0.1016 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max4 run_1 full_inc = false
+compiling/solving
+solving time: 2.277290552
+.
+
+Finished tests in 7.320926s, 0.1366 tests/s, 0.1366 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max4 run_1 full_inc = true
+compiling/solving
+solving time: 15.356282242
+.
+
+Finished tests in 20.391657s, 0.0490 tests/s, 0.0490 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max4 run_0 full_inc = false
+compiling/solving
+solving time: 2.854137331
+.
+
+Finished tests in 7.955113s, 0.1257 tests/s, 0.1257 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max4 run_0 full_inc = true
+compiling/solving
+solving time: 13.1111529
+.
+
+Finished tests in 18.210715s, 0.0549 tests/s, 0.0549 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max5 run_2 full_inc = false
+compiling/solving
+solving time: 2.777171404
+.
+
+Finished tests in 8.464180s, 0.1181 tests/s, 0.1181 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max5 run_2 full_inc = true
+compiling/solving
+solving time: 10.33548399
+.
+
+Finished tests in 16.111947s, 0.0621 tests/s, 0.0621 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max5 run_1 full_inc = false
+compiling/solving
+solving time: 38.90394049
+.
+
+Finished tests in 44.598443s, 0.0224 tests/s, 0.0224 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max5 run_1 full_inc = true
+compiling/solving
+solving time: 650.882944821
+.
+
+Finished tests in 656.576863s, 0.0015 tests/s, 0.0015 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max5 run_0 full_inc = false
+compiling/solving
+solving time: 44.970617549
+.
+
+Finished tests in 50.862828s, 0.0197 tests/s, 0.0197 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max5 run_0 full_inc = true
+compiling/solving
+solving time: 435.467259264
+.
+
+Finished tests in 441.203604s, 0.0023 tests/s, 0.0023 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max6 run_2 full_inc = false
+compiling/solving
+solving time: 13.606151986
+.
+
+Finished tests in 20.492084s, 0.0488 tests/s, 0.0488 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max6 run_2 full_inc = true
+compiling/solving
+solving time: 136.379329165
+.
+
+Finished tests in 142.978671s, 0.0070 tests/s, 0.0070 assertions/s.
+
+1 tests, 1 assertions, 0 failures, 0 errors, 0 skips
+Run options: -ntest_max
+
+# Running tests:
+
+max6 run_1 full_inc = false
+compiling/solving

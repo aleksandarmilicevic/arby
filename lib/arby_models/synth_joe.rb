@@ -116,27 +116,20 @@ module ArbyModels
       root.elsen.elsen == Z
     }
 
-    pred max3 {
-      some(root: IntNode) {
-        some(eval: Node.e ** (Int + Boolean)) {
-          spec(root, eval) && semantics(eval) and
-          all(eval2: Node.e ** (Int + Boolean)) {
-            spec(root, eval2-eval) if semantics(eval2-eval)
-          }
-        }
-      }
+    pred synth[root: IntNode] {
+"""
+  all env: Var -> one Int {
+    some eval: Node -> one (Int+Boolean) |{
+      env in eval
+      semantics[eval]
+    } |{
+      spec[root, eval]
+    }
+  }
+"""
     }
 
-    pred mmmax3 {
-      some(root: IntNode) {
-        # program[root]
-        all(eval: Node.e ** (Int + Boolean)) {
-          spec(root, eval) if semantics(eval)
-        }
-      }
-    }
-
-    run :max3, 9, Int => 2
+    run :synth, 9, Int => 0..1
   end
 
   module SynthJoe

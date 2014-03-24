@@ -12,6 +12,7 @@ require 'pry'
 require 'arby/arby'
 require 'sdg_utils/testing/assertions'
 require 'sdg_utils/testing/smart_setup'
+require 'sdg_utils/timing/timer'
 
 module Test
   module Unit

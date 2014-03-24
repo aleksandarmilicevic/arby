@@ -82,10 +82,15 @@ module Arby
         return if history.member?(model)
         history << model
 
+        stack = @stack ||= []
+        stack.push model
+
         if @in_opened_module
           @out.pl "// ============================================="
           @out.pl "// == module #{model.relative_name}"
         else
+          @funs = Set.new
+
           # module name (useless)
           @out.pl "module #{model.relative_name}"
 
@@ -97,12 +102,6 @@ module Arby
         end
 
         @out.pl
-
-        # print open decsl
-        was_open = @in_opened_module
-        @in_opened_module = true
-        @out.pn model.opens, "\n"
-        @in_opened_module = was_open
 
         # print sigs
         sigs = model.sigs #.reject{|s| s.meta.enum_const?}
@@ -120,9 +119,17 @@ module Arby
           @out.pn model.commands, "\n"
         end
 
+        # print open decsl
+        was_open = @in_opened_module
+        @in_opened_module = true
+        @out.pn model.opens, "\n"
+        @in_opened_module = was_open
+
         if @in_opened_module
           @out.pl "// -------------------------------------------\n"
         end
+      ensure
+        stack.pop
       end
 
       def enum_to_als(sig)
@@ -199,16 +206,20 @@ module Arby
                else
                  fun.kind
                end
-        @out.pl "#{kind} #{fun_name}#{params_str}#{ret_str} {"
-        @out.in do
-          fun_body = is_inst_fun ? fun.sym_exe("this") : fun.sym_exe
-          if fun_body.is_a? String
-            @out.p fun_body
-          else
-            @out.pn fun_body.to_conjuncts, "\n" if fun_body
+        sign = "#{kind} #{fun_name}#{params_str}#{ret_str} {"
+        unless @funs.member?(sign)
+          @funs << sign
+          @out.pl sign
+          @out.in do
+            fun_body = is_inst_fun ? fun.sym_exe("this") : fun.sym_exe
+            if fun_body.is_a? String
+              @out.p fun_body
+            else
+              @out.pn fun_body.to_conjuncts, "\n" if fun_body
+            end
           end
+          @out.pl "\n}"
         end
-        @out.pl "\n}"
       end
 
       def command_to_als(cmd)

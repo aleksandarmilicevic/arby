@@ -14,6 +14,7 @@ module Arby
       # @param op   [Arby::Ast::Op] --- binary operator
       # @param args [Array(Expr)]   --- operands
       def reduce_to_binary(op, *args)
+        args = args.first if args.size == 1 && Array === args.first
         if args.size == 1
           args.first
         else

@@ -83,13 +83,20 @@ module Arby
 
       def [](key)
         case key
-        when Class           then @type2atoms[key] || []
+        when Class           then all_atoms(key)
         when Field           then field(key)
         when Expr::FieldExpr then field(key.__field)
         else
           atom(key) || skolem(key) || field(key)
         end
       end
+
+      def all_atoms(cls)
+        subs = (cls < Arby::Ast::ASig) ? cls.meta.subsigs : []
+        subs.reduce(immediate_atoms(cls)) {|acc, c| acc + all_atoms(c)}
+      end
+
+      def immediate_atoms(cls) @type2atoms[cls] || [] end
 
       def to_bounds(lo_only=false)
         require 'arby/ast/bounds'
