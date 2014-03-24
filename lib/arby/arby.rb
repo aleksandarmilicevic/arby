@@ -2,6 +2,9 @@ require 'arby/arby_conf'
 require 'arby/arby_event_constants'
 require 'sdg_utils/test_and_set'
 require 'sdg_utils/meta_utils'
+require 'sdg_utils/timing/timer'
+
+$arby_timer = SDGUtils::Timing::Timer.new
 
 module Arby
   extend self

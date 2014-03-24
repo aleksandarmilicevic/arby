@@ -50,7 +50,7 @@ module Arby
       end
 
       def solve(pred, scope)
-        cmd_name, cmd_body =
+        cmd_name, cmd_body = 
           case pred
           when NilClass
             ["find_model_#{SDGUtils::Random.salted_timestamp}", "{}"]
@@ -153,36 +153,40 @@ module Arby
       # @see Compiler.execute_command
       # @result [Arby::Bridge::Solution]
       def _execute(a4wrld, cmd_idx_or_name=0)
-        pi = @bounds && @bounds.serialize(@univ)
+        $arby_timer.time_it("Compiler#._execute") {
+          pi = @bounds && @bounds.serialize(@univ)
 
-        Compiler.current = self
-        a4sol = @timer.time_it("execute_command") {
-          AlloyCompiler.execute_command(a4wrld, cmd_idx_or_name, pi)
-        }
-        Compiler.current = nil
-
-        sol = Solution.new(a4sol, self, @univ, @bounds, @timer.last_time)
-        sol.arby_instance if @univ && !@univ.sig_atoms.empty?
+          Compiler.current = self
+        
+          a4sol = $arby_timer.time_it("Alloy.execute_command") {
+            @timer.time_it("execute_command") {
+              AlloyCompiler.execute_command(a4wrld, cmd_idx_or_name, pi)
+            }
+          }
+          Compiler.current = nil
+          sol = Solution.new(a4sol, self, @univ, @bounds, @timer.last_time) 
+          $arby_timer.time_it("recreating graph") {
+            sol.arby_instance if @univ && !@univ.sig_atoms.empty?
+          }
         sol
+        }
       end
 
 
       # @see Compiler.parse
       def _parse(addendum="")
+        $arby_timer.time_it("Compiler#._parse") {
         # fail "already parsed" if @a4world
         fail "als model not set" unless @model
 
-        t = SDGUtils::Timing::Timer.new
-
-        als = t.time_it{@model.to_als + "\n" + addendum}
-
-        puts "alloy print time: #{t.last_time}"
+        als = @model.to_als + "\n" + addendum
 
         Bridge::debug "parsing this"
         Bridge::debug als
         Bridge::debug "--------------------------"
 
         @a4world = AlloyCompiler.parse(als)
+        }
       end
 
       def fail_if_not_parsed

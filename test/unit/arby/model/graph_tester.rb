@@ -5,6 +5,10 @@ require 'rjb'
 require 'arby/bridge/imports'
 require 'pry'
 
+def puts!(s) 
+  puts s
+end
+
 class GraphTester 
   include Arby::Bridge
 
@@ -79,12 +83,18 @@ class GraphTester
     sat_solving_time = $arby_sol._a4sol.getStats().solvingTime()
     print_line("#{size}\t#{threshold}\t#{run_id}\t#{m.total}\t#{solving_time}\t#{sat_solving_time/1000.0}\t#{num_cands}", fio)
 
+    puts alloy_ret    
+    puts "Arby times:"
+    puts $arby_timer.print
+
     # run the Java reference implementation
     rjb_ret = run_rjb_max_indset_finder(a)
     
     if alloy_ret.size != rjb_ret.size then
-      puts! "Something is wrong!"
+      puts "Something is wrong!"
       return
+    else
+      puts "Test passed"
     end
   end
   

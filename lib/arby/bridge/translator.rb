@@ -113,11 +113,9 @@ module Arby
             atoms = tuple.map{|a| inst.atom!(a.label)}
           end
         }
-        if Arby.conf.wrap_field_values
-          type =  $sol_timer.time_it("toatype") { _type_to_atype!(compiler, ts.type) }
-          $sol_timer.time_it("wrap") {
-            Arby::Ast::TupleSet.wrap(tuples, type)
-          }
+        if false #Arby.conf.wrap_field_values
+          type =  _type_to_atype!(compiler, ts.type)
+          Arby::Ast::TupleSet.wrap(tuples, type)
         else
           tuples
         end
