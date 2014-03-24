@@ -26,3 +26,6 @@ doc/
 # Aptana
 .project
 .settings
+
+#Java class files
+*.class

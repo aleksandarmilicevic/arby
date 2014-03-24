@@ -3,12 +3,15 @@ require 'set'
 require 'benchmark'
 require 'rjb'
 require 'arby/bridge/imports'
+require 'pry'
 
 class GraphTester 
   include Arby::Bridge
 
   GraphModel = ArbyModels::GraphModel
   include GraphModel
+
+  RESULT_DIR = "test/unit/arby/model/results_graph"
 
   def setup_class
     Arby.reset
@@ -44,7 +47,7 @@ class GraphTester
     size, threshold, run_id = 0, 0, 0
     File.open(fname, 'r') do |f|
       size = f.gets.to_i
-      threshold = f.gets.to_i
+      threshold = f.gets.to_f
       run_id = f.gets.to_i
       (0...size).each do |i|
         g[i] = []
@@ -56,20 +59,43 @@ class GraphTester
     return [g, size, threshold, run_id]
   end
 
-  def test_graph_from_file(f)
-    @@find_max_clique_preds.each { |p| do_graph_test_from_file(p, f) }
+  def print_line(l, fio=nil)  
+    if fio then fio.puts l end
+    puts l
+  end
+
+  def test_graph_from_file(f, alg)    
+    do_graph_test_from_file(alg.to_sym, f) 
   end
 
   def do_graph_test_from_file(alg_name, f)
-    g = convert_to_arby_graph(read_graph(f)[0])
-    Benchmark.bm do |x|        
-      x.report("#{f}: ") { alloy_clq = g.send(alg_name) }
+    # run the Alloy version
+    a, size, threshold, run_id = read_graph(f)
+    g = convert_to_arby_graph(a)
+    alloy_ret = nil
+    m = Benchmark.measure { alloy_ret = g.send(alg_name) }
+    fio = File.open("#{RESULT_DIR}/#{alg_name}", 'a')
+    print_line("#{size}\t#{threshold}\t#{run_id}\t#{m.total}", fio)
+
+    # run the Java reference implementation
+    rjb_ret = run_rjb_max_indset_finder(a)
+    
+    if alloy_ret.size != rjb_ret.size then
+      puts! "Something is wrong!"
+      return
     end
+  end
+  
+  def run_rjb_max_indset_finder(g)
+    finder = Rjb::import('hola.MaxIndependentSetFinder')
+    ret = nil
+    Arby::Bridge::Imports.catch_alloy_errors {
+      ret = finder.findMaxIndependentSet(g)
+    }
+    return ret.toArray.map {|e| "Node__#{e.intValue}"}
   end
 
 end
 
 tester = GraphTester.new
-ARGV.each do |fname|
-  tester.test_graph_from_file(fname)
-end
+tester.test_graph_from_file(ARGV[0], ARGV[1])

@@ -152,7 +152,8 @@ class GraphTest < Test::Unit::TestCase
   # end
 
   def test_graph_gen
-    gen_graphs([2, 3, 4], [0.3, 0.5, 0.7], 3)
+    gen_graphs([2, 3, 5, 7, 9, 13, 15, 20, 25, 30], [0.1, 0.3, 0.5, 0.7, 0.9], 5)
+#    gen_graphs([2, 3, 4], [0.3, 0.5, 0.7], 3)
   end
 
   def print_graph(g)
