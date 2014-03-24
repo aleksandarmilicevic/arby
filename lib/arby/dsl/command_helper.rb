@@ -56,7 +56,7 @@ module Arby
           case scope
           when Arby::Ast::SigScope
             Arby::Ast::SigScope.new(sig || scope.sig, scope.scope, scope.exact?)
-          when Integer
+          when Integer, Range
             Arby::Ast::SigScope.new(sig, scope)
           else
             raise SyntaxError, "Invalid scope #{scope}:#{scope.class}"

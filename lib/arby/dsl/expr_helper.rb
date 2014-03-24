@@ -13,7 +13,7 @@ module Arby
 
       def union(*e) Arby::Ast::ExprBuilder.reduce_to_binary(Arby::Ast::Ops::PLUS, *e) end
       def conj(*e)  Arby::Ast::ExprBuilder.reduce_to_binary(Arby::Ast::Ops::AND, *e) end
-      def disj(*e)  Arby::Ast::ExprBuilder.reduce_to_binary(Arby::Ast::Ops::AND, *e) end
+      def disj(*e)  Arby::Ast::ExprBuilder.reduce_to_binary(Arby::Ast::Ops::OR, *e) end
     end
 
   end

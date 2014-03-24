@@ -211,7 +211,7 @@ module Arby
               if fun.procedure?
                 _define_method <<-RUBY, __FILE__, __LINE__+1
                   def #{fun.name}(#{args_str})
-                    #{fun.orig_method_name}(#{args_str})
+                    #{fun.arby_method_name}(#{args_str})
                   end
                 RUBY
               else
