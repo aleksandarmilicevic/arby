@@ -171,7 +171,12 @@ module Arby
       def _parse(addendum="")
         # fail "already parsed" if @a4world
         fail "als model not set" unless @model
-        als = @model.to_als + "\n" + addendum
+
+        t = SDGUtils::Timing::Timer.new
+
+        als = t.time_it{@model.to_als + "\n" + addendum}
+
+        puts "alloy print time: #{t.last_time}"
 
         Bridge::debug "parsing this"
         Bridge::debug als

@@ -33,6 +33,59 @@ module ArbyModels
       }
     }
 
+    pred independentSet[g: Graph, indset: (set Node)] {
+      indset.in? g.nodes and
+      all(n1: indset) |
+      all(n2: indset - n1) {
+        no(e: g.edges) {
+          (e.src == n1 && e.dst == n2) or
+          (e.src == n2 && e.dst == n1)
+        }
+      }
+    }
+ 
+    pred maxIndependentSet[g: Graph, indset: (set Node)] {
+      independentSet(g, indset) and
+      no(indset2: (set Node)) {
+        indset2 != indset and
+        independentSet(g, indset2) and
+        indset2.size > indset.size
+      }
+    }
+
+    pred maxCut[g: Graph, cut: (set Node)] {
+      cut.in? g.nodes and
+      no(cut2: (set Node)) {
+        cut2.in? g.nodes and
+        cut2 != cut and
+        crossing(g, cut2).size > crossing(g, cut).size
+      }
+    }
+
+    fun crossing[g: Graph, cut: (set Node)][(set Edge)] {
+      compl = g.nodes - cut
+
+      g.edges.select { 
+        |e| (e.src.in? cut and e.dst.in? compl) or 
+            (e.dst.in? cut and e.src.in? compl) }
+    }
+
+    pred minVertexCover[g: Graph, cover: (set Node)] {
+      vertexCover(g, cover) and
+      no(cover2: (set Node)) {
+        cover != cover2	and
+        vertexCover(g, cover2) and
+        cover2.size < cover.size
+      }
+    }
+    
+    pred vertexCover[g: Graph, cover: (set Node)] {
+      cover.in? g.nodes and
+      all(e: g.edges) {
+        e.src.in? cover or e.dst.in? cover
+      }	
+    }
+
     pred clique[g: Graph, clq: (set Node)] {
       clq.in? g.nodes and
       all(n1: clq) |
@@ -211,7 +264,10 @@ module ArbyModels
 
     def find_hampath(&blk)         p=find_for(:hampath, :path, &blk) and p.project(1) end
     def find_maxClique(&blk)       find_for(:maxClique, :clq, &blk) end
+    def find_maxIndependentSet(&blk)  find_for(:maxIndependentSet, :indset, &blk) end
     def find_maxCliqueFix(&blk)    find_for(:maxCliqueFix, :clq, &blk) end
+    def find_minVertexCover(&blk)    find_for(:minVertexCover, :cover, &blk) end
+    def find_maxCut(&blk)    find_for(:maxCut, :cut, &blk) end
     def find_maxMaxClique(&blk)    find_for(:maxMaxClique, :clq, &blk) end
     def find_maxMaxCliqueFix(&blk) find_for(:maxMaxCliqueFix, :clq, &blk) end
 
@@ -229,5 +285,5 @@ module ArbyModels
       else nil end
     end
   end
-
+  
 end
