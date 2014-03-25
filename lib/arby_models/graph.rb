@@ -101,7 +101,8 @@ cut in g.nodes
   no cut2: set Node {
     cut2 in g.nodes
     cut2 != cut
-    #crossing[g, cut2] > #crossing[g, cut]
+    (#crossing[g, cut2] > #crossing[g, cut] or
+     (#crossing[g, cut2] = #crossing[g, cut] and #cut2 > #cut))
   }
 """
     }
@@ -113,7 +114,7 @@ cut in g.nodes
       #   |e| (e.src.in? cut and e.dst.in? compl) or 
       #       (e.dst.in? cut and e.src.in? compl) }
 
-      "{e: g.edges | e.src in cut && e.dst in g.nodes - cut || e.dst in cut && e.src in g.nodes - cut}"
+      "{e: g.edges | (e.src in cut && e.dst in g.nodes - cut) || (e.dst in cut && e.src in g.nodes - cut)}"
     }
 
     pred minVertexCover[g: Graph, cover: (set Node)] {
@@ -175,11 +176,11 @@ clq in g.nodes
       #   clq2.size > clq.size
       # }
 """
-maxClique[g, clq]
+clique[g, clq]
   no clq2: set Node {
     clq2 != clq
-    maxClique[g, clq2]
-    valsum[clq2] > valsum[clq]
+    clique[g, clq2]
+    #clq2 > #clq
   }
 """
     }
@@ -355,12 +356,13 @@ maxClique[g, clq]
 
     def find_for(pred_name, out_var_name)
       bnds = Arby::Ast::Bounds.from_atoms(self)
+#      bnds.bound_int (-8..7).to_a
       pred = if block_given?
                GraphModel.send(pred_name, &Proc.new)
              else
                pred_name
              end
-      sol = GraphModel.solve pred, bnds
+      sol = GraphModel.solve pred, bnds, 4, Int => 0
       $arby_sol = sol
       if sol.satisfiable?
       then sol["$#{pred_name}_#{out_var_name}"]

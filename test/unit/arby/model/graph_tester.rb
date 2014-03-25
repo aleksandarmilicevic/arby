@@ -22,7 +22,21 @@ class GraphTester
     Arby.meta.restrict_to(ArbyModels::GraphModel)
   end
 
-  @@ref_impls = {}
+  @@ref_impls = {
+    :maxClique => 'run_rjb_max_clique_finder',
+    :maxMaxClique => 'run_rjb_max_max_clique_finder',
+    :maxIndependentSet => 'run_rjb_max_indset_finder',
+    :maxCut => 'run_rjb_max_cut_finder',
+    :minVertexCover => 'run_rjb_min_vertex_cover_finder',
+  }
+
+  @@arby_calls = {
+    :maxClique => 'find_maxClique',
+    :maxMaxClique => 'find_maxMaxClique',
+    :maxIndependentSet => 'find_maxIndependentSet',
+    :maxCut => 'find_maxCut',
+    :minVertexCover => 'find_minVertexCover'
+  }
 
   def convert_to_arby_graph(g)
     n = g.size
@@ -72,39 +86,126 @@ class GraphTester
   end
 
   def do_graph_test_from_file(alg_name, f)
+    
     # run the Alloy version
     a, size, threshold, run_id = read_graph(f)
     g = convert_to_arby_graph(a)
+
+    # # debug
+    # alloy_str = ""
+    # g.nodes.each do |n|
+    #   alloy_str += "#{n}, "
+    # end
+    # alloy_str += "\n"
+    # g.edges.each do |e|
+    #   alloy_str += "#{e}, "      
+    # end
+    # alloy_str += "\n"
+    # alloy_str += "src = "
+    # g.edges.each do |e|
+    #   alloy_str += "#{e} -> #{e.src} + "      
+    # end
+    # alloy_str += "\n"
+    # alloy_str += "dst = "
+    # g.edges.each do |e|
+    #   alloy_str += "#{e} -> #{e.dst} + "      
+    # end
+    # alloy_str += "\n"
+    # puts! alloy_str
+  
     alloy_ret = nil
-    m = Benchmark.measure { alloy_ret = g.send(alg_name) }
+    arby_alg = @@arby_calls[alg_name]
+
+    m = Benchmark.measure { alloy_ret = g.send(arby_alg) }
     fio = File.open("#{RESULT_DIR}/#{alg_name}", 'a')
+
+    # some extra stats
     solving_time = $arby_sol.solving_time
     num_cands = $arby_sol._a4sol.getStats().numCandidates()
     sat_solving_time = $arby_sol._a4sol.getStats().solvingTime()
-    print_line("#{size}\t#{threshold}\t#{run_id}\t#{m.total}\t#{solving_time}\t#{sat_solving_time/1000.0}\t#{num_cands}", fio)
 
-    puts alloy_ret    
-    puts "Arby times:"
-    puts $arby_timer.print
+    # print the stats to file and console
+    print_line("#{size},#{threshold},#{run_id},#{m.total},#{solving_time}," + 
+               "#{sat_solving_time/1000.0},#{num_cands}", 
+               fio)
 
     # run the Java reference implementation
-    rjb_ret = run_rjb_max_indset_finder(a)
-    
-    if alloy_ret.size != rjb_ret.size then
-      puts "Something is wrong!"
-      return
+    rjb_fun = @@ref_impls[alg_name]
+    rjb_ret = self.send(rjb_fun, a, alloy_ret)    
+  end
+  
+  def run_rjb_max_clique_finder(g, arby_sol)
+    finder = Rjb::import('hola.MaxCliqueFinder')
+    ret = nil
+    Arby::Bridge::Imports.catch_alloy_errors {
+      ret = finder.findMaximumClique(g)
+    }
+    ref_sol = ret.toArray.map {|e| "Node__#{e.intValue}"}
+
+    if arby_sol.size != ref_sol.size then
+      test_fail_msg("Failed maxClique test!", arby_sol, ref_sol)
+      exit
     else
       puts "Test passed"
     end
   end
-  
-  def run_rjb_max_indset_finder(g)
+
+  def run_rjb_max_max_clique_finder(g, arby_sol)
+  end
+
+  def run_rjb_max_indset_finder(g, arby_sol)
     finder = Rjb::import('hola.MaxIndependentSetFinder')
     ret = nil
     Arby::Bridge::Imports.catch_alloy_errors {
       ret = finder.findMaxIndependentSet(g)
     }
-    return ret.toArray.map {|e| "Node__#{e.intValue}"}
+    ref_sol = ret.toArray.map {|e| "Node__#{e.intValue}"}
+
+    if arby_sol.size != ref_sol.size then
+      test_fail_msg("Failed maxIndependentSet test!", arby_sol, ref_sol)
+      exit
+    else
+      puts "Test passed"
+    end
+  end
+
+  def run_rjb_max_cut_finder(g, arby_sol)
+    finder = Rjb::import('hola.MaxCutFinder')
+    ret = nil
+    Arby::Bridge::Imports.catch_alloy_errors {
+      ret = finder.findMaximumCut(g)
+    }
+    ref_sol = ret.toArray.map {|e| "Node__#{e.intValue}"}
+
+    if arby_sol.size != ref_sol.size then 
+      test_fail_msg("Failed maxCut test!", arby_sol, ref_sol)
+      exit
+    else
+      puts "Test passed"
+    end
+  end
+
+  def run_rjb_min_vertex_cover_finder(g, arby_sol)
+    finder = Rjb::import('hola.MinVertexCoverFinder')
+    ret = nil
+    Arby::Bridge::Imports.catch_alloy_errors {
+      ret = finder.findMinVertexCover(g)
+    }
+    ref_sol = ret.toArray.map {|e| "Node__#{e.intValue}"}
+
+    if arby_sol.size != ref_sol.size then
+      test_fail_msg("Failed minVertexCover test!", arby_sol, ref_sol)
+      exit
+    else
+      puts "Test passed"
+    end
+  end
+
+  def test_fail_msg(msg, arby_sol, ref_sol) 
+    puts! "***************** TEST FAILUER *****************"
+    puts! msg
+    puts! "Arby: #{arby_sol}"
+    puts! "Reference: #{ref_sol}"
   end
 
 end

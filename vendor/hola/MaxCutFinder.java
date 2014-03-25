@@ -39,6 +39,14 @@ public class MaxCutFinder {
 	return size;
     }
 
+    private static String pad(String original, int l){
+	String newStr = original;
+	while (l > newStr.length()){
+	    newStr = "0" + newStr;
+	}
+	return newStr;
+    }
+
     public static Set<Integer> findMaximumCut(int[][] g){
 	printArray(g);
   	long startTime = System.nanoTime();
@@ -47,15 +55,17 @@ public class MaxCutFinder {
 	int maxSize = 0;
 	int pow = (int) Math.pow(2, g.length) - 1;
 	for (int i = pow; i >= 1; i--){
-	    String bstr = Integer.toBinaryString(i);
+	    String bstr = pad(Integer.toBinaryString(i), g.length);
+	    Set<Integer> newCut = new HashSet<Integer>();
 	    for (int j = 0; j < bstr.length(); j++){
-		Set<Integer> newCut = new HashSet<Integer>();
 		if (bstr.charAt(j) == '1') newCut.add(j);		
-		int s = cutSize(newCut, g);
-		if (max == null || s > maxSize) {
-		    max = newCut;
-		    maxSize = s;
-		}
+	    }
+	    int s = cutSize(newCut, g);
+	    if (max == null || 
+		s > maxSize ||
+		(s == maxSize && newCut.size() > max.size())) {
+		max = newCut;
+		maxSize = s;
 	    }
 	}
   	long endTime = System.nanoTime();

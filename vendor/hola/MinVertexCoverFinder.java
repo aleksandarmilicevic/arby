@@ -7,11 +7,21 @@ import java.util.Arrays;
 public class MinVertexCoverFinder {    
     
     public static void main(String[] args) {
-	int n = 4;
+	int n = 5;
 	int[][] g = new int[n][n];	
 	g[0][1] = 1;
+	g[0][2] = 1;
+	g[0][3] = 1;
+	g[0][4] = 1;
+
 	g[1][2] = 1;
+	g[1][3] = 1;
+	g[1][4] = 1;
+
 	g[2][3] = 1;
+	g[2][4] = 1;
+
+	g[3][4] = 1;
 		
 	System.out.println(MinVertexCoverFinder.findMinVertexCover(g));
     }
@@ -37,21 +47,28 @@ public class MinVertexCoverFinder {
 	return true;
     }
 
+    private static String pad(String original, int l){
+	String newStr = original;
+	while (l > newStr.length()){
+	    newStr = "0" + newStr;
+	}
+	return newStr;
+    }
+
     public static Set<Integer> findMinVertexCover(int[][] g){
 	printArray(g);
   	long startTime = System.nanoTime();
 	Set<Integer> min = null;
 	int pow = (int) Math.pow(2, g.length) - 1;
 	for (int i = pow; i >= 1; i--){
-	    String bstr = Integer.toBinaryString(i);
-	    System.out.println(bstr);
+	    String bstr = pad(Integer.toBinaryString(i), g.length);
+	    Set<Integer> candidate = new HashSet<Integer>();
 	    for (int j = 0; j < bstr.length(); j++){
-		Set<Integer> candidate = new HashSet<Integer>();
 		if (bstr.charAt(j) == '1') candidate.add(j);		
-		if (isVertexCover(candidate, g)){
-		    if (min == null || candidate.size() < min.size())
-			min = candidate;
-		}
+	    }
+	    if (isVertexCover(candidate, g)){
+		if (min == null || candidate.size() < min.size())
+		    min = candidate;
 	    }
 	}
   	long endTime = System.nanoTime();
