@@ -222,7 +222,7 @@ module ArbyModels
              else
                pred_name
              end
-      sol = GraphModel.solve pred, bnds
+      sol = GraphModel.solve pred, bnds, 4, Int => 0
       $arby_sol = sol
       if sol.satisfiable?
       then sol["$#{pred_name}_#{out_var_name}"]
