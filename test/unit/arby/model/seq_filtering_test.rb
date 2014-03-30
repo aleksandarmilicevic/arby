@@ -29,7 +29,6 @@ class SeqFilteringTest < Test::Unit::TestCase
 
     puts "solving..."
     sol = ArbyModels::SeqFiltering.execute_command(0, pi)
-
     a4bounds = sol._a4sol.getBoundsSer
     boundsA = a4bounds.get("this/#{A.alloy_name}")
     assert_equal 0, boundsA.a.size()

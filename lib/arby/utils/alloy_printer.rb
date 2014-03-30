@@ -113,17 +113,17 @@ module Arby
           @out.pn model.all_funs, "\n"
         end
 
-        # print commands
-        unless model.commands.empty?
-          @out.pl
-          @out.pn model.commands, "\n"
-        end
-
         # print open decsl
         was_open = @in_opened_module
         @in_opened_module = true
         @out.pn model.opens, "\n"
         @in_opened_module = was_open
+
+        # print commands
+        unless model.commands.empty?
+          @out.pl
+          @out.pn model.commands, "\n"
+        end
 
         if @in_opened_module
           @out.pl "// -------------------------------------------\n"

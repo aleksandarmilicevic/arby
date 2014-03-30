@@ -14,6 +14,9 @@ class SynthMaxTest < Test::Unit::TestCase
   def setup_class
     Arby.reset
     Arby.meta.restrict_to(ArbyModels::Synth)
+  end
+
+  def setup_test
     @timer = SDGUtils::Timing::Timer.new
   end
 
@@ -39,8 +42,7 @@ class SynthMaxTest < Test::Unit::TestCase
       n = Integer(ENV["N"])
       c = Integer(ENV["C"])
       f = ["true", "yes"].member?(ENV["F"])
-    rescue e
-      puts! "#{e}"
+    rescue Exception => e
       return
     end
     do_test_max(n, c, f)

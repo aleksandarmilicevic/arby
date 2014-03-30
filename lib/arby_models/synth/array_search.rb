@@ -12,18 +12,18 @@ module ArbyModels::Synth
       # ---------
       # -- Vars
       # ---------
-      one sig I0 extends IntLit
-      one sig K extends Var
+      one sig LitI0 extends IntLit
+      one sig VarK extends Var
 
       @@xs = []
-      @@is = [I0]
+      @@is = [LitI0]
 
       def self.xs() @@xs end
       def self.is() @@is end
 
       (1..n).each { |i|
-        x = one sig X.(i) < Var
-        i = one sig I.(i) < IntLit
+        x = one sig VarX.(i) < Var
+        i = one sig LitI.(i) < IntLit
 
         @@xs += x.return_result(:array)
         @@is += i.return_result(:array)
@@ -32,7 +32,7 @@ module ArbyModels::Synth
 
       fact intLitVals {
         conj(self.__type.klass.is.map{|i|
-          i.(intval) == Integer(i.relative_name[1..-1])
+          i.(intval) == Integer(i.relative_name[4..-1])
         })
       }
 
@@ -47,11 +47,11 @@ module ArbyModels::Synth
 
         ord = conj((0...xs.size-1).map{|i| eval[xs[i]] < eval[xs[i+1]]})
         cs = []
-        cs << ((eval[root] == 0 if eval[K] < eval[xs[0]]) if ord)
-        cs << ((eval[root] == n if eval[K] > eval[xs[n-1]]) if ord)
+        cs << ((eval[root] == 0 if eval[VarK] < eval[xs[0]]) if ord)
+        cs << ((eval[root] == n if eval[VarK] > eval[xs[n-1]]) if ord)
 
         (1...xs.size).map{|i|
-          cs << ((eval[root] == i if eval[K] > eval[xs[i-1]] and eval[K] < eval[xs[i]]) if ord)
+          cs << ((eval[root] == i if eval[VarK] > eval[xs[i-1]] and eval[VarK] < eval[xs[i]]) if ord)
         }
         conj(cs)
       }

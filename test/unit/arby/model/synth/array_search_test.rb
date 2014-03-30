@@ -34,10 +34,10 @@ class SynthArraySearchTest < Test::Unit::TestCase
     do_test_search(n, c, f)
   end
 
-  def test_search2() do_test_search(2, 2) end
+  # def test_search2() do_test_search(2, 2) end
   def test_search3() do_test_search(3, 2) end
-  def test_search4() do_test_search(4, 2) end
-  def test_search5() do_test_search(5, 2) end
+  # def test_search4() do_test_search(4, 2) end
+  # def test_search5() do_test_search(5, 2) end
 
   def do_test_search(n, cmd_idx, full_inc=false)
     puts! "array_search_#{n} run_#{cmd_idx} #{full_inc ? 'FULL' : 'INC'}"

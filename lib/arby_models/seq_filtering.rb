@@ -32,17 +32,23 @@ module ArbyModels
       }
     }
 
-    procedure filter_i[s: (seq A)][seq A] do
-      # s.select{|a| a.x < 3}
-      idx = 0
-      ans = []
-      while idx < s.size
-        ans << s[idx] if s[idx].x < 3
-        idx += 1
-      end
-      ans
-    end
+    # procedure filter_i[s: (seq A)][seq A] do
+    #   # s.select{|a| a.x < 3}
+    #   idx = 0
+    #   ans = []
+    #   while idx < s.size
+    #     ans << s[idx] if s[idx].x < 3
+    #     idx += 1
+    #   end
+    #   ans
+    # end
 
     run :filter, "for 4"
+  end
+
+  module SeqFiltering
+    def self.filter_i(s)
+      s.select{|a| a.x < 3}
+    end
   end
 end

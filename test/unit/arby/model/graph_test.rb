@@ -25,9 +25,6 @@ class GraphTest < Test::Unit::TestCase
     g = Graph.new nodes: [n1, n2], edges: [e]
     hp = g.find_hampath # => [n1, n2]
     assert_equal [n1, n2], hp.unwrap
-
-    hp = g.hampath.project(1) # => [n1, n2]
-    assert_equal [n1, n2], hp.unwrap
   end
 
   def test_run_hampath
@@ -35,9 +32,9 @@ class GraphTest < Test::Unit::TestCase
     assert sol.satisfiable?
     assert graph = sol["$hampath_g"]
     assert path  = sol["$hampath_path"]
-    puts graph.nodes
-    puts graph.edges
-    puts path.project(1)
+    # puts graph.nodes
+    # puts graph.edges
+    # puts path.project(1)
   end
 
   def test_check_reach
@@ -132,6 +129,21 @@ class GraphTest < Test::Unit::TestCase
 
   def test_maxClique_inst1
     @@find_max_clique_preds.each { |p| do_test_maxClique_inst1 p }
+  end
+
+  def test_maxClique_inst_bug
+    nodes = (1..9).each.map{Node.new}
+    edges  = (1..7).each.map{|i| Edge.new(:src => nodes[0], :dst => nodes[i])}
+    edges += (2..7).each.map{|i| Edge.new(:src => nodes[1], :dst => nodes[i])}
+    (2..7).each do |i|
+      (i+1..8).each do |j|
+        edges << Edge.new(:src => nodes[i], :dst => nodes[j])
+      end
+    end
+    g = Graph.new :nodes => nodes,
+                  :edges => edges
+    ans = g.find_maxClique
+    assert_equal 8, ans.size
   end
 
   def do_test_maxClique_inst1(pred_name)

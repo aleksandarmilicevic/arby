@@ -8,7 +8,7 @@ module Arby
   module Bridge
 
     def self.debug(str)
-      # puts str # if $pera
+      # puts str #if $pera
     end
 
     class Compiler
@@ -100,7 +100,6 @@ module Arby
           end
 
         cmd_als = cmd_name ? "run #{cmd_name} #{cmd_body} #{scope.to_als}" : ""
-
         sol = _execute(_parse(cmd_als), -1)
         sol.set_solving_params :solve, pred, scope
         sol
@@ -174,7 +173,7 @@ module Arby
         als = @model.to_als + "\n" + addendum
 
         Bridge::debug "parsing this"
-        Bridge::debug als
+        Bridge::debug als.inspect
         Bridge::debug "--------------------------"
 
         @a4world = AlloyCompiler.parse(als)
@@ -237,7 +236,7 @@ module Arby
         Bridge::debug "---------------------"
 
         Bridge::debug "using bounds---------"
-        Bridge::debug partialInstanceStr
+        Bridge::debug partialInstanceStr.inspect
         Bridge::debug "---------------------"
         # Bridge::debug partialInstanceStr
 
