@@ -138,12 +138,11 @@ class Sudoku3Test < SudokuTestBase; def setup_test() @pred = :solved3 end; end
 class Sudoku4Test < SudokuTestBase
   def test_min
     with_N(4) do
-      require 'sdg_utils/timing/timer'
       timer = SDGUtils::Timing::Timer.new
       s = timer.time_it {min(gen())}
       assert s
-      puts "local minimum found: #{s.grid.size}"
-      puts "total time: #{timer.last_time}"
+      puts! "local minimum found: #{s.grid.size}"
+      puts! "total time: #{timer.last_time}"
     end
   end
 
