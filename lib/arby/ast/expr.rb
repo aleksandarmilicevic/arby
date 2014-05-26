@@ -18,6 +18,7 @@ module Arby
         cls.class_eval <<-RUBY, __FILE__, __LINE__+1
           def __name() #{name.inspect} end
           def __type() @__atype ||= Arby::Ast::AType.get!(#{type.inspect}) end
+          def meta()   #{type.name}.meta end
         RUBY
         Expr.add_methods_for_type(sig_inst, AType.get!(type), false)
       end

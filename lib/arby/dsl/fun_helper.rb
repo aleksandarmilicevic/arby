@@ -202,9 +202,15 @@ module Arby
                 end
               RUBY
 
+              instr_full = []
+              fun.body.binding.eval("local_variables").each do |varname|
+                instr_full << "  #{varname} = meta.#{fun.kind}('#{fun.name}').body.binding.eval('#{varname}')"
+              end
+
+              instr_full << instr_src
               _define_method <<-RUBY, *proc_src_loc
                 def #{fun.arby_method_name}(#{args_str})
-                  #{instr_src}
+                  #{instr_full.join("\n")}
                 end
               RUBY
 

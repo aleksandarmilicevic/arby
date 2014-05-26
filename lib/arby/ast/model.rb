@@ -70,6 +70,8 @@ module Arby
         m.return_result(:array).first
       end
 
+     def [](sym) find_sig(sym.to_s) || any_fun(sym.to_s) || any_field(sym.to_str) end
+
       private
 
       def add_sig_builder(sb)
