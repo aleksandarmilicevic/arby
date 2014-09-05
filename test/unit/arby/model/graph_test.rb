@@ -111,8 +111,8 @@ class GraphTest < Test::Unit::TestCase
     }
     sol = GraphModel.solve pred, *GraphModel::Scope5
     assert sol.satisfiable?
-    g = sol["$#{maxCliquePred}_g"]
-    assert_equal g.edges.size, g.nodes.size * (g.nodes.size - 1) / 2
+    gr = sol["$#{maxCliquePred}_g"]
+    assert_equal gr.edges.size, gr.nodes.size * (gr.nodes.size - 1) / 2
   end
 
   def test_maxClique_unsat
@@ -200,10 +200,10 @@ class GraphTest < Test::Unit::TestCase
     }
     sol = GraphModel.solve pred, *GraphModel::Scope5
     assert sol.satisfiable?
-    clq = sol["$#{pred_name}_clq"]
-    g = sol["$#{pred_name}_g"]
-    assert_equal 1, clq.size
-    assert_equal g.nodes.val.unwrap.max, clq.val.unwrap
+    clique = sol["$#{pred_name}_clq"]
+    graph = sol["$#{pred_name}_g"]
+    assert_equal 1, clique.size
+    assert_equal graph.nodes.val.unwrap.max, clique.val.unwrap
   end
 
   def test_maxMaxClique_sat2
@@ -218,9 +218,8 @@ class GraphTest < Test::Unit::TestCase
     }
     sol = GraphModel.solve pred, *GraphModel::Scope5
     assert sol.satisfiable?
-    clq = sol["$#{pred_name}_clq"]
-    g = sol["$#{pred_name}_g"]
-    assert_equal 2, clq.size
+    assert sol["$#{pred_name}_g"]
+    assert_equal 2, sol["$#{pred_name}_clq"].size
   end
 
   def test_maxMaxClique_inst1
@@ -277,8 +276,8 @@ class GraphTest < Test::Unit::TestCase
     n0, n1, n2 = Node.new(1), Node.new(2), Node.new(3)
     g = Graph.new :nodes => [n0, n1, n2],
                   :edges => []
-    clq = g.send(pred_name) { |g, clq| clq.size > 1 }
-    assert !clq
+    clique = g.send(pred_name) { |g, clq| clq.size > 1 }
+    assert !clique
   end
 
 
