@@ -60,7 +60,7 @@ module Arby
 
   def self.default_a4options
     SDGUtils::Config.new do |opt|
-      opt.solver = :MiniSatJNI #:SAT4J
+      opt.solver = :SAT4J #:MiniSatJNI #:SAT4J
       opt.renameAtoms = false
       opt.createAtomRelations = true
       opt.higherOrderSolver = true
