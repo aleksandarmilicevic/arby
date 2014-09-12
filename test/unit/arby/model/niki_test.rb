@@ -41,4 +41,11 @@ class NikiTest < Test::Unit::TestCase
     assert_set_equal ["p2", "p3", "p1"], s.friends.name
   end
 
+  def test4
+    p1 = Person.new(:name => "p1")    
+    assert_raise(e: Exception) do
+      p1.age = "23" # this should fail to typecheck and should immediatelly raise exception
+    end
+  end
+
 end
