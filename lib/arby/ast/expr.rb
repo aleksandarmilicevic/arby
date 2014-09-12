@@ -445,6 +445,12 @@ module Arby
           @__field = fld
           super(fld.name, fld.full_type)
         end
+        def insert(tuple)
+          # fldExpr = self.apply_join(@__field.to_arby_expr)
+          fldExpr = @__field.to_arby_expr
+          val = ExprBuilder.apply(Ops::PLUS, fldExpr, tuple)
+          ExprBuilder.apply(Ops::ASSIGN, fldExpr, val)
+        end
         def to_s() __field.name end
         def exe_concrete() __field end
       end
