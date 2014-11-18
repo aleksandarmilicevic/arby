@@ -99,6 +99,10 @@ module Arby
             sname = @conf.sig_namer[s]
             @out.pl "open util/ordering[#{sname}] as #{sname}_ord"
           end
+          bools_used = model.reachable_sigs.any? do |s|
+            s.meta.fields.any? { |f| f.type.isBool? }
+          end
+          @out.pl "open util/boolean" if bools_used
         end
 
         @out.pl

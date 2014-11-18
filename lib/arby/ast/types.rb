@@ -515,7 +515,7 @@ module Arby
           when StringColType; "String"
           when TextColType; "Text"
           when DateColType; "Date"
-          when BoolColType; "Boolean"
+          when BoolColType; "Bool"
           when RefColType; klass.relative_name
           else
             @src.to_s #TODO
