@@ -255,7 +255,7 @@ module Arby
 
         def &(other)         ExprBuilder.apply(INTERSECT, self, other) end
         # def *(other)         join_closure(RCLOSURE, other) end
-        # def ^(other)         join_closure(CLOSURE, other) end
+        def ^(other)         join_closure(CLOSURE, other) end
 
         def ~(arg=nil)
           if arg

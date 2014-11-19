@@ -153,12 +153,17 @@ module Arby
       def resolve_fields
         logger = Arby.conf.logger
         sigs.map{|s| s.meta.fields}.flatten.each do |fld|
-          fld.type.reject{|ut| ut.resolved?}.each do |utype|
-            src = utype.cls.src
-            ref_fld = fld.owner.meta.find_field(src, false)
-            if ref_fld
-              SDGUtils::MetaUtils.morph_into(utype, FldRefType.new(ref_fld))
+          if fld.type
+            fld.type.reject{|ut| ut.resolved?}.each do |utype|
+              src = utype.cls.src
+              ref_fld = fld.owner.meta.find_field(src, false)
+              if ref_fld
+                SDGUtils::MetaUtils.morph_into(utype, FldRefType.new(ref_fld))
+              end
             end
+          else
+            # TODO: throw error or something!!!
+            fld.instance_variable_set :@type, Arby::Ast::TypeConsts::Univ
           end
         end
       end
