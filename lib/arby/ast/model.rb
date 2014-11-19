@@ -93,7 +93,14 @@ module Arby
         mod = self.ruby_module
         mod.constants(false).each do |cst|
           mod.module_eval <<-RUBY, __FILE__, __LINE__+1
-            def #{cst}()          #{mod.name}.#{cst} end
+            def #{cst}(*args, &block)       
+              ans = #{mod.name}.#{cst}
+              if (args.size == 1 && Array === args.first) || block
+                ans = SDGUtils::DSL::MissingBuilder.new(ans, &block)
+                ans[*args.first] if args.size == 1
+              end
+              ans
+            end
             def #{cst}=(val)      #{mod.name}.#{cst}=(val) end
             def self.#{cst}()     self.const_get(#{cst.inspect}) end
             def self.#{cst}=(val)

@@ -16,6 +16,7 @@ module Stela
       isAbstract: TBool
     ]
     abstract sig Type extends Attribute
+    sig TReal extends Type
     sig TInt extends Type
     sig TStr extends Type
     sig TBool extends Type

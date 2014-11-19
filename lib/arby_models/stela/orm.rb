@@ -1,6 +1,7 @@
 require 'arby/arby_dsl'
 require 'arby_models/stela/obj_dsl'
 require 'arby_models/stela/rel_dsl'
+require 'arby_models/stela/customer'
 
 module ArbyModels
 module Stela
@@ -9,7 +10,8 @@ module Stela
 
   alloy :ORM do
     # open ObjDSL
-    open RelDSL
+    # open RelDSL
+    open CustomerModel
   end
 
 
