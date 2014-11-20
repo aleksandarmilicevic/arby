@@ -55,7 +55,7 @@ module Stela
     pred fKeysForMany[asc: Association] {
       (asc.dst.~(tAssociate)).foreignKey.size == Association.select{ |a| 
         a.dst == asc.dst && a.dst_mult == MANY && no(a.~(tAssociate))
-      }.size                                                                  and
+      }.size                                                               and
       (asc.src.~(tAssociate)).foreignKey.size == Association.select{ |a| 
         a.dst == asc.src && a.dst_mult == MANY && no(a.~(tAssociate))
       }.size

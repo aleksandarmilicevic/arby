@@ -74,13 +74,27 @@ module Arby
         lhs = SigA
         rhs = SigB
         ans = apply(SELECT, lhs, rhs)
-        assert Expr::BinaryExpr === ans
+        assert Expr::NaryExpr === ans
         assert_equal SELECT, ans.op
         assert_type [], ans
 
         ans = apply(SELECT, apply(PRODUCT, lhs, rhs), lhs)
         assert_equal SELECT, ans.op
         assert_type [SigB], ans
+      end
+
+      def test_select2
+        lhs = SigA ** SigB ** SubA
+        ans = apply(SELECT, lhs, SigA, SigB)
+        assert Expr::NaryExpr === ans
+        assert_equal SELECT, ans.op
+        assert_type [SubA], ans
+
+        lhs = SigA ** SigB
+        ans = apply(SELECT, lhs, SigA, SigB)
+        assert Expr::NaryExpr === ans
+        assert_equal SELECT, ans.op
+        assert_type [], ans
       end
 
       #TODO: fix code so that these pass
