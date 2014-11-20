@@ -158,8 +158,8 @@ module Stela
     fact oneTablePerClassAndAssociation {
       # At most one Table is assigned to each Class involved in an association
       all(asc: Association) {
-        Table.<(asc.src.~tAssociate).size ==1 and
-        Table.<(asc.dst.~tAssociate).size ==1
+        Table.<(asc.src.~tAssociate).size == 1 and
+        Table.<(asc.dst.~tAssociate).size == 1
       }
     }
   end
