@@ -93,13 +93,14 @@ module Arby
 
       def self.join(lhs, rhs)
         lhs, rhs = AType.get!(lhs), AType.get!(rhs)
+        return TypeConsts::None if lhs.is_a?(NoType) || rhs.is_a?(NoType)
         lhs_range = lhs.range
         rhs_domain = rhs.domain
         AType.get!(lhs.to_ary[0...-1] + rhs.to_ary[1..-1])
         # if not disjoint?(lhs_range, rhs_domain)
         #   AType.get!(lhs.to_ary[0...-1] + rhs.to_ary[1..-1])
         # else
-        #   NoType.new
+        #   TypeConsts::None
         # end
       end
 

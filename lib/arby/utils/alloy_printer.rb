@@ -398,6 +398,18 @@ module Arby
         @out.p(fmt % {lhs: encloseL(be.op, be.lhs), rhs: encloseR(be.op, be.rhs)})
       end
 
+      def naryexpr_to_als(ne)
+        case ne.op
+        when SELECT  
+        # then "%{lhs}[%{rhs}]"
+          lhs = export_to_als(ne.children[0])
+          sel = ne.children[1..-1].map{|c| export_to_als(c)}.join(", ")
+          @out.p("#{lhs}[#{sel}]")
+        else
+          raise "unknown nary expression: #{ne}"
+        end
+      end
+
       def callexpr_to_als(ce)
         pre = (ce.has_target?) ? "#{export_to_als ce.target}." : ""
         fun = case f=ce.fun

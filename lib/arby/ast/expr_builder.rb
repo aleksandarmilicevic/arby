@@ -81,8 +81,15 @@ module Arby
             ans
           end
 
+        # select
+        when Ops::SELECT
+          ans = Expr::NaryExpr.new(op, *args)
+          type = TypeComputer.compute_type(op, *ans.children)
+          ans.set_type(type) if type
+          ans
+
         # relational binary ops
-        when Ops::PLUS, Ops::MINUS, Ops::SELECT, Ops::JOIN,
+        when Ops::PLUS, Ops::MINUS, Ops::JOIN,
              Ops::DOMAIN, Ops::RANGE, Ops::INTERSECT
           check_arity args, 2, "#{op} is a binary operators; #{args.size} operands given"
           ans = Expr::BinaryExpr.new(op, *args)
@@ -145,7 +152,7 @@ module Arby
           Arby::Ast::AType.join(types[0], types[1])
 
         when Ops::SELECT
-          Arby::Ast::AType.join(types[1], types[0])
+          types[1..-1].reduce(types[0]){|acc, type| Arby::Ast::AType.join(type, acc) }
 
         when Ops::PLUS
           Arby::Ast::AType.union(*types)

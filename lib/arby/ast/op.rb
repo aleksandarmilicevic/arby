@@ -72,7 +72,6 @@ module Arby
 
       # binary operators
       JOIN       = Bop.new(:".",   "join",       18)
-      SELECT     = Bop.new(:"[]",  "select",     17)
       PRODUCT    = Bop.new(:"->",  "product",    14)
       DOMAIN     = Bop.new(:"<:",  "domain",     15)
       RANGE      = Bop.new(:":>",  "range",      16)
@@ -120,6 +119,7 @@ module Arby
       # other
       IF_ELSE   = Op.new(:"=>else", "if_else", 3, 4)
       UNKNOWN   = Op.new(:"_",      "unknown", 0, 0)
+      SELECT    = Op.new(:"[]",     "select", -2, 17)
 
       def self.all()        constants.map{|sym| const_get(sym)} end
       def self.each(&block) all.each(&block) end

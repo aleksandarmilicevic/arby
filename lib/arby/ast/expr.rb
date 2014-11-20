@@ -242,7 +242,7 @@ module Arby
         def >>(other)        ExprBuilder.apply(SHA, self, other) end
 
         def **(other)        ExprBuilder.apply(PRODUCT, self, other) end
-        def [](other)        ExprBuilder.apply(SELECT, self, other)  end
+        def [](*other)       ExprBuilder.apply(SELECT, self, *other) end
         def <(other)         ExprBuilder.apply(LT, self, other) end
         def <=(other)        ExprBuilder.apply(LTE, self, other) end
         def >(other)         ExprBuilder.apply(GT, self, other) end
