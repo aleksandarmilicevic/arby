@@ -10,8 +10,8 @@ module Stela
 
   alloy :ORM do
     # open ObjDSL
-    # open RelDSL
-    open CustomerModel
+    # open CustomerModel
+    open RelDSL
   end
 
 

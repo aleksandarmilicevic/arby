@@ -4,9 +4,7 @@ require 'arby_models/stela/obj_dsl'
 module ArbyModels
 module Stela
 
-  extend Arby::Dsl
-
-  alloy :CustomerModel do
+  Arby::Dsl.alloy_module :CustomerModel do
     open ObjDSL
 
     one sig CustomerID extends TInt
@@ -50,7 +48,6 @@ module Stela
       src_mult == ONE  and
       dst_mult == MANY    
     }
-
   end
 
 
