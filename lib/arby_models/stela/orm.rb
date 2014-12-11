@@ -9,9 +9,9 @@ module Stela
   extend Arby::Dsl
 
   alloy :ORM do
-    # open ObjDSL
+    open ObjDSL
     open RelDSL
-    # open CustomerModel
+    open CustomerModel
 
     pred oneAssocFieldKlass[a: Attribute, c: Klass] {
       one(f: Field) { 

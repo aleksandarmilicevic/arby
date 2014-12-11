@@ -82,58 +82,60 @@ module Arby
         return if history.member?(model)
         history << model
 
-        stack = @stack ||= []
-        stack.push model
+        begin
+          stack = @stack ||= []
+          stack.push model
 
-        if @in_opened_module
-          @out.pl "// ============================================="
-          @out.pl "// == module #{model.relative_name}"
-        else
-          @funs = Set.new
+          if @in_opened_module
+            @out.pl "// ============================================="
+            @out.pl "// == module #{model.relative_name}"
+          else
+            @funs = Set.new
 
-          # module name (useless)
-          @out.pl "module #{model.relative_name}"
+            # module name (useless)
+            @out.pl "module #{model.relative_name}"
 
-          # print builtin opens
-          model.reachable_sigs.select(&:ordered?).each do |s|
-            sname = @conf.sig_namer[s]
-            @out.pl "open util/ordering[#{sname}] as #{sname}_ord"
+            # print builtin opens
+            model.reachable_sigs.select(&:ordered?).each do |s|
+              sname = @conf.sig_namer[s]
+              @out.pl "open util/ordering[#{sname}] as #{sname}_ord"
+            end
+            bools_used = model.reachable_sigs.any? do |s|
+              s.meta.fields.any? { |f| f.type.isBool? }
+            end
+            @out.pl "open util/boolean" if bools_used
           end
-          bools_used = model.reachable_sigs.any? do |s|
-            s.meta.fields.any? { |f| f.type.isBool? }
+
+          @out.pl
+
+          # print sigs
+          sigs = model.sigs #.reject{|s| s.meta.enum_const?}
+          @out.pn sigs, "\n"
+
+          # print funs
+          unless model.all_funs.empty?
+            @out.pl
+            @out.pn model.all_funs, "\n"
           end
-          @out.pl "open util/boolean" if bools_used
+
+          # print open decsl
+          was_open = @in_opened_module
+          @in_opened_module = true
+          @out.pn model.opens, "\n"
+          @in_opened_module = was_open
+
+          # print commands
+          unless model.commands.empty?
+            @out.pl
+            @out.pn model.commands, "\n"
+          end
+
+          if @in_opened_module
+            @out.pl "// -------------------------------------------\n"
+          end
+        ensure
+          stack.pop
         end
-
-        @out.pl
-
-        # print sigs
-        sigs = model.sigs #.reject{|s| s.meta.enum_const?}
-        @out.pn sigs, "\n"
-
-        # print funs
-        unless model.all_funs.empty?
-          @out.pl
-          @out.pn model.all_funs, "\n"
-        end
-
-        # print open decsl
-        was_open = @in_opened_module
-        @in_opened_module = true
-        @out.pn model.opens, "\n"
-        @in_opened_module = was_open
-
-        # print commands
-        unless model.commands.empty?
-          @out.pl
-          @out.pn model.commands, "\n"
-        end
-
-        if @in_opened_module
-          @out.pl "// -------------------------------------------\n"
-        end
-      ensure
-        stack.pop
       end
 
       def enum_to_als(sig)
