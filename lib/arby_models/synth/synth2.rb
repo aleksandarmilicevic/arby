@@ -44,6 +44,7 @@ module Synth
     abstract sig IntLit extends IntNode [ intval: (one Int) ]
 
     abstract sig BoolVar extends BoolNode
+    abstract sig BoolLit extends BoolNode [ boolval: (one Bit) ]
 
     # --------------------------------------------------------------------------------
     # -- Semantics
@@ -104,6 +105,10 @@ module Synth
       all(i: IntLit) { eval[i] == i.intval }
     }
 
+    pred boolLitSemantics[eval: Node.e ** (Int+Bit)] {
+      all(i: BoolLit) { eval[i] == i.boolval }
+    }
+
     pred semantics[eval: Node.e ** (Int+Bit)] {
       all(bnode: BoolNode) { one(eval[bnode]) && eval[bnode].in?(Bit) } and
       all(inode: IntNode)  { one(eval[inode]) && eval[inode].in?(Int) } and
@@ -121,7 +126,8 @@ module Synth
       andInvSemantics[eval] and
       orInvSemantics[eval] and
       notSemantics[eval] and
-      intLitSemantics[eval]
+      intLitSemantics[eval] and
+      boolLitSemantics[eval]
     }
 
     # --------------------------------------------------------------------------------
@@ -150,7 +156,7 @@ module Synth
 
     pred synth[root: Node] {
 """
-  allVarsReachableFrom[root]
+  //allVarsReachableFrom[root]
   //all envI: IntVar -> one Int {
   all envB: BoolVar -> one Bit {
     some eval: IntNode->Int + BoolNode->Bit |{
@@ -181,6 +187,15 @@ module Synth
       end
       def to_oo()
         self.intval = intval[0][0] if Array === intval
+        self
+      end
+    end
+    class BoolLit;
+      def prnt(i="")
+        i + boolval.to_s
+      end
+      def to_oo()
+        self.boolval = boolval[0][0] != 0 if Array === boolval
         self
       end
     end
@@ -280,6 +295,7 @@ module Synth
       when BitTrue  then true
       when BitFalse then false
       when IntLit   then n.intval
+      when BoolLit  then n.boolval
       when IntVar   then env[n]
       when BoolVar  then env[n]
       when IntCmp
