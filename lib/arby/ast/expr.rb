@@ -249,6 +249,11 @@ module Arby
         def >=(other)        ExprBuilder.apply(GTE, self, other) end
         def <=>(other)       ExprBuilder.apply(IFF, self, other) end
 
+        def Not()            self.apply_call(:Not) end
+        def Xor(other)       self.apply_call(:Xor, other) end
+        def And(other)       self.apply_call(:And, other) end
+        def Or(other)        self.apply_call(:Or, other) end
+
         def in?(other)       ExprBuilder.apply(IN, self, other) end
         def not_in?(other)   ExprBuilder.apply(NOT_IN, self, other) end
         def contains?(other) ExprBuilder.apply(IN, other, self) end

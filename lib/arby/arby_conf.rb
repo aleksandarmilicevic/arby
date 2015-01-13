@@ -62,7 +62,7 @@ module Arby
     SDGUtils::Config.new do |opt|
       opt.solver = :SAT4J #:MiniSatJNI #:SAT4J
       opt.renameAtoms = false
-      opt.createAtomRelations = true
+      #opt.createAtomRelations = true
       opt.higherOrderSolver = true
       opt.holMaxIter = 50
       opt.holFullIncrements = false

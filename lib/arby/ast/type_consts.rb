@@ -17,10 +17,12 @@ module Arby
       Univ1 = Univ
       None  = NoType.new
       Int   = UnaryType.new(Integer)
+      Bit   = UnaryType.new(:Bit)
       Bool  = UnaryType.new(:Bool)
       Seq   = ProductType.new(Int, Univ)
 
       def Int(a=nil)  a ? Expr.resolve_expr(a) : TypeConsts::Int end
+      def Bit(a=nil)  a ? Expr.resolve_expr(a) : TypeConsts::Bit end
       def Bool(b=nil) b ? Expr.resolve_expr(b) : TypeConsts::Bool end
       def Univ() TypeConsts::Univ end
       def None() TypeConsts::None end
@@ -28,6 +30,7 @@ module Arby
       def self.get(sym)
         case sym.to_s
         when "Int", "Integer"  then Int
+        when "Bit"             then Bit
         when "seq/Int"         then Int
         when "univ"            then Univ
         when "none"            then None

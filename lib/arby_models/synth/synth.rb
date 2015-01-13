@@ -36,6 +36,8 @@ module Synth
     abstract sig Var extends IntNode
     abstract sig IntLit extends IntNode [ intval: (one Int) ]
 
+    abstract sig BoolVar extends BoolNode
+
     # --------------------------------------------------------------------------------
     # -- Semantics
     # --------------------------------------------------------------------------------
@@ -106,13 +108,15 @@ module Synth
 
     pred synth[root: IntNode] {
 """
-  all env: Var -> one Int {
+  all envI: Var -> one Int {
+  all envB: BoolVar -> one Boolean {
     some eval: Node -> one (Int+Boolean) |{
-      env in eval
+      (envI + envB) in eval
       semantics[eval]
     } |{
       spec[root, eval]
     }
+  }
   }
 """
     }

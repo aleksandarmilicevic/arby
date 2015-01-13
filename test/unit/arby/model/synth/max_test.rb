@@ -28,7 +28,7 @@ class SynthMaxTest < Test::Unit::TestCase
 
   # def test_max3() do_test_max(3, 0) end
   # def test_max4() do_test_max(4, 0) end
-  # def test_max5() do_test_max(5, 0) end
+  # def test_max5() do_test_max(5, 2) end
   # def test_max6() do_test_max(6, 0) end
 
   # def test_max3t() do_test_max(3, 1) end
@@ -37,7 +37,7 @@ class SynthMaxTest < Test::Unit::TestCase
   # def test_max6t() do_test_max(6, 1) end
   # def test_max7t() do_test_max(7, 1) end
 
-  def test_max()
+  def _test_max()
     begin
       n = Integer(ENV["N"])
       c = Integer(ENV["C"])
@@ -48,13 +48,14 @@ class SynthMaxTest < Test::Unit::TestCase
     do_test_max(n, c, f)
   end
 
-  def test_max4() do_test_max(4, 2, false) end
+  def test_max() do_test_max(4, 2, false) end
 
   def do_test_max(n, cmd_idx, full_inc=false)
     puts! "max#{n} run_#{cmd_idx} #{full_inc ? 'FULL' : 'INC'}"
     # reporter: Rep.new
     Arby.conf.do_with(wrap_field_values: false) do
     Arby.conf.a4options.do_with(
+        solver: "MiniSatJNI",
         convertHolInst2A4Sol: false,
         holFullIncrements: full_inc,
         holMaxIter: 1000) do
@@ -65,7 +66,7 @@ class SynthMaxTest < Test::Unit::TestCase
       assert sol.sat?
       puts! "solving time: #{sol.solving_time}"
       puts! "num candidates: #{sol._a4sol.getStats().numCandidates()}"
-      check_sol(sol)
+      # check_sol(sol)
     end
     end
   end

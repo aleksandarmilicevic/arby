@@ -369,6 +369,7 @@ module Arby
         end
 
         class IntColType           < prim(Integer, 0); end
+        class BitColType           < prim(Integer, 0); end
         class FloatColType         < prim(Float, 0.0); end
         class StringColType        < prim(String, ""); end
         class TextColType          < prim(String, ""); end
@@ -397,6 +398,7 @@ module Arby
 
         @@built_in_types = {
           :Int     => IntColType.new(:Int),
+          :Bit     => BitColType.new(:Bit),
           :Integer => IntColType.new(:Integer),
           :Float   => FloatColType.new(:Float),
           :String  => StringColType.new(:String),
