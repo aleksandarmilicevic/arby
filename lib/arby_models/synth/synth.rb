@@ -83,14 +83,14 @@ module Synth
     }
 
     pred semantics[eval: Node.e ** (Int+Boolean)] {
-      iteSemantics[eval] and
-      gteSemantics[eval] and
-      lteSemantics[eval] and
-      gtSemantics[eval] and
-      ltSemantics[eval] and
-      eqSemantics[eval] and
-      varSemantics[eval] and
-      intLitSemantics[eval]
+      iteSemantics(eval) and
+      gteSemantics(eval) and
+      lteSemantics(eval) and
+      gtSemantics(eval) and
+      ltSemantics(eval) and
+      eqSemantics(eval) and
+      varSemantics(eval) and
+      intLitSemantics(eval)
     }
 
     # --------------------------------------------------------------------------------

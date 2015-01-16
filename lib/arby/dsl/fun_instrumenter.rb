@@ -33,6 +33,9 @@ module Arby
           when :and, :or then
             lhs_src = compute_src(node.children[0], anno)
             rhs_src = compute_src(node.children[1], anno)
+            # lhs_var = "lhs_#{SDGUtils::Random.salted_timestamp}"
+            # rhs_var = "lhs_#{SDGUtils::Random.salted_timestamp}"
+            # "begin; #{lhs_var}=#{lhs_src}; #{rhs_var}=#{rhs_src}; Arby::Ast::Expr::BinaryExpr.#{node.type}(#{lhs_var},#{rhs_var}) end"
             "Arby::Ast::Expr::BinaryExpr.#{node.type}(" +
               "proc{#{lhs_src}}, " +
               "proc{#{rhs_src}})"

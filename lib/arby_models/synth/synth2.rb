@@ -49,16 +49,6 @@ module Synth
     # --------------------------------------------------------------------------------
     # -- Semantics
     # --------------------------------------------------------------------------------
-    pred iteSemantics[eval: Node.e ** (Int+Bit)] {
-      all(n: ITE) {
-        if eval[n.condition] == BitTrue
-          eval[n.then] == eval[n]
-        else
-          eval[n.elsen] == eval[n]
-        end
-      }
-    }
-
     procedure cmpSemantics[cls: IntCmp, op: Symbol, eval: Node.e ** (Int+Bit)] {
       all(n: cls) {
         if eval[n.left].send(op, eval[n.right])
@@ -70,9 +60,7 @@ module Synth
     }
 
     procedure bcmpSemantics[cls: BoolCmp, op: Symbol, eval: Node.e ** (Int+Bit)] {
-      all(n: cls) {
-        eval[n] == eval[n.left].send(op, eval[n.right])
-      }
+      all(n: cls) { eval[n] == eval[n.left].send(op, eval[n.right]) }
     }
 
     procedure binvcmpSemantics[cls: BoolCmp, op: Symbol, eval: Node.e ** (Int+Bit)] {
@@ -81,53 +69,33 @@ module Synth
       }
     }
 
-    pred gteSemantics[eval: Node.e ** (Int+Bit)] { cmpSemantics(GTE, :>=, eval) }
-    pred lteSemantics[eval: Node.e ** (Int+Bit)] { cmpSemantics(LTE, :<=, eval) }
-    pred gtSemantics[eval: Node.e ** (Int+Bit)]  { cmpSemantics(GT,  :>,  eval) }
-    pred ltSemantics[eval: Node.e ** (Int+Bit)]  { cmpSemantics(LT,  :<,  eval) }
-    pred eqSemantics[eval: Node.e ** (Int+Bit)]  { cmpSemantics(Equals,  :==, eval) }
-
-    pred andSemantics  [eval: Node.e ** (Int+Bit)] { bcmpSemantics(And,  :And,  eval) }
-    pred nandSemantics [eval: Node.e ** (Int+Bit)] { bcmpSemantics(Nand, :Nand, eval) }
-    pred orSemantics   [eval: Node.e ** (Int+Bit)] { bcmpSemantics(Or,   :Or,   eval) }
-    pred norSemantics  [eval: Node.e ** (Int+Bit)] { bcmpSemantics(Nor,  :Nor,  eval) }
-    pred xorSemantics  [eval: Node.e ** (Int+Bit)] { bcmpSemantics(Xor,  :Xor,  eval) }
-    pred notSemantics  [eval: Node.e ** (Int+Bit)] {
-      all(n: Not) {
-        eval[n] == eval[n.arg].send(:Not)
-      }
-    }
-
-    pred andInvSemantics  [eval: Node.e ** (Int+Bit)] { binvcmpSemantics(AndInv,  :And,  eval) }
-    pred orInvSemantics  [eval: Node.e ** (Int+Bit)] { binvcmpSemantics(OrInv,  :Or,  eval) }
-
-    pred intLitSemantics[eval: Node.e ** (Int+Bit)] {
-      all(i: IntLit) { eval[i] == i.intval }
-    }
-
-    pred boolLitSemantics[eval: Node.e ** (Int+Bit)] {
-      all(i: BoolLit) { eval[i] == i.boolval }
-    }
-
     pred semantics[eval: Node.e ** (Int+Bit)] {
       all(bnode: BoolNode) { one(eval[bnode]) && eval[bnode].in?(Bit) } and
       all(inode: IntNode)  { one(eval[inode]) && eval[inode].in?(Int) } and
-      iteSemantics[eval] and
-      gteSemantics[eval] and
-      lteSemantics[eval] and
-      gtSemantics[eval] and
-      ltSemantics[eval] and
-      eqSemantics[eval] and
-      andSemantics[eval] and
-      nandSemantics[eval] and
-      orSemantics[eval] and
-      norSemantics[eval] and
-      xorSemantics[eval] and
-      andInvSemantics[eval] and
-      orInvSemantics[eval] and
-      notSemantics[eval] and
-      intLitSemantics[eval] and
-      boolLitSemantics[eval]
+      all(n: ITE) {
+        if eval[n.condition] == BitTrue
+          eval[n.then] == eval[n]
+        else
+          eval[n.elsen] == eval[n]
+        end
+      } and
+      cmpSemantics(GTE, :>=, eval) and
+      cmpSemantics(LTE, :<=, eval) and
+      cmpSemantics(GT,  :>,  eval) and
+      cmpSemantics(LT,  :<,  eval) and
+      cmpSemantics(Equals,  :==, eval) and
+      bcmpSemantics(And,  :And,  eval) and
+      bcmpSemantics(Nand, :Nand, eval) and
+      bcmpSemantics(Or,   :Or,   eval) and
+      bcmpSemantics(Nor,  :Nor,  eval) and
+      bcmpSemantics(Xor,  :Xor,  eval) and
+      binvcmpSemantics(AndInv, :And,  eval) and
+      binvcmpSemantics(OrInv, :Or,  eval) and
+      all(n: Not) {
+        eval[n] == eval[n.arg].send(:Not)
+      } and
+      all(i: IntLit) { eval[i] == i.intval } and
+      all(i: BoolLit) { eval[i] == i.boolval }
     }
 
     # --------------------------------------------------------------------------------

@@ -168,14 +168,6 @@ module ArbyModels
 
 
   class GraphModel::Graph
-    def find_hampath
-      bnds = Arby::Ast::Bounds.from_atoms(self)
-      sol = GraphModel.solve :hampath, bnds
-      if sol.satisfiable?
-      then sol["$hampath_path"].project(1)
-      else nil end
-    end
-
     def find_hampath(&blk)         p=find_for(:hampath, :path, &blk) and p.project(1) end
     def find_maxClique(&blk)       find_for(:maxClique, :clq, &blk) end
     def find_maxCliqueFix(&blk)    find_for(:maxCliqueFix, :clq, &blk) end

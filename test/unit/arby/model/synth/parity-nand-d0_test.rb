@@ -16,10 +16,12 @@ class SynthParityAigD0Test < SynthParityTestBase
     @model = ArbyModels::Synth::ParityNandD0
   end
 
-  def test0() do_test_synth @model, 0 end
+  def test0()
+    do_test_synth @model, 0
+  end
 
   def actual(aig_part, a, b, c, d)
-      !(aig_part && 
+      !(aig_part &&
         !(!(!(d && !(d && a)) && !(a && !(d && a))) && !(!(!(true && c) && !(true && b)) && !(b && c))))
   end
 

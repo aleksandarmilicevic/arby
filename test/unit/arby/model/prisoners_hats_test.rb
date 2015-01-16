@@ -36,7 +36,6 @@ class PrisonersHatsTest < Test::Unit::TestCase
     scenarios_solved = 0
     while true
       round += 1
-      solvable = []
       rsol = sol
       puts! "====================== round #{round}"
 
@@ -45,6 +44,8 @@ class PrisonersHatsTest < Test::Unit::TestCase
         rsol = rsol.next { Prisoner::hatColor != inst[Prisoner::hatColor] }
       end
       rsol = rsol.model.solve :allAmbigExcept, 4, bnds
+
+      solvable = []
       while rsol.satisfiable?
         certain = rsol['$allAmbigExcept_certain']
         colors = rsol[Prisoner::hatColor]
@@ -57,9 +58,9 @@ class PrisonersHatsTest < Test::Unit::TestCase
       break if solvable.empty?
 
       sol = sol.next(:solvable => solvable) do
-        solvable.map{|hc|
+        solvable.map{ |hc|
           (hatColor != hc) &&
-          all(p: Prisoner){ p.deduced1 != hc && p.deduced2 != hc}
+          all(p: Prisoner){ p.deduced1 != hc && p.deduced2 != hc }
         }.arby_join(Arby::Ast::Ops::AND)
       end
     end

@@ -11,6 +11,10 @@ require 'sdg_utils/meta_utils'
 module Arby
   module Ast
     module Expr
+      include Ops
+
+      def self.and(*conjs) ExprBuilder.reduce_to_binary(AND, *conjs) end
+      def self.or(*conjs)  ExprBuilder.reduce_to_binary(OR, *conjs) end
 
       def self.as_atom(sig_inst, name, type=sig_inst.class, expr_mod=MAtomExpr)
         cls = sig_inst.singleton_class
@@ -252,7 +256,9 @@ module Arby
         def Not()            self.apply_call(:Not) end
         def Xor(other)       self.apply_call(:Xor, other) end
         def And(other)       self.apply_call(:And, other) end
+        def Nand(other)      self.apply_call(:Nand, other) end
         def Or(other)        self.apply_call(:Or, other) end
+        def Nor(other)       self.apply_call(:Nor, other) end
 
         def in?(other)       ExprBuilder.apply(IN, self, other) end
         def not_in?(other)   ExprBuilder.apply(NOT_IN, self, other) end
@@ -599,6 +605,13 @@ module Arby
         def is_disjunction() op == Ops::OR end
         def is_conjunction() op == Ops::AND end
 
+        def to_s
+          op_str = op.to_s
+          args = children.map(&:to_s)
+          "(#{op_str} #{args})"
+        end
+
+
         protected
 
         def self.add_constructors_for_ops(ops)
@@ -657,6 +670,10 @@ module Arby
       # ============================================================================
       class BinaryExpr < NaryExpr
         attr_reader :left_mult
+
+        def self.new(*args)
+          super
+        end
 
         def initialize(op, lhs, rhs, left_mult=nil)
           super(op, lhs, rhs)

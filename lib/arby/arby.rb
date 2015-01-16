@@ -1,7 +1,11 @@
 require 'arby/arby_conf'
 require 'arby/arby_event_constants'
+
 require 'sdg_utils/test_and_set'
 require 'sdg_utils/meta_utils'
+require 'sdg_utils/timing/timer'
+
+$perf_timer = SDGUtils::Timing::Timer.new
 
 module Arby
   extend self
@@ -104,4 +108,51 @@ module Arby
            :restore_exe_mode, :set_symbolic_mode, :set_concrete_mode,
            :in_mode, :in_symbolic_mode, :in_concrete_mode,
            :to => proc{alloy}, :proc => true
+
+
+  def self.instrument_methods_for_timing(*method_specs)
+    method_specs.each do |full_method_spec|
+      arr = full_method_spec.split("#")
+      if arr.size == 2
+        cls_name, meth_spec = arr
+        is_static = false
+      else
+        arr = full_method_spec.split(".")
+        if arr.size == 2
+          cls_name, meth_spec = arr
+          is_static = true
+        end
+      end
+      raise "invalid method spec: #{full_method_spec}" if arr.size != 2
+      cls = SDGUtils::MetaUtils.str_to_class(cls_name) and
+        begin
+          cls = cls.singleton_class if is_static
+          meth = cls.instance_method(meth_spec)
+          new_name = "#{meth.name}_#{SDGUtils::Random.salted_timestamp()}"
+          cls.send :alias_method, new_name, meth.name
+          cls.send :remove_method, meth.name
+          cls.send :class_eval, "def #{meth.name}(*args, &blk) $perf_timer.time_it('#{full_method_spec}', self) {#{new_name}(*args, &blk)} end"
+        end
+    end
+  end
+
+end
+
+
+# pre-require all arby files
+#
+# NOTE: potentially (theoretically) extremely slow (factorial complexity),
+#       but seems fine in practice for the current set of Arby files
+parent_dir = File.expand_path("..", __FILE__)
+left_to_require = Dir[parent_dir + "/**/*.rb"] - [__FILE__]
+while left_to_require.size > 0 do
+  failed_to_require = []
+  left_to_require.each do |f|
+    begin
+      require f
+    rescue => e
+      failed_to_require << f
+    end
+  end
+  left_to_require = failed_to_require
 end

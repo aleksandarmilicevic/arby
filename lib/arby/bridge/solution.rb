@@ -215,7 +215,14 @@ module Arby
           m2 = m.extend do
             self.send :define_method, :inst, &proc{__curr_inst}
             self.send :define_method, :sol, &proc{__curr_inst}
-            __locals.each{|k,v| self.send :define_method, k, &proc{__locals[k]}}
+            __locals.each{|k,v|
+              varname = "@#{k}_#{SDGUtils::Random.salted_timestamp}"
+              self.send :instance_variable_set, varname, __locals[k]
+              class_eval <<-RUBY, __FILE__, __LINE__+1
+                def #{k}() #{varname} end
+              RUBY
+              # self.send :define_method, k, &proc{__locals[k]}
+            }
             fact "pi_fact_#{SDGUtils::Random.salted_timestamp}", &Proc.new
           end
           bnds = @bounds

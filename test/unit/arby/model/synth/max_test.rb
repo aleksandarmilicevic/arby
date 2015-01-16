@@ -66,7 +66,7 @@ class SynthMaxTest < Test::Unit::TestCase
       assert sol.sat?
       puts! "solving time: #{sol.solving_time}"
       puts! "num candidates: #{sol._a4sol.getStats().numCandidates()}"
-      # check_sol(sol)
+      check_sol(sol)
     end
     end
   end

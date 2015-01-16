@@ -19,8 +19,35 @@ module Test
     class TestCase
       def puts(*a) end
       def puts!(*a) Kernel.puts(*a) end
+      # def teardown
+      #   super
+      #   puts! "=============--------------------~~~~~~~~~~~~~~~"
+      #   puts! $perf_timer.print
+      #   $perf_timer.summary.each {|k, v| puts! "#{k} => #{v}"}
+      #   $perf_timer = SDGUtils::Timing::Timer.new
+      #   # binding.pry
+      # end
     end
   end
 end
 
 Arby.set_default :logger => Logger.new(NilIO.instance) # Logger.new(STDOUT)
+
+# Arby.instrument_methods_for_timing(
+#   "Arby::Bridge::Compiler.solve",
+#   "Arby::Bridge::Compiler#solve",
+#   "Arby::Bridge::Compiler.execute_command",
+#   "Arby::Bridge::Compiler#execute_command",
+#   "Arby::Bridge::Compiler#_parse",
+#   "Arby::Ast::Model#to_als",
+#   "Arby::Ast::Fun#__sym_exe",
+#   "Arby::Ast::Expr::BinaryExpr.and",
+#   "Arby::Ast::Expr::BinaryExpr.new",
+#   # "Arby::Utils::AlloyPrinter#to_als",
+#   # "Arby::Utils::AlloyPrinter#fun_to_als",
+#   # "Arby::Utils::AlloyPrinter#command_to_als",
+#   # "Arby::Utils::AlloyPrinter#field_to_als",
+#   # "Arby::Utils::AlloyPrinter#type_to_als",
+#   # "Arby::Utils::AlloyPrinter#arg_to_als",
+#   # "Arby::Utils::AlloyPrinter#expr_to_als",
+# )
