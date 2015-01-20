@@ -29,7 +29,9 @@ module Arby
 
         flds = compiler.sigs.map{|s| s.meta.fields}.flatten.map{ |fld|
           fld_name = Arby.conf.alloy_printer.arg_namer[fld]
-          ts = inst.field(fld_name) and [fld, _to_tuple_set(compiler, tmpi, ts)]
+          ts = inst.sigfield(fld.owner, fld_name)
+          ts = inst.field(fld_name) unless ts != nil
+          ts ? [fld, _to_tuple_set(compiler, tmpi, ts)] : nil
         }
 
         skolems = inst.skolems.map{ |name|

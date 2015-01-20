@@ -15,14 +15,11 @@ module Synth
     # --------------------------------------------------------------------------------
     abstract sig Node
     abstract sig IntNode extends Node
-
-    sig ITE extends IntNode [
-      condition: (one BoolNode),
-      then:      (one IntNode),
-      elsen:     (one IntNode)
-    ]
-
     abstract sig BoolNode extends Node
+
+    # --------------------------------------------------------------------------------
+    # -- BoolNodes
+    # --------------------------------------------------------------------------------
     abstract sig IntCmp extends BoolNode [
       left, right: (one IntNode)
     ]
@@ -33,6 +30,9 @@ module Synth
       invLhs, invRhs, invOut: (one Bit)
     ]
 
+    abstract sig BoolVar extends BoolNode
+    abstract sig BoolLit extends BoolNode [ boolval: (one Bit) ]
+
     sig Equals, GT, GTE, LT, LTE < IntCmp
     sig And, Nand, Or, Nor, Xor < BoolCmp
     sig AndInv, OrInv < BoolInvCmp
@@ -40,11 +40,26 @@ module Synth
       arg: (one BoolNode)
     ]
 
+    # --------------------------------------------------------------------------------
+    # -- IntNodes
+    # --------------------------------------------------------------------------------
+
     abstract sig IntVar extends IntNode
     abstract sig IntLit extends IntNode [ intval: (one Int) ]
+    abstract sig BinaryIntOp extends IntNode [
+      left, right: (one IntNode)
+    ] 
+    abstract sig UnaryIntOp extends IntNode [
+      arg: (one IntNode)
+    ]
 
-    abstract sig BoolVar extends BoolNode
-    abstract sig BoolLit extends BoolNode [ boolval: (one Bit) ]
+    sig ITE extends IntNode [
+      condition: (one BoolNode),
+      then:      (one IntNode),
+      elsen:     (one IntNode)
+    ]
+    sig BvAnd, BvOr, BvShl, BvShr, BvSha < BinaryIntOp
+    sig BvNot < UnaryIntOp
 
     # --------------------------------------------------------------------------------
     # -- Semantics
@@ -108,8 +123,10 @@ module Synth
     }
 
     procedure bin_rels {
-      condition + ITE.then + elsen + arg +
-        IntCmp.<(left) + IntCmp.<(right) + BoolCmp.<(left) + BoolCmp.<(right)
+      condition + ITE.then + elsen + 
+        Not.<(arg) + UnaryIntOp.<(arg) +
+        IntCmp.<(left) + BoolCmp.<(left) + BinaryIntOp.<(left) +
+        IntCmp.<(right) + BoolCmp.<(right) + BinaryIntOp.<(right)
     }
 
     fact {
@@ -124,18 +141,18 @@ module Synth
 
     pred synth[root: Node] {
 """
-  //allVarsReachableFrom[root]
-  //all envI: IntVar -> one Int {
+  allVarsReachableFrom[root]
+  all envI: IntVar -> one Int {
   all envB: BoolVar -> one Bit {
     some eval: IntNode->Int + BoolNode->Bit |{
-      //envI in eval
+      envI in eval
       envB in eval
       semantics[eval]
     } |{
       spec[root, eval]
     }
   }
-  //}
+  }
 """
     }
 

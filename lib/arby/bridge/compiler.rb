@@ -173,7 +173,7 @@ module Arby
         als = @model.to_als + "\n" + addendum
 
         Bridge::debug "parsing this"
-        Bridge::debug als.inspect
+        Bridge::debug als
         Bridge::debug "--------------------------"
 
         @a4world = AlloyCompiler.parse(als)

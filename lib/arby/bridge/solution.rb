@@ -107,21 +107,25 @@ module Arby
         if a4sol.satisfiable
           atoms = wrap_atoms(a4sol)
 
-          fld_map = AlloyCompiler.all_fields(a4world).map do |field|
-            [field.label, eval_expr(a4sol, field)]
+          fld_map = Hash.new
+          fld_full_map = Hash.new
+          AlloyCompiler.all_fields(a4world).each do |field|
+            ts = eval_expr(a4sol, field)
+            fld_map[field.label] = ts
+            fld_full_map["#{field.sig.label}<:#{field.label}"] = ts
           end
           fld_map = Hash[fld_map]
-
           skolem_map = jmap(a4sol.getAllSkolems) do |expr|
             [expr.toString, eval_expr(a4sol, expr)]
           end
           skolem_map = Hash[skolem_map]
         end
 
-        Arby::Ast::Instance.new :atoms      => atoms,
-                                :fld_map    => fld_map,
-                                :skolem_map => skolem_map,
-                                :dup        => false
+        Arby::Ast::Instance.new :atoms        => atoms,
+                                :fld_map      => fld_map,
+                                :fld_full_map => fld_full_map,
+                                :skolem_map   => skolem_map,
+                                :dup          => false
       end
 
       # Takes an Rjb Proxy object pointing to an A4Solution, gets all

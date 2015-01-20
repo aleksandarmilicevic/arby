@@ -53,6 +53,8 @@ module Arby
         @label2atom    = Hash[@atoms.map{|a| [lab[a], a]}]
         @type2atoms    = @atoms.group_by(&:class)
         @fld2tuples    = dup ? params[:fld_map].dup : params[:fld_map]
+        @fldfull2tuples = params[:fld_full_map] || params[:fld_map]
+        @fldfull2tuples = @fldfull2tuples.dup if dup
         @skolem2tuples = dup ? params[:skolem_map].dup : params[:skolem_map]
 
         ([@label2atom, @type2atoms, @fld2tuples, @skolem2, self] +
@@ -76,6 +78,7 @@ module Arby
       end
       def field(fld)   @fld2tuples[fld] end
       def skolem(name) @skolem2tuples[name] end
+      def sigfield(sig, fldname) @fldfull2tuples["this/#{sig.relative_name}<:#{fldname}"] end
 
       def atom!(label)  atom(label)  or fail("atom `#{label}' not found") end
       def field!(fld)   field(fld)   or fail("field `#{fld}' not found") end

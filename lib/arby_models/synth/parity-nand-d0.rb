@@ -40,8 +40,9 @@ module ArbyModels::Synth
 """
     }
 
-    run :synthBoolNode, 3, Int=>-1..0,  Nand => exactly(11), AndInv=>0, Not=>0, And=>0, 
-                                   ITE=>0, IntVar=>0, IntLit=>0, Nor=>0, OrInv => 0,
-                                   GT=>0, GTE=>0, LT=>0, LTE=>0, Equals=>0, Or=>0
+    run :synthBoolNode, 0, Int=>-1..0, Nand=>exactly(11), Not=>0, And=>0, 
+                                       Or=>0, Xor=>0, Nor=>0, AndInv=>0, OrInv => 0,
+                                       IntNode=>0, IntCmp=>0
+                                   
   end
 end
