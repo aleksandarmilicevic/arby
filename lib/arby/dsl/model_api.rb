@@ -12,6 +12,12 @@ require 'sdg_utils/lambda/sourcerer'
 module Arby
   module Dsl
 
+    class Lit
+      def initialize(lit) @lit = lit end
+      def to_s() @lit end
+      def inspect() to_s() end
+    end
+
     # ============================================================================
     # == Class +Model+
     #
@@ -87,6 +93,9 @@ module Arby
       def exactly(int_scope)
         Arby::Ast::SigScope.new(nil, int_scope, true)
       end
+
+      def literals() Lit.new('literals') end
+      def bw(bw)     Lit.new("bw(#{bw})") end
 
       def __created(scope_module)
         require 'arby/arby.rb'

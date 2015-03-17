@@ -1,0 +1,256 @@
+<alloy builddate="2015-01-16 17:04 EST">
+
+<instance maxseq="0" command="Run synthBoolNode for 0 but exactly 11 Nand, 0 Not, 0 And, 0 Or, 0 Xor, 0 Nor, 0 AndInv, 0 OrInv, 0 IntNode, 0 IntCmp" filename="">
+
+<intscope bitwidth="1">
+  <atoms kind="AtomRange">
+    <start val="-1"/>
+    <end val="0"/>
+    <inc val="1"/>
+  </atoms>
+</intscope>
+<sig label="seq/Int" ID="0" parentID="1" builtin="yes">
+</sig>
+
+<sig label="Int" ID="1" parentID="2" builtin="yes">
+</sig>
+
+<sig label="String" ID="3" parentID="2" builtin="yes">
+</sig>
+
+<sig label="this/A" ID="4" parentID="5" one="yes">
+   <atom label="A$0"/>
+</sig>
+
+<sig label="this/B" ID="6" parentID="5" one="yes">
+   <atom label="B$0"/>
+</sig>
+
+<sig label="this/C" ID="7" parentID="5" one="yes">
+   <atom label="C$0"/>
+</sig>
+
+<sig label="this/D" ID="8" parentID="5" one="yes">
+   <atom label="D$0"/>
+</sig>
+
+<sig label="this/BoolVar" ID="5" parentID="9" abstract="yes">
+</sig>
+
+<sig label="this/LitTrue" ID="10" parentID="11" one="yes">
+   <atom label="LitTrue$0"/>
+</sig>
+
+<sig label="this/LitFalse" ID="12" parentID="11" one="yes">
+   <atom label="LitFalse$0"/>
+</sig>
+
+<sig label="this/BoolLit" ID="11" parentID="9" abstract="yes">
+</sig>
+
+<field label="boolval" ID="13" parentID="11">
+   <tuple> <atom label="LitTrue$0"/> <atom label="-1"/> </tuple>
+   <tuple> <atom label="LitFalse$0"/> <atom label="0"/> </tuple>
+   <types> <type ID="11"/> <type ID="1"/> </types>
+</field>
+
+<sig label="this/Equals" ID="14" parentID="15">
+</sig>
+
+<sig label="this/GT" ID="16" parentID="15">
+</sig>
+
+<sig label="this/GTE" ID="17" parentID="15">
+</sig>
+
+<sig label="this/LT" ID="18" parentID="15">
+</sig>
+
+<sig label="this/LTE" ID="19" parentID="15">
+</sig>
+
+<sig label="this/IntCmp" ID="15" parentID="9" abstract="yes">
+</sig>
+
+<field label="left" ID="20" parentID="15">
+   <types> <type ID="15"/> <type ID="21"/> </types>
+</field>
+
+<field label="right" ID="22" parentID="15">
+   <types> <type ID="15"/> <type ID="21"/> </types>
+</field>
+
+<sig label="this/AndInv" ID="23" parentID="24">
+</sig>
+
+<sig label="this/OrInv" ID="25" parentID="24">
+</sig>
+
+<sig label="this/BoolInvCmp" ID="24" parentID="26" abstract="yes">
+</sig>
+
+<field label="invLhs" ID="27" parentID="24">
+   <types> <type ID="24"/> <type ID="1"/> </types>
+</field>
+
+<field label="invRhs" ID="28" parentID="24">
+   <types> <type ID="24"/> <type ID="1"/> </types>
+</field>
+
+<field label="invOut" ID="29" parentID="24">
+   <types> <type ID="24"/> <type ID="1"/> </types>
+</field>
+
+<sig label="this/And" ID="30" parentID="26">
+</sig>
+
+<sig label="this/Nand" ID="31" parentID="26">
+   <atom label="Nand$0"/>
+   <atom label="Nand$1"/>
+   <atom label="Nand$2"/>
+   <atom label="Nand$3"/>
+   <atom label="Nand$4"/>
+   <atom label="Nand$5"/>
+   <atom label="Nand$6"/>
+   <atom label="Nand$7"/>
+   <atom label="Nand$8"/>
+   <atom label="Nand$9"/>
+   <atom label="Nand$10"/>
+</sig>
+
+<sig label="this/Or" ID="32" parentID="26">
+</sig>
+
+<sig label="this/Nor" ID="33" parentID="26">
+</sig>
+
+<sig label="this/Xor" ID="34" parentID="26">
+</sig>
+
+<sig label="this/BoolCmp" ID="26" parentID="9" abstract="yes">
+</sig>
+
+<field label="left" ID="35" parentID="26">
+   <tuple> <atom label="Nand$0"/> <atom label="D$0"/> </tuple>
+   <tuple> <atom label="Nand$1"/> <atom label="C$0"/> </tuple>
+   <tuple> <atom label="Nand$2"/> <atom label="Nand$0"/> </tuple>
+   <tuple> <atom label="Nand$3"/> <atom label="LitFalse$0"/> </tuple>
+   <tuple> <atom label="Nand$4"/> <atom label="Nand$0"/> </tuple>
+   <tuple> <atom label="Nand$5"/> <atom label="C$0"/> </tuple>
+   <tuple> <atom label="Nand$6"/> <atom label="B$0"/> </tuple>
+   <tuple> <atom label="Nand$7"/> <atom label="Nand$6"/> </tuple>
+   <tuple> <atom label="Nand$8"/> <atom label="Nand$7"/> </tuple>
+   <tuple> <atom label="Nand$9"/> <atom label="Nand$3"/> </tuple>
+   <tuple> <atom label="Nand$10"/> <atom label="Nand$2"/> </tuple>
+   <types> <type ID="26"/> <type ID="9"/> </types>
+</field>
+
+<field label="right" ID="36" parentID="26">
+   <tuple> <atom label="Nand$0"/> <atom label="A$0"/> </tuple>
+   <tuple> <atom label="Nand$1"/> <atom label="B$0"/> </tuple>
+   <tuple> <atom label="Nand$2"/> <atom label="D$0"/> </tuple>
+   <tuple> <atom label="Nand$3"/> <atom label="C$0"/> </tuple>
+   <tuple> <atom label="Nand$4"/> <atom label="A$0"/> </tuple>
+   <tuple> <atom label="Nand$5"/> <atom label="Nand$1"/> </tuple>
+   <tuple> <atom label="Nand$6"/> <atom label="Nand$1"/> </tuple>
+   <tuple> <atom label="Nand$7"/> <atom label="Nand$5"/> </tuple>
+   <tuple> <atom label="Nand$8"/> <atom label="Nand$4"/> </tuple>
+   <tuple> <atom label="Nand$9"/> <atom label="Nand$8"/> </tuple>
+   <tuple> <atom label="Nand$10"/> <atom label="Nand$9"/> </tuple>
+   <types> <type ID="26"/> <type ID="9"/> </types>
+</field>
+
+<sig label="this/Not" ID="37" parentID="9">
+</sig>
+
+<field label="arg" ID="38" parentID="37">
+   <types> <type ID="37"/> <type ID="9"/> </types>
+</field>
+
+<sig label="this/BoolNode" ID="9" parentID="39" abstract="yes">
+</sig>
+
+<sig label="this/IntVar" ID="40" parentID="21" abstract="yes">
+</sig>
+
+<sig label="this/IntLit" ID="41" parentID="21" abstract="yes">
+</sig>
+
+<field label="intval" ID="42" parentID="41">
+   <types> <type ID="41"/> <type ID="1"/> </types>
+</field>
+
+<sig label="this/BvAnd" ID="43" parentID="44">
+</sig>
+
+<sig label="this/BvOr" ID="45" parentID="44">
+</sig>
+
+<sig label="this/BvShl" ID="46" parentID="44">
+</sig>
+
+<sig label="this/BvShr" ID="47" parentID="44">
+</sig>
+
+<sig label="this/BvSha" ID="48" parentID="44">
+</sig>
+
+<sig label="this/BinaryIntOp" ID="44" parentID="21" abstract="yes">
+</sig>
+
+<field label="left" ID="49" parentID="44">
+   <types> <type ID="44"/> <type ID="21"/> </types>
+</field>
+
+<field label="right" ID="50" parentID="44">
+   <types> <type ID="44"/> <type ID="21"/> </types>
+</field>
+
+<sig label="this/BvNot" ID="51" parentID="52">
+</sig>
+
+<sig label="this/UnaryIntOp" ID="52" parentID="21" abstract="yes">
+</sig>
+
+<field label="arg" ID="53" parentID="52">
+   <types> <type ID="52"/> <type ID="21"/> </types>
+</field>
+
+<sig label="this/ITE" ID="54" parentID="21">
+</sig>
+
+<field label="condition" ID="55" parentID="54">
+   <types> <type ID="54"/> <type ID="9"/> </types>
+</field>
+
+<field label="then" ID="56" parentID="54">
+   <types> <type ID="54"/> <type ID="21"/> </types>
+</field>
+
+<field label="elsen" ID="57" parentID="54">
+   <types> <type ID="54"/> <type ID="21"/> </types>
+</field>
+
+<sig label="this/IntNode" ID="21" parentID="39" abstract="yes">
+</sig>
+
+<sig label="this/Node" ID="39" parentID="2" abstract="yes">
+</sig>
+
+<sig label="univ" ID="2" builtin="yes">
+</sig>
+
+<sig label="Bit" ID="58">
+   <atom label="-1"/>
+   <atom label="0"/>
+   <type ID="1"/>
+</sig>
+
+<skolem label="$synthBoolNode_root" ID="59">
+   <tuple> <atom label="Nand$10"/> </tuple>
+   <types> <type ID="9"/> </types>
+</skolem>
+
+</instance>
+
+</alloy>

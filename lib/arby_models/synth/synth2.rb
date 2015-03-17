@@ -58,7 +58,7 @@ module Synth
       then:      (one IntNode),
       elsen:     (one IntNode)
     ]
-    sig BvAnd, BvOr, BvShl, BvShr, BvSha < BinaryIntOp
+    sig BvAnd, BvOr, BvXor, BvShl, BvShr, BvSha < BinaryIntOp
     sig BvNot < UnaryIntOp
 
     # --------------------------------------------------------------------------------
@@ -72,6 +72,10 @@ module Synth
           eval[n] == BitFalse
         end
       }
+    }
+
+    procedure ucmpSemantics[cls: BoolCmp, op: Symbol, eval: Node.e ** (Int+Bit)] {
+      all(n: cls) { eval[n] == eval[n.arg].send(op) }
     }
 
     procedure bcmpSemantics[cls: BoolCmp, op: Symbol, eval: Node.e ** (Int+Bit)] {
@@ -106,9 +110,14 @@ module Synth
       bcmpSemantics(Xor,  :Xor,  eval) and
       binvcmpSemantics(AndInv, :And,  eval) and
       binvcmpSemantics(OrInv, :Or,  eval) and
-      all(n: Not) {
-        eval[n] == eval[n.arg].send(:Not)
-      } and
+      ucmpSemantics(Not,   :Not, eval) and
+      bcmpSemantics(BvAnd, :bvand, eval) and
+      bcmpSemantics(BvOr,  :bvor, eval) and
+      bcmpSemantics(BvXor, :bvxor, eval) and
+      bcmpSemantics(BvShl, :bvshl, eval) and
+      bcmpSemantics(BvShr, :bvshr, eval) and
+      bcmpSemantics(BvSha, :bvsha, eval) and
+      ucmpSemantics(BvNot, :bvnot, eval) and
       all(i: IntLit) { eval[i] == i.intval } and
       all(i: BoolLit) { eval[i] == i.boolval }
     }
@@ -156,8 +165,23 @@ module Synth
 """
     }
 
+    pred synthI[root: Node] {
+"""
+  allVarsReachableFrom[root]
+  all envI: IntVar -> one Int {
+    some eval: IntNode->Int + BoolNode->Bit |{
+      envI in eval
+      semantics[eval]
+    } |{
+      spec[root, eval]
+    }
+  }
+"""
+    }
+
     pred synthBoolNode[root: BoolNode] { synth[root] }
     pred synthIntNode[root: IntNode]   { synth[root] }
+    pred synthIntNodeI[root: IntNode]  { synthI[root] }
   end
 
   module Synth2
@@ -251,7 +275,20 @@ module Synth
         lBang = invLhs ? '!' : ''
         rBang = invRhs ? '!' : ''
         oBang = invOut ? '!' : ''
-        "(#{oBang}#{self.class.relative_name} #{lBang}#{left.unwrap.prnt} #{rBang}#{right.unwrap.prnt})"
+        "#{i}(#{oBang}#{self.class.relative_name} #{lBang}#{left.unwrap.prnt} #{rBang}#{right.unwrap.prnt})"
+      end
+    end
+    class BinaryIntOp
+      def to_oo()
+        self.left  = self.left[0][0].to_oo if Array === self.left
+        self.right = self.right[0][0].to_oo if Array === self.right
+        self
+      end
+      def op()
+        self.class.relative_name()
+      end
+      def prnt(i="")
+        "(#{self.class.relative_name} #{left.unwrap.prnt} #{right.unwrap.prnt})"        
       end
     end
     class IntCmp
@@ -299,6 +336,12 @@ module Synth
         (!!interpret(n.left, env)) ^ (!!interpret(n.right, env))
       when Not
         !interpret(n.arg, env)
+      when BvAnd then interpret(n.left, env) & interpret(n.right, env) 
+      when BvOr  then interpret(n.left, env) | interpret(n.right, env) 
+      when BvXor then interpret(n.left, env) ^ interpret(n.right, env) 
+      when BvShl then interpret(n.left, env) << interpret(n.right, env) 
+      when BvShr then interpret(n.left, env) >> interpret(n.right, env) 
+      when BvSha then raise "No SHA in ruby?"
       when AndInv
         lhs = !!interpret(n.left, env)
         lhs = !lhs if n.invLhs

@@ -260,6 +260,16 @@ module Arby
         def Or(other)        self.apply_call(:Or, other) end
         def Nor(other)       self.apply_call(:Nor, other) end
 
+        def bvnot()          self.apply_call(:bvnot) end
+        def bvxor(other)     self.apply_call(:bvxor, other) end
+        def bvand(other)     self.apply_call(:bvand, other) end
+        def bvnand(other)    self.apply_call(:bvnand, other) end
+        def bvor(other)      self.apply_call(:bvor, other) end
+        def bvnor(other)     self.apply_call(:bvnor, other) end
+        def bvshl(other)     self.apply_call(:bvshl, other) end
+        def bvshr(other)     self.apply_call(:bvshr, other) end
+        def bvsha(other)     self.apply_call(:bvsha, other) end
+
         def in?(other)       ExprBuilder.apply(IN, self, other) end
         def not_in?(other)   ExprBuilder.apply(NOT_IN, self, other) end
         def contains?(other) ExprBuilder.apply(IN, other, self) end

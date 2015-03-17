@@ -58,6 +58,8 @@ module Arby
             Arby::Ast::SigScope.new(sig || scope.sig, scope.scope, scope.exact?)
           when Integer, Range
             Arby::Ast::SigScope.new(sig, scope)
+          when Hash
+            Arby::Ast::IntScope.new(scope)
           else
             raise SyntaxError, "Invalid scope #{scope}:#{scope.class}"
           end

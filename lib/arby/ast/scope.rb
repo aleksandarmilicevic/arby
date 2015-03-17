@@ -19,6 +19,21 @@ module Arby
       end
     end
 
+    class HashScope
+      attr_reader :hash
+      def initialize(hash) @hash = hash end
+      def to_s
+        body = hash.map{|k,v| "#{k}: #{v}"}.join(", ")
+        "{#{body}}"
+      end
+    end
+
+    class IntScope < SigScope
+      def initialize(hash)
+        super(Arby::Ast::TypeConsts::Int, HashScope.new(hash), false)
+      end
+    end
+
     class Scope
       attr_reader :global, :sig_scopes
       def initialize(global=4, sig_scopes=[])
