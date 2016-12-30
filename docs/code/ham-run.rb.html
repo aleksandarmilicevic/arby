@@ -1,0 +1,11 @@
+<div class="highlight"><pre><span class="c1"># find an instance satisfying the :hampath pred</span>
+<span class="n">sol</span> <span class="o">=</span> <span class="no">GraphModel</span><span class="o">.</span><span class="n">run_hampath</span>
+<span class="n">assert</span> <span class="n">sol</span><span class="o">.</span><span class="n">satisfiable?</span>
+<span class="n">g</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">sol</span><span class="o">[</span><span class="s2">&quot;$hampath_g&quot;</span><span class="o">]</span><span class="p">,</span> <span class="n">sol</span><span class="o">[</span><span class="s2">&quot;$hampath_path&quot;</span><span class="o">]</span>
+<span class="nb">puts</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span> <span class="c1"># =&gt; e.g., {&lt;Node$0&gt;, &lt;Node$1&gt;}</span>
+<span class="nb">puts</span> <span class="n">g</span><span class="o">.</span><span class="n">edges</span> <span class="c1"># =&gt; e.g., {&lt;Node$1, Node$0&gt;}</span>
+<span class="nb">puts</span> <span class="n">path</span>    <span class="c1"># =&gt; {&lt;0, Node$1&gt;, &lt;1, Node$0&gt;}</span>
+<span class="c1"># check that the &quot;reach&quot; assertion holds</span>
+<span class="n">sol</span> <span class="o">=</span> <span class="no">GraphModel</span><span class="o">.</span><span class="n">check_reach</span>
+<span class="n">assert</span> <span class="o">!</span><span class="n">sol</span><span class="o">.</span><span class="n">satisfiable?</span> 
+</pre></div>

@@ -1,0 +1,19 @@
+<div class="highlight"><pre><span class="k">alloy</span> <span class="ss">:SudokuModel</span> <span class="k">do</span>
+ <span class="no">SudokuModel</span><span class="o">::</span><span class="n">N</span> <span class="o">=</span> <span class="mi">9</span>
+
+ <span class="k">sig</span> <span class="nc">Sudoku</span><span class="o">[</span><span class="ss">grid</span><span class="p">:</span> <span class="no">Int</span> <span class="o">**</span> <span class="no">Int</span> <span class="o">**</span> <span class="p">(</span><span class="k">lone</span> <span class="no">Int</span><span class="p">)</span><span class="o">]</span>
+
+ <span class="k">pred</span> <span class="n">solved</span><span class="o">[</span><span class="ss">s</span><span class="p">:</span> <span class="no">Sudoku</span><span class="o">]</span> <span class="o">{</span>
+  <span class="n">m</span>   <span class="o">=</span> <span class="nb">Integer</span><span class="p">(</span><span class="no">Math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+  <span class="n">rng</span> <span class="o">=</span> <span class="nb">lambda</span><span class="o">{|</span><span class="n">i</span><span class="o">|</span> <span class="n">m</span><span class="o">*</span><span class="n">i</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">m</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">}</span>
+
+  <span class="k">all</span><span class="p">(</span><span class="ss">r</span><span class="p">:</span> <span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="o">{</span> 
+   <span class="n">s</span><span class="o">.</span><span class="n">grid</span><span class="o">[</span><span class="n">r</span><span class="o">][</span><span class="no">Int</span><span class="o">]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="o">.</span><span class="n">.N</span><span class="p">)</span> <span class="ow">and</span> 
+   <span class="n">s</span><span class="o">.</span><span class="n">grid</span><span class="o">[</span><span class="no">Int</span><span class="o">][</span><span class="n">r</span><span class="o">]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="o">.</span><span class="n">.N</span><span class="p">)</span> 
+  <span class="o">}</span> <span class="ow">and</span>
+  <span class="k">all</span><span class="p">(</span><span class="ss">c</span><span class="p">,</span> <span class="ss">r</span><span class="p">:</span> <span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">m</span><span class="p">)</span> <span class="o">{</span> 
+   <span class="n">s</span><span class="o">.</span><span class="n">grid</span><span class="o">[</span><span class="n">rng</span><span class="o">[</span><span class="n">c</span><span class="o">]][</span><span class="n">rng</span><span class="o">[</span><span class="n">r</span><span class="o">]]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="o">.</span><span class="n">.N</span><span class="p">)</span> 
+  <span class="o">}</span>
+ <span class="o">}</span>
+<span class="k">end</span>
+</pre></div>

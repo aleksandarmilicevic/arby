@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>&alpha;Rby&mdash;An Embedding of Alloy in Ruby</title>
+<!-- <link rel="stylesheet" type="text/css" href="../css/reset.css"/> -->
+<!-- <link rel="stylesheet" media="screen" href="../css/grid960.css" /> -->
+<!-- <link rel="stylesheet" type="text/css" href="../css/type.css" /> -->
+<!-- <link rel="stylesheet" type="text/css" href="../css/helpers.css" /> -->
+<!-- <link rel="stylesheet" type="text/css" href="../css/custom2.css"/> -->
+
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" type="text/css" href="css/alloy.css"/>
+  <link rel="stylesheet" type="text/css" href="css/github.css"/>
+  <link rel="stylesheet" type="text/css" href="css/custom.css"/>
+
+  <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+  <script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+</head>
+
+<body data-spy="scroll" data-target=".my-sidebar">
+
+<div class="_affix" id="_title">
+</div>
+
+<div id="container" class="container">
+
+<div class="row">
+
+<div class="my-sidebar affix">
+  <!-- <div id="logopic" style="text-align: center"> -->
+  <!--   <img id="logo" width="70%" src="alloy_logo_nosub.png"/> -->
+  <!--   <div id="arby-sig"><strong><span class="a">&alpha;</span><span class="r">Rb</span><span class="a">y</span></strong></div> -->
+  <!--   <img id="rubylogo" width="60%" src="ruby_transparent.png"/> -->
+  <!-- </div> -->
+  <div id="logopic" style="text-align: center">
+    <img id="logo" width="100%" src="arby3.png"/>
+    <br/>
+    <br/>
+  </div>
+  <ul class="nav bs-docs-sidenav">
+    <li class=""><a href="#h2-about">about</a></li>
+    <li class=""><a href="#h2-download">download & run</a></li>
+    <li class=""><a href="#h2-doc">documentation</a>
+      <ul class="nav">
+        <li><a href="#abz-paper">ABZ14 paper</a></li>
+      </ul>
+    </li>
+    <li class=""><a href="#h2-sample">sample models</a></li>
+    <li class=""><a href="#h2-examples">examples</a>
+      <ul class="nav">
+        <li><a href="#h3-hampath">hamiltonian path</a></li>
+        <li><a href="#h3-sudoku">sudoku</a></li>
+      </ul>
+    </li>
+    <li class=""><a href="#h2-grammar">grammar</a>
+      <ul class="nav">
+        <li><a href="#h3-diff">differences</a></li>
+        <li><a href="#h3-bnf">bnf</a></li>
+      </ul>
+    </li>
+  </ul>
+  <!-- <a class="back-to-top" href="#top"> -->
+  <!--   back to top -->
+  <!-- </a> -->
+</div>
+
+<div class="col-xs-12" id="main">
+
+<h1 class="title text-center"><b><span class="a">&alpha;</span><span class="r">Rb</span><span class="a">y</span></b>&mdash;An Embedding of Alloy in Ruby</h1>
+
+<div class="row">
+
+<h2 id="h2-about">about <b>&alpha;Rby</b></h2>
+
+<ul>
+  <li><span class="main"><span class="hgl">declarative modeling</span>
+      language embedded in an <span class="hgl">imperative
+      programming</span> language</span></li>
+
+  <li><span class="main">beneficial to both
+      the <span class="hgl">modeling community of Alloy</span> and
+      the <span class="hgl">object-oriented community of Ruby</span>
+      programmers</span></li>
+
+  <li><span class="main">benefits to <span class="hgl">Alloy</span> users:
+      <ul>
+        <li>mixed execution</li>
+        <li>partial instances</li>
+        <li>staged model finding</li>
+      </ul>
+  </li>
+
+  <li><span class="main">benefits to <span class="hgl">Ruby</span> users:
+      <ul>
+        <li>seamless embedding of a relational constraint solver</li>
+      </ul>
+  </li>
+</ul>
+</div>
+
+<div class="row">
+<h2 id="h2-download">download & run</h2>
+<dl class="dl-horizontal">
+  <dt>download</dt><dd><a href="https://github.com/sdg-mit/arby">arby @ github</a></dd>
+  <dt>license</dt><dd><a href="http://www.gnu.org/licenses/gpl-3.0.txt">GPLv3</a></dd>
+  <dt>requirements</dt><dd><a href="https://www.ruby-lang.org/en/downloads/">Ruby 1.9.3 or higher</a> (not tested with 2.1.1) and <a href="http://openjdk.java.net/">JDK 1.6 or higher</a> (not tested with 1.8)</dd>
+</dl>
+<div class="highlight"><pre>  <span class="nb">export </span><span class="nv">JAVA_HOME</span><span class="o">=</span><span class="s2">&quot;/etc/java-6-openjdk&quot;</span> <span class="c">## or wherever your Java is installed</span>
+  git clone https://github.com/sdg-mit/arby.git
+  <span class="nb">cd </span>arby
+  bundle install
+  ./run_tests.sh test/unit/arby/models/abz14/sudoku_test.rb <span class="c">## runs a given test only</span>
+  ./run_tests.sh <span class="c">## runs all tests</span>
+</pre></div>
+</div>
+
+<div class="row">
+<h2 id="h2-doc">publications/documentation</h2>
+<ul class="lst">
+  <li id="abz-paper">
+    <span class="paper-title">&alpha;Rby&mdash;An Embedding of Alloy in Ruby</span>
+    <span class="date">
+      <span class="slides">[<a href="http://people.csail.mit.edu/aleks/website/papers/abz14-arby-slides.pdf">slides</a>]</span>              
+      <span class="abstract">[<a href="http://people.csail.mit.edu/aleks/website/papers/abz14-arby-abstract.txt">abstract</a>]</span>              
+      <span class="fulltext">[<a href="http://people.csail.mit.edu/aleks/website/papers/abz14-arby.pdf">full text</a>]</span>              
+      <span class="bibtex">[<a href="http://people.csail.mit.edu/aleks/website/papers/abz14-arby-bibtex.txt">bibtex</a>]</span>              
+    </span>
+<br/>
+<span class="paper-author">A. Milicevic</span>, Ido Efrati, and D. Jackson<br/>
+<span class="conf-name">International Conference of Alloy, ASM, B, VDM, and Z Users </span>(<a href="http://www.irit.fr/ABZ2014/">ABZ 2014</a>), Toulouse, France, June 2014.<br/>
+  </li>
+</ul>
+</div>
+
+
+<div class="row">
+  <h2 id="h2-sample">sample models</h2>
+  <div class="col-xs-6">
+    <ul>
+      <li>sample models are located in <code>arby/lib/arby_models</code></li>
+      <li>corresponding unit tests are located in <code>arby/test/unit/arby/model</code></li>
+    </ul>
+  </div>
+  <div class="col-xs-6"></div>
+</div>
+
+<div class="row">
+  <h2 id="h2-examples">examples</h2>
+
+  <h3 id="h3-hampath">hamiltonian path</h3>
+  <div class="row">
+    <div class="col-xs-6">
+      <h4>spec in &alpha;Rby</h4>
+      <pre class="arby"><span class="k">alloy</span> <span class="ss">:GraphModel</span> <span class="k">do</span>
+ <span class="k">sig</span> <span class="nc">Node</span> <span class="o">[</span><span class="ss">val</span><span class="p">:</span> <span class="p">(</span><span class="k">lone</span> <span class="no">Int</span><span class="p">)</span><span class="o">]</span>
+ <span class="k">sig</span> <span class="nc">Edge</span> <span class="o">[</span><span class="ss">src</span><span class="p">,</span> <span class="ss">dst</span><span class="p">:</span> <span class="p">(</span><span class="k">one</span> <span class="no">Node</span><span class="p">)</span><span class="o">]</span> <span class="o">{</span><span class="n">src</span> <span class="o">!=</span> <span class="n">dst</span><span class="o">}</span>
+ <span class="k">sig</span> <span class="nc">Graph</span><span class="o">[</span><span class="ss">nodes</span><span class="p">:(</span><span class="k">set</span> <span class="no">Node</span><span class="p">),</span> <span class="ss">edges</span><span class="p">:(</span><span class="k">set</span> <span class="no">Edge</span><span class="p">)</span><span class="o">]</span>
+
+ <span class="k">pred</span> <span class="n">hampath</span><span class="o">[</span><span class="ss">g</span><span class="p">:</span> <span class="no">Graph</span><span class="p">,</span> <span class="ss">path</span><span class="p">:</span> <span class="p">(</span><span class="k">seq</span> <span class="no">Node</span><span class="p">)</span><span class="o">]</span> <span class="o">{</span>
+  <span class="n">path</span><span class="o">[</span><span class="no">Int</span><span class="o">]</span> <span class="o">==</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span> <span class="ow">and</span>
+  <span class="n">path</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">size</span> <span class="ow">and</span>
+  <span class="k">all</span><span class="p">(</span><span class="ss">i</span><span class="p">:</span> <span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">|</span> 
+   <span class="k">some</span><span class="p">(</span><span class="ss">e</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span> <span class="o">{</span> 
+    <span class="n">e</span><span class="o">.</span><span class="n">src</span> <span class="o">==</span> <span class="n">path</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="n">e</span><span class="o">.</span><span class="n">dst</span> <span class="o">==</span> <span class="n">path</span><span class="o">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="o">]</span> <span class="o">}</span>
+ <span class="o">}</span>
+ <span class="k">assertion</span> <span class="n">reach</span> <span class="o">{</span>
+  <span class="k">all</span><span class="p">(</span><span class="ss">g</span><span class="p">:</span> <span class="no">Graph</span><span class="p">,</span> <span class="ss">path</span><span class="p">:</span> <span class="p">(</span><span class="k">seq</span> <span class="no">Node</span><span class="p">))</span> <span class="o">|</span>
+   <span class="k">if</span> <span class="n">hampath</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="k">in?</span> <span class="n">path</span><span class="o">[</span><span class="mi">0</span><span class="o">].</span><span class="n">*</span><span class="p">((</span><span class="o">~</span><span class="n">src</span><span class="p">)</span><span class="o">.</span><span class="n">dst</span><span class="p">)</span>
+   <span class="k">end</span> <span class="o">}</span>
+ <span class="k">run</span> <span class="ss">:hampath</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="no">Graph</span><span class="o">=&gt;</span><span class="k">exactly</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="no">Node</span><span class="o">=&gt;</span><span class="mi">3</span>
+ <span class="k">check</span> <span class="ss">:reach</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="no">Graph</span><span class="o">=&gt;</span><span class="k">exactly</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="no">Node</span><span class="o">=&gt;</span><span class="mi">3</span>
+ <span class="k">end</span></pre>
+    </div>
+    <div class="col-xs-6">
+      <h4>equivalent Alloy model</h4>
+      <pre class="alloy"><span class="kn">module</span> <span class="nn">GraphModel</span>
+<span class="kd">sig</span> <span class="nc">Node</span> <span class="o">{</span><span class="n">val</span><span class="p">:</span> <span class="k">lone</span> <span class="kt">Int</span><span class="o">}</span>
+<span class="kd">sig</span> <span class="nc">Edge</span> <span class="o">{</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">:</span> <span class="k">one</span> <span class="n">Node</span><span class="o">}{</span><span class="n">src</span> <span class="o">!=</span> <span class="n">dst</span><span class="o">}</span>
+<span class="kd">sig</span> <span class="nc">Graph</span><span class="o">{</span><span class="n">nodes</span><span class="p">:</span> <span class="k">set</span> <span class="n">Node</span><span class="p">,</span> <span class="n">edges</span><span class="p">:</span> <span class="k">set</span> <span class="n">Edge</span><span class="o">}</span>
+
+<span class="k">pred</span> <span class="nf">hampath</span><span class="o">[</span><span class="n">g</span><span class="p">:</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="k">seq</span> <span class="n">Node</span><span class="o">]</span> <span class="o">{</span>
+ <span class="n">path</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span>
+ <span class="o">#</span><span class="n">path</span> <span class="o">=</span> <span class="o">#</span><span class="n">g</span><span class="o">.</span><span class="n">nodes</span>
+ <span class="k">all</span> <span class="n">i</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">|</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">minus</span><span class="o">[#</span><span class="n">path</span><span class="p">,</span><span class="mi">1</span><span class="o">]</span> <span class="o">=&gt;</span> <span class="o">{</span>
+  <span class="k">some</span> <span class="n">e</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">edges</span> <span class="o">|</span> 
+   <span class="n">e</span><span class="o">.</span><span class="n">src</span> <span class="o">=</span> <span class="n">path</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="n">e</span><span class="o">.</span><span class="n">dst</span> <span class="o">=</span> <span class="n">path</span><span class="o">[</span><span class="n">plus</span><span class="o">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="o">]]</span> <span class="o">}</span>
+ <span class="o">}</span>
+ <span class="k">assert</span> <span class="nf">reach</span> <span class="o">{</span>
+  <span class="k">all</span> <span class="n">g</span><span class="p">:</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="k">seq</span> <span class="n">Node</span> <span class="o">|</span>
+   <span class="n">hampath</span><span class="o">[</span><span class="n">g</span><span class="p">,</span> <span class="n">path</span><span class="o">]</span> <span class="o">=&gt;</span> 
+    <span class="n">g</span><span class="o">.</span><span class="n">nodes</span> <span class="ow">in</span> <span class="n">path</span><span class="o">[</span><span class="mi">0</span><span class="o">].*(~</span><span class="n">src</span><span class="o">.</span><span class="n">dst</span><span class="o">)</span>
+ <span class="o">}</span>
+<span class="k">run</span> <span class="n">hampath</span> <span class="k">for</span> <span class="mi">5</span> <span class="k">but</span> <span class="k">exactly</span> <span class="mi">1</span> <span class="n">Graph</span><span class="p">,</span> <span class="mi">3</span> <span class="n">Node</span>
+<span class="k">check</span> <span class="n">reach</span> <span class="k">for</span> <span class="mi">5</span> <span class="k">but</span> <span class="k">exactly</span> <span class="mi">1</span> <span class="n">Graph</span><span class="p">,</span> <span class="mi">3</span> <span class="n">Node</span>
+
+</pre>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-6">
+      <h4><br/>automatically generated Ruby classes</h4>
+      <pre class="ruby"><span class="k">module</span> <span class="nn">GraphModel</span>
+ <span class="k">class</span> <span class="nc">Node</span><span class="p">;</span>  <span class="kp">attr_accessor</span> <span class="ss">:val</span> <span class="k">end</span>
+ <span class="k">class</span> <span class="nc">Edge</span><span class="p">;</span>  <span class="kp">attr_accessor</span> <span class="ss">:src</span><span class="p">,</span> <span class="ss">:dst</span> <span class="k">end</span>
+ <span class="k">class</span> <span class="nc">Graph</span><span class="p">;</span> <span class="kp">attr_accessor</span> <span class="ss">:nodes</span><span class="p">,</span> <span class="ss">:edges</span> <span class="k">end</span>
+
+ <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">hampath</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="c">&lt;same as above&gt;</span> <span class="k">end</span>
+ <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">reach</span><span class="p">()</span>          <span class="c">&lt;same as above&gt;</span> <span class="k">end</span>
+ <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">run_hampath</span><span class="p">()</span> <span class="n">exe_cmd</span> <span class="ss">:hampath</span> <span class="k">end</span>
+ <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">check_reach</span><span class="p">()</span> <span class="n">exe_cmd</span> <span class="ss">:reach</span> <span class="k">end</span>
+ <span class="k">end</span></pre>
+    </div>
+    <div class="col-xs-6">
+      <h4>running the <code>hampath</code> predicate and checking
+      the <code>reach</code> assertion</h4>
+        <pre class="ruby"><span class="c1"># find an instance satisfying the :hampath pred</span>
+<span class="n">sol</span> <span class="o">=</span> <span class="no">GraphModel</span><span class="o">.</span><span class="n">run_hampath</span>
+<span class="n">assert</span> <span class="n">sol</span><span class="o">.</span><span class="n">satisfiable?</span>
+<span class="n">g</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">sol</span><span class="o">[</span><span class="s2">&quot;$hampath_g&quot;</span><span class="o">]</span><span class="p">,</span> <span class="n">sol</span><span class="o">[</span><span class="s2">&quot;$hampath_path&quot;</span><span class="o">]</span>
+<span class="nb">puts</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span> <span class="c1"># =&gt; e.g., {&lt;Node$0&gt;, &lt;Node$1&gt;}</span>
+<span class="nb">puts</span> <span class="n">g</span><span class="o">.</span><span class="n">edges</span> <span class="c1"># =&gt; e.g., {&lt;Node$1, Node$0&gt;}</span>
+<span class="nb">puts</span> <span class="n">path</span>    <span class="c1"># =&gt; {&lt;0, Node$1&gt;, &lt;1, Node$0&gt;}</span>
+<span class="c1"># check that the &quot;reach&quot; assertion holds</span>
+<span class="n">sol</span> <span class="o">=</span> <span class="no">GraphModel</span><span class="o">.</span><span class="n">check_reach</span>
+<span class="n">assert</span> <span class="o">!</span><span class="n">sol</span><span class="o">.</span><span class="n">satisfiable?</span> </pre>
+    </div>
+  </div>
+
+  <h3 id="h3-sudoku">sudoku</h3>
+
+  <div class="row">
+  <div class="col-xs-6">
+    <h4>model</h4>
+    <pre id="sudoku-model" class="arby"><span class="k">alloy</span> <span class="ss">:SudokuModel</span> <span class="k">do</span>
+ <span class="no">SudokuModel</span><span class="o">::</span><span class="n">N</span> <span class="o">=</span> <span class="mi">9</span>
+
+ <span class="k">sig</span> <span class="nc">Sudoku</span><span class="o">[</span><span class="ss">grid</span><span class="p">:</span> <span class="no">Int</span> <span class="o">**</span> <span class="no">Int</span> <span class="o">**</span> <span class="p">(</span><span class="k">lone</span> <span class="no">Int</span><span class="p">)</span><span class="o">]</span>
+
+ <span class="k">pred</span> <span class="n">solved</span><span class="o">[</span><span class="ss">s</span><span class="p">:</span> <span class="no">Sudoku</span><span class="o">]</span> <span class="o">{</span>
+  <span class="n">m</span>   <span class="o">=</span> <span class="nb">Integer</span><span class="p">(</span><span class="no">Math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+  <span class="n">rng</span> <span class="o">=</span> <span class="nb">lambda</span><span class="o">{|</span><span class="n">i</span><span class="o">|</span> <span class="n">m</span><span class="o">*</span><span class="n">i</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">m</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">}</span>
+
+  <span class="k">all</span><span class="p">(</span><span class="ss">r</span><span class="p">:</span> <span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="o">{</span> 
+   <span class="n">s</span><span class="o">.</span><span class="n">grid</span><span class="o">[</span><span class="n">r</span><span class="o">][</span><span class="no">Int</span><span class="o">]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="o">.</span><span class="n">.N</span><span class="p">)</span> <span class="ow">and</span> 
+   <span class="n">s</span><span class="o">.</span><span class="n">grid</span><span class="o">[</span><span class="no">Int</span><span class="o">][</span><span class="n">r</span><span class="o">]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="o">.</span><span class="n">.N</span><span class="p">)</span> 
+  <span class="o">}</span> <span class="ow">and</span>
+  <span class="k">all</span><span class="p">(</span><span class="ss">c</span><span class="p">,</span> <span class="ss">r</span><span class="p">:</span> <span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">m</span><span class="p">)</span> <span class="o">{</span> 
+   <span class="n">s</span><span class="o">.</span><span class="n">grid</span><span class="o">[</span><span class="n">rng</span><span class="o">[</span><span class="n">c</span><span class="o">]][</span><span class="n">rng</span><span class="o">[</span><span class="n">r</span><span class="o">]]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="o">.</span><span class="n">.N</span><span class="p">)</span> 
+  <span class="o">}</span>
+ <span class="o">}</span>
+ <span class="k">end</span></pre>
+  </div>
+
+  <div class="col-xs-6">
+    <h4>solving for partial instance</h4>
+    <pre id="sudoku-solve" class="ruby"><span class="k">class</span> <span class="nc">SudokuModel</span><span class="o">::</span><span class="no">Sudoku</span>
+ <span class="k">def</span> <span class="nf">pi</span>
+  <span class="n">bnds</span> <span class="o">=</span> <span class="no">Arby</span><span class="o">::</span><span class="no">Ast</span><span class="o">::</span><span class="no">Bounds</span><span class="o">.</span><span class="n">new</span>
+  <span class="n">inds</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">N</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="o">-</span> <span class="nb">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">1</span><span class="p">)</span>
+  <span class="n">bnds</span><span class="o">[</span><span class="no">Sudoku</span><span class="o">]</span>         <span class="o">=</span> <span class="nb">self</span>
+  <span class="n">bnds</span><span class="o">.</span><span class="n">lo</span><span class="o">[</span><span class="no">Sudoku</span><span class="o">.</span><span class="n">grid</span><span class="o">]</span> <span class="o">=</span> <span class="nb">self</span> <span class="o">**</span> <span class="nb">self</span><span class="o">.</span><span class="n">grid</span>
+  <span class="n">bnds</span><span class="o">.</span><span class="n">hi</span><span class="o">[</span><span class="no">Sudoku</span><span class="o">.</span><span class="n">grid</span><span class="o">]</span> <span class="o">=</span> <span class="nb">self</span> <span class="o">**</span> <span class="n">inds</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span><span class="o">.</span><span class="n">.N</span><span class="p">)</span>
+  <span class="n">bnds</span><span class="o">.</span><span class="n">bound_int</span><span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.N</span><span class="p">)</span>
+ <span class="k">end</span>
+ <span class="k">def</span> <span class="k">solve</span><span class="p">()</span> <span class="no">SudokuModel</span><span class="o">.</span><span class="k">solve</span> <span class="ss">:solved</span><span class="p">,</span> <span class="nb">self</span><span class="o">.</span><span class="n">pi</span> <span class="k">end</span>
+ <span class="k">def</span> <span class="nf">display</span><span class="p">()</span> <span class="nb">puts</span> <span class="n">grid</span> <span class="k">end</span>
+ <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="no">Sudoku</span><span class="o">.</span><span class="n">new</span> <span class="ss">grid</span><span class="p">:</span> 
+  <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sr">/;\s*/</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="o">{|</span><span class="n">x</span><span class="o">|</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sr">/,/</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:to_i</span><span class="p">)</span><span class="o">}</span>
+ <span class="k">end</span>
+<span class="k">end</span>
+<span class="no">SudokuModel</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">s</span> <span class="o">=</span> <span class="no">Sudoku</span><span class="o">.</span><span class="n">parse</span> <span class="s2">&quot;0,0,1; 0,3,4; 3,1,1; 2,2,3&quot;</span>
+<span class="n">s</span><span class="o">.</span><span class="k">solve</span><span class="p">();</span> <span class="n">s</span><span class="o">.</span><span class="n">display</span><span class="p">();</span> <span class="c1"># =&gt; {&lt;0,0,1&gt;,&lt;0,1,3&gt;,...}</span></pre>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-xs-9">
+    <h4>staged model finding</h4>
+    <pre id="sudoku-staged" class="ruby">
+<span class="k">def</span> <span class="nf">dec</span><span class="p">(</span><span class="n">sudoku</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="nb">Array</span><span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">sudoku</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">shuffle</span><span class="p">)</span>
+ <span class="k">return</span> <span class="kp">nil</span> <span class="k">if</span> <span class="n">order</span><span class="o">.</span><span class="n">empty?</span> <span class="c1"># all possibilities exhausted</span>
+ <span class="n">s_dec</span> <span class="o">=</span> <span class="no">Sudoku</span><span class="o">.</span><span class="n">new</span> <span class="ss">grid</span><span class="p">:</span> <span class="n">sudoku</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">delete_at</span><span class="p">(</span><span class="n">order</span><span class="o">.</span><span class="n">first</span><span class="p">)</span> <span class="c1"># delete a tuple at random position</span>
+ <span class="n">sol</span>   <span class="o">=</span> <span class="n">s_dec</span><span class="o">.</span><span class="n">clone</span><span class="o">.</span><span class="k">solve</span><span class="p">()</span> <span class="c1"># clone so that &quot;s_dec&quot; doesn&#39;t get updated if a solution is found</span>
+ <span class="p">(</span><span class="n">sol</span><span class="o">.</span><span class="n">satisfiable?</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">sol</span><span class="o">.</span><span class="n">next</span><span class="o">.</span><span class="n">satisfiable?</span><span class="p">)</span> <span class="p">?</span> <span class="n">s_dec</span> <span class="p">:</span> <span class="n">dec</span><span class="p">(</span><span class="n">sudoku</span><span class="p">,</span> <span class="n">order</span><span class="o">[</span><span class="mi">1</span><span class="o">.</span><span class="n">.</span><span class="o">-</span><span class="mi">1</span><span class="o">]</span><span class="p">)</span>
+<span class="k">end</span>
+<span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="n">sudoku</span><span class="p">)</span> <span class="p">(</span><span class="n">s1</span> <span class="o">=</span> <span class="n">dec</span><span class="p">(</span><span class="n">sudoku</span><span class="p">))</span> <span class="p">?</span> <span class="n">min</span><span class="p">(</span><span class="n">s1</span><span class="p">)</span> <span class="p">:</span> <span class="n">sudoku</span> <span class="k">end</span>
+<span class="n">s</span> <span class="o">=</span> <span class="no">Sudoku</span><span class="o">.</span><span class="n">new</span><span class="p">;</span> <span class="n">s</span><span class="o">.</span><span class="k">solve</span><span class="p">();</span> <span class="n">s</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">s</span><span class="p">);</span> <span class="nb">puts</span> <span class="s2">&quot;local minimum found: </span><span class="si">#{</span><span class="n">s</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">size</span><span class="o">}</span><span class="s2">&quot;</span></pre>
+  </div>
+  <div class="col-xs-3"></div>
+</div>
+</div>
+
+<div class="row">
+<h2 id="h2-grammar">grammar</h2>
+
+<h3 id="h3-diff">main syntactic differences between &alpha;Rby and Alloy</h3>
+<table class="table table-striped">
+<thead>
+  <tr><td>description</td><td>Alloy</td><td>&alpha;Rby</td></tr>
+</thead>
+<tbody>
+  <tr>
+    <td>equality</td>
+    <td><pre class="alloy">x = y</pre></td>
+    <td><pre class="arby">x == y</pre></td>
+  </tr>
+  <tr>
+    <td>sigs and fields</td>
+    <td><pre class="alloy"><span class="kd">sig</span> <span class="nc">S</span> <span class="o">{</span>
+  <span class="n">f</span><span class="p">:</span> <span class="k">lone</span> <span class="n">S</span> <span class="o">-&gt;</span> <span class="kt">Int</span>
+<span class="o">}</span></pre></td>
+    <td><pre class="arby"><span class="k">sig</span> <span class="n">S</span> <span class="o">[</span>
+  <span class="ss">f</span><span class="p">:</span> <span class="k">lone</span><span class="p">(</span><span class="n">S</span><span class="p">)</span> <span class="o">**</span> <span class="no">Int</span>
+<span class="o">]</span></pre></td>
+  </tr>
+  <tr>
+    <td>fun return type declaration</td>
+    <td><pre class="alloy"><span class="k">fun</span> <span class="nf">f</span><span class="o">[</span><span class="n">s</span><span class="p">:</span> <span class="n">S</span><span class="o">]</span><span class="p">:</span> <span class="k">set</span> <span class="n">S</span> <span class="o">{}</span></pre></td>
+    <td><pre class="arby"><span class="k">fun</span> <span class="n">f</span><span class="o">[</span><span class="ss">s</span><span class="p">:</span> <span class="n">S</span><span class="o">][</span><span class="k">set</span> <span class="n">S</span><span class="o">]</span> <span class="o">{}</span></pre></td>
+  </tr>
+
+  <tr>
+    <td>set comprehension</td>
+    <td><pre class="alloy"><span class="o">{</span><span class="n">s</span><span class="p">:</span> <span class="n">S</span> <span class="o">|</span> <span class="n">p1</span><span class="o">[</span><span class="n">s</span><span class="o">]}</span></pre></td>
+    <td><pre class="arby"><span class="n">S</span><span class="o">.</span><span class="n">select</span><span class="o">{|</span><span class="n">s</span><span class="o">|</span> <span class="n">p1</span><span class="o">[</span><span class="n">s</span><span class="o">]}</span></pre></td>
+  </tr>
+
+  <tr>
+    <td>quantifiers</td>
+    <td><pre class="alloy"><span class="k">all</span> <span class="n">s</span><span class="p">:</span> <span class="n">S</span> <span class="o">{</span>
+  <span class="n">p1</span><span class="o">[</span><span class="n">s</span><span class="o">]</span>
+  <span class="n">p2</span><span class="o">[</span><span class="n">s</span><span class="o">]</span>
+<span class="o">}</span></pre></td>
+    <td><pre class="arby"><span class="k">all</span><span class="p">(</span><span class="ss">s</span><span class="p">:</span> <span class="n">S</span><span class="p">)</span> <span class="o">{</span>
+  <span class="n">p1</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="ow">and</span>
+  <span class="n">p2</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="o">}</span></pre></td>
+  </tr>
+
+  <tr>
+    <td>illegal Ruby operators</td>
+    <td><pre class="alloy"><span class="n">x</span> <span class="ow">in</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">!</span><span class="ow">in</span> <span class="n">y</span> 
+<span class="n">x</span> <span class="o">!&gt;</span> <span class="n">y</span> 
+<span class="n">x</span> <span class="o">-&gt;</span> <span class="n">y</span> 
+<span class="n">x</span> <span class="o">.</span> <span class="n">y</span> 
+<span class="o">#</span><span class="n">x</span> 
+<span class="n">x</span> <span class="o">=&gt;</span> <span class="n">y</span> 
+<span class="n">x</span> <span class="o">=&gt;</span> <span class="n">y</span> <span class="k">else</span> <span class="n">z</span> 
+<span class="n">S</span> <span class="o">&lt;</span><span class="p">:</span> <span class="n">f</span><span class="p">,</span> <span class="n">f</span> <span class="o">&gt;</span><span class="p">:</span> <span class="kt">Int</span></pre></td>
+    <td><pre class="arby"><span class="n">x</span><span class="o">.</span><span class="k">in?</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">x</span><span class="o">.</span><span class="k">not_in?</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="ow">not</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">y</span>
+<span class="n">x</span> <span class="o">**</span> <span class="n">y</span>
+<span class="n">x</span><span class="o">.</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="n">x</span><span class="o">.</span><span class="n">size</span>
+<span class="n">y</span> <span class="k">if</span> <span class="n">x</span>
+<span class="k">if</span> <span class="n">x</span> <span class="k">then</span> <span class="n">y</span> <span class="k">else</span> <span class="n">z</span>
+<span class="n">S</span><span class="o">.</span><span class="n">&lt;</span> <span class="n">f</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">&gt;</span> <span class="no">Int</span></pre></td>
+  </tr>
+
+  <tr>
+    <td>operator arity mismatch</td>
+    <td><pre class="alloy"><span class="o">^</span><span class="n">x</span>
+<span class="o">*</span><span class="n">x</span></pre></td>
+    <td><pre class="arby"><span class="n">x</span><span class="o">.</span><span class="n">closure</span>
+<span class="n">x</span><span class="o">.</span><span class="n">rclosure</span></pre></td>
+  </tr>
+
+  <tr>
+    <td>fun/pred calls</td>
+    <td><pre class="alloy"><span class="n">f1</span><span class="o">[</span><span class="n">x</span><span class="o">]</span></pre></td>
+    <td><pre class="arby"><span class="n">f1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></pre></td>
+  </tr>
+
+
+</tbody>
+</table>
+
+<h3 id="h3-bnf">BNF grammar</h3>
+<pre id="bnf">
+spec      ::= "alloy" cname "do" [open*] paragraph* "end"
+open      ::= "open" cnameID
+paragraph ::= factDecl   | funDecl | cmdDecl | sigDecl 
+sigQual   ::= "abstract" | "lone"  | "one"   | "some"  | "ordered"
+sigDecl   ::= sigQual* "sig"  cname,+ ["extends" cnameID] ["[" rubyHash "]"] [block]
+factDecl  ::= "fact"         [fname] block
+funDecl   ::= "fun"           fname  "[" rubyHash "]"  "[" expr "]" block
+            | "pred"          fname ["[" rubyHash "]"]              block
+cmdDecl   ::= ("run"|"check") fname "," scope
+            | ("run"|"check") "(" scope ")" block
+expr      ::= ID | rubyInt | rubyBool | "(" expr ")"
+            | unOp expr         | unMeth "(" expr ")"
+            | expr binOp expr   | expr "[" expr "]"    | expr "if" expr
+            | expr "." "(" expr ")"                   // relational join
+            | expr "." (binMeth | ID) "(" expr,* ")"  // function/predicate call
+            | "if" expr "then" expr ["else" expr] "end"
+            | quant "(" rubyHash ")" block
+quant     ::= "all" | "no" | "some" | "lone" | "one" | "sum" | "let" | "select"
+binOp     ::= "||" | "or" | "&&" | "and" | "**" | "&" | "+" | "-" | "*" | "/" | "%" 
+            | "<<" | ">>" | "==" | "<=>" | "!=" | "<" | ">" | "<=" | ">="
+binMeth   ::= "closure" | "rclosure" | "size" | "in?" | "shr" | "<" | ">" | "*" | "^"
+unOp      ::= "!" | "~" | "not" 
+unMeth    ::= "no" | "some" | "lone" | "one" | "set" | "seq"
+block     ::= "{" stmt* "}" | "do" stmt* "end"
+stmt      ::= expr | rubyStmt
+scope     ::= rubyInt "," rubyHash  // global scope, individual sig scopes
+ID        ::= cnameID | fnameID
+cname     ::= cnameID | '"'cnameID'"' | "'"cnameID"'" | ":"cnameID
+fname     ::= fnameID | '"'fnameID'"' | "'"fnameID"'" | ":"fnameID
+cnameID   ::= ___constant identifier in Ruby (starts with upper case)___
+fnameID   ::= ___function identifier in Ruby (starts with lower case)___
+</pre>
+</div>
+
+<br><br><br><br>
+<hr>
+Copyright &copy; 2014 <a href="http://people.csail.mit.edu/aleks">Aleksandar Milicevic</a>
+
+
+</div>
+</body>
+
+<script type="text/javascript">
+  $("#bnf").get(0).innerHTML = $("#bnf").text()
+     .replace(/"([^"]*)"/g, '<span class="bnfterm">"$1"</span>')
+     .replace(/^([\w\s]*)(::=)/mg, '<span class="bnflhs">$1</span>$2')
+     .replace(/::=/g, '<span class="bnfrule">::=</span>')
+     .replace(/(\/\/.*)$/mg, '<span class="bnfcmt">$1</span>')
+     .replace(/___([^_]*)___/g, '<span class="bnfcmt">$1</span>')
+     .replace(/ \| /g, ' <span class="bnfpipe">|</span> ')
+</script>
+</html>
+

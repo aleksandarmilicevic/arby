@@ -1,0 +1,20 @@
+alloy :GraphModel do
+ sig Node [val: (lone Int)]
+ sig Edge [src, dst: (one Node)] {src != dst}
+ sig Graph[nodes:(set Node), edges:(set Edge)]
+
+ pred hampath[g: Graph, path: (seq Node)] {
+  path[Int] == g.nodes and
+  path.size == g.nodes.size and
+  all(i: 0...path.size-1) | 
+   some(e: g.edges) { 
+    e.src == path[i] && e.dst == path[i+1] }
+ }
+ assertion reach {
+  all(g: Graph, path: (seq Node)) |
+   if hampath(g, path)
+    g.nodes.in? path[0].*((~src).dst)
+   end }
+ run :hampath, 5, Graph=>exactly(1), Node=>3
+ check :reach, 5, Graph=>exactly(1), Node=>3
+end
