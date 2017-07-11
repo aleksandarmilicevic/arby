@@ -1,4 +1,4 @@
 aRby
 ==========
 
-Alloy DSL embedded in Ruby
+Alloy DSL embedded in Ruby.
